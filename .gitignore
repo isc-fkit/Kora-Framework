@@ -1,0 +1,28 @@
+# ===== Bảo mật =====
+**/.env.local
+tools/jira-to-obsidian/.env.local
+
+# ===== KHÔNG public nội dung nghiệp vụ (chỉ host trang giới thiệu) =====
+# Bỏ comment các dòng dưới nếu muốn GIỮ KB ở local, chỉ đẩy landing page + source code:
+docs/01-domain/
+docs/02-product/
+docs/03-features/
+docs/04-design/
+docs/05-architecture/
+docs/06-decisions/
+docs/08-glossary/
+inbox/
+*_Brain/
+Project_Name_Brain/
+.kb/index.json
+.kb/relation-graph.json
+.kb/source-registry.json
+.kb/health-report.md
+.kb/lessons.md
+.kb/changelog.md
+
+# ===== Rác hệ thống =====
+.DS_Store
+__pycache__/
+*.pyc
+.venv/

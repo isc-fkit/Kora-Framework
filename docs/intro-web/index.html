@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>FPT ISC — Adaptive Knowledge Base</title>
+<style>
+  :root{
+    --ink:#eaf4ff; --mut:#9fb4d6;
+    --blue:#1e6fc0; --orange:#f47b20; --green:#1fa84a; --teal:#2dd4bf; --vio:#9b6bff;
+    --line:rgba(255,255,255,.1); --card:rgba(10,28,54,.55);
+    --deep:#02101f;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html{scroll-behavior:smooth}
+  body{color:var(--ink);font-family:"Segoe UI",system-ui,-apple-system,sans-serif;line-height:1.6;overflow-x:hidden;
+    background:linear-gradient(180deg,#0a3a6b 0%,#073258 22%,#04223f 48%,#031a30 72%,#02101f 100%) fixed}
+  #bg{position:fixed;inset:0;z-index:0;touch-action:pan-y;cursor:grab}
+  #bg:active{cursor:grabbing}
+  .wrap{position:relative;z-index:2}
+  /* caustic light overlay */
+  .caustics{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.5;mix-blend-mode:screen;
+    background:
+      radial-gradient(60vw 40vh at 70% 0%,rgba(90,200,255,.35),transparent 60%),
+      radial-gradient(50vw 50vh at 20% 10%,rgba(40,120,200,.3),transparent 60%);
+    animation:drift 14s ease-in-out infinite alternate}
+  @keyframes drift{100%{transform:translateY(20px) scale(1.05)}}
+
+  /* ---------- LOGO ---------- */
+  .fpt{display:inline-flex;align-items:center;gap:.5em;font-size:22px}
+  .fpt .marks{display:flex;gap:.16em}
+  .fpt .pl{position:relative;width:.96em;height:1.34em;border-radius:38% 14% 38% 14% / 26% 20% 26% 20%;
+    transform:skewX(-12deg);overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.45);opacity:0;
+    animation:drop .6s cubic-bezier(.2,.8,.2,1) forwards}
+  .fpt .pl .face{position:absolute;inset:0;display:grid;place-items:center;will-change:transform}
+  .fpt.shine .pl .face{animation:wave 3.2s ease-in-out infinite}
+  .fpt .pl .face b{display:block;font-weight:900;color:#fff;font-size:.9em;line-height:1;transform:skewX(12deg);text-shadow:0 1px 2px rgba(0,0,0,.3)}
+  .fpt .b{background:linear-gradient(160deg,#2a86e0,#1259a6);animation-delay:.05s}
+  .fpt .o{background:linear-gradient(160deg,#ff9038,#e0660f);animation-delay:.18s}
+  .fpt .g{background:linear-gradient(160deg,#2bc75c,#138a3a);animation-delay:.31s}
+  .fpt .o .face{animation-delay:.4s}.fpt .g .face{animation-delay:.8s}
+  .fpt .isc{font-weight:800;letter-spacing:.5px;font-size:.98em;opacity:0;
+    background:linear-gradient(100deg,#7db4ff,#fff 25%,#7db4ff 50%);background-size:200% 100%;
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    animation:fadeR .6s ease .5s forwards, iscFlow 3.4s linear .9s infinite}
+  @keyframes drop{0%{opacity:0;transform:skewX(-12deg) translateY(-16px) scale(.7)}100%{opacity:1;transform:skewX(-12deg) translateY(0) scale(1)}}
+  @keyframes fadeR{0%{opacity:0;transform:translateX(-10px)}100%{opacity:1;transform:none}}
+  @keyframes iscFlow{0%{background-position:140% 0}100%{background-position:-60% 0}}
+  @keyframes wave{0%,100%{transform:translateY(0) rotate(0) scaleY(1)}25%{transform:translateY(-1px) rotate(-2.2deg) scaleY(1.03)}50%{transform:translateY(.5px) rotate(0)}75%{transform:translateY(1px) rotate(2.2deg) scaleY(.97)}}
+
+  /* ---------- CLOTHESLINE NAV (polaroid) ---------- */
+  nav{position:fixed;top:0;left:0;right:0;z-index:30;padding-top:8px}
+  .rope{position:relative;height:74px}
+  .rope::before{content:"";position:absolute;top:16px;left:-2%;right:-2%;height:2px;
+    background:linear-gradient(90deg,transparent,rgba(220,235,255,.5),rgba(220,235,255,.5),transparent);
+    transform:rotate(-.6deg)}
+  .clips{display:flex;justify-content:center;gap:clamp(4px,1.6vw,20px);padding:0 2vw}
+  .poly{position:relative;margin-top:10px;background:#f6f7f2;color:#13243a;border-radius:3px;
+    padding:7px 6px 16px;width:clamp(58px,11vw,86px);text-align:center;text-decoration:none;
+    box-shadow:0 8px 18px rgba(0,0,0,.4);transform-origin:50% -8px;
+    animation:sway 4s ease-in-out infinite}
+  .poly:nth-child(2n){animation-duration:4.6s}.poly:nth-child(3n){animation-duration:5.2s}
+  .poly::before{content:"";position:absolute;top:-9px;left:50%;transform:translateX(-50%);
+    width:7px;height:12px;background:#d8a13a;border-radius:2px;box-shadow:0 1px 2px rgba(0,0,0,.4)}
+  .poly .pic{height:clamp(30px,5vw,40px);border-radius:2px;display:grid;place-items:center;font-size:18px;
+    background:linear-gradient(160deg,#16456f,#0b2845)}
+  .poly .cap{font-size:10.5px;font-weight:700;margin-top:5px;letter-spacing:.2px}
+  .poly:hover{transform:rotate(0) translateY(3px) scale(1.06);z-index:2}
+  @keyframes sway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+
+  .burger{display:none;position:fixed;top:14px;right:16px;z-index:40;flex-direction:column;gap:5px;background:rgba(3,20,40,.7);border:1px solid var(--line);border-radius:10px;padding:9px;cursor:pointer}
+  .burger span{width:22px;height:2px;background:var(--ink);border-radius:2px;transition:.3s}
+  .burger.x span:nth-child(1){transform:translateY(7px) rotate(45deg)}.burger.x span:nth-child(2){opacity:0}.burger.x span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
+  /* ---------- HERO ---------- */
+  header{min-height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:130px 6vw 80px}
+  .fpt.hero-logo{font-size:clamp(28px,7vw,52px);margin-bottom:22px;filter:drop-shadow(0 10px 30px rgba(0,0,0,.5))}
+  .pill{display:inline-flex;gap:8px;align-items:center;font-size:11.5px;color:var(--mut);border:1px solid var(--line);border-radius:999px;padding:6px 14px;margin-bottom:20px;background:rgba(3,20,40,.45);backdrop-filter:blur(6px)}
+  .pill .dot{width:7px;height:7px;border-radius:50%;background:var(--teal);box-shadow:0 0 12px var(--teal);animation:pulse 2s infinite}
+  @keyframes pulse{50%{opacity:.35}}
+  h1{font-size:clamp(32px,7.5vw,72px);line-height:1.04;font-weight:850;letter-spacing:-1.4px;max-width:15ch;text-shadow:0 4px 30px rgba(0,0,0,.5)}
+  h1 .grad{background:linear-gradient(120deg,#7fd0ff,var(--vio) 55%,var(--teal));-webkit-background-clip:text;background-clip:text;color:transparent}
+  header .sub{margin-top:20px;max-width:58ch;color:#cfe0f5;font-size:clamp(14px,2.2vw,18px);text-shadow:0 2px 16px rgba(0,0,0,.6)}
+  .cta{margin-top:34px;display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+  .btn{font-size:14px;font-weight:600;padding:13px 22px;border-radius:12px;text-decoration:none;border:1px solid var(--line);transition:.25s;cursor:pointer;color:var(--ink)}
+  .btn.primary{background:linear-gradient(120deg,var(--blue),var(--vio));border:none;box-shadow:0 8px 30px rgba(30,111,192,.45)}
+  .btn.primary:hover{transform:translateY(-2px)}
+  .btn.ghost{background:rgba(3,20,40,.4);backdrop-filter:blur(6px)}.btn.ghost:hover{background:rgba(3,20,40,.7)}
+  .scroll-hint{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);color:var(--mut);font-size:10.5px;letter-spacing:2px;animation:bob 2s infinite}
+  @keyframes bob{50%{transform:translate(-50%,8px)}}
+
+  /* ---------- SECTIONS ---------- */
+  section{max-width:1060px;margin:0 auto;padding:13vh 6vw;min-height:84svh;display:flex;flex-direction:column;justify-content:center}
+  .eyebrow{font-size:11.5px;letter-spacing:3px;text-transform:uppercase;font-weight:700;margin-bottom:12px}
+  h2{font-size:clamp(24px,5vw,40px);font-weight:800;letter-spacing:-.5px;margin-bottom:14px;text-shadow:0 2px 20px rgba(0,0,0,.5)}
+  .lead{color:#cfe0f5;font-size:clamp(14px,2.2vw,17px);max-width:68ch}
+  .glass{background:var(--card);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:18px}
+  .reveal{opacity:0;transform:translateY(40px);transition:.9s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+  .s1{transition-delay:.08s}.s2{transition-delay:.16s}.s3{transition-delay:.24s}
+
+  .loop{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:34px}
+  .phase{position:relative;padding:24px 20px;overflow:hidden;transition:.3s}
+  .phase:hover{transform:translateY(-6px)}
+  .phase .num{font-size:13px;font-weight:800;color:#02101f;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;margin-bottom:14px}
+  .phase h3{font-size:18px;margin-bottom:7px}.phase p{font-size:13.5px;color:#cfe0f5}
+  .phase .glow{position:absolute;width:150px;height:150px;border-radius:50%;filter:blur(55px);opacity:.45;top:-40px;right:-40px}
+  .pA .num{background:var(--blue)}.pA .glow{background:var(--blue)}
+  .pB .num{background:var(--orange)}.pB .glow{background:var(--orange)}
+  .pC .num{background:var(--green)}.pC .glow{background:var(--green)}
+
+  .flow{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:30px}
+  .node{flex:1;min-width:150px;padding:18px;text-align:center}
+  .node .ic{font-size:26px;margin-bottom:8px}.node h4{font-size:15px;margin-bottom:5px}.node p{font-size:12.5px;color:#cfe0f5}
+  .arrow{color:var(--teal);font-size:22px;font-weight:700}
+
+  .steps{margin-top:32px;position:relative}
+  .steps::before{content:"";position:absolute;left:23px;top:8px;bottom:8px;width:2px;background:linear-gradient(var(--blue),var(--orange),var(--green))}
+  .step{display:flex;gap:18px;margin-bottom:20px}
+  .step .ix{flex:0 0 48px;height:48px;border-radius:14px;background:rgba(3,20,40,.7);border:1px solid var(--line);display:grid;place-items:center;font-weight:800;color:#7fd0ff;z-index:1}
+  .step .body{padding:16px 18px;flex:1}.step .body h4{font-size:16px;margin-bottom:5px}.step .body p{font-size:13.5px;color:#cfe0f5}
+  code{background:rgba(127,208,255,.16);color:#cfe9ff;padding:2px 8px;border-radius:6px;font-size:.92em;font-family:ui-monospace,monospace}
+
+  .cmds{margin-top:30px;display:grid;gap:9px}
+  .cmd{display:grid;grid-template-columns:minmax(140px,250px) 1fr;gap:16px;align-items:center;padding:13px 16px;transition:.2s}
+  .cmd:hover{transform:translateX(4px);border-color:rgba(127,208,255,.5)}
+  .cmd .k{font-family:ui-monospace,monospace;font-size:13px;color:#cfe9ff;font-weight:600}.cmd .d{font-size:13px;color:#cfe0f5}
+
+  .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-top:32px}
+  .ben{padding:22px;transition:.3s}.ben:hover{transform:translateY(-5px)}
+  .ben .ico{font-size:23px;margin-bottom:10px}.ben h4{font-size:15.5px;margin-bottom:6px}.ben p{font-size:13px;color:#cfe0f5}
+
+  .note{margin-top:30px;border:1px solid rgba(244,123,32,.4);background:rgba(244,123,32,.1);border-radius:14px;padding:18px 20px}
+  .note b{color:var(--orange)}.note p{font-size:13.5px;color:#f0ddc4;margin-top:4px}
+
+  footer{text-align:center;padding:50px 6vw;color:var(--mut);font-size:13px;border-top:1px solid var(--line);background:rgba(2,12,24,.5)}
+  .drag-hint{position:fixed;right:16px;bottom:14px;z-index:25;font-size:11px;color:var(--mut);border:1px solid var(--line);background:rgba(3,20,40,.6);backdrop-filter:blur(8px);padding:7px 12px;border-radius:999px;pointer-events:none;animation:pulse 2.6s infinite}
+
+  @media(max-width:760px){
+    .loop{grid-template-columns:1fr}.cmd{grid-template-columns:1fr;gap:3px}.flow{flex-direction:column}.arrow{transform:rotate(90deg)}
+    .burger{display:flex}
+    .clips{overflow-x:auto;justify-content:flex-start;-webkit-overflow-scrolling:touch}
+    .rope::before{display:none}
+    section{min-height:auto;padding:10vh 7vw}
+  }
+  @media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div class="caustics"></div>
+<div class="drag-hint">✋ Kéo để xoay cảnh 3D</div>
+
+<nav>
+  <div class="rope"><div class="clips" id="clips">
+    <a class="poly" href="#hero"><div class="pic">🏠</div><div class="cap">Trang chủ</div></a>
+    <a class="poly" href="#how"><div class="pic">⚙️</div><div class="cap">Nguyên lý</div></a>
+    <a class="poly" href="#learn"><div class="pic">🧠</div><div class="cap">Học hỏi</div></a>
+    <a class="poly" href="#evolve"><div class="pic">🌱</div><div class="cap">Tiến hóa</div></a>
+    <a class="poly" href="#cmds"><div class="pic">⌨️</div><div class="cap">Câu lệnh</div></a>
+    <a class="poly" href="#benefit"><div class="pic">⭐</div><div class="cap">Lợi ích</div></a>
+  </div></div>
+</nav>
+<button class="burger" id="burger"><span></span><span></span><span></span></button>
+
+<div class="wrap">
+<header id="hero">
+  <span class="fpt shine hero-logo"><span class="marks"><span class="pl b"><span class="face"><b>F</b></span></span><span class="pl o"><span class="face"><b>P</b></span></span><span class="pl g"><span class="face"><b>T</b></span></span></span><span class="isc">ISC</span></span>
+  <span class="pill"><span class="dot"></span> Adaptive Knowledge Base · Product Factory</span>
+  <h1>Bộ não thứ hai <span class="grad">tự lớn lên</span> cùng dự án</h1>
+  <p class="sub">Gõ <b>"@khởi tạo dự án"</b> — hệ thống tự nạp tài liệu từ Jira/Atlassian và file, dựng cây tri thức có liên kết, học từ mỗi phiên làm việc. Bạn chỉ việc xác nhận.</p>
+  <div class="cta">
+    <a href="#how" class="btn primary">Xem nguyên lý →</a>
+    <a href="#evolve" class="btn ghost">Cơ chế tiến hóa</a>
+  </div>
+  <div class="scroll-hint">CUỘN ĐỂ LẶN SÂU ↓</div>
+</header>
+
+<section id="how" data-scene="how">
+  <div class="reveal"><div class="eyebrow" style="color:#7fd0ff">01 · Nguyên lý làm việc</div>
+  <h2>Một vòng lặp: Nạp → Xử lý → Tự cải tiến ↻</h2>
+  <p class="lead">Bộ khung "<b>hỏi-trước-ghi</b>" cho Business Analyst. Mọi đề bài đều đọc tri thức từ "brain" trước, xử lý có trích nguồn, kết thúc bằng việc hỏi bạn có nạp tri thức mới không — không gì vào kho khi chưa duyệt.</p></div>
+  <div class="loop">
+    <div class="phase glass pA reveal s1"><div class="glow"></div><div class="num">A</div><h3>Nạp tri thức</h3><p>Đọc <code>.kb/index.json</code> + <code>docs/</code> liên quan và vault. Chỉ load đúng phần cần — tránh suy diễn lan man, tiết kiệm token.</p></div>
+    <div class="phase glass pB reveal s2"><div class="glow"></div><div class="num">B</div><h3>Xử lý đề bài</h3><p><b>feature-analysis</b> / <b>doc-review</b>: phát hiện xung đột với tri thức hiện có, luôn trích nguồn theo đường dẫn file.</p></div>
+    <div class="phase glass pC reveal s3"><div class="glow"></div><div class="num">C</div><h3>Tự cải tiến ↻</h3><p>Menu <b>[A] ghi tất cả · [B] ghi mục chọn · [C] không ghi · [D] tạo prompt Design</b>. Duyệt rồi mới vào kho + changelog.</p></div>
+  </div>
+</section>
+
+<section id="learn" data-scene="learn">
+  <div class="reveal"><div class="eyebrow" style="color:var(--vio)">02 · Cơ chế học hỏi</div>
+  <h2>Học từ mỗi phiên — và từ cả sai lầm</h2>
+  <p class="lead">Khác với kho tài liệu tĩnh, hệ thống có <b>vòng phản hồi (feedback loop)</b>: mỗi lần một tính năng/thiết kế bị chỉnh sửa hay từ chối, bài học được ghi lại để lần sau không lặp lại.</p></div>
+  <div class="flow">
+    <div class="node glass reveal s1"><div class="ic">📥</div><h4>Tiếp nhận</h4><p>Yêu cầu mới / phản hồi / chỉnh sửa từ bạn</p></div>
+    <div class="arrow reveal s1">→</div>
+    <div class="node glass reveal s2"><div class="ic">🧩</div><h4>Rút bài học</h4><p>"Lần đầu sai gì → rút ra điều gì" ghi vào <code>.kb/lessons.md</code></p></div>
+    <div class="arrow reveal s2">→</div>
+    <div class="node glass reveal s3"><div class="ic">🧠</div><h4>Áp dụng lần sau</h4><p>Phiên kế tiếp đọc lessons trước khi phân tích → ít sai dần</p></div>
+  </div>
+  <div class="note reveal" style="border-color:rgba(155,107,255,.4);background:rgba(155,107,255,.1)">
+    <b style="color:var(--vio)">🔒 Hỏi-trước-ghi</b>
+    <p style="color:#ddd2f0">Con người luôn quyết định. Không tri thức nào vào kho khi chưa duyệt; mọi thay đổi để lại dấu vết trong <code>changelog</code>, truy ngược được nguồn gốc.</p>
+  </div>
+</section>
+
+<section id="evolve" data-scene="evolve">
+  <div class="reveal"><div class="eyebrow" style="color:var(--green)">03 · Nguyên lý tiến hóa</div>
+  <h2>Tự tiến hóa, không chỉ tích lũy 🌱</h2>
+  <p class="lead">Cây tri thức tự lớn và tự "khỏe": sau mỗi lần ghi, hệ thống dựng lại bản đồ tri thức bằng máy (không tốn token) và tự soi sức khỏe của chính nó.</p></div>
+  <div class="steps">
+    <div class="step reveal s1"><div class="ix">↻</div><div class="body glass"><h4>Tự dựng lại chỉ mục</h4><p><code>kb-indexer</code> quét <code>docs/</code> + vault → cập nhật <code>index.json</code> + <code>relation-graph.json</code> sau mỗi thay đổi. Index không bao giờ lệch thực tế.</p></div></div>
+    <div class="step reveal s2"><div class="ix">🩺</div><div class="body glass"><h4>Tự soi sức khỏe</h4><p><code>health-report.md</code> chỉ ra: dead-link (tham chiếu hỏng), feature thiếu Business Rule/Acceptance Criteria, tài liệu lỗi thời.</p></div></div>
+    <div class="step reveal s3"><div class="ix">🧹</div><div class="body glass"><h4>Tự dọn dẹp & gom cụm</h4><p>Lệnh <code>tiến hóa KB</code>: hợp nhất tri thức trùng, phát hiện mâu thuẫn tích lũy, bù lỗ hổng, gom feature liên quan thành Epic — tất cả qua duyệt.</p></div></div>
+  </div>
+</section>
+
+<section id="cmds" data-scene="cmds">
+  <div class="reveal"><div class="eyebrow" style="color:var(--orange)">04 · Câu lệnh</div>
+  <h2>Những lệnh cần biết</h2>
+  <p class="lead">Gõ tự nhiên bằng tiếng Việt. Claude luôn hỏi xác nhận trước khi chạy.</p></div>
+  <div class="cmds">
+    <div class="cmd glass reveal"><span class="k">@khởi tạo dự án</span><span class="d">Setup toàn bộ hệ thống lần đầu</span></div>
+    <div class="cmd glass reveal"><span class="k">quét jira</span><span class="d">Quét toàn bộ project Jira/Atlassian → vault (mỗi project một thư mục)</span></div>
+    <div class="cmd glass reveal"><span class="k">quét task FA-102</span><span class="d">Quét riêng vài issue/epic, merge vào vault</span></div>
+    <div class="cmd glass reveal"><span class="k">đặt lịch quét jira</span><span class="d">Tự động đồng bộ issue mới định kỳ (incremental --since)</span></div>
+    <div class="cmd glass reveal"><span class="k">tiến hóa KB</span><span class="d">Dựng lại chỉ mục, báo sức khỏe, dọn dead-link, học từ lỗi</span></div>
+    <div class="cmd glass reveal"><span class="k">thiết kế &lt;tính năng&gt;</span><span class="d">Sinh design brief → dựng prototype liên kết trên Claude Design</span></div>
+    <div class="cmd glass reveal"><span class="k">xuất tài liệu</span><span class="d">Tạo URD/SRS dạng DOCX/PDF cho người đọc</span></div>
+    <div class="cmd glass reveal"><span class="k">đổi domain / sửa rule</span><span class="d">Đổi rule phân tích bất cứ lúc nào</span></div>
+  </div>
+  <div class="note reveal"><b>⚠ Lưu ý lịch tự đồng bộ</b><p>Scheduled task chỉ <b>tự quét được khi Jira là Cloud/Atlassian hoặc public</b>. Với Jira nội bộ/VPN, lịch chỉ <b>nhắc bạn</b> chạy file <code>quet-jira.command</code> / <code>.bat</code>.</p></div>
+</section>
+
+<section id="benefit" data-scene="benefit">
+  <div class="reveal"><div class="eyebrow" style="color:var(--teal)">05 · Lợi ích</div><h2>Vì sao đáng dùng</h2></div>
+  <div class="grid2">
+    <div class="ben glass reveal"><div class="ico">🚀</div><h4>Bàn giao tức thì</h4><p>Người mới tự đọc hiểu bối cảnh, không phải đi hỏi từng người hay phụ thuộc trí nhớ của ai.</p></div>
+    <div class="ben glass reveal"><div class="ico">🧭</div><h4>Mỗi vai trò tự nắm dự án</h4><p>Dev tra ngữ cảnh không cần hỏi BA; BA sửa rule được tự rà ảnh hưởng; PM/QA nắm bức tranh chung.</p></div>
+    <div class="ben glass reveal"><div class="ico">⚡</div><h4>Phát hiện xung đột sớm</h4><p>Thêm tính năng / đổi rule → hệ thống chỉ ra ngay va chạm với rule, màn hình, feature liên quan.</p></div>
+    <div class="ben glass reveal"><div class="ico">🎯</div><h4>Không lạc lối</h4><p>Chỉ nạp đúng phần tri thức liên quan — tiết kiệm token, tránh suy diễn lan man.</p></div>
+    <div class="ben glass reveal"><div class="ico">🔒</div><h4>Con người quyết định</h4><p>Không tri thức nào vào kho khi chưa duyệt. Mọi thay đổi để lại dấu vết changelog.</p></div>
+    <div class="ben glass reveal"><div class="ico">♻️</div><h4>Tự hoàn thiện</h4><p>Sau mỗi phiên tự rút ra tri thức mới, học từ sai lầm — ngày một đáng tin hơn.</p></div>
+  </div>
+</section>
+
+<footer>
+  <span class="fpt"><span class="marks"><span class="pl b"><span class="face"><b>F</b></span></span><span class="pl o"><span class="face"><b>P</b></span></span><span class="pl g"><span class="face"><b>T</b></span></span></span><span class="isc">ISC</span></span><br><br>
+  Adaptive Knowledge Base — bản đang xây dựng & hoàn thiện, sẵn sàng chia sẻ và demo.<br>
+  Mở trong Cowork → gõ <b>@khởi tạo dự án</b> để bắt đầu.
+</footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+const canvas=document.getElementById('bg');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);
+const scene=new THREE.Scene();
+scene.fog=new THREE.FogExp2(0x04223f,0.035);
+const camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,0.1,200);
+camera.position.set(0,1.5,16);
+
+const COL={blue:0x1e6fc0,orange:0xf47b20,green:0x1fa84a,teal:0x2dd4bf,vio:0x9b6bff,paper:0xf4f1e4};
+scene.add(new THREE.AmbientLight(0x5577aa,.9));
+const sun=new THREE.DirectionalLight(0x9fd8ff,1.1);sun.position.set(4,12,6);scene.add(sun);
+const fill=new THREE.PointLight(COL.teal,.8,60);fill.position.set(-8,-2,8);scene.add(fill);
+
+const world=new THREE.Group();scene.add(world);
+
+// ----- light rays (god rays) -----
+const rays=new THREE.Group();world.add(rays);
+const rayMat=new THREE.MeshBasicMaterial({color:0x8fd4ff,transparent:true,opacity:.05,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending});
+for(let i=0;i<7;i++){const g=new THREE.PlaneGeometry(1.2,26);const m=new THREE.Mesh(g,rayMat);
+  m.position.set(-9+i*3+Math.random()*2,6,-6-Math.random()*4);m.rotation.z=.18+Math.random()*.1;rays.add(m);}
+
+// ----- floating ISLAND with growing TREE (evolution) -----
+const island=new THREE.Group();island.position.set(4.5,-1,0);world.add(island);
+const land=new THREE.Mesh(new THREE.CylinderGeometry(3.4,1.2,1.6,24,1),
+  new THREE.MeshStandardMaterial({color:0x2c6b2f,roughness:.9,flatShading:true}));
+island.add(land);
+const soil=new THREE.Mesh(new THREE.CylinderGeometry(3.45,2.2,.9,24),
+  new THREE.MeshStandardMaterial({color:0x5b3a1e,roughness:1,flatShading:true}));
+soil.position.y=-1.1;island.add(soil);
+// trunk
+const tree=new THREE.Group();tree.position.y=.8;island.add(tree);
+const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.22,.42,2.6,8),
+  new THREE.MeshStandardMaterial({color:0x6b4423,roughness:1,flatShading:true}));
+trunk.position.y=1.3;tree.add(trunk);
+// foliage clusters (grow on scroll into "evolve")
+const folMat=new THREE.MeshStandardMaterial({color:0x2fae53,roughness:.7,flatShading:true,emissive:0x0a3a18,emissiveIntensity:.4});
+const foliage=[];const fpos=[[0,3.1,0,1.5],[1.1,2.6,.4,1.0],[-1.1,2.7,-.3,1.0],[.4,3.7,-.6,.85],[-.5,3.5,.6,.85],[0,2.4,1.0,.8]];
+fpos.forEach(p=>{const m=new THREE.Mesh(new THREE.IcosahedronGeometry(p[3],0),folMat);
+  m.position.set(p[0],p[1],p[2]);m.userData.base=p[3];m.scale.setScalar(.01);tree.add(m);foliage.push(m);});
+
+// ----- floating KNOWLEDGE PAPERS drifting toward the tree -----
+function paperTex(){const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d');
+  x.fillStyle='#f4f1e4';x.fillRect(0,0,64,64);x.strokeStyle='#9fb0c0';x.lineWidth=2;
+  for(let i=14;i<58;i+=9){x.beginPath();x.moveTo(10,i);x.lineTo(54,i);x.stroke();}
+  return new THREE.CanvasTexture(c);}
+const pTex=paperTex();
+const papers=[];const pGeo=new THREE.PlaneGeometry(.5,.64);
+const pMat=new THREE.MeshStandardMaterial({map:pTex,side:THREE.DoubleSide,roughness:.8});
+const NP=reduce?14:34;
+for(let i=0;i<NP;i++){const m=new THREE.Mesh(pGeo,pMat);
+  m.userData={a:Math.random()*6.28,r:5+Math.random()*7,y:-3+Math.random()*9,sp:.05+Math.random()*.12,
+    rx:Math.random()*6.28,ry:Math.random()*6.28,rs:.3+Math.random()*.6};
+  world.add(m);papers.push(m);}
+
+// ----- bubbles rising -----
+const bubGeo=new THREE.BufferGeometry();const bp=[];const BN=reduce?60:160;
+for(let i=0;i<BN;i++)bp.push((Math.random()-.5)*40,(Math.random()-.5)*30,(Math.random()-.5)*30);
+bubGeo.setAttribute('position',new THREE.Float32BufferAttribute(bp,3));
+const bubbles=new THREE.Points(bubGeo,new THREE.PointsMaterial({color:0xaee3ff,size:.12,transparent:true,opacity:.5,depthWrite:false}));
+world.add(bubbles);
+
+// ----- knowledge orbit nodes (FPT colors) around tree -----
+const nodes=[],cset=[COL.blue,COL.orange,COL.green,COL.teal];
+const ng=new THREE.SphereGeometry(.1,10,10);
+for(let i=0;i<(reduce?14:30);i++){const m=new THREE.Mesh(ng,new THREE.MeshBasicMaterial({color:cset[i%4]}));
+  m.userData={a:Math.random()*6.28,r:3.2+Math.random()*2.5,t:Math.acos(2*Math.random()-1),sp:.2+Math.random()*.4,ph:Math.random()*6.28};
+  island.add(m);nodes.push(m);}
+
+// scene focus per section
+let growth=0,tgtGrowth=0,tgtCamX=0,tgtCamZ=16;
+const sceneCfg={how:{g:.35,cx:-2,cz:15},learn:{g:.6,cx:-1,cz:15.5},evolve:{g:1,cx:1,cz:13},cmds:{g:1,cx:0,cz:16},benefit:{g:1,cx:-1,cz:16},how0:{}};
+function focus(name){const c=sceneCfg[name];if(!c)return;tgtGrowth=c.g;tgtCamX=c.cx;tgtCamZ=c.cz;}
+
+// drag rotate
+let dragging=false,lx=0,vx=0,manual=0;
+canvas.addEventListener('mousedown',e=>{dragging=true;lx=e.clientX;vx=0;});
+addEventListener('mousemove',e=>{if(dragging){vx=(e.clientX-lx)*.005;manual+=vx;lx=e.clientX;}});
+addEventListener('mouseup',()=>dragging=false);
+canvas.addEventListener('touchstart',e=>{dragging=true;lx=e.touches[0].clientX;},{passive:true});
+canvas.addEventListener('touchmove',e=>{if(dragging){vx=(e.touches[0].clientX-lx)*.005;manual+=vx;lx=e.touches[0].clientX;}},{passive:true});
+addEventListener('touchend',()=>dragging=false);
+
+const clock=new THREE.Clock();
+function animate(){
+  const t=clock.getElapsedTime();
+  // papers drift + flutter, slowly spiral toward island
+  papers.forEach(p=>{const u=p.userData;u.a+=u.sp*.01;u.r-=0.004;if(u.r<2.5){u.r=12;u.y=-3+Math.random()*9;}
+    p.position.set(island.position.x+Math.cos(u.a)*u.r,u.y+Math.sin(t*.4+u.a)*.6,Math.sin(u.a)*u.r);
+    p.rotation.x=u.rx+t*u.rs*.3;p.rotation.y=u.ry+t*u.rs;});
+  // bubbles rise
+  const arr=bubGeo.attributes.position.array;
+  for(let i=1;i<arr.length;i+=3){arr[i]+=0.02;if(arr[i]>16)arr[i]=-16;}
+  bubGeo.attributes.position.needsUpdate=true;
+  // nodes orbit island
+  nodes.forEach(n=>{const u=n.userData,a=u.a+t*u.sp;
+    n.position.set(u.r*Math.sin(u.t)*Math.cos(a),.8+u.r*Math.cos(u.t)*.4+Math.sin(t+u.ph)*.2,u.r*Math.sin(u.t)*Math.sin(a));});
+  // tree growth (evolution)
+  growth+=(tgtGrowth-growth)*.04;
+  foliage.forEach((f,i)=>{const g=Math.max(.01,Math.min(1,growth*1.2-i*.06));f.scale.setScalar(f.userData.base*g*(1+Math.sin(t*1.5+i)*.04));});
+  trunk.scale.y=.4+growth*.6;trunk.position.y=1.3*trunk.scale.y;
+  island.rotation.y=t*.06;
+  rays.children.forEach((r,i)=>{r.material.opacity=.04+Math.sin(t*.6+i)*.02;});
+  // camera + manual rotate
+  world.rotation.y+=(manual-world.rotation.y)*.06;
+  if(!dragging){vx*=.92;manual+=vx;}
+  camera.position.x+=((tgtCamX)-camera.position.x)*.03;
+  camera.position.z+=((tgtCamZ)-camera.position.z)*.03;
+  camera.lookAt(2,0,0);
+  renderer.render(scene,camera);
+  requestAnimationFrame(animate);
+}
+animate();
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+
+// reveal + section focus
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');}),{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+const so=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting&&e.target.dataset.scene)focus(e.target.dataset.scene);}),{threshold:.4});
+document.querySelectorAll('section[data-scene]').forEach(s=>so.observe(s));
+
+// mobile menu
+const burger=document.getElementById('burger'),clips=document.getElementById('clips');
+burger.addEventListener('click',()=>{burger.classList.toggle('x');clips.style.display=clips.style.display==='flex'?'':'flex';});
+</script>
+</body>
+</html>
