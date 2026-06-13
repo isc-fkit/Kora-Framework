@@ -240,7 +240,7 @@
   <h1>Bộ não thứ hai <span class="grad">tự lớn lên</span> cùng dự án</h1>
   <p class="sub">Gõ <b>"@khởi tạo dự án"</b> — hệ thống tự nạp tri thức từ <b>nhiều nguồn Jira (Server + Cloud)</b> và file Word/PDF (đọc hiểu cả sơ đồ sequence bằng vision), dựng cây tri thức có liên kết, học từ mỗi phiên làm việc. Bạn chỉ việc xác nhận.</p>
   <div class="cta">
-    <a href="https://github.com/luugiakhanh689/adaptive_knowledge_base/archive/refs/heads/main.zip" class="btn primary" target="_blank" rel="noopener">⬇ Tải về</a>
+    <a href="https://github.com/luugiakhanh689/adaptive_knowledge_base/archive/refs/heads/release.zip" class="btn primary" target="_blank" rel="noopener">⬇ Tải về</a>
     <a href="#how" class="btn ghost">Xem nguyên lý →</a>
     <a href="#evolve" class="btn ghost">Cơ chế tiến hóa</a>
     <a href="https://github.com/luugiakhanh689/adaptive_knowledge_base" class="btn ghost" target="_blank" rel="noopener">&lt;/&gt; Mã nguồn</a>
@@ -257,7 +257,7 @@
     <div class="ph">
       <div class="ic">🎬</div>
       <p>Chưa gắn video. Mở <code>index.html</code>, sửa dòng <code>const VIDEO</code> và điền:</p>
-      <p style="margin-top:8px"><code>drive:"link Google Drive"</code> &nbsp;·&nbsp; <code>youtube:"MÃ"</code> &nbsp;·&nbsp; <code>file:"videos/guide.mp4"</code></p>
+      <p style="margin-top:8px"><code>drive:"link Google Drive"</code> &nbsp;hoặc&nbsp; <code>youtube:"MÃ"</code></p>
     </div>
   </div>
 </section>
@@ -308,7 +308,7 @@
   <div class="cmds">
     <div class="cmd glass reveal"><span class="k">@khởi tạo dự án</span><span class="d">Setup toàn bộ hệ thống lần đầu</span></div>
     <div class="cmd glass reveal"><span class="k">quét jira</span><span class="d">Quét nhiều nguồn Jira (Server + Cloud), mỗi nguồn sync riêng → vault (mỗi project một thư mục)</span></div>
-    <div class="cmd glass reveal"><span class="k">quét task FA-102</span><span class="d">Quét riêng vài issue/epic, merge vào vault</span></div>
+    <div class="cmd glass reveal"><span class="k">quét task PROJ-102</span><span class="d">Quét riêng vài issue/epic, merge vào vault</span></div>
     <div class="cmd glass reveal"><span class="k">đặt lịch quét jira</span><span class="d">Lịch tự đồng bộ, chỉ lấy issue mới (incremental); chạy bù khi mở app</span></div>
     <div class="cmd glass reveal"><span class="k">tiến hóa KB</span><span class="d">Dựng lại chỉ mục, báo sức khỏe, dọn dead-link, học từ lỗi</span></div>
     <div class="cmd glass reveal"><span class="k">thiết kế &lt;tính năng&gt;</span><span class="d">Sinh design brief → dựng prototype liên kết trên Claude Design</span></div>
@@ -340,7 +340,7 @@
   <h2>Tải về & cập nhật</h2>
   <p class="lead">Mang cả "bộ não" về máy bạn. Cập nhật phiên bản mới mà <b>không mất tri thức đã tích lũy</b> — vault và <code>.kb</code> của bạn luôn được giữ nguyên.</p></div>
   <div class="cta" style="margin-top:30px">
-    <a href="https://github.com/luugiakhanh689/adaptive_knowledge_base/archive/refs/heads/main.zip" class="btn primary" target="_blank" rel="noopener">⬇ Tải về (.zip)</a>
+    <a href="https://github.com/luugiakhanh689/adaptive_knowledge_base/archive/refs/heads/release.zip" class="btn primary" target="_blank" rel="noopener">⬇ Tải về (.zip)</a>
     <a href="https://github.com/luugiakhanh689/adaptive_knowledge_base" class="btn ghost" target="_blank" rel="noopener">&lt;/&gt; Mã nguồn</a>
     <a href="https://github.com/luugiakhanh689/adaptive_knowledge_base/issues" class="btn ghost" target="_blank" rel="noopener">💬 Phản hồi</a>
   </div>
@@ -367,12 +367,11 @@
 
 <script>
 /* ====== CẤU HÌNH VIDEO HƯỚNG DẪN ======
-   Điền MỘT trong các cách (ưu tiên từ trên xuống):
-   - youtube: mã video YouTube (phần sau ?v=). VD youtube:"ABC123"
+   Điền MỘT trong hai:
    - drive:   link Google Drive share (dán nguyên link ".../view?usp=sharing" HOẶC chỉ file id).
               Lưu ý: file trên Drive phải để chế độ "Bất kỳ ai có đường liên kết" mới xem được.
-   - file:    đường dẫn mp4 cùng repo, VD "videos/guide.mp4" */
-const VIDEO = { youtube:"", drive:"https://drive.google.com/file/d/1swdEQ87xTjZy_q-8iXhvbZ-uuYEXmwkI/view?usp=sharing", file:"" };
+   - youtube: mã video YouTube (phần sau ?v=). VD youtube:"ABC123" */
+const VIDEO = { drive:"https://drive.google.com/file/d/1swdEQ87xTjZy_q-8iXhvbZ-uuYEXmwkI/view?usp=sharing", youtube:"" };
 (function(){
   const p=document.getElementById('player'); if(!p) return;
   if(VIDEO.youtube){
@@ -380,8 +379,6 @@ const VIDEO = { youtube:"", drive:"https://drive.google.com/file/d/1swdEQ87xTjZy
   } else if(VIDEO.drive){
     var id=(String(VIDEO.drive).match(/\/d\/([-\w]+)/)||[])[1] || (String(VIDEO.drive).match(/[-\w]{20,}/)||[])[0] || VIDEO.drive;
     p.innerHTML='<iframe src="https://drive.google.com/file/d/'+id+'/preview" title="Video hướng dẫn" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>';
-  } else if(VIDEO.file){
-    p.innerHTML='<video src="'+VIDEO.file+'" controls preload="metadata" playsinline></video>';
   }
 })();
 </script>

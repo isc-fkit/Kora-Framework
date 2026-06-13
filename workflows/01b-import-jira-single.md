@@ -6,12 +6,12 @@
 
 ## Bước 1 — Xác định phạm vi quét
 
-Từ tin nhắn user, rút ra danh sách key (vd `FPT-102`, `FPT-102,FPT-105`).
+Từ tin nhắn user, rút ra danh sách key (vd `PROJ-102`, `PROJ-102,PROJ-105`).
 Nếu user mô tả mơ hồ → hỏi rõ:
 
 > "Bạn muốn quét theo cách nào?"
-> - [A] Theo mã issue — liệt kê key, cách nhau dấu phẩy (vd FPT-102,FPT-105)
-> - [B] Theo điều kiện — vd "tất cả issue trong epic FPT-101" → Claude dịch thành JQL,
+> - [A] Theo mã issue — liệt kê key, cách nhau dấu phẩy (vd PROJ-102,PROJ-105)
+> - [B] Theo điều kiện — vd "tất cả issue trong epic PROJ-101" → Claude dịch thành JQL,
 >   đọc lại cho user xác nhận
 > - [C] **Lấy cái MỚI từ lần quét trước** (request/issue mới tạo hoặc vừa cập nhật trên
 >   Jira/Atlassian) → dùng chế độ incremental: `python3 import_jira.py --since`
@@ -20,10 +20,13 @@ Nếu user mô tả mơ hồ → hỏi rõ:
 
 **Confirm trước khi chạy**: "Tôi sẽ quét N issue: ... — đúng không?"
 
-## Bước 2 — Kiểm tra cấu hình
+## Bước 2 — Chọn nguồn + kiểm tra cấu hình
 
-- `.env.local` đã có token chưa? Chưa → chạy Bước 2 của `workflows/01-import-jira.md`
-  (tự tạo file, mở cho user điền, hỏi xác nhận) rồi quay lại đây.
+- **Nguồn nào?** Có nhiều file `tools/jira-to-obsidian/.env*` (đa nguồn) → hỏi user quét lẻ
+  từ nguồn nào (như `workflows/01-import-jira.md` Bước 0); dùng `JIRA_ENV_FILE=.env.<tên>` cho
+  lệnh bên dưới. Chỉ 1 nguồn → dùng `.env.local`.
+- `.env.local` (hoặc file nguồn đã chọn) có token chưa? Chưa → chạy Bước 2 của
+  `workflows/01-import-jira.md` (tự tạo file, mở cho user điền, hỏi xác nhận) rồi quay lại đây.
 
 ## Bước 3 — Chạy quét
 
@@ -35,9 +38,9 @@ Nếu user mô tả mơ hồ → hỏi rõ:
 ```bash
 cd "<đường dẫn tuyệt đối tới tools/jira-to-obsidian>"
 # Theo key:
-python3 import_jira.py --keys FPT-102,FPT-105
+python3 import_jira.py --keys PROJ-102,PROJ-105
 # Hoặc theo JQL:
-python3 import_jira.py --jql "parent = FPT-101"
+python3 import_jira.py --jql "parent = PROJ-101"
 ```
 
 Script chỉ tạo/cập nhật note của các issue đó (kèm epic/parent được nhắc đến trong

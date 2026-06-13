@@ -99,9 +99,9 @@ touch .env.local
 Nội dung mẫu:
 
 ```env
-JIRA_BASE_URL=https://jira.fptmedicare.vn
+JIRA_BASE_URL=https://jira.company.vn
 JIRA_PAT=PASTE_TOKEN_MOI_VAO_DAY
-OBSIDIAN_VAULT=./FPT-Medicare-KB
+OBSIDIAN_VAULT=./Project_Name_Brain
 
 # Nếu để trống thì quét tất cả project account có quyền thấy
 PROJECT_KEYS=
@@ -125,7 +125,7 @@ JIRA_BR_FIELD=
 Ví dụ chỉ quét 2 project:
 
 ```env
-PROJECT_KEYS=FPT,CGM
+PROJECT_KEYS=PROJ,SHOP
 ```
 
 ---
@@ -138,7 +138,7 @@ Tạo file `.gitignore`:
 echo ".env.local" > .gitignore
 echo ".venv/" >> .gitignore
 echo "__pycache__/" >> .gitignore
-echo "FPT-Medicare-KB/" >> .gitignore
+echo "Project_Name_Brain/" >> .gitignore
 ```
 
 Mục tiêu:
@@ -212,7 +212,7 @@ Script phải thực hiện:
 Sau khi chạy, script phải tạo:
 
 ```text
-FPT-Medicare-KB/
+Project_Name_Brain/
   00_Index/
     Jira-Knowledge-Base.md
   01_Projects/
@@ -239,7 +239,7 @@ Format:
 Ví dụ:
 
 ```text
-FPT-102_Xin-quyen-Apple-HealthKit.md
+PROJ-102_Xin-quyen-Apple-HealthKit.md
 ```
 
 Tên file phải:
@@ -256,11 +256,11 @@ Mỗi issue note cần có:
 ---
 type: user_story
 source: jira
-jira_key: FPT-102
+jira_key: PROJ-102
 jira_issue_type: Story
-project: FPT
+project: PROJ
 status: To Do
-parent: FPT-101
+parent: PROJ-101
 imported_at: 2026-06-13T00:00:00
 ---
 ```
@@ -270,7 +270,7 @@ imported_at: 2026-06-13T00:00:00
 Mỗi issue note cần có các section:
 
 ```markdown
-# FPT-102 — Tên issue
+# PROJ-102 — Tên issue
 
 ## Metadata
 
@@ -308,22 +308,22 @@ Schema:
   "generated_at": "ISO_DATETIME",
   "nodes": [
     {
-      "id": "FPT-102",
+      "id": "PROJ-102",
       "type": "user_story",
       "title": "Xin quyền Apple HealthKit",
       "status": "To Do",
-      "project": "FPT"
+      "project": "PROJ"
     }
   ],
   "edges": [
     {
-      "from": "FPT",
-      "to": "FPT-102",
+      "from": "PROJ",
+      "to": "PROJ-102",
       "relation": "has_issue"
     },
     {
-      "from": "FPT-101",
-      "to": "FPT-102",
+      "from": "PROJ-101",
+      "to": "PROJ-102",
       "relation": "parent_of"
     }
   ]
@@ -343,10 +343,10 @@ Schema:
 ```json
 [
   {
-    "source_id": "SRC-JIRA-FPT-102",
+    "source_id": "SRC-JIRA-PROJ-102",
     "source_type": "jira_issue",
-    "jira_key": "FPT-102",
-    "project": "FPT",
+    "jira_key": "PROJ-102",
+    "project": "PROJ",
     "issue_type": "Story",
     "title": "Xin quyền Apple HealthKit",
     "status": "To Do",
@@ -370,11 +370,11 @@ Kết quả terminal mong đợi:
 ```text
 Đang lấy danh sách project...
 Tìm thấy X project.
-Đang quét project FPT — FPT Medicare
+Đang quét project PROJ — MyApp
   → 128 issues
 
 Hoàn tất.
-Obsidian Vault đã tạo tại: /path/to/FPT-Medicare-KB
+Obsidian Vault đã tạo tại: /path/to/Project_Name_Brain
 ```
 
 Nếu lỗi API:
@@ -396,7 +396,7 @@ Open folder as vault
 Chọn folder:
 
 ```text
-jira-to-obsidian/FPT-Medicare-KB
+jira-to-obsidian/Project_Name_Brain
 ```
 
 Mở file index:

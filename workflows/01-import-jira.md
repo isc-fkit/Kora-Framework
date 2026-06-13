@@ -10,6 +10,32 @@
 > đây Cowork gọi script từ thư mục khác → không thấy `.env.local` → báo "Thiếu JIRA_BASE_URL"
 > dù Terminal vẫn chạy được. `cd` vào tool dir giờ chỉ là tùy chọn, KHÔNG còn bắt buộc.
 
+## Bước 0 — Chọn NGUỒN Jira (domain) cần quét
+
+Hỗ trợ **nhiều nguồn** (Server tự host + Cloud Atlassian), mỗi nguồn một file cấu hình
+`tools/jira-to-obsidian/.env.<tên>` (mặc định `.env.local`). TRƯỚC khi quét, để user CHỌN nguồn:
+
+1. Liệt kê nguồn đã cấu hình: các file `tools/jira-to-obsidian/.env*` (TRỪ `.env.example`).
+   Với mỗi file đọc `JIRA_BASE_URL` → hiện domain + loại, vd `jira.company.vn (Server)`,
+   `myteam.atlassian.net (Cloud)`.
+2. **Chọn nguồn (AskUserQuestion):** mỗi nguồn đã có = 1 lựa chọn + **"➕ Thêm nguồn mới
+   (vd Atlassian Cloud)"**.
+   - Chưa có nguồn nào (chỉ `.env.example`) → coi như "thêm nguồn mới" luôn.
+   - Chỉ có đúng 1 nguồn và user không nhắc nguồn khác → dùng luôn, nhưng vẫn nói 1 câu:
+     *"Đang quét từ `<domain>`. Muốn thêm/đổi sang nguồn khác (vd Atlassian Cloud) thì báo nhé."*
+3. **Chọn nguồn có sẵn** → MỌI lệnh quét bên dưới dùng đúng file đó:
+   `JIRA_ENV_FILE=.env.<tên> python3 import_jira.py …` (nếu là `.env.local` thì khỏi cần biến).
+4. **"Thêm nguồn mới"** → hỏi loại (Server tự host / Cloud Atlassian) → tạo `.env.<tên-nguồn>`
+   rồi làm token flow như **Bước 2** (Cloud cần email + API token; Server chỉ PAT).
+   **Tên nguồn / URL / email là input TỰ DO → hỏi bằng CÂU THƯỜNG, KHÔNG nhồi vào AskUserQuestion**
+   (nguyên tắc 8). Mốc `--since` tách theo host (`last-import-<host>.txt`) nên sync KHÔNG đè nhau.
+   ⚠️ Notes/graph để CHUNG vault và phân theo **MÃ project** (không theo host) → để 2 nguồn KHÔNG
+   đè nhau: đặt `PROJECT_KEYS` không trùng mã giữa các nguồn, HOẶC cho mỗi nguồn một
+   `OBSIDIAN_VAULT` riêng trong `.env.<tên>` (xem CLAUDE.md §6 "Giới hạn đã biết").
+
+> Nhờ bước này, "quét jira" LUÔN cho chọn quét từ domain nào (nội bộ hay Atlassian Cloud),
+> không bị khóa cứng vào một nguồn.
+
 ## Bước 1 — Kiểm tra môi trường
 
 Script chỉ dùng **thư viện chuẩn Python 3** — KHÔNG cần venv, KHÔNG cần pip install.
@@ -29,7 +55,7 @@ Chưa có → hướng dẫn cài theo OS.
      > avatar (góc phải trên) → **Account settings** → tab **Security** →
      > **Create and manage API tokens** → **Create API token** → đặt tên → copy.
      > (Link nhanh: https://id.atlassian.com/manage-profile/security/api-tokens)
-   - **Jira Server / Data Center** (tự host, vd `https://jira.fptmedicare.vn`): chỉ cần **PAT**.
+   - **Jira Server / Data Center** (tự host, vd `https://jira.company.vn`): chỉ cần **PAT**.
      > avatar → **Profile** → **Personal Access Tokens** → **Create token** → copy.
 
    Hỏi: "Bạn đã có token chưa?" — Chưa → hướng dẫn theo loại ở trên; Có → sang bước 4.
@@ -95,8 +121,8 @@ ràng (mã + tên project) và cho user CHỌN bằng AskUserQuestion:
   (cách nhau dấu phẩy). Chọn ≥2 project → bật `GROUP_BY_PROJECT=true`.
 - Project rất lớn (hàng nghìn issue) → báo trước "sẽ lâu + vault lớn, nên chạy nền".
 
-> Ví dụ thật (FMC, 2026-06): `--test` thấy 10 project (FA, FC, FHP, FI, FMCP, FSW, FW,
-> IA, PS, SUPPORT) → hiện cho user tick chọn → chỉ quét đúng cái đã chọn (vd FA = 2.347 issue).
+> Ví dụ: `--test` thấy N project (PROJ1, PROJ2, PROJ3…) → hiện cho user tick chọn → chỉ
+> quét đúng cái đã chọn (vd PROJ1 = vài nghìn issue).
 
 ## Bước 4 — Chạy import
 

@@ -133,15 +133,15 @@ Schema chuẩn:
 
 ```json
 {
-  "source_id": "SRC-JIRA-FPT-102",
+  "source_id": "SRC-JIRA-PROJ-102",
   "source_type": "jira_issue",
   "title": "Xin quyền Apple HealthKit",
   "raw_content": "...",
-  "project": "FPT",
-  "issue_key": "FPT-102",
+  "project": "PROJ",
+  "issue_key": "PROJ-102",
   "issue_type": "Story",
   "status": "To Do",
-  "parent": "FPT-101",
+  "parent": "PROJ-101",
   "links": [],
   "attachments": [],
   "comments": [],
@@ -484,14 +484,14 @@ Ví dụ Project note:
 ---
 type: project
 source: jira
-jira_project_key: FPT
+jira_project_key: PROJ
 ---
 
-# FPT Medicare
+# MyApp
 
 ## Epics
 
-- [[FPT-101_Apple-HealthKit]]
+- [[PROJ-101_Apple-HealthKit]]
 
 ## Related Features
 
@@ -504,15 +504,15 @@ Ví dụ User Story note:
 ---
 type: user_story
 source: jira
-jira_key: FPT-102
-parent_epic: FPT-101
+jira_key: PROJ-102
+parent_epic: PROJ-101
 ---
 
-# FPT-102 — Xin quyền Apple HealthKit
+# PROJ-102 — Xin quyền Apple HealthKit
 
 ## Parent Epic
 
-- [[FPT-101_Apple-HealthKit]]
+- [[PROJ-101_Apple-HealthKit]]
 
 ## Related Feature
 
@@ -544,31 +544,31 @@ Schema:
   "generated_at": "ISO_DATETIME",
   "nodes": [
     {
-      "id": "FPT-102",
+      "id": "PROJ-102",
       "type": "user_story",
       "title": "Xin quyền Apple HealthKit",
       "status": "To Do",
-      "project": "FPT"
+      "project": "PROJ"
     }
   ],
   "edges": [
     {
-      "from": "FPT",
-      "to": "FPT-101",
+      "from": "PROJ",
+      "to": "PROJ-101",
       "relation": "has_epic"
     },
     {
-      "from": "FPT-101",
-      "to": "FPT-102",
+      "from": "PROJ-101",
+      "to": "PROJ-102",
       "relation": "has_story"
     },
     {
-      "from": "FPT-102",
+      "from": "PROJ-102",
       "to": "BR-HK-001",
       "relation": "extracts_rule"
     },
     {
-      "from": "FPT-102",
+      "from": "PROJ-102",
       "to": "AC-HK-001",
       "relation": "defines_acceptance_criteria"
     }
@@ -607,10 +607,10 @@ Schema:
 
 ```json
 {
-  "source_id": "SRC-JIRA-FPT-102",
+  "source_id": "SRC-JIRA-PROJ-102",
   "source_type": "jira_issue",
   "origin": "Jira",
-  "jira_key": "FPT-102",
+  "jira_key": "PROJ-102",
   "title": "Xin quyền Apple HealthKit",
   "status": "approved",
   "mapped_features": ["F-001-healthkit"],
@@ -654,7 +654,7 @@ Hệ thống cần hỗ trợ các command:
 Command:
 
 ```text
-/init-project name="FPT Medicare"
+/init-project name="MyApp"
 ```
 
 Luồng:
@@ -864,13 +864,13 @@ Format:
 
 ### Changed
 
-- Cập nhật business rule BR-HK-001 từ Jira issue FPT-102.
+- Cập nhật business rule BR-HK-001 từ Jira issue PROJ-102.
 - Tạo acceptance criteria AC-HK-001.
 - Cập nhật relation graph.
 
 ### Source
 
-- SRC-JIRA-FPT-102
+- SRC-JIRA-PROJ-102
 
 ### Approved By
 

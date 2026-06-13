@@ -12,7 +12,7 @@
 
 1. Đọc `version.json` ở gốc repo → version + codename hiện tại.
 2. Lấy bản mới nhất trên GitHub (WebFetch):
-   `https://raw.githubusercontent.com/luugiakhanh689/adaptive_knowledge_base/main/version.json`
+   `https://raw.githubusercontent.com/luugiakhanh689/adaptive_knowledge_base/release/version.json`
    — offline/không lấy được → báo "chưa kiểm tra được bản mới, thử lại khi có mạng", DỪNG.
 3. So `version`:
    - Bằng nhau → "Bạn đang ở bản mới nhất: Genesis-1 vX.Y.Z." DỪNG.
@@ -21,7 +21,7 @@
 ## Bước 2 — Trình bày + ✋ confirm
 
 - Lấy "có gì mới" từ GitHub CHANGELOG:
-  `https://raw.githubusercontent.com/luugiakhanh689/adaptive_knowledge_base/main/CHANGELOG.md`
+  `https://raw.githubusercontent.com/luugiakhanh689/adaptive_knowledge_base/release/CHANGELOG.md`
   → tóm tắt tiếng Việt: từ vX → vY có gì mới.
 - Nhấn mạnh: **tri thức của bạn (vault, `.kb`, config, docs) GIỮ NGUYÊN** — chỉ thay phần chương trình.
 - Hỏi confirm: "Cập nhật ngay chứ?" (thao tác GHI/NẶNG — bắt buộc confirm).
@@ -30,7 +30,7 @@
 
 Chạy `scripts/update.command` (Claude tự chạy trong Cowork; sandbox chặn mạng → hướng dẫn user double-click file):
 - Có `.git` → `git pull --ff-only` (DATA đã gitignore nên không đụng).
-- Không có `.git` (bản zip) → tải `…/archive/refs/heads/main.zip`, giải nén, **chỉ ghi đè CORE**;
+- Không có `.git` (bản zip) → tải `…/archive/refs/heads/release.zip`, giải nén, **chỉ ghi đè CORE**;
   loại trừ MỌI DATA (vault `*_Brain/`, `.kb/*`, `docs/` nội dung, `inbox/`,
   `config/factory-config.yaml`, `config/domain-rules.md`, `.env.*`). KHÔNG dùng `--delete`.
 

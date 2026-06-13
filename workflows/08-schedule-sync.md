@@ -17,7 +17,7 @@
   trước rồi merge vào vault — không quét lại từ đầu.
 - Cron tính theo **giờ địa phương** của máy.
 - Mạng: chạy ở máy user nên dùng mạng/VPN của user → tới được cả Jira nội bộ
-  (`fptmedicare.vn`) lẫn Cloud. (Nếu môi trường chạy không ra được host nội bộ → lịch
+  (`company.vn`) lẫn Cloud. (Nếu môi trường chạy không ra được host nội bộ → lịch
   chuyển sang **nhắc user** bấm `quet-jira.command`/`.bat`.)
 
 ## Bước 1 — Hỏi tần suất
@@ -42,15 +42,15 @@ Gọi `mcp__scheduled-tasks__create_scheduled_task` với:
 
 - Ghi `jira.scheduled_sync` (tần suất + task id) vào `factory-config.yaml`.
 
-### Đa nguồn Jira (vd vừa `fptmedicare.vn` vừa `foxproject.atlassian.net`)
+### Đa nguồn Jira (vd vừa `company.vn` vừa `myteam.atlassian.net`)
 
 Mỗi nguồn = một file cấu hình riêng + một scheduled task riêng:
-- Tạo `.env.<tên-nguồn>` (vd `.env.fptmedicare`, `.env.foxproject`) trong `tools/jira-to-obsidian/`,
+- Tạo `.env.<tên-nguồn>` (vd `.env.company`, `.env.cloud`) trong `tools/jira-to-obsidian/`,
   mỗi file là một bản `.env.local` trỏ đúng Jira đó.
 - Lệnh trong prompt của từng task: `JIRA_ENV_FILE=.env.<tên-nguồn> python3 import_jira.py --since`.
 - Mốc `--since` tách riêng theo host (`last-import-<host>.txt`) → 2 nguồn KHÔNG đè nhau;
   notes mỗi project ở thư mục riêng; quét full giờ cũng **merge** an toàn, không xoá nguồn kia.
-- ⚠️ **Tránh 2 Jira trùng MÃ project** (vd cả hai đều có `FMC`): node graph định danh theo mã
+- ⚠️ **Tránh 2 Jira trùng MÃ project** (vd cả hai đều có `PROJ`): node graph định danh theo mã
   issue → trùng mã sẽ đè nhau. Đặt `PROJECT_KEYS` không giao nhau giữa các nguồn.
 
 ## Xử lý lỗi khi chạy nền

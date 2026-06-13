@@ -15,7 +15,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/lib-paths.sh"
 cd "$REPO_ROOT"
 
-ZIP_URL="https://github.com/luugiakhanh689/adaptive_knowledge_base/archive/refs/heads/main.zip"
+ZIP_URL="https://github.com/luugiakhanh689/adaptive_knowledge_base/archive/refs/heads/release.zip"
 
 # --- Tiện ích ----------------------------------------------------------------
 have() { command -v "$1" >/dev/null 2>&1; }
@@ -60,7 +60,7 @@ if [ -d "$REPO_ROOT/.git" ]; then
     echo "    Cách xử lý (chọn 1):"
     echo "    1) Xem thay đổi của bạn:   git -C \"$REPO_ROOT\" status"
     echo "    2) Tạm cất rồi cập nhật:   git -C \"$REPO_ROOT\" stash && git -C \"$REPO_ROOT\" pull --ff-only && git -C \"$REPO_ROOT\" stash pop"
-    echo "    3) Nếu không cần thay đổi: git -C \"$REPO_ROOT\" reset --hard origin/main  (CẨN THẬN: bỏ thay đổi CORE; tri thức vẫn an toàn vì đã gitignore)"
+    echo "    3) Nếu không cần thay đổi: git -C \"$REPO_ROOT\" reset --hard origin/release  (CẨN THẬN: bỏ thay đổi CORE; tri thức vẫn an toàn vì đã gitignore)"
     echo ""
     echo "    Tri thức của bạn KHÔNG bị ảnh hưởng dù chọn cách nào."
     finish
@@ -80,15 +80,15 @@ else
   # Dọn temp khi thoát (mọi trường hợp).
   trap 'rm -rf "$TMP_DIR"' EXIT
 
-  ZIP_FILE="$TMP_DIR/main.zip"
+  ZIP_FILE="$TMP_DIR/release.zip"
   echo "⬇️  Đang tải bản mới nhất..."
   curl -fL "$ZIP_URL" -o "$ZIP_FILE" || die "Tải bản mới thất bại. Kiểm tra kết nối mạng rồi thử lại."
 
   echo "📂 Đang giải nén..."
   unzip -q "$ZIP_FILE" -d "$TMP_DIR" || die "Giải nén thất bại (file tải về có thể hỏng)."
 
-  # Thư mục giải nén thường là <repo>-main/
-  SRC_DIR="$(find "$TMP_DIR" -maxdepth 1 -type d -name '*-main' | head -n1)"
+  # Thư mục giải nén thường là <repo>-release/
+  SRC_DIR="$(find "$TMP_DIR" -maxdepth 1 -type d -name '*-release' | head -n1)"
   [ -n "$SRC_DIR" ] && [ -d "$SRC_DIR" ] || die "Không tìm thấy thư mục nguồn sau khi giải nén."
 
   echo "🔁 Đang ghi đè PHẦN CHƯƠNG TRÌNH (giữ nguyên tri thức của bạn)..."

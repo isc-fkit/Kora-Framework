@@ -12,7 +12,7 @@ set "SCRIPT_DIR=%~dp0"
 pushd "%SCRIPT_DIR%.." || (echo [LOI] Khong vao duoc thu muc repo. & goto :end)
 set "REPO_ROOT=%CD%"
 
-set "ZIP_URL=https://github.com/luugiakhanh689/adaptive_knowledge_base/archive/refs/heads/main.zip"
+set "ZIP_URL=https://github.com/luugiakhanh689/adaptive_knowledge_base/archive/refs/heads/release.zip"
 
 echo ================================================================
 echo   CAP NHAT Adaptive Knowledge Base
@@ -44,7 +44,7 @@ if exist "%REPO_ROOT%\.git" (
     echo   Cach xu ly:
     echo     1^) Xem thay doi:        git -C "%REPO_ROOT%" status
     echo     2^) Tam cat roi cap nhat: git -C "%REPO_ROOT%" stash ^&^& git -C "%REPO_ROOT%" pull --ff-only ^&^& git -C "%REPO_ROOT%" stash pop
-    echo     3^) Bo thay doi CORE:     git -C "%REPO_ROOT%" reset --hard origin/main
+    echo     3^) Bo thay doi CORE:     git -C "%REPO_ROOT%" reset --hard origin/release
     echo   Tri thuc cua ban KHONG bi anh huong du chon cach nao.
     goto :end
   )
@@ -63,7 +63,7 @@ where robocopy   >nul 2>nul || (echo [LOI] Thieu lenh 'robocopy'. & goto :end)
 
 set "TMP_DIR=%TEMP%\akb-update-%RANDOM%%RANDOM%"
 mkdir "%TMP_DIR%" 2>nul
-set "ZIP_FILE=%TMP_DIR%\main.zip"
+set "ZIP_FILE=%TMP_DIR%\release.zip"
 
 echo Dang tai ban moi nhat...
 curl -fL "%ZIP_URL%" -o "%ZIP_FILE%" || (echo [LOI] Tai ban moi that bai. Kiem tra mang roi thu lai. & goto :end)
@@ -71,9 +71,9 @@ curl -fL "%ZIP_URL%" -o "%ZIP_FILE%" || (echo [LOI] Tai ban moi that bai. Kiem t
 echo Dang giai nen...
 tar -xf "%ZIP_FILE%" -C "%TMP_DIR%" || (echo [LOI] Giai nen that bai. & goto :end)
 
-REM Tim thu muc *-main vua giai nen
+REM Tim thu muc *-release vua giai nen
 set "SRC_DIR="
-for /d %%D in ("%TMP_DIR%\*-main") do set "SRC_DIR=%%D"
+for /d %%D in ("%TMP_DIR%\*-release") do set "SRC_DIR=%%D"
 if not defined SRC_DIR (echo [LOI] Khong tim thay thu muc nguon sau khi giai nen. & goto :end)
 
 echo Dang ghi de PHAN CHUONG TRINH (giu nguyen tri thuc cua ban)...

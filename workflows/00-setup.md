@@ -28,8 +28,12 @@ Hành động sau khi chọn:
 
 ## Bước 2 — Tên project & ngôn ngữ
 
-Hỏi: tên sản phẩm/project, ngôn ngữ tài liệu (mặc định: Tiếng Việt).
-Ghi vào `factory-config.yaml` (`project_name`, `language`).
+- **Tên project** là input TỰ DO → hỏi bằng **câu thường** (TUYỆT ĐỐI KHÔNG dùng AskUserQuestion,
+  sẽ báo "Failed"): *"Tên sản phẩm/project của bạn là gì? (tên ngắn gọn — vd: MyApp, ShopX, TaskFlow…)"*
+  → chờ user gõ tên.
+- **Ngôn ngữ tài liệu**: mặc định **Tiếng Việt**; chỉ hỏi nếu user muốn khác (lựa chọn hữu hạn
+  → có thể dùng AskUserQuestion: Tiếng Việt / English).
+- Ghi vào `factory-config.yaml` (`project_name`, `language`).
 
 ## Bước 3 — Nơi lưu tri thức (Obsidian vault)
 
@@ -42,7 +46,7 @@ Lựa chọn:
 
 1. **Tạo mới trong project này, tên `<TênProject>_Brain`** (mặc định, khuyến nghị) —
    Claude đổi tên thư mục `Project_Name_Brain/` theo tên project đã chọn ở Bước 2
-   (vd project "FMC" → `FMC_Brain/`), đồng bộ `vault_path` trong config và
+   (vd project "MyApp" → `MyApp_Brain/`), đồng bộ `vault_path` trong config và
    `OBSIDIAN_VAULT` trong `.env.local`.
 
    ⚠️ **Thao tác đổi tên/xóa thư mục trong sandbox CÓ THỂ bị chặn quyền** — phải làm
@@ -85,9 +89,9 @@ Hỏi:
 
 | Input | Mô tả cho user | Bắt buộc |
 |---|---|---|
-| `JIRA_BASE_URL` | Địa chỉ Jira, ví dụ `https://jira.congty.vn` | ✔ |
+| `JIRA_BASE_URL` | Địa chỉ Jira, ví dụ `https://jira.company.vn` | ✔ |
 | `JIRA_PAT` | Personal Access Token (tạo trong Jira: Profile → Personal Access Tokens). Claude tự tạo `.env.local` và mở file cho user dán token vào rồi lưu — KHÔNG dán token vào chat. Có hỏi "đã có token chưa?" trước, chưa có thì hướng dẫn tạo | ✔ |
-| `PROJECT_KEYS` | Mã project muốn quét, cách nhau dấu phẩy (vd `FPT,CGM`). Để trống = quét tất cả | ✘ |
+| `PROJECT_KEYS` | Mã project muốn quét, cách nhau dấu phẩy (vd `PROJ,SHOP`). Để trống = quét tất cả | ✘ |
 | `GROUP_BY_PROJECT` | Nhiều project → hỏi user có muốn mỗi project 1 thư mục con trong vault không (khuyến nghị: có). Ghi cả vào `factory-config.yaml > jira.group_by_project` | ✘ |
 | `JIRA_AC_FIELD` / `JIRA_BR_FIELD` | ID custom field Acceptance Criteria / Business Rule nếu Jira có | ✘ |
 

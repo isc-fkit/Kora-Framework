@@ -7,8 +7,8 @@ Theo spec: CLAUDE_CODE_JIRA_TO_OBSIDIAN_SETUP.md (Bước 1→7).
 Dùng:
   python import_jira.py                    # quét toàn bộ (theo PROJECT_KEYS)
   python import_jira.py --test             # chỉ test kết nối
-  python import_jira.py --keys FPT-102,FPT-105   # quét riêng vài issue (merge vào vault)
-  python import_jira.py --jql "parent = FPT-101" # quét theo JQL (merge vào vault)
+  python import_jira.py --keys PROJ-102,PROJ-105   # quét riêng vài issue (merge vào vault)
+  python import_jira.py --jql "parent = PROJ-101" # quét theo JQL (merge vào vault)
   python import_jira.py --per-project            # mỗi project 1 thư mục con (hoặc GROUP_BY_PROJECT=true trong .env.local)
   python import_jira.py --since 2026-06-01       # chỉ quét issue tạo/sửa từ 2026-06-01 (merge vào vault)
   python import_jira.py --since                  # quét incremental từ lần chạy trước (tự đọc mốc)
@@ -42,7 +42,7 @@ def load_env_local(path=None):
     path mặc định là ".env.local" tương đối theo cwd → Cowork gọi từ thư mục khác là mất config."""
     if path is None:
         # JIRA_ENV_FILE cho phép chỉ định file cấu hình khác → ĐA NGUỒN Jira: mỗi nguồn một
-        # file (.env.fptmedicare, .env.foxproject...) và lịch sync riêng. Mặc định ".env.local".
+        # file (.env.company, .env.cloud...) và lịch sync riêng. Mặc định ".env.local".
         # Đường dẫn tương đối → neo theo thư mục script.
         path = os.environ.get("JIRA_ENV_FILE") or ".env.local"
         if not os.path.isabs(path):
@@ -259,8 +259,8 @@ def fetch_projects():
 PROJECT_NAMES = {}  # key -> tên project (điền khi quét, dùng đặt tên thư mục đầy đủ)
 
 # Mẫu tên thư mục project — đổi trong .env.local, placeholder: {key}, {name}
-# Vd: PROJECT_FOLDER_PATTERN={key}_{name}  →  FA_FMC-App
-#     PROJECT_FOLDER_PATTERN={name}        →  FMC-App
+# Vd: PROJECT_FOLDER_PATTERN={key}_{name}  →  PROJ_MyApp
+#     PROJECT_FOLDER_PATTERN={name}        →  MyApp
 #     PROJECT_FOLDER_PATTERN={key}         →  FA
 FOLDER_PATTERN = os.getenv("PROJECT_FOLDER_PATTERN") or "{key}_{name}"
 
@@ -479,7 +479,7 @@ def run_full():
     root_dirs = [DIRS["index"], DIRS["system"]] if PER_PROJECT else ALL_DIRS
     for d in root_dirs:
         os.makedirs(os.path.join(VAULT, d), exist_ok=True)
-    # MERGE (không ghi đè) vào _system → quét nguồn thứ 2 (vd foxproject sau fptmedicare)
+    # MERGE (không ghi đè) vào _system → quét nguồn thứ 2 (vd projectB sau projectA)
     # KHÔNG xoá dữ liệu nguồn cũ. Mỗi project ở thư mục riêng nên notes không đụng nhau.
     merge_system(nodes, edges, registry)
     write(os.path.join(VAULT, DIRS["index"], "Jira-Knowledge-Base.md"), "\n".join(index_lines))
@@ -489,8 +489,8 @@ def run_full():
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--test", action="store_true", help="Chỉ test kết nối")
-    ap.add_argument("--keys", help="Quét riêng các issue, vd: FPT-102,FPT-105")
-    ap.add_argument("--jql", help='Quét theo JQL, vd: "parent = FPT-101"')
+    ap.add_argument("--keys", help="Quét riêng các issue, vd: PROJ-102,PROJ-105")
+    ap.add_argument("--jql", help='Quét theo JQL, vd: "parent = PROJ-101"')
     ap.add_argument("--since", nargs="?", const="__last__",
                     help='Chỉ quét issue MỚI/CẬP NHẬT. --since 2026-06-01 theo ngày; '
                          '--since (không tham số) = từ lần quét trước (đọc _system/last-import.txt)')

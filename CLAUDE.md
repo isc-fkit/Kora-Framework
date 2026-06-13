@@ -23,8 +23,8 @@
 | User nhắn | Claude làm gì |
 |---|---|
 | `@khởi tạo dự án` (hoặc "setup factory", "cài đặt hệ thống") | Confirm → chạy `workflows/00-setup.md` từng bước |
-| "quét jira" (toàn bộ project) | Confirm → chạy `workflows/01-import-jira.md` |
-| "quét task <KEY>" / "quét epic <KEY>" (vd `quét task FPT-102`) | Confirm → chạy `workflows/01b-import-jira-single.md` |
+| "quét jira" (toàn bộ project) | Confirm → chạy `workflows/01-import-jira.md` (Bước 0: **chọn nguồn/domain** — Server nội bộ hay Atlassian Cloud — rồi mới quét) |
+| "quét task <KEY>" / "quét epic <KEY>" (vd `quét task PROJ-102`) | Confirm → chạy `workflows/01b-import-jira-single.md` |
 | "đặt lịch quét jira", "tự động đồng bộ jira" | Confirm → chạy `workflows/08-schedule-sync.md` |
 | "tiến hóa KB", "dọn dẹp KB", "kiểm tra sức khỏe KB" | Confirm → chạy `workflows/09-evolve.md` |
 | Gửi file PDF/DOCX/zip Obsidian | Confirm → chạy `workflows/02-import-files.md` |
@@ -36,6 +36,8 @@
 | "cập nhật model", "kiểm tra phiên bản model", "có bản model mới không" | Confirm → chạy `workflows/10-update.md` (giữ nguyên tri thức). Từ **"cập nhật" trơ** dễ trùng câu giao tiếp → HỎI xác nhận trước: *"Bạn muốn kiểm tra cập nhật model, hay chỉ đang nói chuyện?"* |
 | "sao lưu", "xuất tri thức", "chuyển/dời máy" | Confirm → chạy `workflows/11-export-import.md` mục A (export) |
 | "nhập tri thức", "khôi phục", đưa file `genesis1-kb-*.zip` | Confirm → chạy `workflows/11-export-import.md` mục B (import) |
+| "phát hành", "release", "lên version", "ra bản mới" | **CHỈ người duy trì app** — `workflows/12-release.md` Bước 0 kiểm tra file `.maintainer`. Máy user thường (không có `.maintainer`) → KHÔNG chạy, giải thích đây là lệnh của tác giả + gợi ý **"cập nhật model"** / **"sao lưu"** |
+| "tiến hóa hệ thống", "rà soát workflow", "cải tiến quy trình" | **CHỈ người duy trì app** (guard `.maintainer`) → `workflows/13-evolve-system.md`: review đối kháng workflow/rule → đề xuất sửa → release. User thường → giải thích + gợi ý gửi phản hồi. **Phân biệt với WF09:** "tiến hóa" + KB/tri thức/feature → WF09 (mọi user); + workflow/rule/quy trình/hệ thống → WF13 (maintainer); chỉ "tiến hóa" trơ → hỏi rõ "KB hay hệ thống?" |
 
 **Nếu chưa setup** (`config/factory-config.yaml` còn giá trị `TODO`): KHÔNG bắt user nhớ
 lệnh. Với yêu cầu đầu tiên, giải thích ngắn ("cần cài đặt 1 lần để có tri thức mà phân
@@ -106,8 +108,14 @@ Mục tiêu: user KHÔNG cần thuộc lệnh nào — chỉ nói bằng lời t
 6. **Không lưu secret.** Token/password chỉ nằm trong `tools/jira-to-obsidian/.env.local`
    (đã gitignore). Không in token ra log/chat.
 7. **Mọi thay đổi ghi changelog** vào `.kb/changelog.md` (ngày, source, file, lý do, người duyệt).
-8. **Hỏi bằng lựa chọn.** Khi cần input của user, luôn đưa ra các phương án gợi ý
-   (dùng AskUserQuestion nếu có) kèm mô tả rõ, cho phép user chọn hoặc tự điền.
+8. **Hỏi bằng lựa chọn — ĐÚNG loại câu hỏi.** Cần user CHỌN giữa các phương án rõ ràng
+   (2–4 lựa chọn) → dùng AskUserQuestion kèm mô tả. **TUYỆT ĐỐI KHÔNG** dùng AskUserQuestion
+   cho **input TỰ DO** (tên project, URL, mô tả, danh sách mã…): nó cần options cố định, đưa
+   câu tự do vào sẽ **LỖI ("Failed")**. Input tự do → hỏi thẳng bằng câu thường trong chat
+   (kèm ví dụ + giá trị mặc định nếu có). **Trường hợp LAI** (một lựa chọn dẫn tới phải nhập
+   giá trị tự do — vd "Tạo project mới", "Thêm nguồn Jira mới", "Đường dẫn khác", "Tần suất
+   khác"): AskUserQuestion CHỈ để chọn nhánh; SAU KHI user chọn, hỏi giá trị tự do
+   (tên/URL/đường dẫn/mã/cron) bằng CÂU THƯỜNG ở lượt kế — KHÔNG nhồi vào cùng AskUserQuestion.
 9. **Thao tác file phải có fallback.** Sandbox có thể bị chặn quyền xóa/đổi tên
    thư mục trong folder của user. Mọi `mv`/`rm`/rename phải: thử → lỗi thì dùng cách
    thay thế (tạo mới + copy, hoặc giữ nguyên tên và chỉ cập nhật config) → tệ nhất
@@ -202,9 +210,9 @@ User nêu vấn đề (ngôn ngữ tự nhiên)
 - **Bản hiện tại:** Genesis-1 (`version.json`); lịch sử app ở `CHANGELOG.md` (khác
   `.kb/changelog.md` — file đó là lịch sử **tri thức** của user).
 - **Tách CORE vs DATA.** *CORE* = phần đi theo repo (CLAUDE.md, workflows, templates,
-  tools, scripts, presets, `factory-config.example.yaml`…). *DATA* = tri thức của user
-  (`docs/`, vault `*_Brain/`, `inbox/`, `.kb/*`, `config/factory-config.yaml`,
-  `config/domain-rules.md`, `.env.local`) — đã gitignore, GIỮ NGUYÊN khi update.
+  tools, scripts, presets, `factory-config.example.yaml`, **`.kb/rules.md` + `.kb/system-lessons.md`**…).
+  *DATA* = tri thức của user (`docs/`, vault `*_Brain/`, `inbox/`, `.kb/*` **TRỪ 2 file CORE vừa nêu**,
+  `config/factory-config.yaml`, `config/domain-rules.md`, `.env.local`) — đã gitignore, GIỮ NGUYÊN khi update.
 - **Mô hình phát hành:** user TẢI ZIP → giải nén → mở trong Cowork → `@khởi tạo dự án`.
   Đa số KHÔNG có `.git`, nên cập nhật/dời máy đều làm bằng **lệnh tự nhiên trong Cowork**
   (Claude tự chạy script), KHÔNG bắt user đi tìm file `.command`.
@@ -219,6 +227,15 @@ User nêu vấn đề (ngôn ngữ tự nhiên)
   bản template đi kèm repo là `config/factory-config.example.yaml` và `config/domain-presets/`.
   **Khi setup, nếu thiếu `config/factory-config.yaml` → copy từ `config/factory-config.example.yaml`**
   rồi điền giá trị (đừng tạo từ đầu).
+- **Phát hành vs deploy landing (xem `RELEASING.md`).** Repo vừa là landing (GitHub Pages tự
+  deploy mỗi lần push) vừa là app base. Tín hiệu "có bản app mới" là **`version.json`**:
+  - Sửa CORE muốn app đã cài nhận được → **TĂNG `version.json`** + ghi `CHANGELOG.md` (kèm bước
+    migration nếu có) → push. App gõ "cập nhật model" sẽ thấy + làm theo CHANGELOG.
+  - Chỉ sửa landing (`index.html`…) → **GIỮ NGUYÊN `version.json`** → web deploy, app đã cài im lặng.
+- **Tiến hóa hệ thống (meta).** `workflows/13-evolve-system.md` (maintainer-only) tự rà soát +
+  cải tiến chính các *workflow & rule* — đối ứng `workflows/09-evolve.md` lo phần *tri thức*.
+  **Hai tầng bài học:** `.kb/lessons.md` (tri thức/feature → workflow 09) vs `.kb/system-lessons.md`
+  (quy trình/workflow → workflow 13). Đừng lẫn hai file này.
 
 ### Giới hạn đã biết (Genesis-1)
 

@@ -13,7 +13,7 @@ import Word/PDF, tự phân tích xung đột, tự học, tự reindex.
 ## Tải & cài đặt
 
 1. **Tải mã nguồn** — chọn 1 trong 2 cách:
-   - Tải file zip: <https://github.com/luugiakhanh689/adaptive_knowledge_base/archive/refs/heads/main.zip>
+   - Tải file zip: <https://github.com/luugiakhanh689/adaptive_knowledge_base/archive/refs/heads/release.zip>
      → giải nén.
    - Hoặc clone bằng git:
      ```
@@ -42,7 +42,7 @@ import Word/PDF, tự phân tích xung đột, tự học, tự reindex.
 |---|---|---|
 | `@khởi tạo dự án` | Setup toàn bộ hệ thống lần đầu | workflows/00-setup.md |
 | `quét jira` | Quét TOÀN BỘ project Jira → vault (tự chạy; Jira nội bộ thì đưa file double-click `quet-jira.command`/`.bat`) | workflows/01-import-jira.md |
-| `quét task FPT-102` | Quét RIÊNG 1 hoặc vài issue/epic (cách nhau dấu phẩy) | workflows/01b-import-jira-single.md |
+| `quét task PROJ-102` | Quét RIÊNG 1 hoặc vài issue/epic (cách nhau dấu phẩy) | workflows/01b-import-jira-single.md |
 | Mô tả một vấn đề / tính năng | Phân tích → trình bày dễ hiểu → bạn duyệt → ghi KB | workflows/03-request.md |
 | `thiết kế <tính năng>` | Chọn project Design → sinh brief → dựng prototype liên kết | workflows/04-claude-design.md |
 | `sync design` | Cập nhật thay đổi từ prototype ngược về KB (có duyệt) | workflows/05-sync-back.md |
@@ -69,16 +69,16 @@ import Word/PDF, tự phân tích xung đột, tự học, tự reindex.
 ## Quét Jira — những điều nên biết
 
 - Kết quả lưu vào thư mục vault (`vault_path` trong config) — mở bằng Obsidian.
-- Mặc định **mỗi project Jira một thư mục riêng** tên `KEY_Tên-project` (vd `FA_FMC-App/`);
+- Mặc định **mỗi project Jira một thư mục riêng** tên `KEY_Tên-project` (vd `PROJ_MyApp/`);
   đổi mẫu tên bằng `PROJECT_FOLDER_PATTERN`, tắt gom bằng `GROUP_BY_PROJECT=false` trong `.env.local`.
-- Quét lẻ vài task: `quét task FA-102` (merge vào vault, không đụng phần khác).
+- Quét lẻ vài task: `quét task PROJ-102` (merge vào vault, không đụng phần khác).
 - Jira đặt tên loại issue không chuẩn (vd tiếng Việt) → khai `JIRA_TYPE_MAP` trong `.env.local`.
 - Token chỉ nằm trong `.env.local` — Claude tạo file và mở cho bạn tự dán, không dán vào chat.
 - **Hỗ trợ cả Jira Server/DC (Bearer PAT) lẫn Jira Cloud/Atlassian (email + API token)** — script tự nhận diện. Cloud lấy token tại: avatar → Account settings → Security → Create and manage API tokens.
 - **Lấy dữ liệu mới định kỳ**: `python3 import_jira.py --since` chỉ kéo issue mới/cập nhật từ lần quét trước (nhanh). Đặt lịch tự động bằng lệnh `đặt lịch quét jira`.
 
 > ⚠️ **Lưu ý lịch tự đồng bộ**: scheduled task chỉ **tự quét được khi Jira là Cloud/Atlassian
-> hoặc public** (môi trường Claude ra được mạng). Với **Jira nội bộ/VPN** (vd `jira.fptmedicare.vn`),
+> hoặc public** (môi trường Claude ra được mạng). Với **Jira nội bộ/VPN** (vd `jira.company.vn`),
 > lịch chỉ có thể **nhắc bạn** chạy file `quet-jira.command`/`.bat` — vì sandbox không vào được
 > mạng nội bộ, không có cron nào vượt qua rào đó.
 
