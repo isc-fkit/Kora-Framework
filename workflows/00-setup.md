@@ -4,6 +4,12 @@
 > user confirm hoặc tự điền rồi mới sang bước kế. Kết quả cuối: `config/factory-config.yaml`
 > được điền đầy đủ, KB sẵn sàng nhận yêu cầu.
 >
+> ⛔ **BẮT BUỘC — MỖI BƯỚC LÀ MỘT LẦN HỎI:** setup đi TỪNG BƯỚC, mỗi bước **DỪNG LẠI hỏi user**
+> (AskUserQuestion cho lựa chọn hữu hạn / câu thường cho input tự do) rồi **CHỜ user trả lời**
+> mới sang bước kế. **TUYỆT ĐỐI KHÔNG**: tự chọn mặc định thay user, gộp nhiều bước vào một lượt,
+> hay chạy thẳng tới cuối. Rule "tự chạy không hỏi" (CLAUDE.md §0.1 Tầng A) **CHỈ** dành cho
+> phân tích read-only — **KHÔNG áp cho setup**. Thà hỏi thừa còn hơn tự quyết thay user.
+>
 > 🟦 **Cách HỎI (rule §1.8) — áp cho mọi bước:** mỗi khi có **lựa chọn hữu hạn (2–4 phương án)**
 > → **BẮT BUỘC dùng AskUserQuestion** (thẻ bấm được), KHÔNG bắt user gõ trả lời trong chat.
 > **Input TỰ DO** (tên project, URL, đường dẫn, mô tả, mã, tên thư mục tùy biến) → hỏi bằng

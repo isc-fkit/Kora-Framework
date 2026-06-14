@@ -10,7 +10,7 @@
 + fallback "chủ repo trên máy mới chưa có `.maintainer` → hỏi xác nhận rồi tạo"). Một nguồn sự thật —
 guard không lệch nhau.
 - Không phải maintainer → DỪNG, nói nhẹ: *"Lệnh 'tiến hóa hệ thống' là của người DUY TRÌ app. Bạn đang
-  dùng bản đã cài — góp ý thì gửi GitHub Issues, hoặc gõ **'cập nhật model'** để lấy bản mới."*
+  dùng bản đã cài — góp ý thì gửi GitHub Issues, hoặc gõ **'cập nhật phiên bản'** để lấy bản mới."*
 - Là maintainer → tiếp Bước 1.
 
 ## Bước 1 — Thu tín hiệu

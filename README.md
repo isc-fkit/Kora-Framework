@@ -84,8 +84,8 @@ import Word/PDF, tự phân tích xung đột, tự học, tự reindex.
 
 ## Cập nhật (giữ nguyên tri thức)
 
-Khi có bản app mới, chạy file **`scripts/update.command`** (double-click trên macOS).
-Nó chỉ cập nhật phần **CORE** của app (CLAUDE.md, workflows, templates, tools, scripts…)
+Khi có bản app mới, gõ **"cập nhật phiên bản"** trong Cowork (hoặc chạy file
+**`scripts/update.command`**). Nó chỉ cập nhật phần **CORE** của app (CLAUDE.md, workflows, templates, tools, scripts…)
 và **KHÔNG đụng tới DATA** của bạn — tri thức trong `docs/`, vault `*_Brain/`, `inbox/`,
 `.kb/*`, `config/factory-config.yaml`, `config/domain-rules.md`, và token Jira được giữ
 nguyên. Sau cập nhật, xem `CHANGELOG.md` để biết bản app có gì mới.

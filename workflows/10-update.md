@@ -1,10 +1,10 @@
 # Workflow 10 — Cập nhật phiên bản APP (GIỮ NGUYÊN tri thức)
 
-> Trigger: "cập nhật model", "cập nhật ứng dụng / app", "cập nhật phiên bản", "lên bản mới nhất",
+> Trigger: "cập nhật phiên bản", "cập nhật ứng dụng / app", "lên bản mới nhất",
 > "có bản mới không", "kiểm tra phiên bản".
-> ⚠️ **"model" ở đây = phiên bản CHƯƠNG TRÌNH (app), KHÔNG phải data-model / AI-model /
-> domain-model.** Khi user gõ các trigger trên → **chạy thẳng workflow này**, KHÔNG hỏi lại
-> "bạn muốn cập nhật cái gì" (lỗi hay gặp). WF tự confirm trước bước GHI/tải (Bước 2) nên an toàn.
+> ⚠️ Đây là **cập nhật phiên bản CHƯƠNG TRÌNH (app)**. Khi user gõ các trigger trên →
+> **chạy thẳng workflow này**, KHÔNG hỏi lại "bạn muốn cập nhật cái gì". WF tự confirm trước
+> bước GHI/tải (Bước 2) nên an toàn.
 > **Ngoại lệ duy nhất:** user gõ **"cập nhật" TRƠ** (không tân ngữ) → mới hỏi 1 câu phân biệt:
 > *"Cập nhật ứng dụng lên bản mới, hay cập nhật tri thức/nội dung?"* rồi mới chạy.
 > Nên TỰ kiểm tra ở cuối setup (workflow 00 Bước 7) và khi user hỏi "đang bản nào".

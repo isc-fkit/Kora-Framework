@@ -10,11 +10,23 @@
 
 ---
 
+## v1.0.3 "Genesis-1" — 2026-06-14
+
+- **Đổi tên lệnh → "cập nhật phiên bản":** bỏ hẳn tên cũ "cập nhật model" (chữ "model" gây nhiễu)
+  ở mọi nơi. Tên chính giờ là **"cập nhật phiên bản"** + alias "cập nhật ứng dụng / app",
+  "lên bản mới nhất", "có bản mới không", "kiểm tra phiên bản".
+- **Setup BẮT BUỘC hỏi từng bước:** `workflows/00-setup.md` thêm rule cứng — mỗi bước DỪNG LẠI
+  hỏi user (AskUserQuestion / câu thường) rồi mới sang bước kế; KHÔNG tự chọn mặc định, KHÔNG
+  gộp bước, KHÔNG chạy lướt. Rule "tự chạy không hỏi" chỉ áp cho phân tích read-only.
+- **Luôn hỏi trước khi THỰC THI:** `CLAUDE.md` Approval Gate viết lại rộng hơn — phân tích
+  read-only vẫn tự chạy, nhưng mọi thao tác ghi/chạy/sửa/export đều phải hỏi xác nhận mới làm.
+- (Không có migration DATA → cập nhật giữ nguyên tri thức của bạn.)
+
 ## v1.0.2 "Genesis-1" — 2026-06-14
 
-- **Hiểu đúng "cập nhật model":** lệnh này = **nâng ỨNG DỤNG lên bản phát hành mới** (không phải
-  data/AI/domain-model). AI chạy thẳng `workflows/10-update.md`, KHÔNG còn hỏi nhầm "bạn muốn cập
-  nhật cái gì". Thêm alias: "cập nhật ứng dụng / app", "cập nhật phiên bản", "có bản mới không".
+- **Hiểu đúng lệnh "cập nhật phiên bản":** lệnh này = **nâng ỨNG DỤNG lên bản phát hành mới**.
+  AI chạy thẳng `workflows/10-update.md`, KHÔNG còn hỏi nhầm "bạn muốn cập
+  nhật cái gì". Thêm alias: "cập nhật ứng dụng / app", "có bản mới không".
 - **Force update + nội dung giới thiệu:** `version.json` thêm 2 field `force` (bool) + `intro`
   (string). Khi phát hành, `workflows/12-release.md` hỏi force? + nội dung giới thiệu; user bản cũ
   lúc **kiểm tra cập nhật** sẽ thấy `intro` nổi bật + cách nâng cấp (force → đánh dấu "bản quan trọng").

@@ -12,7 +12,7 @@ Lệnh "phát hành" KHÔNG dành cho user đã cài app — chỉ chủ repo. K
    KHÔNG đi kèm bản tải về / clone).
    - **KHÔNG có → DỪNG NGAY**, nói nhẹ nhàng (KHÔNG bump version, KHÔNG sửa CHANGELOG, KHÔNG push):
      > *"Lệnh 'phát hành' là của người DUY TRÌ app (tác giả). Bạn đang dùng bản đã cài rồi.
-     > Có lẽ bạn muốn: gõ **'cập nhật model'** để lấy bản mới nhất, hoặc **'sao lưu'** để backup
+     > Có lẽ bạn muốn: gõ **'cập nhật phiên bản'** để lấy bản mới nhất, hoặc **'sao lưu'** để backup
      > tri thức. Hai lệnh đó mới đúng cho người dùng."*
    - **Có `.maintainer`** → tiếp tục.
 2. Có `.git` + `git remote -v` trỏ đúng repo gốc + push được → OK, sang Bước 1.
@@ -63,7 +63,7 @@ Chạy `git status --short` + `git diff --stat` → xem đã đổi gì:
 5. ✋ **GATE — confirm** (push là thao tác công khai, BẮT BUỘC chờ user đồng ý).
 6. `git add -A && git commit -m "Genesis-1 vX.Y.Z: <tóm tắt>" && git push origin release`.
    Tùy chọn đánh dấu: `git tag vX.Y.Z-genesis-1 && git push origin vX.Y.Z-genesis-1`.
-7. Báo: app đã cài gõ **`cập nhật model`** sẽ thấy bản này (đọc CHANGELOG → confirm → tải CORE, giữ DATA);
+7. Báo: app đã cài gõ **`cập nhật phiên bản`** sẽ thấy bản này (đọc CHANGELOG → confirm → tải CORE, giữ DATA);
    GitHub Pages cũng deploy web mới luôn.
 
 ## Guardrails
