@@ -191,6 +191,15 @@
   @media(max-width:760px){.lesson{gap:12px}.lesson .ln{flex:0 0 40px;padding-top:12px}.lesson .ln-num{width:40px;height:40px;font-size:16px}.lessons::before{left:19px}.lesson-body{padding:12px 10px 14px}.lesson .player{margin-top:12px;border-radius:12px}.vfull{font-size:13.5px;margin-top:12px}}
   .note{margin-top:30px;border:1px solid rgba(244,123,32,.4);background:rgba(244,123,32,.1);border-radius:14px;padding:18px 20px}
   .note b{color:var(--orange)}.note p{font-size:13.5px;color:#f0ddc4;margin-top:4px}
+  .dom-illus{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+  .illus-cap{font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--mut);margin-bottom:8px;font-weight:700}
+  .domrow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 11px;border:1px solid var(--line);border-radius:9px;background:rgba(3,20,40,.6);margin-bottom:6px}
+  .domrow code{font-family:ui-monospace,monospace;font-size:12px;color:#cfe9ff}
+  .domrow .ok{font-size:12px;color:var(--green);font-weight:700;white-space:nowrap}
+  .term{background:#0a0e14;border:1px solid var(--line);border-radius:11px;padding:11px 13px;font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.75;color:#cfe0f5;overflow-x:auto}
+  .term .dots{display:flex;gap:5px;margin-bottom:9px}
+  .term .dots i{width:9px;height:9px;border-radius:50%}
+  .term .pr{color:#7fd0ff}.term .ok2{color:var(--green);font-weight:700}.term .gr{color:var(--mut)}
 
   footer{text-align:center;padding:50px 6vw;color:var(--mut);font-size:13px;border-top:1px solid var(--line);background:rgba(2,12,24,.5)}
   .drag-hint{position:fixed;right:16px;bottom:14px;z-index:25;font-size:11px;color:var(--mut);border:1px solid var(--line);background:rgba(3,20,40,.6);backdrop-filter:blur(8px);padding:7px 12px;border-radius:999px;pointer-events:none;animation:pulse 2.6s infinite}
@@ -198,6 +207,7 @@
   @keyframes menuIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
   @media(max-width:760px){
     .loop{grid-template-columns:1fr}.cmd{grid-template-columns:1fr;gap:4px;padding:14px 16px}.flow{flex-direction:column}.arrow{transform:rotate(90deg)}
+    .dom-illus{grid-template-columns:1fr}
     .burger{display:none}
     section{min-height:auto;padding:84px 6vw 56px;scroll-margin-top:118px}
     header{padding:120px 7vw 60px;min-height:96svh;justify-content:flex-start}
@@ -385,6 +395,29 @@
   <div class="steps" style="margin-top:30px">
     <div class="step reveal s1"><div class="ix">⬆</div><div class="body glass"><h4>Cập nhật phiên bản mới</h4><p>Mở thư mục dự án bằng <b>App Claude</b> (phần <b>Cowork</b>) → gõ <code>cập nhật phiên bản</code>. Hệ thống tự so phiên bản với bản mới nhất, cho xem "có gì mới", rồi <b>chỉ thay phần chương trình</b> — vault và <code>.kb</code> của bạn giữ nguyên. (Hoặc double-click <code>scripts/update.command</code>.)</p></div></div>
     <div class="step reveal s2"><div class="ix">💾</div><div class="body glass"><h4>Sao lưu &amp; chuyển sang máy khác</h4><p><b>Máy cũ:</b> gõ <code>sao lưu</code> → hệ thống đóng gói toàn bộ tri thức thành 1 file <code>genesis1-kb-….zip</code>.<br><b>Máy mới:</b> tải base sạch → mở bằng <b>App Claude (Cowork)</b> → chép file zip vào thư mục dự án → gõ <code>nhập tri thức</code> → mọi thứ trở lại y như cũ (tự dựng lại chỉ mục).</p></div></div>
+  </div>
+  <div class="note reveal">
+    <b>⚠ Cập nhật phiên bản: nếu trong Cowork báo lỗi mạng → dùng Claude CLI (Terminal)</b>
+    <p>Môi trường <b>Cowork</b> hiện chỉ cho phép vài domain (như <code>github.com</code>, <code>pypi.org</code>, <code>api.anthropic.com</code>); các domain khác bị chặn. Lệnh <code>cập nhật phiên bản</code> cần tải dữ liệu từ <code>raw.githubusercontent.com</code> nên có thể bị chặn trong Cowork → tự cập nhật báo lỗi. <b>Cách chạy không lỗi:</b> mở thư mục dự án bằng <b>Claude CLI</b> trong <b>Terminal</b> (gõ <code>claude</code>) rồi gõ <code>cập nhật phiên bản</code> — Terminal có mạng đầy đủ nên cập nhật chạy mượt.</p>
+    <div class="dom-illus">
+      <div>
+        <div class="illus-cap">Domain Cowork hỗ trợ</div>
+        <div class="domrow"><code>github.com</code><span class="ok">✅ 200</span></div>
+        <div class="domrow"><code>pypi.org</code><span class="ok">✅ 200</span></div>
+        <div class="domrow"><code>api.anthropic.com</code><span class="ok">✅ accessible</span></div>
+      </div>
+      <div>
+        <div class="illus-cap">Cập nhật qua Claude CLI (Terminal)</div>
+        <div class="term">
+          <div class="dots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div>
+          <div><span class="pr">›</span> cập nhật phiên bản</div>
+          <div class="gr">Đang kiểm tra phiên bản mới trên GitHub…</div>
+          <div>Fetch <span class="gr">raw.githubusercontent.com/…/version.json</span> <span class="ok2">(200 OK)</span></div>
+          <div class="ok2">✅ Bạn đang ở bản mới nhất rồi!</div>
+          <div class="gr">Genesis-1 v1.0.4 — tri thức &amp; cấu hình giữ nguyên.</div>
+        </div>
+      </div>
+    </div>
   </div>
   <div class="note reveal" style="border-color:rgba(45,212,191,.4);background:rgba(45,212,191,.08)"><b style="color:var(--teal)">💡 "Cowork" là gì?</b><p style="color:#cfe0f5">Là phần <b>Cowork</b> trong <b>App Claude</b> (Claude Desktop) — nơi làm việc cùng AI ngay trên thư mục dự án. Cách dùng: cài <b>App Claude</b> → mở phần <b>Cowork</b> → mở thư mục đã giải nén → gõ <code>@khởi tạo dự án</code>.</p></div>
   <div class="note reveal"><b>♻ Quy trình an toàn</b><p>Phần lõi (CORE) và phần dữ liệu của bạn tách bạch hoàn toàn. Cập nhật chỉ đụng vào lõi — tri thức bạn dày công xây dựng không bao giờ bị động đến.</p></div>
