@@ -122,6 +122,9 @@ Mục tiêu: user KHÔNG cần thuộc lệnh nào — chỉ nói bằng lời t
    giá trị tự do — vd "Tạo project mới", "Thêm nguồn Jira mới", "Đường dẫn khác", "Tần suất
    khác"): AskUserQuestion CHỈ để chọn nhánh; SAU KHI user chọn, hỏi giá trị tự do
    (tên/URL/đường dẫn/mã/cron) bằng CÂU THƯỜNG ở lượt kế — KHÔNG nhồi vào cùng AskUserQuestion.
+   **🔑 Mở đầu MỌI quyết định bằng AskUserQuestion**, kể cả câu sẽ dẫn tới nhập tự do: KHÔNG hỏi
+   thẳng kiểu free-text trống ("muốn thêm/bớt rule nào?", "đặt lịch không?") — khung thành thẻ
+   trước (tối thiểu **Có/Không**), user chọn nhánh-cần-nhập thì MỚI hỏi giá trị tự do ở lượt kế.
 9. **Thao tác file phải có fallback.** Sandbox có thể bị chặn quyền xóa/đổi tên
    thư mục trong folder của user. Mọi `mv`/`rm`/rename phải: thử → lỗi thì dùng cách
    thay thế (tạo mới + copy, hoặc giữ nguyên tên và chỉ cập nhật config) → tệ nhất

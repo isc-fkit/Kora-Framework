@@ -20,3 +20,12 @@
 - **Sai gì:** Workflow 01 khóa cứng `.env.local`, không lộ cơ chế đa nguồn (đã có trong code) ra lúc quét.
 - **Sửa gì:** Thêm Bước 0 chọn nguồn/domain (Server nội bộ / Cloud Atlassian) + `JIRA_ENV_FILE`.
 - **Rút ra:** Năng lực đã có trong code PHẢI được surface ở bước người dùng thấy, đừng chôn trong config.
+
+## 2026-06-14 — Setup: sub-step "thêm/bớt rule" mở bằng free-text thay vì thẻ chọn
+- **Sai gì:** Sau khi chọn domain, bước hỏi "thêm/bớt rule?" được để là nhập tự do (câu thường) →
+  user phải gõ tay thay vì bấm chọn. User phản hồi 2 lần rằng "mọi sub-step setup đều phải hiện thẻ".
+  Bản v1.0.3 mới chỉ ép "mỗi bước dừng hỏi" nhưng chưa đổi các sub-step free-text thành thẻ.
+- **Sửa gì:** Đổi "thêm/bớt rule" và "đặt lịch sync" thành AskUserQuestion (Có/Không) trước; chỉ rơi
+  xuống câu thường SAU khi user chọn nhánh cần nhập. Thêm rule 🔑 vào workflow 00 + CLAUDE.md §1.8.
+- **Rút ra:** MỞ ĐẦU mọi quyết định (kể cả câu dẫn tới nhập tự do) bằng AskUserQuestion tối thiểu
+  Có/Không — TUYỆT ĐỐI không mở một bước bằng câu hỏi free-text trống. Free-text chỉ ở lượt kế sau khi chọn nhánh.

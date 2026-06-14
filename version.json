@@ -1,9 +1,9 @@
 {
   "name": "Adaptive Knowledge Base",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "codename": "Genesis-1",
   "released": "2026-06-14",
   "repo": "https://github.com/luugiakhanh689/adaptive_knowledge_base",
   "force": true,
-  "intro": "Bản v1.0.3: lệnh cập nhật nay gọi là 'cập nhật phiên bản'; bước cài đặt dừng hỏi bạn ở từng bước; và hệ thống luôn hỏi xác nhận trước khi thực thi bất kỳ tác vụ nào."
+  "intro": "Bản v1.0.4: bước cài đặt giờ luôn hiện THẺ CHỌN bấm được ở mọi bước (kể cả thêm/bớt rule, đặt lịch) — không bắt bạn gõ tay khi chưa cần."
 }

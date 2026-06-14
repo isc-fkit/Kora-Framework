@@ -17,6 +17,12 @@
 > giá trị tự do — vd "Dùng vault có sẵn", "Đường dẫn khác", "Tạo project Design mới"):
 > AskUserQuestion CHỈ để **chọn nhánh**; SAU KHI user chọn mới hỏi giá trị tự do bằng câu thường
 > ở **lượt kế** — KHÔNG nhồi giá trị tự do vào AskUserQuestion.
+>
+> 🔑 **QUAN TRỌNG — MỞ ĐẦU MỌI QUYẾT ĐỊNH BẰNG AskUserQuestion, kể cả khi sẽ dẫn tới nhập tự do.**
+> TUYỆT ĐỐI KHÔNG mở một bước bằng câu hỏi nhập-tự-do trống (vd "Bạn muốn thêm/bớt rule nào?",
+> "Đặt lịch không?"). Phải khung thành thẻ bấm trước (tối thiểu **Có / Không** — vd
+> "[Giữ nguyên preset] / [Thêm/bớt rule]"); user chọn **[Có / nhánh cần nhập]** thì MỚI hỏi giá
+> trị tự do ở lượt kế. Mọi sub-step nhỏ trong setup đều phải hiện thẻ chọn, không bắt user gõ tay khi chưa cần.
 
 ---
 
@@ -36,8 +42,12 @@ Hỏi user:
 
 Hành động sau khi chọn:
 - Copy preset đã chọn → `config/domain-rules.md`.
-- Hỏi tiếp (input TỰ DO → **câu thường**): "Bạn muốn thêm/bớt rule nào không? (có thể bỏ qua, đổi sau bằng cách nhắn 'đổi domain')".
-- Nếu user mô tả thêm → cập nhật `config/domain-rules.md`, đọc lại cho user xác nhận.
+- Hỏi tiếp — **→ dùng AskUserQuestion** (ca LAI; **KHÔNG mở đầu bằng câu nhập tự do**):
+  *"Bạn muốn chỉnh rule domain không?"* → **[Giữ nguyên preset (khuyến nghị)]** / **[Thêm/bớt rule]**.
+  - Chọn **Giữ nguyên preset** → bỏ qua, sang Bước 2.
+  - Chọn **Thêm/bớt rule** → (lượt kế) hỏi bằng **câu thường** "rule muốn thêm/bớt là gì?" →
+    cập nhật `config/domain-rules.md`, đọc lại cho user xác nhận.
+  (Đổi sau bất cứ lúc nào bằng cách nhắn "đổi domain".)
 - Ghi `domain:` vào `config/factory-config.yaml`.
 
 ## Bước 2 — Tên project & ngôn ngữ
@@ -114,7 +124,8 @@ Jira (URL, token, project keys) là TỰ DO → vẫn hỏi bằng câu thườn
 | `GROUP_BY_PROJECT` | Nhiều project → hỏi user có muốn mỗi project 1 thư mục con trong vault không (khuyến nghị: có). Ghi cả vào `factory-config.yaml > jira.group_by_project` | ✘ |
 | `JIRA_AC_FIELD` / `JIRA_BR_FIELD` | ID custom field Acceptance Criteria / Business Rule nếu Jira có | ✘ |
 
-Sau khi import xong → hỏi: "Đặt lịch tự động lấy issue mới từ Jira (vd mỗi sáng)?"
+Sau khi import xong → **→ dùng AskUserQuestion** (2 lựa chọn): "Đặt lịch tự động lấy issue
+mới từ Jira (vd mỗi sáng)?" → **[Có, đặt lịch]** / **[Không, để sau]**.
 → CÓ thì chạy `workflows/08-schedule-sync.md` ngay; KHÔNG thì bỏ qua (đặt sau bằng
 lệnh "đặt lịch quét jira"). Rồi tiếp Bước 5.
 
