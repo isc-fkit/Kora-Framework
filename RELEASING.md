@@ -58,6 +58,29 @@ CORE = `workflows/`, `tools/`, `CLAUDE.md`, `scripts/`, `templates/`, `config/do
 
 ---
 
+## C. Force update + nội dung giới thiệu (thông báo cho app bản cũ)
+
+`version.json` có 2 field tùy chọn để chủ động báo cho người dùng bản cũ:
+
+```json
+{
+  "version": "1.0.2",
+  "force": false,
+  "intro": "Mô tả ngắn bản này có gì — hiện cho user khi họ kiểm tra cập nhật."
+}
+```
+
+- **`force`** (bool, mặc định `false`): `true` = bản BẮT BUỘC / ưu tiên cập nhật → khi user bản
+  cũ kiểm tra, `workflows/10-update.md` hiện khung **"🔴 Bản cập nhật quan trọng"** + lời lẽ mạnh
+  hơn (vẫn chờ user đồng ý, không tự ép).
+- **`intro`** (string, mặc định `""`): nội dung giới thiệu hiện **nổi bật đầu tiên** khi user bản
+  cũ kiểm tra cập nhật (kèm tóm tắt CHANGELOG + cách nâng cấp).
+- **Khi nào user thấy?** Theo thiết kế hiện tại: **chỉ khi user chủ động** gõ "cập nhật model" /
+  "kiểm tra phiên bản" (KHÔNG nag tự động mỗi phiên).
+- Lúc phát hành, `workflows/12-release.md` Bước 1b hỏi force? + nội dung giới thiệu rồi ghi 2 field này.
+
+---
+
 ## Lưu ý
 
 - `index.html` thuộc CORE → khi app cập nhật (vì version tăng) nó cũng được tải mới. **Vô hại**

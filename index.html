@@ -185,8 +185,10 @@
   .lesson-tag{font-size:10px;font-weight:800;letter-spacing:1.2px;color:#04223f;background:var(--teal);padding:3px 10px;border-radius:999px}
   .lesson-title{font-size:16px;font-weight:700;line-height:1.4;color:var(--ink)}
   .lesson-title code{font-size:.9em}
-  .lesson .player{margin-top:14px}
-  @media(max-width:760px){.lesson{gap:12px}.lesson .ln{flex:0 0 40px;padding-top:12px}.lesson .ln-num{width:40px;height:40px;font-size:16px}.lessons::before{left:19px}}
+  .lesson .player{margin-top:14px;max-width:100%}
+  .vfull{display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-size:12.5px;font-weight:600;color:var(--teal);text-decoration:none;opacity:.9}
+  .vfull:hover{opacity:1;text-decoration:underline}
+  @media(max-width:760px){.lesson{gap:12px}.lesson .ln{flex:0 0 40px;padding-top:12px}.lesson .ln-num{width:40px;height:40px;font-size:16px}.lessons::before{left:19px}.lesson-body{padding:12px 10px 14px}.lesson .player{margin-top:12px;border-radius:12px}.vfull{font-size:13.5px;margin-top:12px}}
   .note{margin-top:30px;border:1px solid rgba(244,123,32,.4);background:rgba(244,123,32,.1);border-radius:14px;padding:18px 20px}
   .note b{color:var(--orange)}.note p{font-size:13.5px;color:#f0ddc4;margin-top:4px}
 
@@ -277,7 +279,8 @@
       <div class="lesson-body glass">
         <div class="lesson-head"><span class="lesson-tag">KHỞI TẠO DỰ ÁN</span></div>
         <h3 class="lesson-title">Toàn cảnh: từ <code>@khởi tạo dự án</code> → quét Jira → nêu yêu cầu → dựng prototype</h3>
-        <div class="player"><iframe src="https://drive.google.com/file/d/1sHWLTuk8FqkzSCVGGk3DKVlLpKAa4ueD/preview" title="Khởi tạo dự án" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe></div>
+        <div class="player"><iframe src="https://drive.google.com/file/d/1sHWLTuk8FqkzSCVGGk3DKVlLpKAa4ueD/preview" title="Khởi tạo dự án" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" referrerpolicy="no-referrer" loading="lazy" allowfullscreen></iframe></div>
+        <a class="vfull" href="https://drive.google.com/file/d/1sHWLTuk8FqkzSCVGGk3DKVlLpKAa4ueD/view" target="_blank" rel="noopener">⛶ Xem toàn màn hình (mobile xoay ngang được)</a>
       </div>
     </div>
     <div class="lesson reveal s2">
@@ -285,7 +288,8 @@
       <div class="lesson-body glass">
         <div class="lesson-head"><span class="lesson-tag">SAU KHỞI TẠO</span></div>
         <h3 class="lesson-title">Sau khi khởi tạo project thành công</h3>
-        <div class="player"><iframe src="https://drive.google.com/file/d/1swdEQ87xTjZy_q-8iXhvbZ-uuYEXmwkI/preview" title="Sau khởi tạo" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe></div>
+        <div class="player"><iframe src="https://drive.google.com/file/d/1swdEQ87xTjZy_q-8iXhvbZ-uuYEXmwkI/preview" title="Sau khởi tạo" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" referrerpolicy="no-referrer" loading="lazy" allowfullscreen></iframe></div>
+        <a class="vfull" href="https://drive.google.com/file/d/1swdEQ87xTjZy_q-8iXhvbZ-uuYEXmwkI/view" target="_blank" rel="noopener">⛶ Xem toàn màn hình (mobile xoay ngang được)</a>
       </div>
     </div>
   </div>
@@ -347,7 +351,7 @@
     <div class="cmd glass reveal"><span class="k">sao lưu / chuyển máy</span><span class="d">Đóng gói toàn bộ tri thức thành 1 file zip để mang đi</span></div>
     <div class="cmd glass reveal"><span class="k">nhập tri thức</span><span class="d">Bung gói zip về máy mới (base sạch) → dùng lại y như cũ</span></div>
   </div>
-  <div class="note reveal"><b>⚠ Lưu ý lịch tự đồng bộ</b><p>Lịch <b>chạy bù khi mở app</b>: nếu đến hẹn mà máy tắt, lần mở app kế tiếp sẽ tự quét, và chỉ <b>lấy issue mới</b> (incremental). Với Jira nội bộ/VPN, lịch <b>nhắc bạn</b> chạy file <code>quet-jira.command</code> / <code>.bat</code>.</p></div>
+  <div class="note reveal"><b>⚠ Lưu ý lịch tự đồng bộ</b><p>Lịch <b>chạy bù khi mở app</b>: nếu đến hẹn mà máy tắt, lần mở app kế tiếp sẽ tự quét, và chỉ <b>lấy issue mới</b> (incremental). Với Jira nội bộ/VPN, lịch <b>nhắc bạn</b> chạy <b>lệnh Terminal</b> (điền sẵn đường dẫn) để quét.</p></div>
 </section>
 
 <section id="benefit" data-scene="benefit">

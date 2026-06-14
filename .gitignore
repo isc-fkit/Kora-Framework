@@ -41,3 +41,6 @@ genesis1-kb-*.zip
 __pycache__/
 *.pyc
 .venv/
+
+# Local preview/dev config (không publish)
+.claude/

@@ -41,7 +41,7 @@ import Word/PDF, tự phân tích xung đột, tự học, tự reindex.
 | Lệnh / bạn nhắn | Hệ thống làm | Workflow |
 |---|---|---|
 | `@khởi tạo dự án` | Setup toàn bộ hệ thống lần đầu | workflows/00-setup.md |
-| `quét jira` | Quét TOÀN BỘ project Jira → vault (tự chạy; Jira nội bộ thì đưa file double-click `quet-jira.command`/`.bat`) | workflows/01-import-jira.md |
+| `quét jira` | Quét TOÀN BỘ project Jira → vault (tự chạy; Jira nội bộ/VPN thì đưa lệnh Terminal copy-paste điền sẵn đường dẫn) | workflows/01-import-jira.md |
 | `quét task PROJ-102` | Quét RIÊNG 1 hoặc vài issue/epic (cách nhau dấu phẩy) | workflows/01b-import-jira-single.md |
 | Mô tả một vấn đề / tính năng | Phân tích → trình bày dễ hiểu → bạn duyệt → ghi KB | workflows/03-request.md |
 | `thiết kế <tính năng>` | Chọn project Design → sinh brief → dựng prototype liên kết | workflows/04-claude-design.md |
@@ -79,8 +79,8 @@ import Word/PDF, tự phân tích xung đột, tự học, tự reindex.
 
 > ⚠️ **Lưu ý lịch tự đồng bộ**: scheduled task chỉ **tự quét được khi Jira là Cloud/Atlassian
 > hoặc public** (môi trường Claude ra được mạng). Với **Jira nội bộ/VPN** (vd `jira.company.vn`),
-> lịch chỉ có thể **nhắc bạn** chạy file `quet-jira.command`/`.bat` — vì sandbox không vào được
-> mạng nội bộ, không có cron nào vượt qua rào đó.
+> lịch chỉ có thể **nhắc bạn** chạy lệnh Terminal `python3 "<đường-dẫn>/import_jira.py" --since`
+> — vì sandbox không vào được mạng nội bộ, không có cron nào vượt qua rào đó.
 
 ## Cập nhật (giữ nguyên tri thức)
 

@@ -18,7 +18,7 @@
 - Cron tính theo **giờ địa phương** của máy.
 - Mạng: chạy ở máy user nên dùng mạng/VPN của user → tới được cả Jira nội bộ
   (`company.vn`) lẫn Cloud. (Nếu môi trường chạy không ra được host nội bộ → lịch
-  chuyển sang **nhắc user** bấm `quet-jira.command`/`.bat`.)
+  chuyển sang **nhắc user** chạy lệnh Terminal `python3 "<TOOL_DIR>/import_jira.py" --since`.)
 
 ## Bước 1 — Hỏi tần suất
 

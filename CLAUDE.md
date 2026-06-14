@@ -33,7 +33,7 @@
 | "sync design", dán kết quả từ Claude Design | Confirm → chạy `workflows/05-sync-back.md` |
 | "xuất tài liệu", "export docx/pdf" | Confirm → chạy `workflows/06-export-docs.md` |
 | "đổi domain", "sửa rule" | Confirm → chạy `workflows/00-setup.md` mục B (chỉ phần domain/rules) |
-| "cập nhật model", "kiểm tra phiên bản model", "có bản model mới không" | Confirm → chạy `workflows/10-update.md` (giữ nguyên tri thức). Từ **"cập nhật" trơ** dễ trùng câu giao tiếp → HỎI xác nhận trước: *"Bạn muốn kiểm tra cập nhật model, hay chỉ đang nói chuyện?"* |
+| "cập nhật model", "cập nhật ứng dụng / app", "cập nhật phiên bản", "lên bản mới nhất", "có bản mới không", "kiểm tra phiên bản" | **= Cập nhật CHƯƠNG TRÌNH (app) lên bản phát hành mới nhất** → chạy `workflows/10-update.md` (giữ nguyên tri thức). ⚠️ Chữ **"model"** ở đây = **phiên bản APP**, KHÔNG phải data-model / AI-model / domain-model — **TUYỆT ĐỐI KHÔNG** hỏi lại "bạn muốn cập nhật cái gì". Chạy thẳng WF10 (WF10 tự confirm trước khi tải/ghi đè). **Chỉ khi** user gõ **"cập nhật" TRƠ** (không có tân ngữ) mới hỏi 1 câu phân biệt: *"Cập nhật ứng dụng lên bản mới, hay cập nhật tri thức/nội dung?"* |
 | "sao lưu", "xuất tri thức", "chuyển/dời máy" | Confirm → chạy `workflows/11-export-import.md` mục A (export) |
 | "nhập tri thức", "khôi phục", đưa file `genesis1-kb-*.zip` | Confirm → chạy `workflows/11-export-import.md` mục B (import) |
 | "phát hành", "release", "lên version", "ra bản mới" | **CHỈ người duy trì app** — `workflows/12-release.md` Bước 0 kiểm tra file `.maintainer`. Máy user thường (không có `.maintainer`) → KHÔNG chạy, giải thích đây là lệnh của tác giả + gợi ý **"cập nhật model"** / **"sao lưu"** |
@@ -197,7 +197,7 @@ User nêu vấn đề (ngôn ngữ tự nhiên)
 - Báo tiến độ ngắn gọn dạng checklist sau mỗi bước.
 - Không hiển thị nội dung kỹ thuật (JSON, code) trừ khi user hỏi.
 - Khi lỗi (ví dụ Jira 401): giải thích nguyên nhân bằng lời thường + cách khắc phục.
-- **Khi present file cho user** (vd `.env.local`, `quet-jira.command`): card file KHÔNG
+- **Khi present file cho user** (vd `.env.local`): card file KHÔNG
   có nút mở thư mục chứa nó → luôn kèm theo (1) đường dẫn folder tuyệt đối trong khối
   code để copy, (2) hướng dẫn mở nhanh: macOS = Finder → `Cmd+Shift+G` → dán đường dẫn;
   Windows = Explorer → dán vào thanh địa chỉ. File ẩn (bắt đầu bằng `.`) nhắc thêm:
@@ -216,10 +216,12 @@ User nêu vấn đề (ngôn ngữ tự nhiên)
 - **Mô hình phát hành:** user TẢI ZIP → giải nén → mở trong Cowork → `@khởi tạo dự án`.
   Đa số KHÔNG có `.git`, nên cập nhật/dời máy đều làm bằng **lệnh tự nhiên trong Cowork**
   (Claude tự chạy script), KHÔNG bắt user đi tìm file `.command`.
-- **Cập nhật:** user nhắn **"cập nhật model" / "kiểm tra phiên bản model"** → `workflows/10-update.md`
-  (từ "cập nhật" trơ → hỏi xác nhận ý định trước vì dễ trùng câu giao tiếp):
-  so `version.json` local với bản trên GitHub → nếu mới hơn, confirm → `scripts/update.command`
-  chỉ thay CORE, **KHÔNG đụng DATA**. Nên TỰ kiểm tra phiên bản ở cuối setup.
+- **Cập nhật:** user nhắn **"cập nhật model" / "cập nhật ứng dụng" / "kiểm tra phiên bản"**
+  → `workflows/10-update.md`. **"model" = phiên bản APP** (không phải data/AI/domain-model) →
+  KHÔNG hỏi lại "cập nhật cái gì", chạy thẳng WF10; chỉ "cập nhật" TRƠ mới hỏi phân biệt.
+  So `version.json` local với bản trên GitHub → nếu mới hơn, hiện **`intro`** (nội dung giới
+  thiệu) + tóm tắt CHANGELOG + cách nâng cấp; nếu **`force:true`** thì đánh dấu "bản quan trọng".
+  Confirm → `scripts/update.command` chỉ thay CORE, **KHÔNG đụng DATA**. Nên TỰ kiểm tra ở cuối setup.
 - **Dời máy (không mất tri thức):** user nhắn **"sao lưu/chuyển máy"** → `workflows/11-export-import.md`
   mục A (export DATA ra `genesis1-kb-*.zip`); ở máy mới (base sạch) nhắn **"nhập tri thức"**
   → mục B (import). Token `.env.local` cân nhắc bảo mật khi chuyển.

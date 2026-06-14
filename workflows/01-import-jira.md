@@ -4,11 +4,10 @@
 > Script đã viết sẵn: `tools/jira-to-obsidian/import_jira.py` — KHÔNG cần viết lại,
 > chỉ cấu hình và chạy. Muốn quét RIÊNG 1 vài issue → dùng `workflows/01b-import-jira-single.md`.
 >
-> **Lưu ý (đã vá 2026-06-13):** script tự tìm `.env.local` và vault theo vị trí FILE script,
-> KHÔNG theo thư mục đang đứng (cwd). Nhờ vậy chạy qua Cowork (sandbox) từ bất kỳ cwd nào
-> cũng nạp đúng config + ghi đúng vault, y hệt khi double-click `quet-jira.command`. Trước
-> đây Cowork gọi script từ thư mục khác → không thấy `.env.local` → báo "Thiếu JIRA_BASE_URL"
-> dù Terminal vẫn chạy được. `cd` vào tool dir giờ chỉ là tùy chọn, KHÔNG còn bắt buộc.
+> **Lưu ý (đã vá 2026-06-13):** script tự tìm `.env.local` và vault theo **vị trí FILE script**,
+> KHÔNG theo thư mục đang đứng (cwd). Nhờ vậy chạy từ bất kỳ cwd nào cũng nạp đúng config + ghi
+> đúng vault. Vì thế **lệnh chạy nên dùng đường dẫn TUYỆT ĐỐI tới script, KHÔNG cần `cd`** — gọi
+> `python3 "<TOOL_DIR>/import_jira.py"` là đủ, bền nhất, không lo đứng sai thư mục.
 
 ## Bước 0 — Chọn NGUỒN Jira (domain) cần quét
 
@@ -88,21 +87,23 @@ Chưa có → hướng dẫn cài theo OS.
 >    "Jira hỏng". Giải thích: sandbox của Claude có thể không ra được domain này dù
 >    domain public. Chuyển sang **chế độ user tự chạy**.
 > 3. **Sinh lệnh theo OS của user** (xác định từ context phiên làm việc; không chắc
->    thì hỏi 1 câu: macOS / Windows / Linux). Điền `<TOOL_DIR>` = đường dẫn tuyệt đối
->    thật của `tools/jira-to-obsidian` lấy từ project hiện tại — không viết cứng:
+>    thì hỏi 1 câu: macOS / Windows / Linux). Điền `<TOOL_DIR>` = **đường dẫn tuyệt đối
+>    THẬT của máy này** tới `tools/jira-to-obsidian` (lấy từ project root hiện tại — Claude
+>    tự tính, **KHÔNG viết cứng đường dẫn mẫu**). Dùng **đường dẫn tuyệt đối tới script,
+>    KHÔNG cần `cd`** (script tự định vị `.env.local`/vault theo vị trí file — xem lưu ý đầu trang):
 >
 >    **macOS / Linux:**
 >    ```bash
->    cd "<TOOL_DIR>"
->    python3 import_jira.py --test
+>    python3 "<TOOL_DIR>/import_jira.py" --test
 >    ```
 >
 >    **Windows (PowerShell):**
 >    ```powershell
->    cd "<TOOL_DIR>"
->    py import_jira.py --test
+>    py "<TOOL_DIR>\import_jira.py" --test
 >    ```
 >
+>    Đa nguồn (file `.env.<tên>` khác `.env.local`): thêm tiền tố `JIRA_ENV_FILE=.env.<tên> `
+>    trước lệnh (bash) hoặc `$env:JIRA_ENV_FILE=".env.<tên>"; ` (PowerShell).
 >    Nếu máy user không có Python → hướng dẫn cài theo OS (macOS: `brew install python3`
 >    hoặc python.org; Windows: Microsoft Store / python.org, tick "Add to PATH").
 > 4. User dán kết quả (danh sách project) vào chat → Claude tiếp tục như thường.
@@ -126,15 +127,17 @@ ràng (mã + tên project) và cho user CHỌN bằng AskUserQuestion:
 
 ## Bước 4 — Chạy import
 
-- Bước 3 chạy được trong sandbox → Claude tự chạy `python3 import_jira.py` (tự động hoàn toàn).
+- Bước 3 chạy được trong sandbox → Claude tự chạy `python3 "<TOOL_DIR>/import_jira.py"`
+  (đường dẫn tuyệt đối, không cần `cd`; tự động hoàn toàn).
   **Tường thuật console cho user:** script in tiến độ từng project
   (`Đang quét project FA — → 2347 issues`...). Claude phải hiển thị lại các dòng này
   trong chat (nguyên văn hoặc tóm tắt theo thời gian thực từng project) để user biết
   hệ thống đang quét gì — không chạy im lặng. Quét xong báo dòng cuối:
   `Obsidian Vault đã tạo tại: <path>` → rồi **HIỆN KẾT QUẢ NGAY** (Bước 5): bảng số lượng
   theo loại + đường dẫn vault, KHÔNG đợi user hỏi mới hiện.
-- Bước 3 phải chạy ở máy user → sinh lệnh import theo đúng OS như Bước 3
-  (macOS/Linux: `python3 import_jira.py`; Windows: `py import_jira.py`).
+- Bước 3 phải chạy ở máy user → sinh lệnh import theo đúng OS như Bước 3, dạng đường dẫn
+  tuyệt đối không cần `cd` (macOS/Linux: `python3 "<TOOL_DIR>/import_jira.py"`;
+  Windows: `py "<TOOL_DIR>\import_jira.py"`).
 
   Chờ user xác nhận "chạy xong" → Claude kiểm tra vault (đường dẫn theo `vault_path`
   trong config) đã có notes + `_system/*.json` → tiếp Bước 5 như thường.
@@ -145,35 +148,39 @@ ràng (mã + tên project) và cho user CHỌN bằng AskUserQuestion:
 
 ### ⚡ Chế độ user_terminal — KHÔNG chặn setup
 
-Khi sandbox không chạy được, KHÔNG dừng luồng setup lại chờ:
+Khi sandbox không chạy được (lỗi mạng), KHÔNG dừng luồng setup lại chờ:
 
 1. Hoàn tất mọi cấu hình trước (`.env.local` đầy đủ).
-2. **Ưu tiên cách 1 — file double-click (gần như tự động):**
-   present file cho user kèm hướng dẫn 1 dòng:
-   - macOS: `quet-jira.command` — double-click trong Finder → Terminal tự mở,
-     tự test kết nối, hiện danh sách project, user nhấn Enter là quét, console
-     hiện tiến độ trực tiếp. (Lần đầu nếu macOS chặn: chuột phải → Open.
-     Nếu báo không có quyền chạy: hướng dẫn 1 lệnh `chmod +x quet-jira.command`.)
-   - Windows: `quet-jira.bat` — double-click tương tự.
-   File này nằm sẵn trong `tools/jira-to-obsidian/`, KHÔNG phải copy lệnh gì cả.
-3. **Cách 2 — copy-paste lệnh** (khi user thích Terminal): in **MỘT khối lệnh
-   hoàn chỉnh, đã điền sẵn đường dẫn thật**. **Quy tắc trình bày lệnh:**
+2. **Cách DUY NHẤT cho user tự chạy = lệnh Terminal copy-paste.**
+   > 🚫 KHÔNG dùng file double-click (`.command`/`.bat`) — macOS Gatekeeper hay chặn
+   > "không đáng tin cậy / không mở được" gây hoang mang. Đã bỏ 2 file đó khỏi tool.
 
-   - **Dòng đầu tiên LUÔN là `cd` vào thư mục chứa `.env.local`** (tool dir) —
-     script đọc `.env.local` theo thư mục hiện hành, đứng sai chỗ là lỗi.
-   - **Mỗi bước một dòng riêng** (xuống dòng, KHÔNG nối && thành 1 dòng dài) —
-     dễ đọc, không bị cắt trong khung chat, paste cả khối vẫn chạy tuần tự.
-   - Chỉ 2 dòng — không venv, không pip (script dùng thư viện chuẩn Python):
+   In **MỘT khối lệnh hoàn chỉnh, đã điền sẵn đường dẫn TUYỆT ĐỐI THẬT của máy này**.
+   **Quy tắc trình bày lệnh:**
+   - **Đường dẫn `<TOOL_DIR>` Claude tự tính** từ project root hiện tại + `/tools/jira-to-obsidian`
+     — **dynamic theo từng máy/OS, TUYỆT ĐỐI KHÔNG hardcode đường dẫn mẫu.**
+   - **KHÔNG cần `cd`**: gọi thẳng `python3 "<TOOL_DIR>/import_jira.py"` (script tự định vị
+     `.env.local`/vault theo vị trí file — xem lưu ý đầu trang). Đứng sai thư mục cũng chạy đúng.
+   - **Mỗi bước một dòng riêng** (xuống dòng, KHÔNG nối `&&`) — dễ đọc, paste cả khối vẫn chạy tuần tự.
+   - Không venv, không pip (script chỉ dùng thư viện chuẩn Python):
 
+   **macOS / Linux:**
    ```bash
-   cd "/đường/dẫn/thật/tới/tools/jira-to-obsidian"
-   python3 import_jira.py
+   python3 "<TOOL_DIR>/import_jira.py" --test
+   python3 "<TOOL_DIR>/import_jira.py"
    ```
 
-   (Windows: khối PowerShell tương đương, cũng mỗi bước một dòng.)
-4. Đánh dấu `jira.import_status: pending_user_run` trong `factory-config.yaml`,
+   **Windows (PowerShell):**
+   ```powershell
+   py "<TOOL_DIR>\import_jira.py" --test
+   py "<TOOL_DIR>\import_jira.py"
+   ```
+
+   Đa nguồn (`.env.<tên>`): thêm `JIRA_ENV_FILE=.env.<tên> ` trước lệnh (bash) /
+   `$env:JIRA_ENV_FILE=".env.<tên>"; ` (PowerShell).
+3. Đánh dấu `jira.import_status: pending_user_run` trong `factory-config.yaml`,
    rồi **tiếp tục các bước setup còn lại** (Bước 5, 6, 7) — không chờ.
-5. User chạy xong lúc nào thì nhắn "đã quét xong" (hoặc bất cứ lúc nào sau này) →
+4. User chạy xong lúc nào thì nhắn "đã quét xong" (hoặc bất cứ lúc nào sau này) →
    Claude kiểm tra vault có notes + `_system/*.json` → chạy Bước 5 (báo cáo + merge)
    → đổi `import_status: done`.
 

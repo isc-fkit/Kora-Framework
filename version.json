@@ -1,7 +1,9 @@
 {
   "name": "Adaptive Knowledge Base",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "codename": "Genesis-1",
   "released": "2026-06-14",
-  "repo": "https://github.com/luugiakhanh689/adaptive_knowledge_base"
+  "repo": "https://github.com/luugiakhanh689/adaptive_knowledge_base",
+  "force": true,
+  "intro": "Bản v1.0.2: lệnh 'cập nhật model' nay hiểu đúng là nâng ứng dụng lên bản mới; video hướng dẫn xem tốt hơn trên điện thoại; bước cài đặt hiện thẻ chọn bấm được; quét Jira chạy bằng lệnh terminal (bỏ file double-click hay bị chặn)."
 }

@@ -1,8 +1,12 @@
-# Workflow 10 — Cập nhật phiên bản (GIỮ NGUYÊN tri thức)
+# Workflow 10 — Cập nhật phiên bản APP (GIỮ NGUYÊN tri thức)
 
-> Trigger: "cập nhật model", "kiểm tra phiên bản model", "có bản model mới không" (confirm ý định trước).
-> ⚠️ Từ **"cập nhật" trơ** dễ trùng câu giao tiếp thường → KHÔNG tự chạy; HỎI xác nhận
-> *"Bạn muốn kiểm tra cập nhật model, hay chỉ đang nói chuyện?"* rồi mới chạy.
+> Trigger: "cập nhật model", "cập nhật ứng dụng / app", "cập nhật phiên bản", "lên bản mới nhất",
+> "có bản mới không", "kiểm tra phiên bản".
+> ⚠️ **"model" ở đây = phiên bản CHƯƠNG TRÌNH (app), KHÔNG phải data-model / AI-model /
+> domain-model.** Khi user gõ các trigger trên → **chạy thẳng workflow này**, KHÔNG hỏi lại
+> "bạn muốn cập nhật cái gì" (lỗi hay gặp). WF tự confirm trước bước GHI/tải (Bước 2) nên an toàn.
+> **Ngoại lệ duy nhất:** user gõ **"cập nhật" TRƠ** (không tân ngữ) → mới hỏi 1 câu phân biệt:
+> *"Cập nhật ứng dụng lên bản mới, hay cập nhật tri thức/nội dung?"* rồi mới chạy.
 > Nên TỰ kiểm tra ở cuối setup (workflow 00 Bước 7) và khi user hỏi "đang bản nào".
 >
 > **Mô hình phát hành:** user TẢI ZIP → giải nén → mở trong Cowork → setup. Đa số KHÔNG có
@@ -20,11 +24,18 @@
 
 ## Bước 2 — Trình bày + ✋ confirm
 
+- **Đọc `intro` + `force` từ remote `version.json`** (đã lấy ở Bước 1):
+  - `intro` (nội dung giới thiệu maintainer điền lúc phát hành) khác rỗng → **hiện nổi bật ĐẦU
+    TIÊN** (nguyên văn, dạng trích dẫn) để user biết bản mới có gì đáng chú ý.
+  - `force: true` → mở đầu bằng **"🔴 Bản cập nhật quan trọng/ưu tiên"**, lời lẽ mạnh hơn (nên
+    cập nhật sớm). `force` vắng/false → thông báo bình thường.
 - Lấy "có gì mới" từ GitHub CHANGELOG:
   `https://raw.githubusercontent.com/luugiakhanh689/adaptive_knowledge_base/release/CHANGELOG.md`
   → tóm tắt tiếng Việt: từ vX → vY có gì mới.
 - Nhấn mạnh: **tri thức của bạn (vault, `.kb`, config, docs) GIỮ NGUYÊN** — chỉ thay phần chương trình.
-- Hỏi confirm: "Cập nhật ngay chứ?" (thao tác GHI/NẶNG — bắt buộc confirm).
+- **Nêu rõ cách nâng cấp** (1 dòng): "Gõ **'đồng ý'** để tôi cập nhật ngay; hoặc tự chạy
+  `scripts/update.command`."
+- Hỏi confirm: "Cập nhật ngay chứ?" (thao tác GHI/NẶNG — bắt buộc confirm; kể cả `force` vẫn chờ user đồng ý).
 
 ## Bước 3 — Chạy cập nhật
 

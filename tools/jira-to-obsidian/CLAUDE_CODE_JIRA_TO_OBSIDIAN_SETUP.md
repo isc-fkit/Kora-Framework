@@ -55,36 +55,19 @@ Quy trình:
 
 ---
 
-## 2. Bước 1 — Tạo folder project local
+## 2. Bước 1 — Môi trường (KHÔNG cần cài gì)
 
-Mục tiêu: tạo workspace riêng để chứa script import Jira.
-
-Chạy trong Terminal:
-
-```bash
-mkdir jira-to-obsidian
-cd jira-to-obsidian
-```
-
-Tạo Python virtual environment:
+Script `import_jira.py` đã nằm sẵn trong `tools/jira-to-obsidian/` và **chỉ dùng thư viện
+chuẩn Python 3** — **KHÔNG cần tạo venv, KHÔNG cần `pip install`** (requests/python-dotenv
+không dùng tới). Chỉ cần máy có Python 3:
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
+python3 --version   # macOS/Linux
+py --version        # Windows
 ```
 
-Cài thư viện cần thiết:
-
-```bash
-pip install requests python-dotenv
-```
-
-Kết quả mong đợi:
-
-```text
-jira-to-obsidian/
-  .venv/
-```
+Chưa có Python → cài theo OS (macOS: `brew install python3` hoặc python.org;
+Windows: Microsoft Store / python.org, tick "Add to PATH").
 
 ---
 

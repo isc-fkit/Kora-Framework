@@ -45,7 +45,16 @@ Chạy `git status --short` + `git diff --stat` → xem đã đổi gì:
    - **minor** `x.(Y+1).0` — thêm tính năng.
    - **major** `(X+1).0.0` — thay đổi phá vỡ / cần migration.
    - `codename` GIỮ `"Genesis-1"` (chỉ đổi khi sang một đời lớn hoàn toàn mới).
-2. Sửa `version.json`: `version` mới + `released` = **ngày hôm nay**. (giữ `name`, `repo`, `codename`)
+1b. **Force hay không + nội dung giới thiệu** (cơ chế thông báo cho app bản cũ):
+   - *AskUserQuestion* (2 lựa chọn): **"Bản này BẮT BUỘC / ưu tiên cập nhật (force)?"**
+     → `[Có — bản quan trọng]` / `[Không — cập nhật thường]`.
+   - **Hỏi "Nội dung giới thiệu"** (input TỰ DO → hỏi bằng **câu thường**, KHÔNG AskUserQuestion):
+     *"Nội dung giới thiệu hiện cho người dùng khi họ kiểm tra bản mới là gì? (vd: 'Bản này vá
+     lỗi bảo mật quan trọng, nên cập nhật sớm.' — để trống nếu không cần.)"*
+   - Ghi vào `version.json`: `force: true/false` + `intro: "<nội dung>"` (để trống = `""`).
+     `workflows/10-update.md` Bước 2 sẽ hiện `intro` + đánh dấu khi `force:true` cho user bản cũ.
+2. Sửa `version.json`: `version` mới + `released` = **ngày hôm nay** + `force` + `intro` (Bước 1b).
+   (giữ `name`, `repo`, `codename`)
 3. Thêm mục ĐẦU vào `CHANGELOG.md`:
    `## vX.Y.Z "Genesis-1" — YYYY-MM-DD` + các gạch đầu dòng "có gì mới".
    **Nếu cần thao tác khi cập nhật** (migration: đổi cấu trúc config/vault…) → ghi RÕ các bước ở đây —
