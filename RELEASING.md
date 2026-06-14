@@ -46,6 +46,9 @@ CORE = `workflows/`, `tools/`, `CLAUDE.md`, `scripts/`, `templates/`, `config/do
    - `1.0.0 → 1.1.0` — **thêm tính năng** (minor).
    - `1.0.0 → 2.0.0` — **thay đổi phá vỡ / cần migration** (major).
    - Đổi `released` = ngày phát hành. `codename` giữ `"Genesis-1"` đến đời lớn kế tiếp.
+2b. **Đồng bộ nhãn version trên landing `index.html`** theo version mới: thẻ `mc-ver` +
+   footer `Phiên bản: Genesis-1 (vX.Y.Z)`. (Quên → web hiện version cũ. Soát:
+   `grep -n 'mc-ver\|Phiên bản:' index.html`.)
 3. **Thêm mục vào `CHANGELOG.md`**: từ vX → vY có gì mới. Nếu cần user/Claude thao tác thêm
    (migration: đổi cấu trúc config/vault…) → ghi RÕ các bước ở đây — `workflows/10-update.md`
    sẽ đọc CHANGELOG để biết "cần làm những gì" và làm theo.

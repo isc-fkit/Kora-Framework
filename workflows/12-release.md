@@ -55,6 +55,10 @@ Chạy `git status --short` + `git diff --stat` → xem đã đổi gì:
      `workflows/10-update.md` Bước 2 sẽ hiện `intro` + đánh dấu khi `force:true` cho user bản cũ.
 2. Sửa `version.json`: `version` mới + `released` = **ngày hôm nay** + `force` + `intro` (Bước 1b).
    (giữ `name`, `repo`, `codename`)
+2b. **BẮT BUỘC — đồng bộ nhãn version hiển thị trên landing `index.html`** theo `version` mới:
+   thẻ model card `<span class="mc-ver">vX.Y.Z</span>` VÀ footer `Phiên bản: <b>Genesis-1 (vX.Y.Z)</b>`.
+   (Quên bước này → web hiện version cũ dù đã phát hành bản mới. `grep -n 'mc-ver\|Phiên bản:' index.html`
+   để soát.)
 3. Thêm mục ĐẦU vào `CHANGELOG.md`:
    `## vX.Y.Z "Genesis-1" — YYYY-MM-DD` + các gạch đầu dòng "có gì mới".
    **Nếu cần thao tác khi cập nhật** (migration: đổi cấu trúc config/vault…) → ghi RÕ các bước ở đây —
