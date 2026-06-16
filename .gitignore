@@ -44,4 +44,6 @@ __pycache__/
 .venv/
 
 # Local preview/dev config (không publish)
-.claude/
+.claude/*
+# ...nhưng slash commands thì publish để app/web cùng dùng
+!.claude/commands/
