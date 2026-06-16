@@ -95,3 +95,21 @@ data_env_files() {
     printf '%s\n' "tools/jira-to-obsidian/$base"
   done
 }
+
+# self_dequarantine: gỡ nhãn ẩn 'com.apple.quarantine' mà macOS dán cho file tải từ web.
+# Mục đích: sau khi user "Open Anyway" 1 file .command ở lần đầu, các script CÒN LẠI sẽ
+# KHÔNG bị Gatekeeper hỏi nữa ở những lần double-click sau (chỉ cần vượt 1 lần duy nhất).
+# An toàn: chỉ xoá một metadata "tải từ web", không đụng nội dung file. Chỉ chạy trên macOS.
+# Luôn nuốt lỗi để không bao giờ làm script dừng (kể cả khi đang 'set -e').
+self_dequarantine() {
+  [ "$(uname -s 2>/dev/null)" = "Darwin" ] || return 0          # chỉ macOS
+  command -v xattr >/dev/null 2>&1 || return 0
+  local target="$REPO_ROOT/scripts"
+  [ -d "$target" ] || return 0
+  # Chỉ gỡ (và chỉ in) khi thực sự còn nhãn — tránh in thừa ở mỗi lần chạy.
+  if xattr -lr "$target" 2>/dev/null | grep -q "com.apple.quarantine"; then
+    xattr -dr com.apple.quarantine "$target" >/dev/null 2>&1 || true
+    echo "🔓 Đã gỡ nhãn cảnh báo của macOS cho các script — lần sau double-click chạy thẳng, không bị hỏi lại."
+    echo ""
+  fi
+}

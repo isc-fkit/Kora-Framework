@@ -12,6 +12,11 @@ set "SCRIPT_DIR=%~dp0"
 pushd "%SCRIPT_DIR%.." || (echo [LOI] Khong vao duoc thu muc repo. & goto :end)
 set "REPO_ROOT=%CD%"
 
+REM --- Go "Mark of the Web" cho cac script con lai -> lan sau double-click khong bi SmartScreen hoi ---
+powershell -NoProfile -Command "Get-ChildItem -LiteralPath '%REPO_ROOT%\scripts' -Recurse -File -ErrorAction SilentlyContinue | Unblock-File -ErrorAction SilentlyContinue" >nul 2>nul
+echo [OK] Da go nhan canh bao cho cac script - lan sau double-click chay thang, khong bi hoi lai.
+echo.
+
 set "ZIP_URL=https://github.com/luugiakhanh689/adaptive_knowledge_base/archive/refs/heads/release.zip"
 
 echo ================================================================

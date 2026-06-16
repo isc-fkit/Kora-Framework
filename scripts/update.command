@@ -15,6 +15,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/lib-paths.sh"
 cd "$REPO_ROOT"
 
+# Gỡ nhãn quarantine cho các script còn lại → lần sau double-click không bị macOS hỏi nữa.
+self_dequarantine
+
 ZIP_URL="https://github.com/luugiakhanh689/adaptive_knowledge_base/archive/refs/heads/release.zip"
 
 # --- Tiện ích ----------------------------------------------------------------

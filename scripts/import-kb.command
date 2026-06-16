@@ -21,6 +21,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/lib-paths.sh"
 cd "$REPO_ROOT"
 
+# Gỡ nhãn quarantine cho các script còn lại → lần sau double-click không bị macOS hỏi nữa.
+self_dequarantine
+
 have() { command -v "$1" >/dev/null 2>&1; }
 
 die() {

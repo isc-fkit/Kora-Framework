@@ -1,0 +1,40 @@
+======================================================================
+  ĐỌC TRƯỚC — Mở file cài đặt lần đầu trên macOS / Windows
+======================================================================
+
+Các file .command (macOS/Linux) và .bat (Windows) trong thư mục này là
+script cài đặt / cập nhật / sao lưu của Adaptive Knowledge Base.
+
+Vì chúng được TẢI TỪ WEB, hệ điều hành sẽ cảnh báo an toàn ở LẦN ĐẦU
+double-click. Đây là điều bình thường, KHÔNG phải lỗi. Chỉ cần làm 1
+lần duy nhất: ngay sau đó script tự gỡ nhãn cho các file còn lại, nên
+những lần double-click sau sẽ chạy thẳng, không hỏi lại.
+
+----------------------------------------------------------------------
+ macOS
+----------------------------------------------------------------------
+Nếu hiện "...cannot be opened because it is from an unidentified
+developer" hoặc "macOS không thể xác minh nhà phát triển":
+
+  Cách 1 (nhanh):  Chuột phải (hoặc giữ Control + click) vào file
+                   .command  →  chọn "Open"  →  bấm "Open" lần nữa.
+
+  Cách 2:           → System Settings → Privacy & Security
+                   → kéo xuống mục Security → bấm "Open Anyway"
+                   → xác nhận bằng Touch ID / mật khẩu.
+
+----------------------------------------------------------------------
+ Windows
+----------------------------------------------------------------------
+Nếu hiện "Windows protected your PC" (Microsoft Defender SmartScreen):
+
+   Bấm "More info"  →  "Run anyway".
+
+----------------------------------------------------------------------
+ Không muốn gặp cảnh báo nào?
+----------------------------------------------------------------------
+Thay vì tải file rồi double-click, bạn có thể mở Terminal / PowerShell
+và dán lệnh 1 dòng từ trang Setup — cách này KHÔNG bao giờ bị cảnh báo
+vì không có file nào được tải xuống đĩa.
+
+(File này chỉ để hướng dẫn — không cần chạy.)

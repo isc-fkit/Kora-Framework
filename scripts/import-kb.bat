@@ -14,6 +14,11 @@ pushd "%SCRIPT_DIR%.." || (echo [LOI] Khong vao duoc thu muc repo. & goto :end)
 set "REPO_ROOT=%CD%"
 set "CFG=%REPO_ROOT%\config\factory-config.yaml"
 
+REM --- Go "Mark of the Web" cho cac script con lai -> lan sau double-click khong bi SmartScreen hoi ---
+powershell -NoProfile -Command "Get-ChildItem -LiteralPath '%REPO_ROOT%\scripts' -Recurse -File -ErrorAction SilentlyContinue | Unblock-File -ErrorAction SilentlyContinue" >nul 2>nul
+echo [OK] Da go nhan canh bao cho cac script - lan sau double-click chay thang, khong bi hoi lai.
+echo.
+
 where tar >nul 2>nul || (echo [LOI] Thieu lenh 'tar' (de giai nen zip). & goto :end)
 
 echo ================================================================

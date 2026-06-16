@@ -1,9 +1,9 @@
 {
   "name": "Adaptive Knowledge Base",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "codename": "Genesis-1",
-  "released": "2026-06-15",
+  "released": "2026-06-17",
   "repo": "https://github.com/luugiakhanh689/adaptive_knowledge_base",
-  "force": true,
-  "intro": "Bản v1.2.1: báo cáo tiến độ có thể gộp custom field 'ước tính theo giờ' (vd 'Effort Plan (h)') vào tổng ước tính khi issue thiếu time-tracking chuẩn — đặt jira.effort_field trong config (hoặc JIRA_EFFORT_FIELD)."
+  "force": false,
+  "intro": "Bản v1.2.2: script cài đặt/cập nhật/sao lưu (.command/.bat) tự gỡ nhãn cảnh báo của hệ điều hành sau lần mở đầu — từ lần sau double-click chạy thẳng, không bị macOS Gatekeeper / Windows SmartScreen hỏi lại. Kèm file scripts/0-ĐỌC-TRƯỚC.txt hướng dẫn thao tác lần đầu."
 }
