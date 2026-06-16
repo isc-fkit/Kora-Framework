@@ -57,11 +57,11 @@ set "SAFE_PROJECT=%SAFE_PROJECT:/=-%"
 set "SAFE_PROJECT=%SAFE_PROJECT::=-%"
 if "%SAFE_PROJECT%"=="" set "SAFE_PROJECT=project"
 
-set "ZIP_NAME=genesis1-kb-%SAFE_PROJECT%-%NGAY%.zip"
+set "ZIP_NAME=kora-kb-%SAFE_PROJECT%-%NGAY%.zip"
 set "ZIP_PATH=%REPO_ROOT%\%ZIP_NAME%"
 
 echo ================================================================
-echo   XUAT tri thuc - Adaptive Knowledge Base (Genesis-1)
+echo   XUAT tri thuc - Kora-Framework
 echo   Project : %PROJECT%
 echo   Vault   : %VAULT%
 echo   Phien ban: v%VERSION%

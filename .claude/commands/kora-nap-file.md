@@ -2,7 +2,7 @@
 description: Nạp tài liệu PDF/DOCX/ảnh/zip Obsidian thành tri thức (workflows/02)
 ---
 
-Người dùng vừa CHỦ ĐỘNG gõ `/nap-file` — đây là **lệnh rõ ràng** để nạp tài liệu thành tri thức.
+Người dùng vừa CHỦ ĐỘNG gõ `/kora-nap-file` — đây là **lệnh rõ ràng** để nạp tài liệu thành tri thức.
 
 - Nếu user CHƯA đính kèm file → nhắc user **kéo file vào chat** (PDF / DOCX / PNG / JPG / zip
   Obsidian), chờ có file rồi mới chạy.

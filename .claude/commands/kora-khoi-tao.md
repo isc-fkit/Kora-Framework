@@ -2,7 +2,7 @@
 description: Khởi tạo AI Product Factory — chạy workflows/00-setup.md từng bước (cài đặt 1 lần)
 ---
 
-Người dùng vừa CHỦ ĐỘNG gõ lệnh `/khoi-tao` — đây là **lệnh rõ ràng** để khởi tạo dự án
+Người dùng vừa CHỦ ĐỘNG gõ lệnh `/kora-khoi-tao` — đây là **lệnh rõ ràng** để khởi tạo dự án
 (tương đương "@khởi tạo dự án"). KHÔNG cần hỏi lại "bạn muốn chạy hay chỉ hỏi thông tin".
 
 Hãy đọc và thực thi `workflows/00-setup.md` theo đúng `CLAUDE.md`:

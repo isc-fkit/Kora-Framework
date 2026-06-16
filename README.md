@@ -1,4 +1,4 @@
-# AI Product Factory — Dynamic Knowledge Base
+# Kora-Framework — AI Product Factory
 
 Hệ thống giúp bạn (không cần biết kỹ thuật) biến yêu cầu bằng lời thường thành:
 tri thức có cấu trúc → tài liệu chuẩn (URD/SRS) → prototype Claude Design → kế hoạch code.
@@ -6,18 +6,18 @@ Mọi bước AI tự chạy, **bạn chỉ cần confirm**.
 
 ## Phiên bản
 
-**Genesis-1 · v1.0.0** (xem `version.json` và `CHANGELOG.md`).
+**Kora-1 · v2.0.0** (xem `version.json` và `CHANGELOG.md`).
 Đây là bản nền đầu tiên: điều phối qua `CLAUDE.md` + workflows, quét Jira đa nguồn,
 import Word/PDF, tự phân tích xung đột, tự học, tự reindex.
 
 ## Tải & cài đặt
 
 1. **Tải mã nguồn** — chọn 1 trong 2 cách:
-   - Tải file zip: <https://github.com/luugiakhanh689/adaptive_knowledge_base/archive/refs/heads/release.zip>
+   - Tải file zip: <https://github.com/isc-fkit/Kora-Framework/archive/refs/heads/release.zip>
      → giải nén.
    - Hoặc clone bằng git:
      ```
-     git clone https://github.com/luugiakhanh689/adaptive_knowledge_base
+     git clone https://github.com/isc-fkit/Kora-Framework
      ```
 2. **Mở trong Cowork**: tạo project → chọn folder vừa giải nén/clone làm thư mục làm việc.
    (Thấy "Instructions · CLAUDE.md" ở sidebar là đúng.)
@@ -106,7 +106,7 @@ cài thêm gì); các luồng khác không cần gì.
 ## Phản hồi & báo lỗi
 
 Gặp lỗi hoặc muốn góp ý? Mở issue tại:
-<https://github.com/luugiakhanh689/adaptive_knowledge_base/issues>
+<https://github.com/isc-fkit/Kora-Framework/issues>
 
 ## Nguyên tắc an toàn
 

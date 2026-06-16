@@ -2,7 +2,7 @@
 
 > Trigger: "phát hành", "release", "lên version", "ra bản mới", "tăng version" (confirm ý định trước).
 > Đây là phía NGƯỜI PHÁT HÀNH (khác `workflows/10-update.md` là phía người DÙNG đi cập nhật).
-> Quy ước đầy đủ: `RELEASING.md`. **Codename GIỮ "Genesis-1", chỉ TĂNG SỐ version (semantic).**
+> Quy ước đầy đủ: `RELEASING.md`. **Codename GIỮ "Kora-1", chỉ TĂNG SỐ version (semantic).**
 
 ## Bước 0 — CHỈ người DUY TRÌ app mới phát hành được (KIỂM TRA TRƯỚC TIÊN)
 
@@ -44,7 +44,7 @@ Chạy `git status --short` + `git diff --stat` → xem đã đổi gì:
    - **patch** `x.y.(Z+1)` — vá lỗi.
    - **minor** `x.(Y+1).0` — thêm tính năng.
    - **major** `(X+1).0.0` — thay đổi phá vỡ / cần migration.
-   - `codename` GIỮ `"Genesis-1"` (chỉ đổi khi sang một đời lớn hoàn toàn mới).
+   - `codename` GIỮ `"Kora-1"` (chỉ đổi khi sang một đời lớn hoàn toàn mới).
 1b. **Force hay không + nội dung giới thiệu** (cơ chế thông báo cho app bản cũ):
    - *AskUserQuestion* (2 lựa chọn): **"Bản này BẮT BUỘC / ưu tiên cập nhật (force)?"**
      → `[Có — bản quan trọng]` / `[Không — cập nhật thường]`.
@@ -56,16 +56,16 @@ Chạy `git status --short` + `git diff --stat` → xem đã đổi gì:
 2. Sửa `version.json`: `version` mới + `released` = **ngày hôm nay** + `force` + `intro` (Bước 1b).
    (giữ `name`, `repo`, `codename`)
 2b. **BẮT BUỘC — đồng bộ nhãn version hiển thị trên landing `index.html`** theo `version` mới:
-   thẻ model card `<span class="mc-ver">vX.Y.Z</span>` VÀ footer `Phiên bản: <b>Genesis-1 (vX.Y.Z)</b>`.
+   thẻ model card `<span class="mc-ver">vX.Y.Z</span>` VÀ footer `Phiên bản: <b>Kora-1 (vX.Y.Z)</b>`.
    (Quên bước này → web hiện version cũ dù đã phát hành bản mới. `grep -n 'mc-ver\|Phiên bản:' index.html`
    để soát.)
 3. Thêm mục ĐẦU vào `CHANGELOG.md`:
-   `## vX.Y.Z "Genesis-1" — YYYY-MM-DD` + các gạch đầu dòng "có gì mới".
+   `## vX.Y.Z "Kora-1" — YYYY-MM-DD` + các gạch đầu dòng "có gì mới".
    **Nếu cần thao tác khi cập nhật** (migration: đổi cấu trúc config/vault…) → ghi RÕ các bước ở đây —
    `workflows/10-update.md` đọc CHANGELOG để biết "cần làm những gì" và làm theo.
 4. Trình bày tóm tắt cho user: version cũ → mới, danh sách "có gì mới", có migration không.
 5. ✋ **GATE — confirm** (push là thao tác công khai, BẮT BUỘC chờ user đồng ý).
-6. `git add -A && git commit -m "Genesis-1 vX.Y.Z: <tóm tắt>" && git push origin release`.
+6. `git add -A && git commit -m "Kora-1 vX.Y.Z: <tóm tắt>" && git push origin release`.
    Tùy chọn đánh dấu: `git tag vX.Y.Z-genesis-1 && git push origin vX.Y.Z-genesis-1`.
 7. Báo: app đã cài gõ **`cập nhật phiên bản`** sẽ thấy bản này (đọc CHANGELOG → confirm → tải CORE, giữ DATA);
    GitHub Pages cũng deploy web mới luôn.

@@ -231,9 +231,9 @@ User nêu vấn đề (ngôn ngữ tự nhiên)
 
 ---
 
-## 6. Phiên bản, cập nhật & dời máy (Genesis-1)
+## 6. Phiên bản, cập nhật & dời máy (Kora-1)
 
-- **Bản hiện tại:** Genesis-1 (`version.json`); lịch sử app ở `CHANGELOG.md` (khác
+- **Bản hiện tại:** Kora-1 (`version.json`); lịch sử app ở `CHANGELOG.md` (khác
   `.kb/changelog.md` — file đó là lịch sử **tri thức** của user).
 - **Tách CORE vs DATA.** *CORE* = phần đi theo repo (CLAUDE.md, workflows, templates,
   tools, scripts, presets, `factory-config.example.yaml`, **`.kb/rules.md` + `.kb/system-lessons.md`**…).
@@ -265,7 +265,7 @@ User nêu vấn đề (ngôn ngữ tự nhiên)
   **Hai tầng bài học:** `.kb/lessons.md` (tri thức/feature → workflow 09) vs `.kb/system-lessons.md`
   (quy trình/workflow → workflow 13). Đừng lẫn hai file này.
 
-### Giới hạn đã biết (Genesis-1)
+### Giới hạn đã biết (Kora-1)
 
 - **`docs/07-research/` và `.kb/rules.md` là CORE** (đi kèm app, ship sẵn) — KHÔNG lưu tri thức
   riêng của bạn vào đó (sẽ bị ghi đè khi update, không nằm trong gói export). Tri thức của bạn

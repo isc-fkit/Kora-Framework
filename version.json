@@ -1,9 +1,9 @@
 {
-  "name": "Adaptive Knowledge Base",
-  "version": "1.2.2",
-  "codename": "Genesis-1",
+  "name": "Kora-Framework",
+  "version": "2.0.0",
+  "codename": "Kora-1",
   "released": "2026-06-17",
-  "repo": "https://github.com/luugiakhanh689/adaptive_knowledge_base",
-  "force": false,
-  "intro": "Bản v1.2.2: script cài đặt/cập nhật/sao lưu (.command/.bat) tự gỡ nhãn cảnh báo của hệ điều hành sau lần mở đầu — từ lần sau double-click chạy thẳng, không bị macOS Gatekeeper / Windows SmartScreen hỏi lại. Kèm file scripts/0-ĐỌC-TRƯỚC.txt hướng dẫn thao tác lần đầu."
+  "repo": "https://github.com/isc-fkit/Kora-Framework",
+  "force": true,
+  "intro": "Kora-Framework v2.0.0 (đổi tên từ Adaptive Knowledge Base): landing dạng hướng dẫn từng bước, lệnh tắt đổi sang tiền tố /kora-*, sao lưu/khôi phục an toàn UTF-8 cho tên tiếng Việt, và chuyển sang repo mới isc-fkit/Kora-Framework. Lưu ý: nếu bạn cài bản cũ qua repo luugiakhanh689/adaptive_knowledge_base, hãy tải lại từ repo mới."
 }

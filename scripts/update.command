@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# update.command — CẬP NHẬT app "Adaptive Knowledge Base" mà GIỮ NGUYÊN tri thức của bạn.
+# update.command — CẬP NHẬT app "Kora-Framework" mà GIỮ NGUYÊN tri thức của bạn.
 #
 # - Nếu bạn cài bằng git: chạy `git pull` (tri thức đã được gitignore nên không bị đụng).
 # - Nếu bạn tải bản zip: tự tải bản mới nhất và chỉ ghi đè phần CHƯƠNG TRÌNH (CORE),
@@ -18,7 +18,7 @@ cd "$REPO_ROOT"
 # Gỡ nhãn quarantine cho các script còn lại → lần sau double-click không bị macOS hỏi nữa.
 self_dequarantine
 
-ZIP_URL="https://github.com/luugiakhanh689/adaptive_knowledge_base/archive/refs/heads/release.zip"
+ZIP_URL="https://github.com/isc-fkit/Kora-Framework/archive/refs/heads/release.zip"
 
 # --- Tiện ích ----------------------------------------------------------------
 have() { command -v "$1" >/dev/null 2>&1; }
@@ -37,7 +37,7 @@ finish() {
 }
 
 echo "================================================================"
-echo "  CẬP NHẬT Adaptive Knowledge Base"
+echo "  CẬP NHẬT Kora-Framework"
 echo "  Thư mục: $REPO_ROOT"
 echo "================================================================"
 echo ""

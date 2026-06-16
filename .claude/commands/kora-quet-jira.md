@@ -2,7 +2,7 @@
 description: Quét toàn bộ Jira về vault tri thức — chạy workflows/01-import-jira.md
 ---
 
-Người dùng vừa CHỦ ĐỘNG gõ `/quet-jira` — đây là **lệnh rõ ràng** để quét toàn bộ Jira
+Người dùng vừa CHỦ ĐỘNG gõ `/kora-quet-jira` — đây là **lệnh rõ ràng** để quét toàn bộ Jira
 (tương đương "quét jira"). KHÔNG hỏi lại "chạy hay chỉ hỏi thông tin".
 
 Đọc và thực thi `workflows/01-import-jira.md` theo `CLAUDE.md`:

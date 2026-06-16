@@ -34,10 +34,10 @@ die() {
   exit 1
 }
 
-have unzip || die "Thiếu lệnh 'unzip'. Hãy cài unzip rồi chạy lại."
+have ditto || have unzip || die "Cần 'ditto' (macOS) hoặc 'unzip' để giải nén."
 
 echo "================================================================"
-echo "  NHẬP tri thức — Adaptive Knowledge Base (Genesis-1)"
+echo "  NHẬP tri thức — Kora-Framework"
 echo "  Thư mục: $REPO_ROOT"
 echo "================================================================"
 echo ""
@@ -45,9 +45,9 @@ echo ""
 # --- Xác định file zip -------------------------------------------------------
 ZIP_IN="${1:-}"
 if [ -z "$ZIP_IN" ]; then
-  # Lấy genesis1-kb-*.zip mới nhất ở repo root (theo thời gian sửa đổi).
-  ZIP_IN="$(ls -t "$REPO_ROOT"/genesis1-kb-*.zip 2>/dev/null | head -n1 || true)"
-  [ -n "$ZIP_IN" ] || die "Không tìm thấy file genesis1-kb-*.zip nào ở '$REPO_ROOT'. Hãy truyền đường dẫn file zip làm tham số."
+  # Lấy gói kora-kb-*.zip (hoặc genesis1-kb-*.zip cũ) mới nhất ở repo root.
+  ZIP_IN="$(ls -t "$REPO_ROOT"/kora-kb-*.zip "$REPO_ROOT"/genesis1-kb-*.zip 2>/dev/null | head -n1 || true)"
+  [ -n "$ZIP_IN" ] || die "Không tìm thấy file kora-kb-*.zip (hoặc genesis1-kb-*.zip) nào ở '$REPO_ROOT'. Hãy truyền đường dẫn file zip làm tham số."
   echo "ℹ️  Dùng gói mới nhất: $(basename "$ZIP_IN")"
 fi
 [ -f "$ZIP_IN" ] || die "Không thấy file zip: $ZIP_IN"
@@ -57,7 +57,12 @@ TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/akb-import.XXXXXX")"
 trap 'rm -rf "$TMP_DIR"' EXIT
 
 echo "📂 Đang giải nén..."
-unzip -q "$ZIP_IN" -d "$TMP_DIR" || die "Giải nén thất bại (file có thể hỏng)."
+# UTF-8 an toàn cho tên note tiếng Việt: ưu tiên ditto (macOS, chuẩn UTF-8), fallback unzip.
+if have ditto; then
+  ditto -x -k "$ZIP_IN" "$TMP_DIR" || die "Giải nén thất bại (file có thể hỏng)."
+else
+  unzip -q "$ZIP_IN" -d "$TMP_DIR" || die "Giải nén thất bại (file có thể hỏng)."
+fi
 
 MANIFEST="$TMP_DIR/manifest.json"
 [ -f "$MANIFEST" ] || die "Gói không hợp lệ: thiếu manifest.json."

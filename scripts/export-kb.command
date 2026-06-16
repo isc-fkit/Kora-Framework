@@ -40,11 +40,11 @@ VERSION="$(read_version)"
 SAFE_PROJECT="$(printf '%s' "$PROJECT" | tr ' /\\:' '----' | tr -cd '[:alnum:]._-')"
 [ -n "$SAFE_PROJECT" ] || SAFE_PROJECT="project"
 
-ZIP_NAME="genesis1-kb-${SAFE_PROJECT}-${NGAY}.zip"
+ZIP_NAME="kora-kb-${SAFE_PROJECT}-${NGAY}.zip"
 ZIP_PATH="$REPO_ROOT/$ZIP_NAME"
 
 echo "================================================================"
-echo "  XUẤT tri thức — Adaptive Knowledge Base (Genesis-1)"
+echo "  XUẤT tri thức — Kora-Framework"
 echo "  Project : $PROJECT"
 echo "  Vault   : $VAULT"
 echo "  Phiên bản: v$VERSION"

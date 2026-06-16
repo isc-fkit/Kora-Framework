@@ -16,10 +16,10 @@
 
 1. Đọc `version.json` ở gốc repo → version + codename hiện tại.
 2. Lấy bản mới nhất trên GitHub (WebFetch):
-   `https://raw.githubusercontent.com/luugiakhanh689/adaptive_knowledge_base/release/version.json`
+   `https://raw.githubusercontent.com/isc-fkit/Kora-Framework/release/version.json`
    — offline/không lấy được → báo "chưa kiểm tra được bản mới, thử lại khi có mạng", DỪNG.
 3. So `version`:
-   - Bằng nhau → "Bạn đang ở bản mới nhất: Genesis-1 vX.Y.Z." DỪNG.
+   - Bằng nhau → "Bạn đang ở bản mới nhất: Kora-1 vX.Y.Z." DỪNG.
    - GitHub mới hơn → sang Bước 2.
 
 ## Bước 2 — Trình bày + ✋ confirm
@@ -30,7 +30,7 @@
   - `force: true` → mở đầu bằng **"🔴 Bản cập nhật quan trọng/ưu tiên"**, lời lẽ mạnh hơn (nên
     cập nhật sớm). `force` vắng/false → thông báo bình thường.
 - Lấy "có gì mới" từ GitHub CHANGELOG:
-  `https://raw.githubusercontent.com/luugiakhanh689/adaptive_knowledge_base/release/CHANGELOG.md`
+  `https://raw.githubusercontent.com/isc-fkit/Kora-Framework/release/CHANGELOG.md`
   → tóm tắt tiếng Việt: từ vX → vY có gì mới.
 - Nhấn mạnh: **tri thức của bạn (vault, `.kb`, config, docs) GIỮ NGUYÊN** — chỉ thay phần chương trình.
 - **Nêu rõ cách nâng cấp** (1 dòng): "Gõ **'đồng ý'** để tôi cập nhật ngay; hoặc tự chạy
@@ -49,7 +49,7 @@ Tường thuật tiến độ. Lỗi mạng/quyền → hướng dẫn double-cl
 
 ## Bước 4 — Sau cập nhật
 
-1. Đọc lại `version.json` → báo "đã lên vY (Genesis-…)".
+1. Đọc lại `version.json` → báo "đã lên vY (Kora-…)".
 2. **Đọc lại `CLAUDE.md` + `workflows/`** (vừa có thể đổi) trước khi làm việc tiếp.
 3. Chạy `python3 tools/kb-indexer/build_index.py --root .` (Windows: `py`) (phòng khi indexer đổi).
 4. Bản mới có bước "migration" (đổi cấu trúc config/vault) → làm theo `CHANGELOG.md`;

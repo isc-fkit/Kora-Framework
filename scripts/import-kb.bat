@@ -2,7 +2,7 @@
 REM ============================================================================
 REM import-kb.bat - NHAP tri thuc (DATA) tren mot may moi da cai ban app sach.
 REM Cach dung:  scripts\import-kb.bat [duong-dan-file.zip]
-REM   - Khong truyen: tu lay file genesis1-kb-*.zip MOI NHAT o goc repo.
+REM   - Khong truyen: tu lay file kora-kb-*.zip (hoac genesis1-kb-*.zip cu) MOI NHAT o goc repo.
 REM Viec lam: giai nen -> doc manifest.json -> copy DATA ve dung cho ->
 REM   cap nhat vault_path trong config -> dung lai index bang kb-indexer.
 REM Chay duoc tu bat ky dau - script tu ve thu muc goc repo.
@@ -22,7 +22,7 @@ echo.
 where tar >nul 2>nul || (echo [LOI] Thieu lenh 'tar' (de giai nen zip). & goto :end)
 
 echo ================================================================
-echo   NHAP tri thuc - Adaptive Knowledge Base (Genesis-1)
+echo   NHAP tri thuc - Kora-Framework
 echo   Thu muc: %REPO_ROOT%
 echo ================================================================
 echo.
@@ -30,14 +30,14 @@ echo.
 REM --- Xac dinh file zip ---
 set "ZIP_IN=%~1"
 if "%ZIP_IN%"=="" (
-  REM Lay genesis1-kb-*.zip moi nhat (sap theo thoi gian, moi nhat truoc)
-  for /f "delims=" %%F in ('dir /b /a-d /o-d "%REPO_ROOT%\genesis1-kb-*.zip" 2^>nul') do (
+  REM Lay *-kb-*.zip moi nhat (kora-kb hoac genesis1-kb cu; sap theo thoi gian, moi nhat truoc)
+  for /f "delims=" %%F in ('dir /b /a-d /o-d "%REPO_ROOT%\*-kb-*.zip" 2^>nul') do (
     set "ZIP_IN=%REPO_ROOT%\%%F"
     goto :gotzip
   )
 )
 :gotzip
-if "%ZIP_IN%"=="" (echo [LOI] Khong tim thay file genesis1-kb-*.zip. Hay truyen duong dan file zip lam tham so. & goto :end)
+if "%ZIP_IN%"=="" (echo [LOI] Khong tim thay file kora-kb-*.zip ^(hoac genesis1-kb-*.zip^). Hay truyen duong dan file zip lam tham so. & goto :end)
 if not exist "%ZIP_IN%" (echo [LOI] Khong thay file zip: %ZIP_IN% & goto :end)
 echo Dung goi: %ZIP_IN%
 echo.

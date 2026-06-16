@@ -2,7 +2,7 @@
 description: Cập nhật ỨNG DỤNG lên bản mới nhất, giữ nguyên tri thức (workflows/10)
 ---
 
-Người dùng vừa CHỦ ĐỘNG gõ `/cap-nhat` — đây là **lệnh rõ ràng** = cập nhật CHƯƠNG TRÌNH
+Người dùng vừa CHỦ ĐỘNG gõ `/kora-cap-nhat` — đây là **lệnh rõ ràng** = cập nhật CHƯƠNG TRÌNH
 (app) lên bản phát hành mới nhất, GIỮ NGUYÊN toàn bộ tri thức.
 
 TUYỆT ĐỐI KHÔNG hỏi "bạn muốn cập nhật cái gì". Đọc và thực thi thẳng `workflows/10-update.md`

@@ -1,6 +1,6 @@
 @echo off
 REM ============================================================================
-REM update.bat - CAP NHAT app "Adaptive Knowledge Base" ma GIU NGUYEN tri thuc.
+REM update.bat - CAP NHAT app "Kora-Framework" ma GIU NGUYEN tri thuc.
 REM - Neu cai bang git: chay `git pull` (tri thuc da gitignore nen khong bi dung).
 REM - Neu tai zip: tu tai ban moi va chi ghi de phan CHUONG TRINH (CORE).
 REM Chay duoc tu bat ky dau - script tu ve thu muc goc repo.
@@ -17,10 +17,10 @@ powershell -NoProfile -Command "Get-ChildItem -LiteralPath '%REPO_ROOT%\scripts'
 echo [OK] Da go nhan canh bao cho cac script - lan sau double-click chay thang, khong bi hoi lai.
 echo.
 
-set "ZIP_URL=https://github.com/luugiakhanh689/adaptive_knowledge_base/archive/refs/heads/release.zip"
+set "ZIP_URL=https://github.com/isc-fkit/Kora-Framework/archive/refs/heads/release.zip"
 
 echo ================================================================
-echo   CAP NHAT Adaptive Knowledge Base
+echo   CAP NHAT Kora-Framework
 echo   Thu muc: %REPO_ROOT%
 echo ================================================================
 echo.

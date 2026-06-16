@@ -2,7 +2,7 @@
 description: Thiết kế / dựng prototype màn hình bằng Claude Design (workflows/04)
 ---
 
-Người dùng vừa CHỦ ĐỘNG gõ `/thiet-ke` — đây là **lệnh rõ ràng** để dựng prototype / mở
+Người dùng vừa CHỦ ĐỘNG gõ `/kora-thiet-ke` — đây là **lệnh rõ ràng** để dựng prototype / mở
 Claude Design (tương đương "thiết kế", "prototype", "mở Claude Design").
 
 Đọc và thực thi `workflows/04-claude-design.md` theo `CLAUDE.md`:

@@ -2,7 +2,7 @@
 description: Sao lưu / xuất toàn bộ tri thức ra file zip để chuyển máy (workflows/11 mục A)
 ---
 
-Người dùng vừa CHỦ ĐỘNG gõ `/sao-luu` — đây là **lệnh rõ ràng** để sao lưu/xuất tri thức
+Người dùng vừa CHỦ ĐỘNG gõ `/kora-sao-luu` — đây là **lệnh rõ ràng** để sao lưu/xuất tri thức
 (tương đương "sao lưu", "xuất tri thức", "chuyển/dời máy").
 
 Đọc và thực thi `workflows/11-export-import.md` **mục A (export)** theo `CLAUDE.md`:
