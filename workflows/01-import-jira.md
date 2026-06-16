@@ -210,7 +210,9 @@ Script tự tạo trong vault: notes Project/Epic/Story/Task/Bug/Sub-task có ba
 > labels, components, assignee/reporter, created/updated, resolution, sprint, story points và
 > **MỌI custom field** (tên hiển thị người-đọc, lấy từ `/rest/api/2/field`) — ở mục `## Tất cả
 > field (đầy đủ)`, cộng comment + metadata đính kèm (tên/size/link). Rich-text Cloud (ADF) được
-> flatten cho dễ đọc. Muốn nhẹ (chỉ field cốt lõi) → đặt `JIRA_FETCH_ALL_FIELDS=false` trong
+> flatten cho dễ đọc. **Sprint** hiện kèm trạng thái + ngày (`Sprint 3 (active, 2026-06-01 →
+> 2026-06-14)`, parse được cả chuỗi serialize của Jira Server); **thời gian** (ước tính/đã log/còn
+> lại + start/end/due) render dạng đọc được (`8h`, `2d`). Muốn nhẹ (chỉ field cốt lõi) → đặt `JIRA_FETCH_ALL_FIELDS=false` trong
 > `.env.local`. Lưu ý: cào hết ⇒ payload lớn hơn cho project nghìn issue → nên chạy nền.
 
 ## Bước 5 — Báo cáo + Approval Gate

@@ -284,10 +284,85 @@ def adf_to_text(node):
     return ""
 
 
+def _seconds_to_human(s):
+    """Đổi giây → 'Xh Ym' (thời gian thực) cho est / log / remaining time."""
+    try:
+        s = int(s)
+    except (TypeError, ValueError):
+        return str(s)
+    if s <= 0:
+        return "0"
+    h, rem = divmod(s, 3600)
+    m = rem // 60
+    parts = [p for p in (f"{h}h" if h else "", f"{m}m" if m else "") if p]
+    return " ".join(parts) or f"{s}s"
+
+
+def _format_timetracking(tt):
+    """Field 'timetracking' → tóm tắt: Ước tính gốc / Còn lại / Đã log."""
+    def pick(human_key, sec_key):
+        return tt.get(human_key) or (_seconds_to_human(tt[sec_key]) if tt.get(sec_key) else None)
+    orig = pick("originalEstimate", "originalEstimateSeconds")
+    rem = pick("remainingEstimate", "remainingEstimateSeconds")
+    spent = pick("timeSpent", "timeSpentSeconds")
+    parts = []
+    if orig:
+        parts.append(f"Ước tính gốc {orig}")
+    if rem:
+        parts.append(f"Còn lại {rem}")
+    if spent:
+        parts.append(f"Đã log {spent}")
+    return " · ".join(parts)
+
+
+# Sprint trên Jira Server trả về chuỗi serialize: ...Sprint@x[id=..,name=..,state=..,startDate=..,endDate=..]
+_SPRINT_RE = re.compile(r"name=(?P<name>[^,\]]+)", re.I)
+_SPRINT_KV = re.compile(r"(state|startDate|endDate)=([^,\]]+)", re.I)
+
+
+def _format_sprint_one(v):
+    if isinstance(v, dict):
+        name, state = v.get("name", "Sprint"), v.get("state", "")
+        sd, ed = v.get("startDate"), v.get("endDate")
+    elif isinstance(v, str) and "name=" in v:
+        mn = _SPRINT_RE.search(v)
+        name = mn.group("name") if mn else v
+        kv = {k.lower(): val for k, val in _SPRINT_KV.findall(v)}
+        state, sd, ed = kv.get("state", ""), kv.get("startdate", ""), kv.get("enddate", "")
+    else:
+        return ""
+    extra = []
+    if state and state.lower() not in ("none", "<null>", ""):
+        extra.append(state.lower())
+    sd = "" if sd in (None, "<null>") else (sd or "")
+    ed = "" if ed in (None, "<null>") else (ed or "")
+    if sd or ed:
+        extra.append(f"{(sd or '?')[:10]} → {(ed or '?')[:10]}")
+    return name + (f" ({', '.join(extra)})" if extra else "")
+
+
+def _looks_like_sprint(v):
+    item = v[0] if isinstance(v, list) and v else v
+    if isinstance(item, dict):
+        return "state" in item and any(k in item for k in ("boardId", "originBoardId", "startDate", "completeDate"))
+    if isinstance(item, str):
+        return "name=" in item and "state=" in item
+    return False
+
+
+def _format_sprint(v):
+    items = v if isinstance(v, list) else [v]
+    return "; ".join(p for p in (_format_sprint_one(x) for x in items) if p)
+
+
 def format_field_value(v):
     """Chuẩn hoá MỌI kiểu giá trị field Jira → text gọn (cho phần 'Tất cả field')."""
     if v is None:
         return ""
+    if _looks_like_sprint(v):  # Sprint (Cloud object / Server serialize) → tên (state, start → end)
+        return _format_sprint(v)
+    if isinstance(v, dict) and any(k in v for k in ("timeSpentSeconds", "originalEstimateSeconds", "remainingEstimateSeconds")):
+        return _format_timetracking(v)  # timetracking → est/log/remaining
     if isinstance(v, bool):
         return "có" if v else "không"
     if isinstance(v, (int, float)):
@@ -318,7 +393,17 @@ _RENDERED_KEYS = {"summary", "description", "issuetype", "status", "parent",
 _FM_FIELDS = [("priority", "priority"), ("assignee", "assignee"), ("reporter", "reporter"),
               ("labels", "labels"), ("components", "components"), ("fixVersions", "fix_versions"),
               ("created", "created"), ("updated", "updated"), ("resolution", "resolution"),
-              ("duedate", "duedate")]
+              ("duedate", "duedate"), ("timetracking", "time_tracking")]
+# Field thời gian tính bằng GIÂY → đổi sang 'Xh Ym' khi hiển thị
+_TIME_SECOND_FIELDS = {"timespent", "timeoriginalestimate", "timeestimate",
+                       "aggregatetimespent", "aggregatetimeoriginalestimate", "aggregatetimeestimate"}
+
+
+def _field_display(fid, raw):
+    """Giá trị field để hiển thị: field thời-gian-giây → human; còn lại → format_field_value."""
+    if fid in _TIME_SECOND_FIELDS and isinstance(raw, (int, float)):
+        return _seconds_to_human(raw)
+    return format_field_value(raw)
 
 
 def fetch_by_jql(jql):
@@ -406,9 +491,15 @@ def issue_note(issue, project_key, fname_map):
         f"status: {status}", f"parent: {parent}",
     ]
     for fid, label in _FM_FIELDS:  # enrich frontmatter các field hay tra (chỉ khi có, 1 dòng)
-        val = format_field_value(f.get(fid))
+        val = _field_display(fid, f.get(fid))
         if val and "\n" not in val:
             fm.append(f"{label}: {json.dumps(val, ensure_ascii=False)}")
+    for fid in f:  # Sprint (id custom field đổi theo Jira) → đưa lên frontmatter cho dễ tra
+        if fid != "status" and _looks_like_sprint(f.get(fid)):
+            sv = _format_sprint(f.get(fid))
+            if sv:
+                fm.append(f"sprint: {json.dumps(sv, ensure_ascii=False)}")
+            break
     fm += [f"imported_at: {NOW}", "---", "",
            f"# {key} — {summary}", "",
            "## Metadata", "",
@@ -451,7 +542,7 @@ def issue_note(issue, project_key, fname_map):
     for fid in sorted(f.keys()):
         if fid in skip:
             continue
-        val = format_field_value(f.get(fid))
+        val = _field_display(fid, f.get(fid))
         if not val:
             continue
         label = FIELD_MAP.get(fid, fid)
