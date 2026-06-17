@@ -45,6 +45,13 @@
   phân loại health issue (🟢/🟡/🔴), **dự đoán trượt timeline mỗi sprint** (có lý do), đề xuất theo TỪNG
   thành viên, gợi ý giải quyết rủi ro, tổng kết điều hành; thêm **bar theo project** (`build_report.py`
   xuất `by_project`); báo cáo lọc theo project/thành viên/khoảng thời gian.
+- **`/kora-connect` (MỚI)** — kết nối nguồn: chọn **MCP/API** → hiện nguồn HỖ TRỢ (API: Jira Server/Cloud;
+  MCP-OAuth: Atlassian, SharePoint, GitHub, Confluence…); ghi vào `config > connections`.
+- **`/kora-scan` revamp** — bỏ đoạn intro "quét Jira", hiện **checklist các nguồn ĐÃ kết nối** để chọn quét.
+- **`/kora-release` (MỚI, maintainer)** — tự động đề xuất version + sinh CHANGELOG từ `git log` + bump/push.
+  → tổng **14 lệnh `/kora-*`**.
+- **Thêm domain preset phổ biến** (installer tự kéo về, init liệt kê ĐỘNG): **retail** (Bán hàng),
+  **manufacturing** (Sản xuất–Điện tử), **education** (Giáo dục) — cạnh healthcare/fintech/ecommerce/generic = 7 preset.
 
 ## v2.0.0 "Kora-1" — 2026-06-17
 

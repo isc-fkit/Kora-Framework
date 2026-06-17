@@ -57,12 +57,15 @@ Hỏi user:
 > "Sản phẩm của bạn thuộc lĩnh vực nào? Domain quyết định các rule phân tích
 > (thuật ngữ, ràng buộc pháp lý, mức độ thận trọng)."
 
-**→ Dùng AskUserQuestion** (4 lựa chọn, đọc danh sách từ `config/domain-presets/`):
+**→ Dùng AskUserQuestion — liệt kê ĐỘNG:** đọc TẤT CẢ `*.md` trong `config/domain-presets/` (mỗi thẻ =
+tên + 1 dòng mô tả lấy từ tiêu đề preset). Hiện có **7 preset phổ biến** (installer tự kéo về):
 
-1. **Healthcare / Y tế** — app y tế, thiết bị IoT, dữ liệu sức khỏe (preset `healthcare.md`)
-2. **Fintech** — thanh toán, ngân hàng, ví điện tử (preset `fintech.md`)
-3. **E-commerce** — bán hàng, giỏ hàng, đơn hàng (preset `ecommerce.md`)
-4. **Generic / Khác** — user tự mô tả domain (preset `generic.md`)
+- **Healthcare / Y tế** (`healthcare.md`) · **Fintech** (`fintech.md`) · **E-commerce** (`ecommerce.md`)
+- **Retail / Bán hàng** (`retail.md`) · **Manufacturing / Sản xuất–Điện tử** (`manufacturing.md`)
+- **Education / Giáo dục** (`education.md`) · **Generic / Khác** (`generic.md`)
+
+AskUserQuestion tối đa 4 thẻ → hiện **3 cái hợp ngữ cảnh nhất + [Khác — xem thêm]**; chọn "Khác" thì
+lượt kế liệt kê các preset còn lại. (Thêm preset mới vào `config/domain-presets/` là tự xuất hiện.)
 
 Hành động sau khi chọn:
 - Copy preset đã chọn → `config/domain-rules.md`.

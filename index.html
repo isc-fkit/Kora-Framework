@@ -191,7 +191,8 @@
     <table>
       <tr><th>Lệnh</th><th>Việc</th></tr>
       <tr><td><code>/kora-init</code></td><td>Khởi tạo / cài đặt dự án (domain, rule, project, vault)</td></tr>
-      <tr><td><code>/kora-scan</code></td><td>Quét &amp; nạp tri thức — chọn API/MCP/All rồi nguồn (Jira Cloud/Server, SharePoint…), cào cả comment</td></tr>
+      <tr><td><code>/kora-connect</code></td><td>Kết nối nguồn: chọn MCP/API → nguồn hỗ trợ (Jira Server/Cloud · SharePoint/GitHub/Confluence qua MCP-OAuth)</td></tr>
+      <tr><td><code>/kora-scan</code></td><td>Quét &amp; nạp tri thức từ nguồn ĐÃ kết nối (hiện checklist nguồn) — cào cả comment</td></tr>
       <tr><td><code>/kora-scan-jira-task</code></td><td>Quét 1 task/epic Jira theo mã, vd <code>/kora-scan-jira-task PROJ-102</code></td></tr>
       <tr><td><code>/kora-import-files</code></td><td>Nạp tài liệu PDF / DOCX / ảnh / zip Obsidian</td></tr>
       <tr><td><code>/kora-daily-report</code></td><td>Báo cáo tiến độ: chọn project, lọc thành viên, tự kéo dữ liệu theo thời gian</td></tr>
@@ -201,6 +202,7 @@
       <tr><td><code>/kora-evolve</code></td><td>Dọn / tiến hóa / kiểm tra sức khỏe KB</td></tr>
       <tr><td><code>/kora-export-knowledge-base</code></td><td>Xuất toàn bộ KB ra zip để sao lưu / chuyển máy / bàn giao</td></tr>
       <tr><td><code>/kora-update</code></td><td>Cập nhật app/skill lên bản mới nhất</td></tr>
+      <tr><td><code>/kora-release</code></td><td>Tự động phát hành: đề xuất version + sinh CHANGELOG từ commit + push (maintainer)</td></tr>
       <tr><td><code>/kora-uninstall</code></td><td>Gỡ skill Kora khỏi <code>~/.claude</code></td></tr>
     </table>
 
@@ -211,11 +213,12 @@
 
     <h2 class="sec">Kết nối nguồn &amp; điền API key</h2>
     <div class="card">
-      Khi cần kéo dữ liệu, Kora hỏi chọn phương thức:
+      Gõ <code>/kora-connect</code> → chọn <b>phương thức</b>, rồi chọn <b>nguồn</b> mà phương thức đó hỗ trợ:
       <ul style="margin:8px 0 12px;padding-left:20px;color:var(--muted)">
-        <li><b>MCP</b> — bật Connector trong Claude App/Cowork (Atlassian/Jira, SharePoint). <b>Không cần token tay.</b></li>
-        <li><b>API</b> — dùng Personal Access Token; Kora <b>tự lưu</b> vào <code>~/.zshrc</code>.</li>
+        <li><b>MCP</b> (OAuth) — bật Connector trong Claude App/Cowork: <b>Atlassian/Jira · SharePoint · GitHub · Confluence…</b> Không cần token tay.</li>
+        <li><b>API</b> — token: <b>Jira Server/self-host · Jira Cloud</b>; Kora <b>tự lưu</b> vào <code>~/.zshrc</code>.</li>
       </ul>
+      Sau khi kết nối, <code>/kora-scan</code> hiện danh sách nguồn đã kết nối để chọn quét.
       <b>Lấy token (chỉ khi dùng API):</b>
       <ul style="margin:8px 0 12px;padding-left:20px;color:var(--muted)">
         <li>Jira Server/DC: <i>Profile → Personal Access Tokens</i></li>
