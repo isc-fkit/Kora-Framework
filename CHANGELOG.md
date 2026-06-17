@@ -62,6 +62,9 @@
 - **Skill NẰM TRONG folder project:** `/kora-init` tạo `<project>/.claude/commands/` + copy skill →
   Cowork load theo path; `/kora-update` **refresh skill mới** vào 3 nơi (project · `~/.claude/commands` · `~/Downloads/Kora-Skills`).
 - **Domain Healthcare/Y tế LUÔN hiện** ở nhóm mặc định khi `/kora-init` chọn domain (cạnh Retail, Manufacturing, [Khác]).
+- **`/kora-scan` tự setup khi scan:** nếu chưa có nơi lưu trữ → hỏi ĐÚNG 1 câu (*lưu ở đâu*) rồi **TỰ
+  dựng project** (vault + folder skill + domain/rule mặc định `generic`, KHÔNG hỏi từng bước); đã có
+  project → scan thẳng. (`/kora-init` trực tiếp vẫn đi từng bước.)
 
 ## v2.0.0 "Kora-1" — 2026-06-17
 

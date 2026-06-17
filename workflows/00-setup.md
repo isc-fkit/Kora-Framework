@@ -33,6 +33,10 @@
 
 > Áp dụng khi cài qua **installer** (skill ở `~/.claude`, chưa có project). Nếu folder hiện tại ĐÃ
 > là project Kora (có `config/factory-config.yaml` hoặc `config/domain-presets/`) → **bỏ qua Bước 0**.
+>
+> ⚡ **Chế độ AUTO (khi gọi từ `/kora-scan`):** dựng project KHÔNG hỏi từng bước — domain/rule **mặc
+> định `generic`** (đổi sau bằng *"đổi domain"*), skill folder + vault + config TỰ tạo; **CHỈ hỏi nơi
+> lưu trữ** nếu chưa có. Gõ `/kora-init` trực tiếp thì vẫn đi từng bước (Bước 1–6) như thường.
 
 **Phát hiện scaffold:** thiếu `config/factory-config.yaml` **và** thiếu `config/domain-presets/` **và**
 có `~/.claude/kora-framework/`. Khi đó dựng **project GỌN** ngay trong folder hiện tại:
