@@ -212,7 +212,7 @@ def get_parent(issue):
 
 def issue_fields():
     if ALL_FIELDS:
-        return "*all"  # CÀO HẾT: lấy TẤT CẢ field (gồm mọi custom field)
+        return "*all,comment"  # CÀO HẾT: tất cả field + ÉP comment (vài Jira *all bỏ sót comment)
     fields = "summary,description,issuetype,status,parent,issuelinks,comment,attachment,project"
     if AC_FIELD:
         fields += f",{AC_FIELD}"

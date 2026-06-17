@@ -10,8 +10,8 @@
 > **TUYỆT ĐỐI KHÔNG**: tự chọn mặc định thay user, gộp nhiều bước vào một lượt, hay chạy thẳng tới
 > cuối. Rule "tự chạy không hỏi" (CLAUDE.md §0.1 Tầng A) **CHỈ** dành cho phân tích read-only —
 > **KHÔNG áp cho setup**. Thà hỏi thừa còn hơn tự quyết thay user.
-> 📋 **Task tracker:** dùng danh sách bước thì **tick từng bước khi xong** và **đóng Bước 7
-> (cả danh sách) khi setup hoàn tất** — không để bước nào treo (xem Bước 7 mục 0).
+> 📋 **Task tracker:** dùng danh sách bước thì **tick từng bước khi xong** và **đóng Bước 6
+> (cả danh sách) khi setup hoàn tất** — không để bước nào treo (xem Bước 6 mục 0).
 >
 > 🟦 **Cách HỎI (rule §1.8) — áp cho mọi bước:** mỗi khi có **lựa chọn hữu hạn (2–4 phương án)**
 > → **BẮT BUỘC dùng AskUserQuestion** (thẻ bấm được), KHÔNG bắt user gõ trả lời trong chat.
@@ -45,15 +45,21 @@ Hỏi user:
 
 Hành động sau khi chọn:
 - Copy preset đã chọn → `config/domain-rules.md`.
-- Hỏi tiếp — **→ dùng AskUserQuestion** (ca LAI; **KHÔNG mở đầu bằng câu nhập tự do**):
+- Ghi `domain:` vào `config/factory-config.yaml`.
+→ Sang **Bước 2 — Domain rule** (việc chỉnh rule TÁCH thành một bước riêng).
+
+## Bước 2 — Domain rule (bước RIÊNG)
+
+Sau khi Bước 1 đã copy preset → `config/domain-rules.md`:
+
+- **→ dùng AskUserQuestion** (ca LAI; **KHÔNG mở đầu bằng câu nhập tự do**):
   *"Bạn muốn chỉnh rule domain không?"* → **[Giữ nguyên preset (khuyến nghị)]** / **[Thêm/bớt rule]**.
-  - Chọn **Giữ nguyên preset** → bỏ qua, sang Bước 2.
+  - Chọn **Giữ nguyên preset** → sang Bước 3.
   - Chọn **Thêm/bớt rule** → (lượt kế) hỏi bằng **câu thường** "rule muốn thêm/bớt là gì?" →
     cập nhật `config/domain-rules.md`, đọc lại cho user xác nhận.
-  (Đổi sau bất cứ lúc nào bằng cách nhắn "đổi domain".)
-- Ghi `domain:` vào `config/factory-config.yaml`.
+  (Đổi sau bất cứ lúc nào bằng cách nhắn "đổi domain" / "sửa rule".)
 
-## Bước 2 — Tên project & ngôn ngữ
+## Bước 3 — Tên project & ngôn ngữ
 
 - **Tên project** → **dùng AskUserQuestion** (KHÔNG bắt gõ vào chat): câu hỏi *"Tên sản phẩm/project
   của bạn là gì?"* + đưa **vài GỢI Ý tên ví dụ theo domain** làm option (vd Healthcare:
@@ -64,7 +70,7 @@ Hành động sau khi chọn:
   (2 lựa chọn: Tiếng Việt / English), KHÔNG hỏi trong chat.
 - Ghi vào `factory-config.yaml` (`project_name`, `language`).
 
-## Bước 3 — Nơi lưu tri thức (vault)
+## Bước 4 — Nơi lưu tri thức (vault)
 
 > 💡 **Obsidian là TÙY CHỌN — KHÔNG bắt buộc.** Vault chỉ là một **thư mục các file `.md`**.
 > Claude và MỌI tính năng (quét Jira, phân tích, xuất tài liệu, cập nhật…) chạy bình thường
@@ -126,47 +132,14 @@ Hành động:
   - **Không dùng Obsidian** → mở folder `<vault_path>` bằng VS Code / editor markdown bất kỳ
     (Finder/Explorer cũng xem được các file `.md`). Mọi tính năng vẫn chạy bình thường.
 
-## Bước 4 — Quét tài liệu Jira?
+> ℹ️ **Init GỌN NHẸ — KHÔNG nạp nguồn / token / lịch ở đây.** Việc nạp tri thức và kết nối
+> nguồn đã chuyển sang các skill riêng, chạy SAU init khi cần (không ép lúc khởi tạo):
+> - `/kora-import-jira`, `/kora-import-task` — nạp Jira (chọn kết nối **MCP** hoặc **API** ngay trong skill đó).
+> - `/kora-import-files` — nạp PDF / DOCX / ảnh.
+> - `/kora-schedule` — đặt lịch + cấu hình kết nối nguồn (token API ghi vào `~/.zshrc` / `~/.bashrc`).
+> - `/kora-daily-report` — báo cáo (chọn project, lọc thành viên, kéo dữ liệu theo khoảng thời gian).
 
-Hỏi:
-
-> "Bạn có muốn quét tài liệu từ Jira về làm tri thức ban đầu không?
-> (Cần URL Jira và Personal Access Token — KHÔNG dùng password.)"
-
-**→ Dùng AskUserQuestion** (2 lựa chọn: **Có, quét Jira** / **Không, bỏ qua**). Các input của
-Jira (URL, token, project keys) là TỰ DO → vẫn hỏi bằng câu thường theo `workflows/01-import-jira.md`.
-
-**Nếu KHÔNG** → sang Bước 5.
-
-**Nếu CÓ** → chạy `workflows/01-import-jira.md` (tự động hoàn toàn theo
-`tools/jira-to-obsidian/CLAUDE_CODE_JIRA_TO_OBSIDIAN_SETUP.md`). Tóm tắt các input cần hỏi:
-
-| Input | Mô tả cho user | Bắt buộc |
-|---|---|---|
-| `JIRA_BASE_URL` | Địa chỉ Jira, ví dụ `https://jira.company.vn` | ✔ |
-| `JIRA_PAT` | Personal Access Token (tạo trong Jira: Profile → Personal Access Tokens). Claude tự tạo `.env.local` và mở file cho user dán token vào rồi lưu — KHÔNG dán token vào chat. Có hỏi "đã có token chưa?" trước, chưa có thì hướng dẫn tạo | ✔ |
-| `PROJECT_KEYS` | Mã project muốn quét, cách nhau dấu phẩy (vd `PROJ,SHOP`). Để trống = quét tất cả | ✘ |
-| `GROUP_BY_PROJECT` | Nhiều project → hỏi user có muốn mỗi project 1 thư mục con trong vault không (khuyến nghị: có). Ghi cả vào `factory-config.yaml > jira.group_by_project` | ✘ |
-| `JIRA_AC_FIELD` / `JIRA_BR_FIELD` | ID custom field Acceptance Criteria / Business Rule nếu Jira có | ✘ |
-
-Sau khi import xong → **→ dùng AskUserQuestion** (2 lựa chọn): "Đặt lịch tự động lấy issue
-mới từ Jira (vd mỗi sáng)?" → **[Có, đặt lịch]** / **[Không, để sau]**.
-→ CÓ thì chạy `workflows/08-schedule-sync.md` ngay; KHÔNG thì bỏ qua (đặt sau bằng
-lệnh "đặt lịch quét jira"). Rồi tiếp Bước 5.
-
-## Bước 5 — Nạp tri thức từ file?
-
-Hỏi:
-
-> "Bạn có file tài liệu sẵn muốn nạp không? Hỗ trợ: PDF, DOCX, file .md,
-> hoặc zip cả folder Obsidian."
-
-**→ Dùng AskUserQuestion** (2 lựa chọn: **Có, tôi sẽ gửi file** / **Không, bỏ qua**).
-
-- Nếu CÓ → user kéo file vào chat → chạy `workflows/02-import-files.md` cho từng file.
-- Nếu KHÔNG → bỏ qua.
-
-## Bước 6 — Kết nối Claude Design
+## Bước 5 — Kết nối Claude Design
 
 Hỏi:
 
@@ -183,12 +156,12 @@ bằng **câu thường** ở lượt kế (KHÔNG nhồi tên/mô tả vào Ask
    feature liên quan.
 3. **Để sau** — sẽ hỏi lại khi có feature đầu tiên cần design.
 
-## Bước 7 — Tổng kết & kích hoạt
+## Bước 6 — Tổng kết & kích hoạt
 
-0. ✅ **ĐÓNG TASK TRACKER:** ngay khi làm xong Bước 7 và đã đặt `setup_completed: true`, **đánh
-   dấu Bước 7 + TOÀN BỘ danh sách bước = HOÀN THÀNH** trong trình theo dõi tiến độ (TaskUpdate →
-   `completed`). TUYỆT ĐỐI không để Bước 7 treo "chưa hoàn thành", **kể cả khi user yêu cầu chạy
-   thẳng một mạch tới cuối** — chạy tới đâu tick tới đó, xong Bước 7 thì đóng cả danh sách.
+0. ✅ **ĐÓNG TASK TRACKER:** ngay khi làm xong Bước 6 và đã đặt `setup_completed: true`, **đánh
+   dấu Bước 6 + TOÀN BỘ danh sách bước = HOÀN THÀNH** trong trình theo dõi tiến độ (TaskUpdate →
+   `completed`). TUYỆT ĐỐI không để Bước 6 treo "chưa hoàn thành", **kể cả khi user yêu cầu chạy
+   thẳng một mạch tới cuối** — chạy tới đâu tick tới đó, xong Bước 6 thì đóng cả danh sách.
 1. Điền nốt `factory-config.yaml`, đặt `setup_completed: true` + ngày giờ.
 2. Chạy lập chỉ mục: `python3 tools/kb-indexer/build_index.py --root .` (Windows: `py`) → tự dựng
    `.kb/index.json`, `.kb/relation-graph.json`, `.kb/health-report.md`. Báo nhanh
@@ -197,18 +170,18 @@ bằng **câu thường** ở lượt kế (KHÔNG nhồi tên/mô tả vào Ask
 4. In tổng kết cho user (ngôn ngữ tự nhiên):
    - Domain + số rule đang áp dụng
    - Vault ở đâu, bao nhiêu note
-   - Đã import gì (Jira/file)
    - Project Design nào được đăng ký
+   - Nhắc: nạp tri thức bằng skill SAU init (`/kora-import-jira`, `/kora-import-files`).
 5. Kết bằng hướng dẫn dùng:
 
 > "Setup xong! Từ giờ bạn chỉ cần **nhắn vấn đề hoặc yêu cầu** bằng lời thường,
 > tôi sẽ tự phân tích dựa trên tri thức hiện có và chỉ hỏi bạn khi cần xác nhận.
-> Các lệnh khác: 'đổi domain', 'quét jira', 'quét task <KEY>', 'xuất tài liệu',
-> 'thiết kế <tính năng>'. Xem đầy đủ trong README.md."
+> Lệnh tắt: `/kora-import-jira`, `/kora-import-files`, `/kora-daily-report`, `/kora-schedule`,
+> `/kora-design`, `/kora-export-docs`, `/kora-evolve`. Gõ `/` để xem đủ 12 lệnh."
 
 6. **Đề xuất bước kế (§0.4) — → dùng AskUserQuestion** (1–3 lựa chọn hợp lý theo những gì vừa
-   setup) để user chỉ việc bấm, KHÔNG phải tự nhớ lệnh. Ví dụ: `[A] Quét Jira lấy tri thức ·
-   [B] Nạp file tài liệu · [C] Nêu một yêu cầu để phân tích · [D] Dừng ở đây`.
+   setup) để user chỉ việc bấm, KHÔNG phải tự nhớ lệnh. Ví dụ: `[A] /kora-import-jira nạp tri thức ·
+   [B] /kora-import-files nạp tài liệu · [C] Nêu một yêu cầu để phân tích · [D] Dừng ở đây`.
 
 ---
 

@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "codename": "Kora-1",
-  "released": "2026-06-17",
+  "released": "2026-06-18",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
-  "force": true,
-  "intro": "Kora-Framework v2.0.0 (đổi tên từ Adaptive Knowledge Base): landing dạng hướng dẫn từng bước, lệnh tắt đổi sang tiền tố /kora-*, sao lưu/khôi phục an toàn UTF-8 cho tên tiếng Việt, và chuyển sang repo mới isc-fkit/Kora-Framework. Lưu ý: nếu bạn cài bản cũ qua repo luugiakhanh689/adaptive_knowledge_base, hãy tải lại từ repo mới."
+  "force": false,
+  "intro": "Kora-Framework v2.1.0: cài bằng installer .command/.bat (cài skill vào ~/.claude, không để lại source) — qua Claude CLI hoặc Claude App/Desktop; 12 lệnh /kora-* đổi sang tên tiếng Anh (thêm /kora-uninstall); landing dạng guide nhiều tab; init gọn nhẹ (tách bước domain-rule, bỏ token/lịch khỏi init); Jira cào cả comment."
 }
