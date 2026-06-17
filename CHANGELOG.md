@@ -35,6 +35,10 @@
 - **Tự liên kết chéo project**: khi yêu cầu có quan hệ, phân tích (workflow 03) tự phát hiện + nối tri
   thức các project liên quan (backlink hai chiều → `relation-graph` nối cạnh chéo).
 - **Đổi tên** `kora-backup` → **`kora-export-knowledge-base`** (rõ nghĩa: xuất toàn bộ KB).
+- **Fix tải installer macOS:** phát hành kèm `install.command.zip` / `uninstall.command.zip` (giữ
+  quyền chạy `+x`) → hết lỗi *"could not be executed… appropriate access privileges"* khi double-click;
+  landing đổi nút tải sang `.zip` + hướng dẫn **Privacy & Security → Open Anyway**. Nút tải dùng link
+  cùng origin (ép tải, không hiện chữ).
 
 ## v2.0.0 "Kora-1" — 2026-06-17
 
