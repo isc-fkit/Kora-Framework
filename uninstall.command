@@ -21,6 +21,7 @@ fi
 
 rm -f "$DEST_CMD"/kora-*.md 2>/dev/null || true
 rm -rf "$DEST_CORE" 2>/dev/null || true
+rm -rf "$HOME/Downloads/Kora-Skills" "$HOME/Downloads/Kora-Skills.zip" 2>/dev/null || true
 echo ""
 echo "✅ Đã gỡ skill Kora."
 echo ""

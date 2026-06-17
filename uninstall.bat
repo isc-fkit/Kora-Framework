@@ -18,6 +18,8 @@ if /i not "%ANS%"=="yes" (echo Da huy. & pause & exit /b 0)
 
 del /q "%DEST_CMD%\kora-*.md" 2>nul
 rmdir /s /q "%DEST_CORE%" 2>nul
+rmdir /s /q "%USERPROFILE%\Downloads\Kora-Skills" 2>nul
+del /q "%USERPROFILE%\Downloads\Kora-Skills.zip" 2>nul
 echo.
 echo [OK] Da go skill Kora.
 echo Neu ban tung dat token API, hay xoa tay cac dong KORA_ trong bien moi truong.

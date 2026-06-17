@@ -64,9 +64,20 @@ for d in workflows scripts templates config tools; do
 done
 [ -f "$SRC/CLAUDE.md" ] && cp "$SRC/CLAUDE.md" "$DEST_CORE/" || true
 
+# --- 3) Đặt skill vào ~/Downloads để UPLOAD TAY vào Claude Cowork (Cowork import skill thủ công) ---
+DL="$HOME/Downloads/Kora-Skills"
+echo "📦 Chuẩn bị gói skill để upload tay vào Cowork..."
+rm -rf "$DL" 2>/dev/null || true
+mkdir -p "$DL"
+cp "$SRC"/.claude/commands/kora-*.md "$DL"/ 2>/dev/null || true
+( cd "$HOME/Downloads" && rm -f Kora-Skills.zip && have zip && zip -qr Kora-Skills.zip Kora-Skills ) 2>/dev/null || true
+
 echo ""
 echo "✅ Đã cài $N skill Kora vào ~/.claude."
+echo "   • Claude Code (CLI): xong — gõ /kora-… được ngay."
+echo "   • Claude Cowork (App, upload skill THỦ CÔNG): mở  ~/Downloads/Kora-Skills/  (hoặc Kora-Skills.zip)"
+echo "     → upload các file kora-*.md vào mục Skills."
 echo "   Tạo project: trong Cowork MỞ/TẠO 1 folder trống → gõ  /kora-init  (tự dựng project)."
-echo "   Cập nhật:    chạy lại file này (hoặc /kora-update)."
+echo "   Cập nhật:    chạy lại file này → skill mới tự kéo vào ~/.claude VÀ ~/Downloads/Kora-Skills/."
 echo "   Gỡ:          chạy uninstall.command (hoặc /kora-uninstall)."
 pause

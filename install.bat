@@ -44,11 +44,19 @@ for %%d in (workflows scripts templates config tools) do (
 )
 if exist "%SRC%\CLAUDE.md" copy /y "%SRC%\CLAUDE.md" "%DEST_CORE%\" >nul
 
+REM --- Dat skill vao Downloads de UPLOAD TAY vao Claude Cowork ---
+set "DL=%USERPROFILE%\Downloads\Kora-Skills"
+if exist "%DL%" rmdir /s /q "%DL%" 2>nul
+mkdir "%DL%" 2>nul
+copy /y "%SRC%\.claude\commands\kora-*.md" "%DL%\" >nul
+powershell -NoProfile -Command "Compress-Archive -Force -Path '%DL%' -DestinationPath '%USERPROFILE%\Downloads\Kora-Skills.zip'" >nul 2>nul
+
 rmdir /s /q "%TMP%" 2>nul
 echo.
 echo [OK] Da cai skills Kora vao ~/.claude.
+echo      Claude Cowork (App, upload skill THU CONG): mo  %DL%  (hoac Kora-Skills.zip) -^> upload kora-*.md vao Skills.
 echo      Tao project: trong Cowork mo/tao 1 folder trong -^> go  /kora-init (tu dung project).
-echo      Cap nhat: chay lai file nay.  Go: chay uninstall.bat.
+echo      Cap nhat: chay lai file nay (skill moi tu keo ve).  Go: chay uninstall.bat.
 :end
 echo.
 pause
