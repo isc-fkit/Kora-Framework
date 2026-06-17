@@ -65,6 +65,10 @@
 - **`/kora-scan` tự setup khi scan:** nếu chưa có nơi lưu trữ → hỏi ĐÚNG 1 câu (*lưu ở đâu*) rồi **TỰ
   dựng project** (vault + folder skill + domain/rule mặc định `generic`, KHÔNG hỏi từng bước); đã có
   project → scan thẳng. (`/kora-init` trực tiếp vẫn đi từng bước.)
+- **Installer kéo domain + rule + xác nhận:** in *"$N skill + $NDOM domain preset (gồm Healthcare/Y tế…)"*;
+  cảnh báo nếu nguồn cài cũ thiếu `healthcare.md`. Domain/rule LUÔN được kéo về khi cài `.command`/`.bat`/`curl|bash`.
+- **Tối ưu thời gian setup:** `00-setup` chỉ HỎI 2 thứ BẮT BUỘC (domain + tên project), còn lại dùng MẶC
+  ĐỊNH → xong ~2 câu hỏi. Phần **cào sâu nhiều bước, phân tích kỹ CHỈ dành cho `workflows/03-request.md`**.
 
 ## v2.0.0 "Kora-1" — 2026-06-17
 

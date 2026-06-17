@@ -63,6 +63,9 @@ for d in workflows scripts templates config tools; do
   fi
 done
 [ -f "$SRC/CLAUDE.md" ] && cp "$SRC/CLAUDE.md" "$DEST_CORE/" || true
+# Domain + rule preset đã nằm trong config/ vừa copy (gồm Healthcare/Y tế). Đếm để báo.
+NDOM="$(ls -1 "$DEST_CORE"/config/domain-presets/*.md 2>/dev/null | wc -l | tr -d ' ')"
+[ -f "$DEST_CORE/config/domain-presets/healthcare.md" ] || echo "⚠️  Thiếu preset Healthcare — nguồn cài có thể cũ."
 
 # --- 3) Đặt skill vào ~/Downloads để UPLOAD TAY vào Claude Cowork (Cowork import skill thủ công) ---
 DL="$HOME/Downloads/Kora-Skills"
@@ -73,7 +76,7 @@ cp "$SRC"/.claude/commands/kora-*.md "$DL"/ 2>/dev/null || true
 ( cd "$HOME/Downloads" && rm -f Kora-Skills.zip && have zip && zip -qr Kora-Skills.zip Kora-Skills ) 2>/dev/null || true
 
 echo ""
-echo "✅ Đã cài $N skill Kora vào ~/.claude."
+echo "✅ Đã cài $N skill Kora + $NDOM domain preset (gồm Healthcare/Y tế, Retail, Manufacturing…) vào ~/.claude."
 echo "   • Claude Code (CLI): xong — gõ /kora-… được ngay."
 echo "   • Claude Cowork (App, upload skill THỦ CÔNG): mở  ~/Downloads/Kora-Skills/  (hoặc Kora-Skills.zip)"
 echo "     → upload các file kora-*.md vào mục Skills."

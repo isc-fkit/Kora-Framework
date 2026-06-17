@@ -53,7 +53,7 @@ powershell -NoProfile -Command "Compress-Archive -Force -Path '%DL%' -Destinatio
 
 rmdir /s /q "%TMP%" 2>nul
 echo.
-echo [OK] Da cai skills Kora vao ~/.claude.
+echo [OK] Da cai skills Kora + domain preset (gom Healthcare/Y te, Retail, Manufacturing...) vao ~/.claude.
 echo      Claude Cowork (App, upload skill THU CONG): mo  %DL%  (hoac Kora-Skills.zip) -^> upload kora-*.md vao Skills.
 echo      Tao project: trong Cowork mo/tao 1 folder trong -^> go  /kora-init (tu dung project).
 echo      Cap nhat: chay lai file nay (skill moi tu keo ve).  Go: chay uninstall.bat.

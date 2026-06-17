@@ -29,6 +29,13 @@
 
 ---
 
+> ⚡ **TỐI ƯU THỜI GIAN SETUP — hỏi TỐI THIỂU.** Chỉ HỎI 2 thứ BẮT BUỘC: **(1) domain** (Healthcare/Y tế
+> luôn có), **(2) tên project**. Mọi thứ khác DÙNG MẶC ĐỊNH, KHÔNG hỏi trừ khi user chủ động muốn đổi:
+> vault = `<Tên>_Brain/` trong project · cấu trúc thư mục mặc định · Obsidian tùy chọn · Design để sau.
+> Mục tiêu xong setup trong **~2 câu hỏi**. Phần **CÀO SÂU nhiều bước, phân tích kỹ CHỈ dành cho
+> `workflows/03-request.md` (phân tích yêu cầu)** — KHÔNG phải setup. (Khi gọi từ `/kora-scan` ở chế độ
+> AUTO thì còn nhanh hơn: domain mặc định `generic`, chỉ hỏi nơi lưu.)
+
 ## Bước 0 — Dựng project (CHỈ khi folder CHƯA phải project Kora)
 
 > Áp dụng khi cài qua **installer** (skill ở `~/.claude`, chưa có project). Nếu folder hiện tại ĐÃ
