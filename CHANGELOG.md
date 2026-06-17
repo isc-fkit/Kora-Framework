@@ -39,6 +39,12 @@
   quyền chạy `+x`) → hết lỗi *"could not be executed… appropriate access privileges"* khi double-click;
   landing đổi nút tải sang `.zip` + hướng dẫn **Privacy & Security → Open Anyway**. Nút tải dùng link
   cùng origin (ép tải, không hiện chữ).
+- **Installer đặt skill vào `~/Downloads/Kora-Skills/` (+ zip)** để upload TAY vào Claude Cowork (Cowork
+  import skill thủ công); chạy lại = skill mới tự kéo về đó; uninstall gỡ luôn.
+- **Dashboard báo cáo + Phân tích AI** (`/kora-daily-report`): thêm khối 🤖 (workflow 14 — Bước 1.5):
+  phân loại health issue (🟢/🟡/🔴), **dự đoán trượt timeline mỗi sprint** (có lý do), đề xuất theo TỪNG
+  thành viên, gợi ý giải quyết rủi ro, tổng kết điều hành; thêm **bar theo project** (`build_report.py`
+  xuất `by_project`); báo cáo lọc theo project/thành viên/khoảng thời gian.
 
 ## v2.0.0 "Kora-1" — 2026-06-17
 

@@ -19,5 +19,9 @@ The user invoked `/kora-daily-report` — build a progress report.
 - Ask the **time range**, then pull data for that period from the configured sources
   (Jira via API/MCP, SharePoint via MCP).
 - If no connection configured yet → ask **MCP / API / All** here (not at init).
-- Build the dashboard (time-tracking / active sprint / assignee) per `workflows/14-progress-report.md`
-  — inline Cowork UI + an HTML file.
+- Build the dashboard (time-tracking / active sprint / assignee + **by-project bar**) per
+  `workflows/14-progress-report.md` — inline Cowork UI + an HTML file.
+- The dashboard MUST include an **🤖 AI analysis** block (workflow 14 — Bước 1.5): issue health
+  classification (🟢/🟡/🔴), **timeline-slip prediction per active sprint** (with reasoning),
+  per-member recommendations, risk-resolution suggestions, and a 1–2 sentence executive summary —
+  written by Claude from the data, never made up.

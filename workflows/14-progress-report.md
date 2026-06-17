@@ -54,6 +54,26 @@ Tạo trong `reports/`:
 - `progress-report-<ngày>.html` + `progress-report-latest.html` — **dashboard standalone** (mở bằng
   trình duyệt, chia sẻ được; phong cách tối glass như landing).
 
+## Bước 1.5 — PHÂN TÍCH AI (rủi ro · phân loại · đề xuất · dự đoán trượt timeline)
+
+> Đọc `reports/progress-data-<ngày>.json` (đã có time est/log/remaining, active sprint + `sprint_end`,
+> by-assignee, status, risks). Claude TỰ tính & viết phần này — đây là **"phân tích AI trong dashboard"**.
+> KHÔNG bịa số: chỉ suy luận từ JSON; thiếu dữ liệu thì nói rõ.
+
+Sinh khối **🤖 Phân tích AI** (in inline ở Bước 2 **VÀ** chèn vào HTML standalone, mục "🤖 Phân tích AI"):
+
+1. **Phân loại tình trạng (health) theo issue/nhóm:** 🟢 đúng tiến độ · 🟡 cần chú ý · 🔴 rủi ro cao.
+   Tiêu chí: quá hạn (duedate < hôm nay & chưa done), sprint active sắp hết hạn mà chưa xong, thiếu
+   estimate/assignee, `remaining_s` cao so với thời gian còn lại.
+2. **Dự đoán TRƯỢT TIMELINE (mỗi active sprint):** so `sprint_end` với hôm nay → `days_left`; cân khối
+   còn lại (`remaining_s`, số issue chưa done) → **nguy cơ trượt: Thấp / Vừa / Cao** + lý do (vd "còn 2
+   ngày, 6 issue chưa done, remaining 40h ≫ sức chứa → **Cao**"). Nêu issue kéo lùi tiến độ.
+3. **Đề xuất theo TỪNG THÀNH VIÊN:** mỗi assignee 1 dòng — quá tải / đúng nhịp / rảnh / đang trễ →
+   hành động gợi ý (giãn việc, hỗ trợ, ưu tiên issue X…) dựa trên total/đang-làm/remaining/done của họ.
+4. **Gợi ý GIẢI QUYẾT rủi ro:** mỗi rủi ro 🔴 → 1–2 hành động cụ thể (giao lại, tách nhỏ, dời sprint,
+   thêm người…).
+5. **Tổng kết điều hành (1–2 câu):** sức khỏe chung + việc cần làm NGAY.
+
 ## Bước 2 — Hiển thị UI trong Cowork (inline)
 
 Đọc `reports/progress-data-<ngày>.json` → **render dashboard NGAY trong chat** bằng `visualize`:
@@ -64,9 +84,12 @@ Tạo trong `reports/`:
    - **Thẻ metric:** Tổng issue · % hoàn thành · Đã log/Ước tính · Còn lại · Sprint active.
    - **Donut trạng thái** (Done / Đang làm / Chưa làm) + legend HTML.
    - **Bar ngang theo assignee:** giờ Đã log vs Ước tính.
+   - **Bar theo PROJECT** (khi báo cáo nhiều project): tổng issue / % done mỗi project.
    - (Bảng chi tiết issue sprint/assignee → in dạng **markdown trong câu trả lời**, KHÔNG nhồi vào widget.)
-3. Kèm tóm tắt text: tiến độ sprint active, top assignee theo tải, % burn time, danh sách rủi ro
-   (quá hạn / active-sprint thiếu assignee/ước tính).
+3. Kèm tóm tắt text **+ khối 🤖 Phân tích AI (Bước 1.5)**: phân loại health, dự đoán trượt timeline mỗi
+   sprint, đề xuất theo TỪNG thành viên, gợi ý giải quyết rủi ro, tổng kết điều hành.
+4. **Nêu rõ PHẠM VI đã lọc** ở đầu dashboard: project(s) + thành viên + khoảng thời gian user đã chọn ở
+   `/kora-daily-report` (report sinh trên đúng tập đã lọc).
 
 ## Bước 3 — Báo file + bước kế
 

@@ -223,6 +223,17 @@ def compute(issues, smap, today):
         })
     by_assignee.sort(key=lambda x: (-x["total"], x["assignee"]))
 
+    # Theo project (cho dashboard nhiều project / filter theo dự án)
+    proj = {}
+    for i in issues:
+        proj.setdefault(i.get("project") or "—", []).append(i)
+    by_project = []
+    for name, items in proj.items():
+        g = _status_breakdown(items, smap)
+        by_project.append({"project": name, "total": len(items), "done": g["done"],
+                           "pct_done": pct(g["done"], len(items)), "time": _time_sum(items)})
+    by_project.sort(key=lambda x: -x["total"])
+
     # Rủi ro
     overdue, no_assignee, no_est = [], [], []
     for i in issues:
@@ -239,7 +250,7 @@ def compute(issues, smap, today):
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(), "total": total,
         "by_status_group": grp, "pct_done": pct(grp["done"], total), "by_type": by_type,
-        "time": tsum, "active_sprints": active_sprints, "by_assignee": by_assignee,
+        "time": tsum, "active_sprints": active_sprints, "by_assignee": by_assignee, "by_project": by_project,
         "risks": {"overdue": overdue[:50], "active_sprint_no_assignee": no_assignee[:50],
                   "active_sprint_no_estimate": no_est[:50]},
         "with_time": sum(1 for i in issues if i.get("time_estimate_s") or i.get("time_spent_s")),
