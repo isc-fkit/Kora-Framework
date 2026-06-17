@@ -75,12 +75,28 @@ mkdir -p "$DL"
 cp "$SRC"/.claude/commands/kora-*.md "$DL"/ 2>/dev/null || true
 ( cd "$HOME/Downloads" && rm -f Kora-Skills.zip && have zip && zip -qr Kora-Skills.zip Kora-Skills ) 2>/dev/null || true
 
+# --- 4) TỰ ĐỘNG dựng project (init): cấu trúc thư mục + folder skill BÊN TRONG project ---
+PROJ="${KORA_PROJECT:-$HOME/Kora-Knowledge}"
+mkdir -p "$PROJ/.claude/commands"
+cp "$DEST_CMD"/kora-*.md "$PROJ/.claude/commands/" 2>/dev/null || true   # refresh skill trong project mỗi lần cài
+if [ ! -f "$PROJ/config/factory-config.yaml" ]; then
+  echo "📁 Dựng project (init) tại: $PROJ"
+  mkdir -p "$PROJ"/docs/01-domain "$PROJ"/docs/02-product "$PROJ"/docs/03-features "$PROJ"/docs/04-design \
+           "$PROJ"/docs/05-architecture "$PROJ"/docs/06-decisions "$PROJ"/docs/07-research "$PROJ"/docs/08-glossary \
+           "$PROJ/inbox" "$PROJ/.kb" "$PROJ/config" "$PROJ/Kora_Brain/00_Index"
+  [ -f "$DEST_CORE/config/factory-config.example.yaml" ] && cp "$DEST_CORE/config/factory-config.example.yaml" "$PROJ/config/factory-config.yaml"
+  [ -d "$DEST_CORE/config/domain-presets" ] && cp -R "$DEST_CORE/config/domain-presets" "$PROJ/config/domain-presets"
+  printf '@~/.claude/kora-framework/CLAUDE.md\n' > "$PROJ/CLAUDE.md"   # Cowork nạp rule orchestrator khi mở folder
+  printf '# Knowledge Base\n' > "$PROJ/Kora_Brain/00_Index/Knowledge-Base.md"
+fi
+
 echo ""
 echo "✅ Đã cài $N skill Kora + $NDOM domain preset (gồm Healthcare/Y tế, Retail, Manufacturing…) vào ~/.claude."
+echo "   📁 Project init sẵn: $PROJ  (docs/ + vault Kora_Brain/ + .claude/commands có skill bên trong)."
 echo "   • Claude Code (CLI): xong — gõ /kora-… được ngay."
 echo "   • Claude Cowork (App, upload skill THỦ CÔNG): mở  ~/Downloads/Kora-Skills/  (hoặc Kora-Skills.zip)"
 echo "     → upload các file kora-*.md vào mục Skills."
-echo "   Tạo project: trong Cowork MỞ/TẠO 1 folder trống → gõ  /kora-init  (tự dựng project)."
+echo "   Mở project: mở  $PROJ  trong Cowork → gõ  /kora-init  (đặt domain/tên) hoặc  /kora-scan."
 echo "   Cập nhật:    chạy lại file này → skill mới tự kéo vào ~/.claude VÀ ~/Downloads/Kora-Skills/."
 echo "   Gỡ:          chạy uninstall.command (hoặc /kora-uninstall)."
 pause

@@ -51,11 +51,29 @@ mkdir "%DL%" 2>nul
 copy /y "%SRC%\.claude\commands\kora-*.md" "%DL%\" >nul
 powershell -NoProfile -Command "Compress-Archive -Force -Path '%DL%' -DestinationPath '%USERPROFILE%\Downloads\Kora-Skills.zip'" >nul 2>nul
 
+REM --- TU DONG dung project (init): cau truc thu muc + folder skill ben trong ---
+set "PROJ=%USERPROFILE%\Kora-Knowledge"
+if defined KORA_PROJECT set "PROJ=%KORA_PROJECT%"
+if not exist "%PROJ%\.claude\commands" mkdir "%PROJ%\.claude\commands"
+copy /y "%DEST_CMD%\kora-*.md" "%PROJ%\.claude\commands\" >nul 2>nul
+if not exist "%PROJ%\config\factory-config.yaml" (
+  for %%d in (01-domain 02-product 03-features 04-design 05-architecture 06-decisions 07-research 08-glossary) do mkdir "%PROJ%\docs\%%d" 2>nul
+  mkdir "%PROJ%\inbox" 2>nul
+  mkdir "%PROJ%\.kb" 2>nul
+  mkdir "%PROJ%\config" 2>nul
+  mkdir "%PROJ%\Kora_Brain\00_Index" 2>nul
+  if exist "%DEST_CORE%\config\factory-config.example.yaml" copy /y "%DEST_CORE%\config\factory-config.example.yaml" "%PROJ%\config\factory-config.yaml" >nul
+  if exist "%DEST_CORE%\config\domain-presets" xcopy /e /i /y "%DEST_CORE%\config\domain-presets" "%PROJ%\config\domain-presets" >nul
+  >"%PROJ%\CLAUDE.md" echo @~/.claude/kora-framework/CLAUDE.md
+  >"%PROJ%\Kora_Brain\00_Index\Knowledge-Base.md" echo # Knowledge Base
+)
+
 rmdir /s /q "%TMP%" 2>nul
 echo.
 echo [OK] Da cai skills Kora + domain preset (gom Healthcare/Y te, Retail, Manufacturing...) vao ~/.claude.
 echo      Claude Cowork (App, upload skill THU CONG): mo  %DL%  (hoac Kora-Skills.zip) -^> upload kora-*.md vao Skills.
-echo      Tao project: trong Cowork mo/tao 1 folder trong -^> go  /kora-init (tu dung project).
+echo      Project init san: %PROJ%  (docs/ + vault + .claude\commands co skill ben trong).
+echo      Mo %PROJ% trong Cowork -^> go  /kora-init (dat domain/ten) hoac  /kora-scan.
 echo      Cap nhat: chay lai file nay (skill moi tu keo ve).  Go: chay uninstall.bat.
 :end
 echo.

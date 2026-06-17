@@ -72,6 +72,10 @@
 - **`/kora-release` đầy đủ:** hỏi **Merge (`release`→`main`) hay Deploy (từ `release`)**; **tag KHỚP version**
   (`vX.Y.Z`, bỏ hậu tố `-genesis-1` cũ); tạo **GitHub Release + release note** từ CHANGELOG; **deploy web
   (Pages)**; kiểm **version khớp 5 nơi** (version.json · CHANGELOG · badge landing · tag · GitHub Release).
+- **Installer TỰ chạy init:** `install.command`/`.bat`/`curl|bash` **tự dựng project** tại `~/Kora-Knowledge`
+  (đổi qua biến `KORA_PROJECT`) — cấu trúc `docs/01-08` + vault `Kora_Brain/` + config + **7 domain preset**
+  + **`.claude/commands/` chứa skill BÊN TRONG project** (Cowork load theo path) + `CLAUDE.md` 1-dòng. Skill
+  cũng vào `~/.claude` (Claude Code). Chạy lại installer = **refresh skill** vào project (bản mới có skill mới).
 
 ## v2.0.0 "Kora-1" — 2026-06-17
 
