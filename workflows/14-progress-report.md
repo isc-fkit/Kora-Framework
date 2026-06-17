@@ -60,7 +60,8 @@ Tạo trong `reports/`:
 > by-assignee, status, risks). Claude TỰ tính & viết phần này — đây là **"phân tích AI trong dashboard"**.
 > KHÔNG bịa số: chỉ suy luận từ JSON; thiếu dữ liệu thì nói rõ.
 
-Sinh khối **🤖 Phân tích AI** (in inline ở Bước 2 **VÀ** chèn vào HTML standalone, mục "🤖 Phân tích AI"):
+Sinh khối **🤖 Phân tích AI** — in inline ở Bước 2 **VÀ** ghi vào container `<section id="kr-ai">`
+của `reports/progress-report-<ngày>.html` (+ `progress-report-latest.html`). Gồm:
 
 1. **Phân loại tình trạng (health) theo issue/nhóm:** 🟢 đúng tiến độ · 🟡 cần chú ý · 🔴 rủi ro cao.
    Tiêu chí: quá hạn (duedate < hôm nay & chưa done), sprint active sắp hết hạn mà chưa xong, thiếu

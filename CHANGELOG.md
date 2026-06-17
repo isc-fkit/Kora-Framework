@@ -52,6 +52,10 @@
   → tổng **14 lệnh `/kora-*`**.
 - **Thêm domain preset phổ biến** (installer tự kéo về, init liệt kê ĐỘNG): **retail** (Bán hàng),
   **manufacturing** (Sản xuất–Điện tử), **education** (Giáo dục) — cạnh healthcare/fintech/ecommerce/generic = 7 preset.
+- **Dashboard UI nâng cấp (PM/PO)** — `build_report.py`: thêm **filter bar tương tác** (lọc theo người +
+  trạng thái, JS hide/show), **panel theo project** (khi nhiều dự án), và **container `#kr-ai`** để Claude
+  ghi khối Phân tích AI (phân loại rủi ro theo mức · dự đoán trượt timeline mỗi sprint · giải pháp · đề
+  xuất theo từng thành viên). Đầy đủ, trực quan, phục vụ quản lý nhiều dự án.
 
 ## v2.0.0 "Kora-1" — 2026-06-17
 

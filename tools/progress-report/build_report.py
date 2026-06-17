@@ -291,7 +291,8 @@ def render_fragment(m, vault):
     sprint_html = ""
     for s in m["active_sprints"]:
         rows = "".join(
-            f'<tr><td class="pr-k">{esc(i["key"])}</td><td>{esc(i["summary"])[:70]}</td>'
+            f'<tr class="pr-row" data-assignee="{esc(i["assignee"])}" data-status="{i["group"]}">'
+            f'<td class="pr-k">{esc(i["key"])}</td><td>{esc(i["summary"])[:70]}</td>'
             f'<td>{esc(i["assignee"])}</td>'
             f'<td><span class="pr-pill pr-{i["group"]}">{esc(i["status"])}</span></td>'
             f'<td>{human_seconds(i["spent_s"])}/{human_seconds(i["est_s"])}</td>'
@@ -307,7 +308,7 @@ def render_fragment(m, vault):
         sprint_html = '<div class="pr-card pr-mut">Không có sprint đang chạy (active) — kiểm tra field Sprint trên Jira.</div>'
 
     arows = "".join(
-        f'<tr><td>{esc(a["assignee"])}</td><td>{a["total"]}</td>'
+        f'<tr class="pr-row" data-assignee="{esc(a["assignee"])}"><td>{esc(a["assignee"])}</td><td>{a["total"]}</td>'
         f'<td>{a["todo"]}</td><td>{a["in_progress"]}</td><td>{a["done"]}</td>'
         f'<td style="min-width:90px">{bar(a["pct_done"], "green")}</td>'
         f'<td>{human_seconds(a["time"]["spent_s"])}/{human_seconds(a["time"]["estimate_s"])}</td>'
@@ -327,6 +328,35 @@ def render_fragment(m, vault):
         f'<ul class="pr-ul">'
         + risk_list(risks["active_sprint_no_assignee"], lambda x: f'<span class="pr-k">{esc(x["key"])}</span> {esc(x["summary"])[:60]} <span class="pr-mut">— chưa giao</span>')
         + '</ul></div>')
+
+    # By project (panel — chỉ hiện khi >1 project)
+    proj_html = ""
+    if len(m.get("by_project", [])) > 1:
+        prows = "".join(
+            f'<tr><td>{esc(p["project"])}</td><td>{p["total"]}</td><td>{p["done"]}</td>'
+            f'<td style="min-width:90px">{bar(p["pct_done"], "teal")}</td>'
+            f'<td>{human_seconds(p["time"]["spent_s"])}/{human_seconds(p["time"]["estimate_s"])}</td></tr>'
+            for p in m["by_project"])
+        proj_html = ('<table class="pr-t"><thead><tr><th>Project</th><th>Tổng</th><th>Done</th>'
+                     f'<th>% Done</th><th>Log/Ước tính</th></tr></thead><tbody>{prows}</tbody></table>')
+    # Filter bar (người + trạng thái) — lọc tương tác trên bảng
+    assignees = sorted({a["assignee"] for a in m["by_assignee"]})
+    _opt = lambda v: f'<option value="{esc(v)}">{esc(v)}</option>'
+    filter_bar = (
+        '<div class="pr-filter"><span>🔎 Lọc:</span>'
+        '<select id="kr-fa" onchange="krFilter()"><option value="">Tất cả người</option>'
+        + "".join(_opt(a) for a in assignees) + '</select>'
+        '<select id="kr-fs" onchange="krFilter()"><option value="">Mọi trạng thái</option>'
+        '<option value="todo">Chưa làm</option><option value="in_progress">Đang làm</option>'
+        '<option value="done">Done</option></select></div>')
+    ai_anchor = ('<section class="pr-card pr-ai" id="kr-ai"><b style="color:#c9b8ff">🤖 Phân tích AI</b>'
+                 '<div class="pr-mut" style="margin-top:6px">Khu vực này được Claude điền khi chạy báo cáo: '
+                 'phân loại rủi ro theo mức · dự đoán nguy cơ trượt timeline mỗi sprint (kèm lý do) · giải pháp '
+                 'cho từng rủi ro · đề xuất theo từng thành viên · tổng kết điều hành.</div></section>')
+    krscript = ('<script>function krFilter(){var a=document.getElementById("kr-fa").value,'
+                's=document.getElementById("kr-fs").value;document.querySelectorAll(".pr-row").forEach('
+                'function(r){var ok=(!a||r.dataset.assignee===a)&&(!s||!r.dataset.status||r.dataset.status===s);'
+                'r.style.display=ok?"":"none";});}</script>')
 
     gen = m["generated_at"][:16].replace("T", " ")
     note = "" if m["with_time"] else ('<div class="pr-warn">Chưa thấy dữ liệu thời gian — '
@@ -365,17 +395,25 @@ def render_fragment(m, vault):
 .pr-warn{{background:rgba(244,123,32,.12);border-left:3px solid {PAL['orange']};border-radius:0 8px 8px 0;padding:8px 12px;margin-top:10px;font-size:12.5px;color:#f0ddc4}}
 .pr-stale{{background:rgba(255,95,122,.14);border-left:3px solid {PAL['red']};border-radius:0 8px 8px 0;padding:9px 13px;margin:8px 0;font-size:13px;color:#ffc9d3;font-weight:600}}
 .pr-grid2{{display:grid;grid-template-columns:1fr 1fr;gap:12px}}@media(max-width:680px){{.pr-grid2{{grid-template-columns:1fr}}}}
+.pr-filter{{display:flex;gap:8px;align-items:center;margin:10px 0 4px;flex-wrap:wrap;font-size:12.5px;color:{PAL['mut']}}}
+.pr-filter select{{background:{PAL['card']};color:{PAL['ink']};border:1px solid {PAL['line']};border-radius:8px;padding:5px 9px;font-size:12.5px}}
+.pr-ai{{border-left:3px solid {PAL['vio']};margin-top:12px}}
 </style>"""
+    proj_section = f'<h2>Theo project</h2><div class="pr-card">{proj_html}</div>' if proj_html else ''
     return f"""{style}<div class="pr">
 <h1>📊 Báo cáo tiến độ dự án</h1>
 <div class="pr-sub">Vault: {esc(os.path.basename(vault.rstrip('/')))} · cập nhật {esc(gen)} (giờ UTC) · {m['total']} issue</div>
 {stale}
 {note}
+{filter_bar}
 <div class="pr-kpis">{cards}</div>
+{ai_anchor}
 <h2>Tiến độ tổng thể</h2><div class="pr-card">{stacked(m['by_status_group'])}</div>
+{proj_section}
 <h2>Sprint đang chạy</h2>{sprint_html}
 <h2>Theo người phụ trách</h2><div class="pr-card">{assignee_html}</div>
 <h2>Rủi ro & lỗ hổng</h2><div class="pr-grid2">{risk_html}</div>
+{krscript}
 </div>"""
 
 
