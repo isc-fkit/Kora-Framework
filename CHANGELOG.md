@@ -69,6 +69,9 @@
   cảnh báo nếu nguồn cài cũ thiếu `healthcare.md`. Domain/rule LUÔN được kéo về khi cài `.command`/`.bat`/`curl|bash`.
 - **Tối ưu thời gian setup:** `00-setup` chỉ HỎI 2 thứ BẮT BUỘC (domain + tên project), còn lại dùng MẶC
   ĐỊNH → xong ~2 câu hỏi. Phần **cào sâu nhiều bước, phân tích kỹ CHỈ dành cho `workflows/03-request.md`**.
+- **`/kora-release` đầy đủ:** hỏi **Merge (`release`→`main`) hay Deploy (từ `release`)**; **tag KHỚP version**
+  (`vX.Y.Z`, bỏ hậu tố `-genesis-1` cũ); tạo **GitHub Release + release note** từ CHANGELOG; **deploy web
+  (Pages)**; kiểm **version khớp 5 nơi** (version.json · CHANGELOG · badge landing · tag · GitHub Release).
 
 ## v2.0.0 "Kora-1" — 2026-06-17
 

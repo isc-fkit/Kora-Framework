@@ -15,7 +15,16 @@ Read and execute `workflows/12-release.md` following `CLAUDE.md`, automating the
    type: feat/fix/docs…); show it for review/edit.
 4. **Plan:** list what ships (CORE changed), note any migration step, and whether installer zips need
    regenerating (if `install.command`/`uninstall.command` changed → re-zip `*.command.zip`).
-5. ✋ **Confirm** → write `version.json` + prepend the CHANGELOG entry + commit + `git push origin <branch>`
-   (deploy). Optionally `git tag v<version>`.
+5. ✋ **Confirm** → write `version.json` + prepend the CHANGELOG entry + **sync the version label on the
+   landing `index.html`** (the hero `.badge` — must match) + commit.
+6. **Ask: Merge or Deploy?** (AskUserQuestion) — **[Deploy from `release`]** (Pages deploys web from
+   release) or **[Merge `release`→`main`]** (push release, then ff-merge into main + push main). Never
+   force a non-ff merge.
+7. **Tag = version** (must MATCH `version.json`, no codename suffix): `git tag vX.Y.Z && git push origin vX.Y.Z`.
+8. **GitHub Release + release notes** (if `gh` available): `gh release create vX.Y.Z --title "Kora-1 vX.Y.Z"
+   --notes "<the CHANGELOG vX.Y.Z entry>"`.
+9. **Version consistency** — verify the SAME `vX.Y.Z` shows in: `version.json` · CHANGELOG header · landing
+   badge · git tag · GitHub Release. Fix any mismatch. Then report: **web (Pages) deployed**; app users get
+   it via `/kora-update`.
 
 Never push without the confirmation gate. Keep secrets out of commits.

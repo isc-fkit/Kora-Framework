@@ -55,20 +55,31 @@ Chạy `git status --short` + `git diff --stat` → xem đã đổi gì:
      `workflows/10-update.md` Bước 2 sẽ hiện `intro` + đánh dấu khi `force:true` cho user bản cũ.
 2. Sửa `version.json`: `version` mới + `released` = **ngày hôm nay** + `force` + `intro` (Bước 1b).
    (giữ `name`, `repo`, `codename`)
-2b. **BẮT BUỘC — đồng bộ nhãn version hiển thị trên landing `index.html`** theo `version` mới:
-   thẻ model card `<span class="mc-ver">vX.Y.Z</span>` VÀ footer `Phiên bản: <b>Kora-1 (vX.Y.Z)</b>`.
-   (Quên bước này → web hiện version cũ dù đã phát hành bản mới. `grep -n 'mc-ver\|Phiên bản:' index.html`
-   để soát.)
+2b. **BẮT BUỘC — đồng bộ nhãn version trên landing `index.html`** theo `version` mới:
+   thẻ badge hero `<div class="badge">FPT ISC · vX.Y.Z · "Kora-1"</div>` (và mọi chỗ in version khác).
+   (Quên bước này → web hiện version cũ dù đã phát hành bản mới. `grep -n 'class="badge"\|v[0-9]\.[0-9]' index.html`
+   để soát + sửa cho khớp `version.json`.)
 3. Thêm mục ĐẦU vào `CHANGELOG.md`:
    `## vX.Y.Z "Kora-1" — YYYY-MM-DD` + các gạch đầu dòng "có gì mới".
    **Nếu cần thao tác khi cập nhật** (migration: đổi cấu trúc config/vault…) → ghi RÕ các bước ở đây —
    `workflows/10-update.md` đọc CHANGELOG để biết "cần làm những gì" và làm theo.
 4. Trình bày tóm tắt cho user: version cũ → mới, danh sách "có gì mới", có migration không.
 5. ✋ **GATE — confirm** (push là thao tác công khai, BẮT BUỘC chờ user đồng ý).
-6. `git add -A && git commit -m "Kora-1 vX.Y.Z: <tóm tắt>" && git push origin release`.
-   Tùy chọn đánh dấu: `git tag vX.Y.Z-genesis-1 && git push origin vX.Y.Z-genesis-1`.
-7. Báo: app đã cài gõ **`cập nhật phiên bản`** sẽ thấy bản này (đọc CHANGELOG → confirm → tải CORE, giữ DATA);
-   GitHub Pages cũng deploy web mới luôn.
+6. `git add -A && git commit -m "Kora-1 vX.Y.Z: <tóm tắt>"`.
+6b. **HỎI: Merge hay Deploy? — AskUserQuestion:**
+   - **[Deploy từ `release`]** (mặc định) → `git push origin release` → GitHub Pages deploy web từ `release`.
+   - **[Merge `release` → `main`]** → `git push origin release`, rồi `git checkout main && git merge --ff-only
+     release && git push origin main && git checkout release` (Pages phục vụ `main` thì deploy từ đó). Không
+     ff-merge được → BÁO user, KHÔNG ép merge.
+6c. **Đánh tag KHỚP version** (BẮT BUỘC; KHÔNG thêm hậu tố codename):
+   `git tag vX.Y.Z && git push origin vX.Y.Z` — `vX.Y.Z` phải **TRÙNG** `version.json.version`.
+6d. **GitHub Release + release note** (nếu có `gh`): nội dung = đúng mục CHANGELOG vừa thêm:
+   `gh release create vX.Y.Z --title "Kora-1 vX.Y.Z" --notes "<nội dung mục CHANGELOG vX.Y.Z>"`.
+7. **KIỂM VERSION KHỚP (4–5 nơi)** trước khi xong: `version.json.version` == header `CHANGELOG`
+   (`## vX.Y.Z`) == nhãn landing (`mc-ver`/footer — Bước 2b) == git tag `vX.Y.Z` == GitHub Release.
+   Lệch chỗ nào → sửa cho khớp rồi báo.
+8. Báo: app đã cài gõ **`cập nhật phiên bản`** sẽ thấy bản này (đọc CHANGELOG → confirm → tải CORE, giữ DATA);
+   **web (GitHub Pages) đã deploy** bản mới.
 
 ## Guardrails
 
