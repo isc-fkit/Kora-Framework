@@ -1,13 +1,23 @@
 ---
-description: Generate a progress report. Asks which project, filters by project and members, pulls data for the chosen time range from the sources, then builds the dashboard.
+description: Generate a progress report. Choose one or more projects (multi-select), filter by members, pull data for a chosen time range from the sources, then build the dashboard.
 ---
 
-The user invoked `/kora-daily-report` — an explicit command to build a progress report.
+The user invoked `/kora-daily-report` — build a progress report.
 
-Read and execute `workflows/14-progress-report.md` following `CLAUDE.md`:
+**Project selection (AskUserQuestion):**
+1. If any project was scanned before → first offer **[Pick from already-scanned projects]** /
+   **[Add a new project]**.
+   - **Pick from already-scanned** → show the already-imported projects as a **multi-select
+     checklist** (read the list from the vault / `config/factory-config.yaml`); the user ticks
+     one or more.
+   - **Add a new project** → ask the new project key/name; if not yet imported, scan it first
+     (`/kora-scan`).
+2. Always allow choosing **multiple projects** (AskUserQuestion with `multiSelect: true`).
 
-- **Ask which project** to report on; offer **filters by project and by member** (assignee / team).
-- **Ask the desired time range**, then **pull data for that period** from the configured sources
+**Then:**
+- Offer **filters by project and by member** (assignee / team) — multi-select.
+- Ask the **time range**, then pull data for that period from the configured sources
   (Jira via API/MCP, SharePoint via MCP).
-- If no connection is configured yet, ask **MCP or API right here** (not at init).
-- Produce the dashboard (time-tracking / active sprint / assignee) as inline Cowork UI + an HTML file.
+- If no connection configured yet → ask **MCP / API / All** here (not at init).
+- Build the dashboard (time-tracking / active sprint / assignee) per `workflows/14-progress-report.md`
+  — inline Cowork UI + an HTML file.
