@@ -15,9 +15,11 @@
 - **Cài bằng installer `.command`/`.bat`** (mô hình FKit Reporter): `install.command` / `install.bat`
   (+ 1 dòng `curl|bash`) cài skill vào `~/.claude` (managed, KHÔNG để lại folder source); chạy lại =
   cập nhật (tự thêm skill mới). Kèm `uninstall.command` / `.bat` + lệnh `/kora-uninstall`.
-- **12 lệnh `/kora-*` đổi sang TÊN TIẾNG ANH** (kora-init, kora-import-jira, kora-import-task,
+- **12 lệnh `/kora-*` đổi sang TÊN TIẾNG ANH** (kora-init, kora-scan, kora-scan-jira-task,
   kora-daily-report, kora-schedule, kora-update, kora-import-files, kora-evolve, kora-design,
   kora-export-docs, kora-backup, kora-uninstall) — tên + mô tả tiếng Anh.
+- **`/kora-scan`** (gộp từ import-jira/import-task): chọn **API / MCP / All** → chọn nguồn
+  (Jira Cloud/Server, SharePoint, Confluence…); cào hết field + comment. `/kora-scan-jira-task <KEY>` cho 1 issue.
 - **Landing dạng guide nhiều TAB**: 2 tab chính (Cài đặt | Hướng dẫn sử dụng); tab Cài đặt có 2
   sub-tab (Claude CLI / Claude App–Desktop), giống trang FKit claude-reporter-guide.
 - **Init gọn nhẹ**: tách bước chọn-domain và domain-rule riêng; bỏ hỏi token/lịch/nguồn khỏi init —

@@ -134,7 +134,7 @@ Hành động:
 
 > ℹ️ **Init GỌN NHẸ — KHÔNG nạp nguồn / token / lịch ở đây.** Việc nạp tri thức và kết nối
 > nguồn đã chuyển sang các skill riêng, chạy SAU init khi cần (không ép lúc khởi tạo):
-> - `/kora-import-jira`, `/kora-import-task` — nạp Jira (chọn kết nối **MCP** hoặc **API** ngay trong skill đó).
+> - `/kora-scan`, `/kora-scan-jira-task` — nạp Jira (chọn kết nối **MCP** hoặc **API** ngay trong skill đó).
 > - `/kora-import-files` — nạp PDF / DOCX / ảnh.
 > - `/kora-schedule` — đặt lịch + cấu hình kết nối nguồn (token API ghi vào `~/.zshrc` / `~/.bashrc`).
 > - `/kora-daily-report` — báo cáo (chọn project, lọc thành viên, kéo dữ liệu theo khoảng thời gian).
@@ -171,16 +171,16 @@ bằng **câu thường** ở lượt kế (KHÔNG nhồi tên/mô tả vào Ask
    - Domain + số rule đang áp dụng
    - Vault ở đâu, bao nhiêu note
    - Project Design nào được đăng ký
-   - Nhắc: nạp tri thức bằng skill SAU init (`/kora-import-jira`, `/kora-import-files`).
+   - Nhắc: nạp tri thức bằng skill SAU init (`/kora-scan`, `/kora-import-files`).
 5. Kết bằng hướng dẫn dùng:
 
 > "Setup xong! Từ giờ bạn chỉ cần **nhắn vấn đề hoặc yêu cầu** bằng lời thường,
 > tôi sẽ tự phân tích dựa trên tri thức hiện có và chỉ hỏi bạn khi cần xác nhận.
-> Lệnh tắt: `/kora-import-jira`, `/kora-import-files`, `/kora-daily-report`, `/kora-schedule`,
+> Lệnh tắt: `/kora-scan`, `/kora-import-files`, `/kora-daily-report`, `/kora-schedule`,
 > `/kora-design`, `/kora-export-docs`, `/kora-evolve`. Gõ `/` để xem đủ 12 lệnh."
 
 6. **Đề xuất bước kế (§0.4) — → dùng AskUserQuestion** (1–3 lựa chọn hợp lý theo những gì vừa
-   setup) để user chỉ việc bấm, KHÔNG phải tự nhớ lệnh. Ví dụ: `[A] /kora-import-jira nạp tri thức ·
+   setup) để user chỉ việc bấm, KHÔNG phải tự nhớ lệnh. Ví dụ: `[A] /kora-scan nạp tri thức ·
    [B] /kora-import-files nạp tài liệu · [C] Nêu một yêu cầu để phân tích · [D] Dừng ở đây`.
 
 ---
