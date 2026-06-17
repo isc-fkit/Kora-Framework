@@ -44,9 +44,11 @@ có `~/.claude/kora-framework/`. Khi đó dựng **project GỌN** ngay trong fo
    `domain-presets/` → `config/domain-presets/`.
 3. Tạo `CLAUDE.md` ở gốc project với **đúng 1 dòng**: `@~/.claude/kora-framework/CLAUDE.md`
    (để Cowork nạp rule orchestrator khi mở folder). **KHÔNG copy cả CLAUDE.md.**
-4. **CORE dùng chung** (KHÔNG copy vào project): workflows/tools/templates ở `~/.claude/kora-framework/`.
+4. **Skill RIÊNG cho project:** tạo `.claude/commands/` trong project + copy `~/.claude/commands/kora-*.md`
+   vào → mở project trong Cowork là **load skill theo path**; `/kora-update` sẽ refresh skill mới vào ĐÂY.
+5. **CORE dùng chung** (KHÔNG copy vào project): workflows/tools/templates ở `~/.claude/kora-framework/`.
    Lệnh chỉ mục dùng đường dẫn chung: `python3 ~/.claude/kora-framework/tools/kb-indexer/build_index.py --root .`.
-5. Vault `<Tên>_Brain/` dựng ở **Bước 4** (sau khi có tên project ở Bước 3).
+6. Vault `<Tên>_Brain/` dựng ở **Bước 4** (sau khi có tên project ở Bước 3).
 
 Xong scaffold → tiếp **Bước 1**.
 
@@ -64,8 +66,10 @@ tên + 1 dòng mô tả lấy từ tiêu đề preset). Hiện có **7 preset ph
 - **Retail / Bán hàng** (`retail.md`) · **Manufacturing / Sản xuất–Điện tử** (`manufacturing.md`)
 - **Education / Giáo dục** (`education.md`) · **Generic / Khác** (`generic.md`)
 
-AskUserQuestion tối đa 4 thẻ → hiện **3 cái hợp ngữ cảnh nhất + [Khác — xem thêm]**; chọn "Khác" thì
-lượt kế liệt kê các preset còn lại. (Thêm preset mới vào `config/domain-presets/` là tự xuất hiện.)
+AskUserQuestion tối đa 4 thẻ → nhóm MẶC ĐỊNH: **Healthcare / Y tế · Retail / Bán hàng · Manufacturing /
+Sản xuất–Điện tử · [Khác — xem thêm]** (Healthcare/Y tế **LUÔN có**). Chọn "Khác" → lượt kế liệt kê
+phần còn lại: **Fintech · E-commerce · Education / Giáo dục · Generic**. Sản phẩm rõ lĩnh vực thì ưu
+tiên preset đúng. (Thêm preset mới vào `config/domain-presets/` là tự xuất hiện ở "Khác".)
 
 Hành động sau khi chọn:
 - Copy preset đã chọn → `config/domain-rules.md`.

@@ -56,6 +56,12 @@
   trạng thái, JS hide/show), **panel theo project** (khi nhiều dự án), và **container `#kr-ai`** để Claude
   ghi khối Phân tích AI (phân loại rủi ro theo mức · dự đoán trượt timeline mỗi sprint · giải pháp · đề
   xuất theo từng thành viên). Đầy đủ, trực quan, phục vụ quản lý nhiều dự án.
+- **Jira quét SẠCH comment:** `import_jira.py` thêm `fetch_all_comments()` — **phân trang**
+  `/rest/api/2/issue/{key}/comment` lấy **HẾT comment** khi Jira search giới hạn số lượng (issue nhiều
+  comment không còn sót). Custom field vốn đã ghi đủ ở mục "Tất cả field (đầy đủ)".
+- **Skill NẰM TRONG folder project:** `/kora-init` tạo `<project>/.claude/commands/` + copy skill →
+  Cowork load theo path; `/kora-update` **refresh skill mới** vào 3 nơi (project · `~/.claude/commands` · `~/Downloads/Kora-Skills`).
+- **Domain Healthcare/Y tế LUÔN hiện** ở nhóm mặc định khi `/kora-init` chọn domain (cạnh Retail, Manufacturing, [Khác]).
 
 ## v2.0.0 "Kora-1" — 2026-06-17
 

@@ -99,6 +99,7 @@ def _auth_header():
 
 
 HEADERS = {"Authorization": _auth_header(), "Accept": "application/json"}
+FROM_MCP = False  # True khi nạp qua --from-mcp (không có token → bỏ qua việc gọi API lấy thêm comment)
 NOW = datetime.now(timezone.utc).isoformat()
 
 # --- Cấu trúc thư mục vault: mặc định bên dưới, override được bằng env (dynamic) ---
@@ -572,6 +573,29 @@ def write(path, content):
         f.write(content)
 
 
+def fetch_all_comments(key):
+    """Best-effort: lấy HẾT comment của 1 issue qua phân trang /issue/{key}/comment.
+    Trả list comment đầy đủ; None nếu không lấy được (MCP/không token/lỗi) → giữ comment sẵn có."""
+    if FROM_MCP or not BASE_URL:
+        return None
+    out, start = [], 0
+    try:
+        while True:
+            url = (f"{BASE_URL}/rest/api/2/issue/{key}/comment?"
+                   + urllib.parse.urlencode({"startAt": start, "maxResults": 100}))
+            req = urllib.request.Request(url, headers=HEADERS)
+            with urllib.request.urlopen(req, timeout=30) as r:
+                data = json.loads(r.read().decode("utf-8"))
+            cs = data.get("comments", [])
+            out.extend(cs)
+            start += len(cs)
+            if not cs or start >= int(data.get("total", len(out))):
+                break
+        return out
+    except Exception:
+        return None
+
+
 def issue_note(issue, project_key, fname_map):
     key = issue["key"]
     f = issue["fields"]
@@ -622,7 +646,12 @@ def issue_note(issue, project_key, fname_map):
             for a in f.get("attachment", [])]
     if atts:
         fm += ["## Attachments Metadata", ""] + atts + [""]
-    comments = (f.get("comment") or {}).get("comments", [])
+    cobj = f.get("comment") or {}
+    comments = cobj.get("comments", [])
+    if cobj.get("total", len(comments)) > len(comments):  # search giới hạn số comment → lấy HẾT (phân trang)
+        full = fetch_all_comments(key)
+        if full is not None:
+            comments = full
     if comments:
         fm += ["## Comments", ""]
         for c in comments:
@@ -898,6 +927,8 @@ def main():
 
     # --from-mcp: nạp từ file MCP (Cloud) — KHÔNG cần token; tái dùng toàn bộ logic ghi note
     if args.from_mcp:
+        global FROM_MCP
+        FROM_MCP = True
         if args.since is not None and has_daily_success() and not args.force:
             print(f"Hôm nay ({_today()}) đã đồng bộ thành công → bỏ qua (dùng --force để ép).")
             return
