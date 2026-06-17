@@ -19,6 +19,9 @@ Drive the choices step by step with **AskUserQuestion** (each step a card; stop 
      into the vault (scaffolding).
    - **Confluence (MCP)** → use the Confluence MCP search/fetch tools.
 
-Rules: MCP path requires the Connector enabled in Claude App/Cowork — verify by calling one MCP tool
-first. API path keeps the token in an env var (`~/.zshrc`) or `.env.local`, never printed to chat.
-Keep the Approval Gate before writing into `docs/` / vault.
+Rules:
+- **MCP path** requires the Connector enabled in Claude App/Cowork — verify by calling one MCP tool first.
+- **API path** → ask the user for the token, then **write `export KORA_<SRC>_TOKEN="..."` (+ base URL,
+  e.g. `KORA_JIRA_BASE_URL`) into `~/.zshrc` / `~/.bashrc`** (remind to `source ~/.zshrc` or open a new
+  terminal); **never print the token to chat**; reuse it if the env var is already set.
+- Keep the Approval Gate before writing into `docs/` / vault.

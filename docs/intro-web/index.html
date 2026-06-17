@@ -177,9 +177,12 @@
 
   <!-- ================= TAB: HƯỚNG DẪN SỬ DỤNG ================= -->
   <section class="panel-tab" id="tab-usage">
-    <h2 class="sec">Bắt đầu</h2>
+    <h2 class="sec">Bắt đầu — tạo project</h2>
     <div class="card">
-      Gõ <code>/kora-init</code> để cài đặt 1 lần: chọn <b>domain</b>, <b>rule nghiệp vụ</b>, tên project và nơi lưu tri thức (vault). Init gọn nhẹ — không hỏi token hay lịch (việc đó nằm ở skill báo cáo / lịch).
+      Sau khi cài skill: trong Claude Cowork <b>mở (hoặc tạo) một folder trống</b> cho project → gõ
+      <code>/kora-init</code>. Nó <b>tự dựng project</b> (docs/ + vault + config) rồi hỏi <b>domain</b>,
+      <b>rule nghiệp vụ</b>, tên project và nơi lưu vault. Init gọn nhẹ — không hỏi token/lịch (việc đó
+      ở <code>/kora-scan</code>, <code>/kora-daily-report</code>, <code>/kora-schedule</code>).
     </div>
 
     <h2 class="sec">12 lệnh <code>/kora-*</code></h2>
@@ -194,7 +197,7 @@
       <tr><td><code>/kora-design</code></td><td>Dựng prototype màn hình với Claude Design</td></tr>
       <tr><td><code>/kora-export-docs</code></td><td>Xuất tài liệu ra DOCX / PDF</td></tr>
       <tr><td><code>/kora-evolve</code></td><td>Dọn / tiến hóa / kiểm tra sức khỏe KB</td></tr>
-      <tr><td><code>/kora-backup</code></td><td>Sao lưu toàn bộ tri thức ra zip để chuyển máy</td></tr>
+      <tr><td><code>/kora-export-knowledge-base</code></td><td>Xuất toàn bộ KB ra zip để sao lưu / chuyển máy / bàn giao</td></tr>
       <tr><td><code>/kora-update</code></td><td>Cập nhật app/skill lên bản mới nhất</td></tr>
       <tr><td><code>/kora-uninstall</code></td><td>Gỡ skill Kora khỏi <code>~/.claude</code></td></tr>
     </table>
@@ -204,13 +207,25 @@
       <code>/kora-daily-report</code> sẽ hỏi <b>chọn project nào</b>, cho <b>lọc theo project &amp; theo thành viên</b> (assignee), hỏi <b>khoảng thời gian</b> rồi tự kéo dữ liệu kỳ đó từ nguồn → sinh dashboard (time-tracking / sprint / assignee) ngay trong Claude kèm file HTML.
     </div>
 
-    <h2 class="sec">Kết nối nguồn (Jira / SharePoint)</h2>
+    <h2 class="sec">Kết nối nguồn &amp; điền API key</h2>
     <div class="card">
       Khi cần kéo dữ liệu, Kora hỏi chọn phương thức:
-      <ul style="margin:8px 0 0;padding-left:20px;color:var(--muted)">
-        <li><b>MCP</b> — bật Connector trong Claude App/Cowork (Atlassian/Jira, SharePoint), không cần token thủ công.</li>
-        <li><b>API</b> — dùng Personal Access Token; token lưu an toàn trong <code>~/.zshrc</code>.</li>
+      <ul style="margin:8px 0 12px;padding-left:20px;color:var(--muted)">
+        <li><b>MCP</b> — bật Connector trong Claude App/Cowork (Atlassian/Jira, SharePoint). <b>Không cần token tay.</b></li>
+        <li><b>API</b> — dùng Personal Access Token; Kora <b>tự lưu</b> vào <code>~/.zshrc</code>.</li>
       </ul>
+      <b>Lấy token (chỉ khi dùng API):</b>
+      <ul style="margin:8px 0 12px;padding-left:20px;color:var(--muted)">
+        <li>Jira Server/DC: <i>Profile → Personal Access Tokens</i></li>
+        <li>Atlassian Cloud: <i>id.atlassian.com → API tokens</i></li>
+        <li>SharePoint: qua MCP connector (không cần token tay)</li>
+      </ul>
+      Tự điền vào <code>~/.zshrc</code> rồi <code>source ~/.zshrc</code> (hoặc mở terminal mới):
+      <div class="code">
+        <div class="code-head"><span>~/.zshrc</span><button class="copy">Copy</button></div>
+<pre><code>export KORA_JIRA_BASE_URL="https://jira.cong-ty.vn"
+export KORA_JIRA_TOKEN="dán-token-cua-ban"</code></pre>
+      </div>
     </div>
   </section>
 </main>

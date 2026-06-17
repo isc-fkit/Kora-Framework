@@ -17,7 +17,7 @@
   cập nhật (tự thêm skill mới). Kèm `uninstall.command` / `.bat` + lệnh `/kora-uninstall`.
 - **12 lệnh `/kora-*` đổi sang TÊN TIẾNG ANH** (kora-init, kora-scan, kora-scan-jira-task,
   kora-daily-report, kora-schedule, kora-update, kora-import-files, kora-evolve, kora-design,
-  kora-export-docs, kora-backup, kora-uninstall) — tên + mô tả tiếng Anh.
+  kora-export-docs, kora-export-knowledge-base, kora-uninstall) — tên + mô tả tiếng Anh.
 - **`/kora-scan`** (gộp từ import-jira/import-task): chọn **API / MCP / All** → chọn nguồn
   (Jira Cloud/Server, SharePoint, Confluence…); cào hết field + comment. `/kora-scan-jira-task <KEY>` cho 1 issue.
 - **Landing dạng guide nhiều TAB**: 2 tab chính (Cài đặt | Hướng dẫn sử dụng); tab Cài đặt có 2
@@ -25,6 +25,16 @@
 - **Init gọn nhẹ**: tách bước chọn-domain và domain-rule riêng; bỏ hỏi token/lịch/nguồn khỏi init —
   nạp tri thức + kết nối nguồn (MCP/API) chuyển sang skill `/kora-import-*`, `/kora-schedule`, `/kora-daily-report`.
 - **Jira cào HẾT field + comment**: `import_jira.py` ép `*all,comment` (vài Jira `*all` bỏ sót comment).
+- **`/kora-init` tự dựng project**: chạy trong folder trống (sau khi cài bằng installer) → scaffold
+  project GỌN (docs/01-08 + vault + config + `CLAUDE.md` 1 dòng `@~/.claude/kora-framework/CLAUDE.md`);
+  CORE (workflows/tools/templates) dùng chung ở `~/.claude/kora-framework/`.
+- **Connect API tự ghi key**: chọn API → ghi `export KORA_*_TOKEN` (+ base URL) vào `~/.zshrc`/`~/.bashrc`
+  (không in ra chat); landing thêm mục **"Kết nối API & điền key"** (cách lấy token + mẫu `export` có Copy).
+- **`/kora-daily-report` & `/kora-schedule`**: chọn **NHIỀU project** (checklist project đã scan / thêm mới)
+  + filter theo thành viên; `/kora-schedule` thêm **Cancel schedule** + List.
+- **Tự liên kết chéo project**: khi yêu cầu có quan hệ, phân tích (workflow 03) tự phát hiện + nối tri
+  thức các project liên quan (backlink hai chiều → `relation-graph` nối cạnh chéo).
+- **Đổi tên** `kora-backup` → **`kora-export-knowledge-base`** (rõ nghĩa: xuất toàn bộ KB).
 
 ## v2.0.0 "Kora-1" — 2026-06-17
 

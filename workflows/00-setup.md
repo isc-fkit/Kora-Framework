@@ -29,6 +29,27 @@
 
 ---
 
+## Bước 0 — Dựng project (CHỈ khi folder CHƯA phải project Kora)
+
+> Áp dụng khi cài qua **installer** (skill ở `~/.claude`, chưa có project). Nếu folder hiện tại ĐÃ
+> là project Kora (có `config/factory-config.yaml` hoặc `config/domain-presets/`) → **bỏ qua Bước 0**.
+
+**Phát hiện scaffold:** thiếu `config/factory-config.yaml` **và** thiếu `config/domain-presets/` **và**
+có `~/.claude/kora-framework/`. Khi đó dựng **project GỌN** ngay trong folder hiện tại:
+
+1. Tạo thư mục DATA (theo OS, có fallback rule §1.9):
+   `docs/{01-domain,02-product,03-features,04-design,05-architecture,06-decisions,07-research,08-glossary}`,
+   `inbox/`, `.kb/`, `config/`.
+2. Copy từ `~/.claude/kora-framework/config/`: `factory-config.example.yaml` → `config/factory-config.yaml`;
+   `domain-presets/` → `config/domain-presets/`.
+3. Tạo `CLAUDE.md` ở gốc project với **đúng 1 dòng**: `@~/.claude/kora-framework/CLAUDE.md`
+   (để Cowork nạp rule orchestrator khi mở folder). **KHÔNG copy cả CLAUDE.md.**
+4. **CORE dùng chung** (KHÔNG copy vào project): workflows/tools/templates ở `~/.claude/kora-framework/`.
+   Lệnh chỉ mục dùng đường dẫn chung: `python3 ~/.claude/kora-framework/tools/kb-indexer/build_index.py --root .`.
+5. Vault `<Tên>_Brain/` dựng ở **Bước 4** (sau khi có tên project ở Bước 3).
+
+Xong scaffold → tiếp **Bước 1**.
+
 ## Bước 1 — Chào + chọn Domain
 
 Hỏi user:
@@ -163,7 +184,8 @@ bằng **câu thường** ở lượt kế (KHÔNG nhồi tên/mô tả vào Ask
    `completed`). TUYỆT ĐỐI không để Bước 6 treo "chưa hoàn thành", **kể cả khi user yêu cầu chạy
    thẳng một mạch tới cuối** — chạy tới đâu tick tới đó, xong Bước 6 thì đóng cả danh sách.
 1. Điền nốt `factory-config.yaml`, đặt `setup_completed: true` + ngày giờ.
-2. Chạy lập chỉ mục: `python3 tools/kb-indexer/build_index.py --root .` (Windows: `py`) → tự dựng
+2. Chạy lập chỉ mục: `python3 tools/kb-indexer/build_index.py --root .` (Windows: `py`; nếu cài qua
+   installer thì tools ở chung: `python3 ~/.claude/kora-framework/tools/kb-indexer/build_index.py --root .`) → tự dựng
    `.kb/index.json`, `.kb/relation-graph.json`, `.kb/health-report.md`. Báo nhanh
    sức khỏe KB ban đầu cho user.
 3. Ghi dòng đầu vào `.kb/changelog.md`.

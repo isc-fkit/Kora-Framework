@@ -47,7 +47,7 @@ if exist "%SRC%\CLAUDE.md" copy /y "%SRC%\CLAUDE.md" "%DEST_CORE%\" >nul
 rmdir /s /q "%TMP%" 2>nul
 echo.
 echo [OK] Da cai skills Kora vao ~/.claude.
-echo      Mo Claude Cowork (hoac chat moi) -^> go  /kora-init.
+echo      Tao project: trong Cowork mo/tao 1 folder trong -^> go  /kora-init (tu dung project).
 echo      Cap nhat: chay lai file nay.  Go: chay uninstall.bat.
 :end
 echo.

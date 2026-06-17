@@ -66,7 +66,7 @@ done
 
 echo ""
 echo "✅ Đã cài $N skill Kora vào ~/.claude."
-echo "   Mở Claude Cowork (hoặc chat mới) → gõ  /kora-init  để bắt đầu."
-echo "   Cập nhật:  chạy lại file này (hoặc /kora-update)."
-echo "   Gỡ:        chạy uninstall.command (hoặc /kora-uninstall)."
+echo "   Tạo project: trong Cowork MỞ/TẠO 1 folder trống → gõ  /kora-init  (tự dựng project)."
+echo "   Cập nhật:    chạy lại file này (hoặc /kora-update)."
+echo "   Gỡ:          chạy uninstall.command (hoặc /kora-uninstall)."
 pause
