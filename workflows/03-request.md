@@ -11,6 +11,11 @@
 
 1. Đọc `.kb/index.json` + `.kb/relation-graph.json`.
 2. Tìm các node liên quan đến yêu cầu (feature, BR, AC, màn hình, epic/story Jira).
+2b. **Liên kết chéo PROJECT (TỰ ĐỘNG).** Nếu yêu cầu đụng tới thực thể/feature/màn hình/thuật ngữ
+   xuất hiện ở **nhiều project** — nhận biết qua relation-graph (issuelink/backlink bắc cầu giữa
+   các project) hoặc trùng tên thực thể/thuật ngữ — thì **tự xác định các project liên quan** và
+   **kéo cả tri thức của chúng** vào ngữ cảnh (grep across mọi thư mục project trong vault), KHÔNG
+   chỉ nhìn 1 project. Mục tiêu: yêu cầu có quan hệ chéo → tự liên kết các project liên quan.
 3. **Vault là tri thức — phải dùng kể cả khi `.kb` chưa lập chỉ mục.** Nếu index
    trống/mỏng nhưng vault (`vault_path` trong config) có dữ liệu Jira đã quét:
    - Grep trực tiếp trong vault theo từ khóa của yêu cầu (tên tính năng, màn hình,
@@ -32,6 +37,8 @@ Xác định:
 - Đây là **feature mới** hay **thay đổi feature đã có**? (nếu đã có → chỉ đụng đến
   đúng feature đó và các feature phụ thuộc theo relation graph)
 - Ảnh hưởng: màn hình nào, rule nào, AC nào, feature nào phụ thuộc.
+- **Project liên quan (liên kết chéo):** yêu cầu này nối những project nào (liệt kê) + phụ thuộc/
+  ảnh hưởng CHÉO giữa chúng (vd đổi ở project A kéo theo project B). Nêu rõ để không sửa lệch một phía.
 - Mâu thuẫn với tri thức hiện có? (nêu rõ, không tự chọn bên đúng)
 - Thiếu thông tin gì → câu hỏi `[CẦN XÁC NHẬN]`.
 
@@ -83,6 +90,9 @@ Với feature đã có: chỉ cập nhật các file bị ảnh hưởng, bump v
 Sau đó:
 - Tạo/cập nhật note vault: `06_Features/F-xxx.md`, `04_BusinessRules/BR-*.md`,
   `05_AcceptanceCriteria/AC-*.md` + backlink về epic/story nguồn.
+- **Liên kết chéo project (TỰ ĐỘNG):** nếu tri thức vừa ghi liên quan project khác, thêm backlink
+  `[[...]]` **HAI CHIỀU** giữa note/feature của các project liên quan (vd `[[PROJ-A/F-012-...]]` ↔
+  `[[PROJ-B/F-034-...]]`) để `relation-graph.json` nối các project với nhau; reindex sẽ ghi nhận cạnh chéo.
 - Chạy `python3 tools/kb-indexer/build_index.py --root .` (Windows: `py`) để tự dựng lại
   `.kb/index.json` + `relation-graph.json` + `health-report.md` (khớp docs/ vừa ghi).
 - Cập nhật `source-registry.json`, `changelog.md`. Nếu trong phiên vừa có đề xuất bị
