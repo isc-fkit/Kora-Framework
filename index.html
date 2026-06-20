@@ -257,7 +257,7 @@
     <div class="brand" data-go="home" title="Trang chủ">
       <span class="brandmark" aria-hidden="true">K</span>
       <span class="org">FPT TELECOM</span>
-      <div class="fw">KORA AI<span>v2.3.3 · Kora-1</span></div>
+      <div class="fw">KORA AI<span>v2.3.4 · Kora-1</span></div>
     </div>
     <nav class="nav">
       <div class="grp">Tổng quan</div>
@@ -284,7 +284,7 @@
     <!-- ===================== HOME ===================== -->
     <div class="page" id="home">
       <header class="hero">
-        <span class="badge">FPT Telecom · KORA AI · v2.3.3 · &ldquo;Kora-1&rdquo;</span>
+        <span class="badge">FPT Telecom · KORA AI · v2.3.4 · &ldquo;Kora-1&rdquo;</span>
         <h1>KORA AI — Sơ đồ nguyên lý hoạt động</h1>
         <p class="sub">Trợ lý tri thức tự lớn lên cùng dự án: hợp nhất tri thức phân tán, nối tri thức local của nhân viên với <b>Knowledge Base</b> chung (trên Cloud), và tự động hóa đồng bộ — báo cáo — cảnh báo.</p>
         <div class="pipe">
@@ -585,7 +585,8 @@
       <div class="callout warn"><span>🔐</span><div><b>Cấp quyền PRIVACY khi cài:</b> truy cập thư mục project, chạy script local, và các Connector cần dùng (Atlassian / Gmail / Microsoft 365). Không cấp đủ → scan MCP / gửi mail / sync không chạy. macOS lần đầu bị chặn → <b>Privacy &amp; Security → Open Anyway</b>.</div></div>
 
       <h2 class="sec">🔄 Cập nhật (update)</h2>
-      <p style="color:var(--muted)">Cập nhật chạy thẳng trên <b>Terminal / CLI</b> bằng bash — chỉ thay phần CORE, <b>GIỮ NGUYÊN tri thức</b> của bạn (docs/ + vault + config).</p>
+      <div class="callout ok"><span>🟢</span><div><b>Cách khuyến nghị — gõ <code>/kora-update</code> trong Claude / Cowork</b> (hoặc nhắn <i>"cập nhật phiên bản"</i> / <i>"kiểm tra phiên bản"</i>). KORA so <code>version.json</code> local với GitHub → hiện <b>nội dung giới thiệu + tóm tắt CHANGELOG</b> → hỏi xác nhận → tự chạy script. <b>Chỉ thay CORE, GIỮ NGUYÊN tri thức</b> của bạn (<code>docs/</code> + vault + config + <code>.env.local</code>). KHÔNG cần ra Terminal. <i>Muốn xem bản đang cài trước → gõ <code>/kora-version</code>.</i></div></div>
+      <p style="color:var(--muted)"><b>Cách thủ công (Terminal / CLI)</b> — chạy thẳng bằng bash, cùng kết quả (chỉ thay CORE, giữ tri thức):</p>
       <p style="color:var(--faint);font-size:13.3px;margin:12px 0 5px"><b>① Bản cài skill</b> (managed, <code>~/.claude</code>) — chạy lại đúng lệnh cài = cập nhật:</p>
       <div class="code"><div class="code-head"><span>macOS / Linux (bash)</span><button class="copy">Copy</button></div>
 <pre><code>bash &lt;(curl -fsSL https://raw.githubusercontent.com/isc-fkit/Kora-Framework/release/install.command)</code></pre></div>
@@ -596,15 +597,16 @@
 <pre><code>bash scripts/update.command</code></pre></div>
       <div class="code"><div class="code-head"><span>Windows</span><button class="copy">Copy</button></div>
 <pre><code>scripts\update.bat</code></pre></div>
-      <div class="callout"><span>💡</span><div><b>Tùy chọn (skill):</b> trong Claude / Cowork gõ <code>/kora-update</code> — so <code>version.json</code> local với GitHub, hiện tóm tắt CHANGELOG rồi chạy đúng script bash ở trên. Xem thay đổi từng bản: tab <a data-go="release" style="cursor:pointer">Release Note (I)</a>.</div></div>
+      <div class="callout"><span>💡</span><div>Xem thay đổi từng bản ở tab <a data-go="release" style="cursor:pointer">Release Note (I)</a>. <code>/kora-update</code> tự đọc CHANGELOG để biết có bước migration không (vd đổi cấu trúc config) rồi làm theo.</div></div>
 
       <h2 class="sec">🗑️ Gỡ cài đặt</h2>
-      <p style="color:var(--muted)">Gỡ chạy thẳng trên <b>CLI</b> bằng bash — chỉ xóa skill (<code>~/.claude/commands/kora-*.md</code> + <code>~/.claude/kora-framework</code> + folder <code>Skill/</code>). <b>Tri thức trong <code>Knowledge-Base</code> được giữ lại.</b></p>
+      <div class="callout ok"><span>🟢</span><div><b>Cách khuyến nghị — gõ <code>/kora-uninstall</code> trong Claude / Cowork</b> (hoặc nhắn <i>"gỡ cài đặt"</i>). KORA chạy script gỡ: xóa skill (<code>~/.claude/commands/kora-*.md</code> + <code>~/.claude/kora-framework</code> + folder <code>Skill/</code>) và nhắc xóa biến <code>export KORA_*</code>. <b>Tri thức trong <code>Knowledge-Base</code> (docs/ + vault) được GIỮ LẠI.</b></div></div>
+      <p style="color:var(--muted)"><b>Cách thủ công (Terminal / CLI)</b> — chạy thẳng bằng bash:</p>
       <div class="code"><div class="code-head"><span>macOS / Linux (bash)</span><button class="copy">Copy</button></div>
 <pre><code>bash &lt;(curl -fsSL https://raw.githubusercontent.com/isc-fkit/Kora-Framework/release/uninstall.command)</code></pre></div>
       <div class="code"><div class="code-head"><span>Windows (cmd / PowerShell)</span><button class="copy">Copy</button></div>
 <pre><code>curl -fsSL https://raw.githubusercontent.com/isc-fkit/Kora-Framework/release/uninstall.bat -o "%TEMP%\kora-uninstall.bat" &amp;&amp; "%TEMP%\kora-uninstall.bat"</code></pre></div>
-      <p style="color:var(--faint);font-size:13.3px;margin:10px 0 0">Script hỏi gõ <code>yes</code> để xác nhận, và nhắc xóa tay các dòng <code>export KORA_*</code> trong <code>~/.zshrc</code> nếu có. <b>Tùy chọn (skill):</b> trong Claude gõ <code>/kora-uninstall</code>.</p>
+      <p style="color:var(--faint);font-size:13.3px;margin:10px 0 0">Script hỏi gõ <code>yes</code> để xác nhận, và nhắc xóa tay các dòng <code>export KORA_*</code> trong <code>~/.zshrc</code> / <code>~/.bashrc</code> (Windows: biến môi trường) nếu có. Gỡ skill <b>KHÔNG</b> đụng tới tri thức của bạn.</p>
     </div>
 
     <!-- ===================== FEATURES ===================== -->
@@ -625,7 +627,7 @@
         <div class="step"><div class="node">📦</div><div class="body"><div class="t"><span class="num">8</span>Archive <code>/kora-archive</code> · <code>/kora-export-*</code> <span class="pw">🔑 Archive</span></div><p>Đóng gói bàn giao phân quyền + mật khẩu; xuất DOCX / PDF; sao lưu Knowledge Base.</p></div></div>
       </div>
       <div class="callout warn"><span>🔒</span><div><b>Mật khẩu admin:</b> <b>🔒 (Admin permission)</b> = <code>KORA_OPS_PW</code> (gác <code>/kora-sync</code> · <code>/kora-send-mail</code> · và bước <b>post/report/mail/sync</b> của <code>/kora-schedule</code> — <b>SCAN tri thức KHÔNG cần</b>; không hỏi qua chat, không in ra). <b>🔑 Archive</b> = mật khẩu đóng gói (chỉ HOST). Export &amp; các bước khác <b>KHÔNG</b> cần.</div></div>
-      <div class="callout"><span>🔧</span><div><b>Lệnh bảo trì (ngoài 8 bước):</b> <code>/kora-evolve</code> (dọn dead-link · hợp nhất trùng · kiểm tra sức khỏe KB) · <code>/kora-update</code> · <code>/kora-uninstall</code> — xem tab <a data-go="install" style="cursor:pointer">Cài đặt (C)</a>.</div></div>
+      <div class="callout"><span>🔧</span><div><b>Lệnh bảo trì (ngoài 8 bước):</b> <code>/kora-version</code> (xem bản đang cài) · <code>/kora-evolve</code> (dọn dead-link · hợp nhất trùng · kiểm tra sức khỏe KB) · <code>/kora-update</code> · <code>/kora-uninstall</code> — xem tab <a data-go="install" style="cursor:pointer">Cài đặt (C)</a>.</div></div>
 
       <h2 class="sec">1 · 🚀 Khởi tạo — <code>/kora-init</code></h2>
       <p style="color:var(--muted)">Mở folder project → <code>/kora-init</code>: tự kéo domain phổ biến + rule, hỏi domain / tên project / vault. Gọn nhẹ.</p>
@@ -1548,11 +1550,22 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
       <div class="phead"><div class="pl">I · Release Note</div><h1><span class="em">🆕</span>Lịch sử phiên bản</h1></div>
       <p class="lead">Lịch sử bản <b>APP</b> (CORE: skills, workflows, tools…). Cập nhật: chạy lại lệnh cài (bash CLI, tab <a data-go="install" style="cursor:pointer">C</a>) — <b>tri thức của bạn được giữ nguyên</b> (DATA không bị đụng).</p>
 
-      <div class="callout ok"><span>🆕</span><div><b>Bản mới nhất (latest): <code>v2.3.3</code> — "Kora-1"</b> · phát hành 2026-06-21. Tổng <b>21 bản</b>; danh sách đầy đủ ở <a href="https://github.com/isc-fkit/Kora-Framework/blob/release/CHANGELOG.md">CHANGELOG.md</a>.</div></div>
+      <div class="callout ok"><span>🆕</span><div><b>Bản mới nhất (latest): <code>v2.3.4</code> — "Kora-1"</b> · phát hành 2026-06-21. Tổng <b>22 bản</b>; danh sách đầy đủ ở <a href="https://github.com/isc-fkit/Kora-Framework/blob/release/CHANGELOG.md">CHANGELOG.md</a>.</div></div>
 
       <div class="card" style="border-color:var(--accent)">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.3.3 — "Kora-1" <span style="display:inline-block;margin-left:6px;padding:2px 9px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;font-size:10.5px;font-weight:800;vertical-align:2px">MỚI NHẤT</span></b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
+          <b style="font-size:16px">v2.3.4 — "Kora-1" <span style="display:inline-block;margin-left:6px;padding:2px 9px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;font-size:10.5px;font-weight:800;vertical-align:2px">MỚI NHẤT</span></b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
+        </div>
+        <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
+          <li><b>🐞 Sửa lỗi installer kéo về bản cũ</b> (archive nhánh bị CDN cache) — nay tải theo <b>SHA commit mới nhất</b> (4 script install/update).</li>
+          <li><b>Skill mới <code>/kora-version</code></b> — xem phiên bản đang cài + so bản mới nhất (chỉ đọc).</li>
+          <li>Installer copy <code>version.json</code> + <code>CHANGELOG</code> vào <code>~/.claude/kora-framework</code>; mục Cập nhật/Gỡ nêu rõ <code>/kora-update</code> · <code>/kora-uninstall</code>.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
+          <b style="font-size:16px">v2.3.3 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>Cổng vai trò hỏi theo TÍNH NĂNG</b> (không "1 lần/phiên") — mỗi yêu cầu/tính năng mới → hỏi lại vai trò/domain/template.</li>
@@ -1673,7 +1686,8 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
         <tr><td><code>/kora-export-docs</code></td><td>Xuất DOCX / PDF theo doc template</td><td>—</td></tr>
         <tr><td><code>/kora-export-knowledge-base</code></td><td>Xuất toàn bộ Knowledge Base ra zip</td><td>—</td></tr>
         <tr><td><code>/kora-evolve</code></td><td>Dọn / tiến hóa / kiểm tra sức khỏe Knowledge Base</td><td>—</td></tr>
-        <tr><td><code>/kora-update</code> · <code>/kora-uninstall</code></td><td>Cập nhật · Gỡ skill (bash CLI)</td><td>—</td></tr>
+        <tr><td><code>/kora-version</code></td><td>Xem phiên bản đang cài + so với bản mới nhất (chỉ đọc)</td><td>—</td></tr>
+        <tr><td><code>/kora-update</code> · <code>/kora-uninstall</code></td><td>Cập nhật · Gỡ skill (hoặc bash CLI)</td><td>—</td></tr>
       </table>
 
       <h2 class="sec">II · Quy tắc đặt tên file (tài liệu xuất)</h2>

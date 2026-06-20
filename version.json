@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.3.3",
+  "version": "2.3.4",
   "codename": "Kora-1",
   "released": "2026-06-21",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
-  "force": false,
-  "intro": "Kora-Framework v2.3.3: Cổng vai trò/domain/template nay hỏi MỖI KHI có yêu cầu/tính năng MỚI (thay vì 1 lần/phiên) — nhớ cho follow-up cùng tính năng, sang tính năng mới thì hỏi lại; áp đúng vai trò cho từng feature. Sửa link 'Hướng dẫn đầy đủ' trong README về trang GitHub Pages (isc-fkit.github.io/Kora-Framework) + đồng bộ badge version. Bảng 20 prompt theo thứ tự _index trên landing trình bày dễ đọc hơn (bỏ ô gộp). Đồng bộ tài liệu CLAUDE.md + workflow 03 + trang giới thiệu."
+  "force": true,
+  "intro": "Kora-Framework v2.3.4: SỬA LỖI installer/updater kéo về BẢN CŨ dù đã phát hành bản mới — nguyên nhân: archive theo nhánh bị CDN của GitHub cache dai. Nay install/update tải theo SHA commit MỚI NHẤT (immutable, không cache) trên cả 4 script (install.command/.bat, update.command/.bat). ⚠️ Nếu đang kẹt bản cũ: chạy LẠI lệnh cài 1 dòng (curl install.command) để lấy bản mới nhất. Thêm skill /kora-version (xem phiên bản đang cài + so bản mới nhất, chỉ đọc); installer nay copy version.json + CHANGELOG vào ~/.claude/kora-framework để /kora-version /kora-update đọc được."
 }

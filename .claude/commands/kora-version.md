@@ -1,0 +1,25 @@
+---
+description: Hiện phiên bản Kora-Framework ĐANG CÀI (đọc version.json) + so với bản mới nhất trên GitHub. Chỉ ĐỌC — không cập nhật, không ghi gì.
+---
+
+The user invoked `/kora-version` — chỉ **hiển thị phiên bản đang cài** (KHÔNG cập nhật, KHÔNG ghi gì).
+
+1. **Đọc version ĐANG CÀI** — lấy file `version.json` ĐẦU TIÊN tồn tại theo thứ tự:
+   - `~/.claude/kora-framework/version.json` (bản cài skill — phổ biến nhất; do installer copy về).
+   - `./version.json` (bản project/clone ở thư mục hiện tại).
+   Lấy `version` · `codename` · `released`. KHÔNG thấy file nào → báo *"chưa xác định được bản đang cài"*
+   (có thể bản cũ trước khi installer copy `version.json` — mời chạy lại installer / `/kora-update`).
+
+2. **So với bản mới nhất trên GitHub** (read-only, best-effort — offline thì BỎ QUA, vẫn hiện bản local):
+   - Lấy repo từ `version.json > repo` (mặc định `isc-fkit/Kora-Framework`), nhánh `release`.
+   - `curl -fsSL "https://raw.githubusercontent.com/<repo>/release/version.json?t=$(date +%s)"` (kèm `?t=` để
+     né cache CDN). Đọc `version` của bản mới nhất.
+   - So sánh **semantic** (x.y.z): **bằng** → "đang ở bản mới nhất ✅"; **local thấp hơn** → "có bản mới
+     **vX.Y.Z** — gõ `/kora-update` để cập nhật (giữ nguyên tri thức)"; **local cao hơn** → "bản local mới hơn
+     (bản dev/chưa phát hành)".
+
+3. **Trình bày NGẮN GỌN** (tiếng Việt), ví dụ:
+   > 📦 **Kora-Framework v2.3.x · "Kora-1"** — phát hành 2026-06-21
+   > Trạng thái: <đang ở bản mới nhất ✅ / có bản mới vA.B.C → `/kora-update`>
+
+Chỉ ĐỌC + hiển thị. Muốn nâng cấp → `/kora-update`; xem chi tiết thay đổi → CHANGELOG / Release Note.

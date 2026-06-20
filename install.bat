@@ -23,12 +23,17 @@ set "TMP=%TEMP%\kora-install-%RANDOM%%RANDOM%"
 mkdir "%TMP%" 2>nul
 
 echo Dang tai ban moi nhat...
-curl -fsSL "https://github.com/%REPO%/archive/refs/heads/%REF%.tar.gz" -o "%TMP%\src.tgz" || (echo [LOI] Tai that bai. & goto end)
+REM TRANH CACHE CU: archive theo nhanh bi CDN cache dai -> resolve SHA commit moi nhat roi tai theo SHA.
+set "SHA="
+for /f "delims=" %%S in ('curl -fsSL -H "Accept: application/vnd.github.sha" "https://api.github.com/repos/%REPO%/commits/%REF%" 2^>nul') do set "SHA=%%S"
+set "DLURL=https://github.com/%REPO%/archive/refs/heads/%REF%.tar.gz"
+if defined SHA (echo %SHA%| findstr /R "^[0-9a-fA-F][0-9a-fA-F]*$" >nul && set "DLURL=https://github.com/%REPO%/archive/%SHA%.tar.gz")
+curl -fsSL "%DLURL%" -o "%TMP%\src.tgz" || (echo [LOI] Tai that bai. & goto end)
 echo Dang giai nen...
 tar -xzf "%TMP%\src.tgz" -C "%TMP%" || (echo [LOI] Giai nen that bai. & goto end)
 
 set "SRC="
-for /d %%D in ("%TMP%\*-%REF%") do set "SRC=%%D"
+for /d %%D in ("%TMP%\*") do set "SRC=%%D"
 if not defined SRC (echo [LOI] Khong thay thu muc nguon. & goto end)
 
 echo Cai lenh /kora-* ...
@@ -48,6 +53,9 @@ REM Workflow chi-duy-tri - go khoi ban cai nguoi dung.
 del /q "%DEST_CORE%\workflows\12-release.md" 2>nul
 del /q "%DEST_CORE%\workflows\13-evolve-system.md" 2>nul
 if exist "%SRC%\CLAUDE.md" copy /y "%SRC%\CLAUDE.md" "%DEST_CORE%\" >nul
+REM version.json + CHANGELOG -> de /kora-version /kora-update doc ban da cai.
+if exist "%SRC%\version.json" copy /y "%SRC%\version.json" "%DEST_CORE%\" >nul
+if exist "%SRC%\CHANGELOG.md" copy /y "%SRC%\CHANGELOG.md" "%DEST_CORE%\" >nul
 
 REM --- Resolve thu muc Downloads dong (ho tro Downloads da doi vi tri qua registry) ---
 set "DLBASE=%USERPROFILE%\Downloads"

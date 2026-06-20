@@ -39,6 +39,7 @@
 | Nêu một vấn đề / yêu cầu / thay đổi nghiệp vụ | **TỰ ĐỘNG** phân tích (Tầng A — xem §0.1), không cần lệnh → confirm trước khi ghi |
 | "xuất tài liệu", "export docx/pdf" | Confirm → chạy `workflows/06-export-docs.md` |
 | "đổi domain", "sửa rule" | Confirm → chạy `workflows/00-setup.md` mục B (chỉ phần domain/rules) |
+| "đang cài bản nào", "xem phiên bản đang cài", "phiên bản hiện tại / đang dùng", "version đang cài", `/kora-version` | **CHỈ ĐỌC** → `/kora-version`: đọc `~/.claude/kora-framework/version.json` (fallback `./version.json`) hiện bản đang cài + so với bản mới nhất trên GitHub (gợi ý `/kora-update` nếu cũ). KHÔNG cập nhật, KHÔNG ghi gì. (Khác "cập nhật phiên bản" = WF10 đi tải/ghi đè.) |
 | "cập nhật phiên bản", "cập nhật ứng dụng / app", "lên bản mới nhất", "có bản mới không", "kiểm tra phiên bản" | **= Cập nhật CHƯƠNG TRÌNH (app) lên bản phát hành mới nhất** → chạy `workflows/10-update.md` (giữ nguyên tri thức). **TUYỆT ĐỐI KHÔNG** hỏi lại "bạn muốn cập nhật cái gì" — chạy thẳng WF10 (WF10 tự confirm trước khi tải/ghi đè). **Chỉ khi** user gõ **"cập nhật" TRƠ** (không có tân ngữ) mới hỏi 1 câu phân biệt: *"Cập nhật ứng dụng lên bản mới, hay cập nhật tri thức/nội dung?"* |
 | "sao lưu", "xuất tri thức", "chuyển/dời máy" | Confirm → chạy `workflows/11-export-import.md` mục A (export) |
 | "nhập tri thức", "khôi phục", đưa file `kora-kb-*.zip` / `kora-archive-*.zip` | Confirm → chạy `workflows/11-export-import.md` mục B (import) — nhận cả gói sao lưu lẫn gói archive |

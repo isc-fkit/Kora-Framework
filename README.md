@@ -6,7 +6,7 @@
 
 **Kết nối đa nguồn → Tổng hợp tri thức → Đồng bộ Cloud KB chung → Tự động báo cáo & cảnh báo**
 
-[![Version](https://img.shields.io/badge/version-2.3.3-2f7bff)](./version.json)
+[![Version](https://img.shields.io/badge/version-2.3.4-2f7bff)](./version.json)
 [![Codename](https://img.shields.io/badge/codename-Kora--1-5b9bff)](./CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-444)](#-cài-đặt)
 [![Claude](https://img.shields.io/badge/runs%20in-Claude%20CLI%20%2B%20Desktop-7c5cff)](https://claude.ai/code)
@@ -118,6 +118,7 @@ setup → init → connect → scan → schedule → mail → archive
 | `/kora-export-docs` | Xuất tài liệu DOCX / PDF theo doc template | |
 | `/kora-export-knowledge-base` | Xuất toàn bộ KB ra zip (sao lưu / dời máy) | |
 | `/kora-evolve` | Dọn / tiến hóa / kiểm tra sức khỏe KB | |
+| `/kora-version` | Xem phiên bản đang cài + so với bản mới nhất (chỉ đọc) | |
 | `/kora-update` · `/kora-uninstall` | Cập nhật app/skill · Gỡ skill | |
 
 <sub>¹ bước **sync** trong lịch gác bằng `KORA_OPS_PW`. ² archive gác bằng mật khẩu riêng, chỉ chặn HOST tạo gói.</sub>

@@ -10,6 +10,24 @@
 
 ---
 
+## v2.3.4 "Kora-1" — 2026-06-21
+
+- **🐞 SỬA LỖI QUAN TRỌNG — installer/updater kéo về BẢN CŨ** dù đã phát hành nhiều bản mới. Nguyên nhân:
+  tải `archive/refs/heads/release.(tar.gz|zip)` — archive **theo NHÁNH** bị CDN của GitHub **cache rất dai**.
+  - **Cách sửa:** hỏi GitHub API `commits/<ref>` (header `Accept: application/vnd.github.sha`) lấy **SHA commit
+    mới nhất**, rồi tải `archive/<SHA>.(tar.gz|zip)` — immutable, **không bao giờ cache cũ**; fallback về archive
+    nhánh nếu API bị giới hạn. Áp cho **cả 4 script**: `install.command` · `install.bat` · `scripts/update.command`
+    · `scripts/update.bat`. Giải nén lấy thư mục con đầu tiên (không phụ thuộc tên `*-release`).
+  - ⚠️ **Đang kẹt bản cũ?** Chạy LẠI lệnh cài 1 dòng (`curl … install.command`) để lấy bản mới nhất.
+- **Skill mới `/kora-version`** — xem **phiên bản đang cài** (đọc `~/.claude/kora-framework/version.json`,
+  fallback `./version.json`) + so với bản mới nhất trên GitHub (gợi ý `/kora-update` nếu cũ). Chỉ ĐỌC.
+- **Installer nay copy `version.json` + `CHANGELOG.md`** vào `~/.claude/kora-framework/` để `/kora-version` và
+  `/kora-update` đọc được bản đang cài; in **version đã cài** ở cuối installer.
+- **Landing/README:** mô tả `/kora-version` (bảng lệnh + mục bảo trì + mục Cập nhật); mục **Cập nhật & Gỡ** nay
+  nêu **cách khuyến nghị** là gõ `/kora-update` / `/kora-uninstall` trong Claude (CLI là cách thủ công).
+
+> **Cập nhật:** thuần CORE — không migration DATA. Bản này đánh dấu **quan trọng** (`force`).
+
 ## v2.3.3 "Kora-1" — 2026-06-21
 
 - **Cổng vai trò/domain/template hỏi theo TÍNH NĂNG, không "1 lần/phiên".** `workflows/03-request.md` Bước 0

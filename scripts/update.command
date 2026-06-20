@@ -18,7 +18,8 @@ cd "$REPO_ROOT"
 # Gỡ nhãn quarantine cho các script còn lại → lần sau double-click không bị macOS hỏi nữa.
 self_dequarantine
 
-ZIP_URL="https://github.com/isc-fkit/Kora-Framework/archive/refs/heads/release.zip"
+REPO="${KORA_REPO:-isc-fkit/Kora-Framework}"
+REF="${KORA_REF:-release}"
 
 # --- Tiện ích ----------------------------------------------------------------
 have() { command -v "$1" >/dev/null 2>&1; }
@@ -85,13 +86,20 @@ else
 
   ZIP_FILE="$TMP_DIR/release.zip"
   echo "⬇️  Đang tải bản mới nhất..."
+  # TRÁNH CACHE CŨ: archive theo nhánh bị CDN cache dai → resolve SHA commit mới nhất rồi tải theo SHA.
+  SHA="$(curl -fsSL -H 'Accept: application/vnd.github.sha' "https://api.github.com/repos/$REPO/commits/$REF" 2>/dev/null || true)"
+  if printf '%s' "$SHA" | grep -qiE '^[0-9a-f]{40}$'; then
+    ZIP_URL="https://github.com/$REPO/archive/$SHA.zip"; echo "   (bản mới nhất: ${SHA:0:7})"
+  else
+    ZIP_URL="https://github.com/$REPO/archive/refs/heads/$REF.zip"
+  fi
   curl -fL "$ZIP_URL" -o "$ZIP_FILE" || die "Tải bản mới thất bại. Kiểm tra kết nối mạng rồi thử lại."
 
   echo "📂 Đang giải nén..."
   unzip -q "$ZIP_FILE" -d "$TMP_DIR" || die "Giải nén thất bại (file tải về có thể hỏng)."
 
-  # Thư mục giải nén thường là <repo>-release/
-  SRC_DIR="$(find "$TMP_DIR" -maxdepth 1 -type d -name '*-release' | head -n1)"
+  # Thư mục giải nén = <repo>-<sha|ref>/ → lấy thư mục con đầu tiên (không phụ thuộc tên).
+  SRC_DIR="$(find "$TMP_DIR" -mindepth 1 -maxdepth 1 -type d | head -n1)"
   [ -n "$SRC_DIR" ] && [ -d "$SRC_DIR" ] || die "Không tìm thấy thư mục nguồn sau khi giải nén."
 
   echo "🔁 Đang ghi đè PHẦN CHƯƠNG TRÌNH (giữ nguyên tri thức của bạn)..."

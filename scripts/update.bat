@@ -17,7 +17,8 @@ powershell -NoProfile -Command "Get-ChildItem -LiteralPath '%REPO_ROOT%\scripts'
 echo [OK] Da go nhan canh bao cho cac script - lan sau double-click chay thang, khong bi hoi lai.
 echo.
 
-set "ZIP_URL=https://github.com/isc-fkit/Kora-Framework/archive/refs/heads/release.zip"
+set "REPO=isc-fkit/Kora-Framework"
+set "REF=release"
 
 echo ================================================================
 echo   CAP NHAT Kora-Framework
@@ -71,14 +72,19 @@ mkdir "%TMP_DIR%" 2>nul
 set "ZIP_FILE=%TMP_DIR%\release.zip"
 
 echo Dang tai ban moi nhat...
+REM TRANH CACHE CU: archive theo nhanh bi CDN cache dai -> resolve SHA commit moi nhat roi tai theo SHA.
+set "SHA="
+for /f "delims=" %%S in ('curl -fsSL -H "Accept: application/vnd.github.sha" "https://api.github.com/repos/%REPO%/commits/%REF%" 2^>nul') do set "SHA=%%S"
+set "ZIP_URL=https://github.com/%REPO%/archive/refs/heads/%REF%.zip"
+if defined SHA (echo %SHA%| findstr /R "^[0-9a-fA-F][0-9a-fA-F]*$" >nul && set "ZIP_URL=https://github.com/%REPO%/archive/%SHA%.zip")
 curl -fL "%ZIP_URL%" -o "%ZIP_FILE%" || (echo [LOI] Tai ban moi that bai. Kiem tra mang roi thu lai. & goto :end)
 
 echo Dang giai nen...
 tar -xf "%ZIP_FILE%" -C "%TMP_DIR%" || (echo [LOI] Giai nen that bai. & goto :end)
 
-REM Tim thu muc *-release vua giai nen
+REM Thu muc giai nen = <repo>-<sha|ref>/ -> lay thu muc con dau tien.
 set "SRC_DIR="
-for /d %%D in ("%TMP_DIR%\*-release") do set "SRC_DIR=%%D"
+for /d %%D in ("%TMP_DIR%\*") do set "SRC_DIR=%%D"
 if not defined SRC_DIR (echo [LOI] Khong tim thay thu muc nguon sau khi giai nen. & goto :end)
 
 echo Dang ghi de PHAN CHUONG TRINH (giu nguyen tri thuc cua ban)...

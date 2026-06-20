@@ -41,10 +41,19 @@ else
   TMP="$(mktemp -d "${TMPDIR:-/tmp}/kora-install.XXXXXX")"
   trap 'rm -rf "$TMP"' EXIT
   echo "⬇️  Đang tải bản mới nhất..."
-  curl -fsSL "https://github.com/$REPO/archive/refs/heads/$REF.tar.gz" -o "$TMP/src.tgz" \
+  # ⚠️ TRÁNH CACHE CŨ: archive theo NHÁNH (refs/heads/<ref>.tar.gz) bị CDN của GitHub cache rất dai →
+  # cài nhầm bản cũ dù đã phát hành bản mới. Cách chuẩn: hỏi API SHA commit MỚI NHẤT của nhánh, rồi tải
+  # archive theo SHA (immutable, không bao giờ cache cũ). Fallback về archive nhánh nếu API bị giới hạn.
+  SHA="$(curl -fsSL -H 'Accept: application/vnd.github.sha' "https://api.github.com/repos/$REPO/commits/$REF" 2>/dev/null || true)"
+  if printf '%s' "$SHA" | grep -qiE '^[0-9a-f]{40}$'; then
+    DL_URL="https://github.com/$REPO/archive/$SHA.tar.gz"; echo "   (bản mới nhất: ${SHA:0:7})"
+  else
+    DL_URL="https://github.com/$REPO/archive/refs/heads/$REF.tar.gz"
+  fi
+  curl -fsSL "$DL_URL" -o "$TMP/src.tgz" \
     || die "Tải thất bại. Kiểm tra mạng rồi thử lại."
   tar -xzf "$TMP/src.tgz" -C "$TMP" || die "Giải nén thất bại."
-  SRC="$(find "$TMP" -maxdepth 1 -type d -name "*-$REF" | head -n1)"
+  SRC="$(find "$TMP" -mindepth 1 -maxdepth 1 -type d | head -n1)"
   [ -n "$SRC" ] && [ -d "$SRC" ] || die "Không thấy thư mục nguồn sau giải nén."
 fi
 
@@ -67,6 +76,9 @@ done
 # Workflow CHỈ-DUY-TRÌ — gỡ khỏi bản cài người dùng (phát hành/tiến hóa hệ thống chỉ ở người viết repo).
 for mw in 12-release.md 13-evolve-system.md; do rm -f "$DEST_CORE/workflows/$mw" 2>/dev/null || true; done
 [ -f "$SRC/CLAUDE.md" ] && cp "$SRC/CLAUDE.md" "$DEST_CORE/" || true
+# version.json + CHANGELOG → để /kora-version /kora-update đọc được bản đã cài.
+[ -f "$SRC/version.json" ] && cp "$SRC/version.json" "$DEST_CORE/" || true
+[ -f "$SRC/CHANGELOG.md" ] && cp "$SRC/CHANGELOG.md" "$DEST_CORE/" || true
 # Domain + rule preset đã nằm trong config/ vừa copy (gồm Healthcare/Y tế). Đếm để báo.
 NDOM="$(ls -1 "$DEST_CORE"/config/domain-presets/*.md 2>/dev/null | wc -l | tr -d ' ')"
 [ -f "$DEST_CORE/config/domain-presets/healthcare.md" ] || echo "⚠️  Thiếu preset Healthcare — nguồn cài có thể cũ."
@@ -104,8 +116,9 @@ fi
 # (Dọn folder Kora-Skills kiểu cũ nếu còn sót từ bản trước)
 rm -rf "$DL_BASE/Kora-Skills" "$DL_BASE/Kora-Skills.zip" 2>/dev/null || true
 
+VER="$(grep -E '"version"' "$DEST_CORE/version.json" 2>/dev/null | head -n1 | sed -E 's/.*"version"[^"]*"([^"]*)".*/\1/')"
 echo ""
-echo "✅ Đã cài $N skill Kora + $NDOM domain preset (gồm Healthcare/Y tế, Retail, Manufacturing…) vào ~/.claude."
+echo "✅ Đã cài Kora-Framework ${VER:+v$VER} — $N skill + $NDOM domain preset (gồm Healthcare/Y tế, Retail, Manufacturing…) vào ~/.claude."
 echo "   📁 Project đã khởi tạo sẵn: $ROOT"
 echo "   📁 Folder skill (upload vào Cowork): $SKILL_DIR"
 echo "   • Claude Code (CLI): mở  $ROOT  → gõ  /kora-init  (đặt domain/tên) rồi  /kora-scan."
