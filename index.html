@@ -470,13 +470,34 @@
         <div class="step" data-n="1"><h3>Tuân thủ RULE DOMAIN</h3><p>Đọc <code>config/domain-rules.md</code> (theo preset đã chọn — Healthcare / Fintech / E-commerce / Retail…) <b>trước mỗi phân tích</b>; áp thuật ngữ, ngưỡng và rule thận trọng của ngành (vd y tế: phân biệt "hiển thị thông tin" vs "tư vấn y tế", không chẩn đoán thay bác sĩ).</p></div>
         <div class="step" data-n="2"><h3>Theo WORKFLOW phân tích</h3><p>Bám <code>workflows/03-request.md</code> + quy trình BA 8 bước (B0→B7): đọc KB (index + vault + lessons) → phát hiện <b>xung đột · tác động · lỗ hổng</b> → trình bày tiếng Việt trích nguồn theo file → <b>✋ Approval Gate</b> trước khi ghi.</p></div>
         <div class="step" data-n="3"><h3>Áp TEMPLATE PROMPT (theo vai trò)</h3><p>Theo vai trò chọn ở đầu phiên (BA / PO / SA / QA) nạp <code>templates/prompts/role-&lt;x&gt;.md</code> + thư viện <code>ba-prompt-library.md</code> → mỗi artifact (US / AC / BR / FR / NFR / validation / test…) ra <b>đúng ĐỊNH DẠNG CHUẨN TỰ ĐỘNG</b>, user không cần yêu cầu "viết theo format X".</p></div>
-        <div class="step" data-n="4"><h3>ĐÚNG THỨ TỰ prompt theo <code>_index</code></h3><p>Chạy chuỗi prompt <b>01→20</b> (lọc theo vai trò), <b>bước sau dựa bước trước</b> — thiếu đầu vào thì dừng hỏi <code>[CẦN XÁC NHẬN]</code>, không nhảy cóc:</p>
-          <div class="flow">01 Tổng quát → 02 Clarify → 03 Feature Tree → 04 User Story → 05 AC
-   → 06/07 FR · NFR → 08/09 Validation · Error → 10/11 Flow
-   → 12/13/14 BRD · PRD · SRS → 15/16 Screen · UX → 17/18 API · DB
-   → 19/20 Test Cases · Edge   (vai trò lọc: BA 01–05,12,15 · PO 01,03,13 · SA 06,07,14,17,18 · QA 05,08,09,19,20)</div>
-        </div>
+        <div class="step" data-n="4"><h3>ĐÚNG THỨ TỰ prompt theo <code>_index</code></h3><p>Chạy chuỗi prompt <b>01→20</b> (lọc theo vai trò), <b>bước sau dựa bước trước</b> — thiếu đầu vào thì dừng hỏi <code>[CẦN XÁC NHẬN]</code>, không nhảy cóc. Bản đồ đầy đủ ở <b>bảng dưới</b>.</p></div>
       </div>
+
+      <h3 class="sub3">Bản đồ 20 prompt theo thứ tự <code>_index</code></h3>
+      <table>
+        <tr><th>#</th><th>Nhóm</th><th>Prompt</th><th>Nội dung chính (output chuẩn)</th><th>Vai trò</th></tr>
+        <tr><td><b>01</b></td><td>I · Requirement</td><td>Phân tích tổng quát</td><td>Actors · tính năng chính · business goals · assumptions · thông tin còn thiếu</td><td>BA·PO</td></tr>
+        <tr><td><b>02</b></td><td>I · Requirement</td><td>Câu hỏi làm rõ (Clarify)</td><td>Câu hỏi nhóm Business Rules / Data / UI / Technical; ★ top 5 ưu tiên</td><td>BA</td></tr>
+        <tr><td><b>03</b></td><td>I · Requirement</td><td>Feature Tree</td><td>Feature → sub-feature + cột MoSCoW (Must/Should/Could/Won't)</td><td>BA·PO</td></tr>
+        <tr><td><b>04</b></td><td>II · User Stories</td><td>User Story</td><td><code>US-[ID]</code> · As a/I want/So that · Priority · Story Points · OUT OF SCOPE</td><td>BA</td></tr>
+        <tr><td><b>05</b></td><td>II · User Stories</td><td>Acceptance Criteria</td><td>Given-When-Then · đủ happy + edge + negative (lỗi cụ thể)</td><td>BA·QA</td></tr>
+        <tr><td><b>06</b></td><td>III · Functional Req</td><td>Functional Requirement</td><td><code>FR-[ID]</code> · Actor · Pre/Post-condition</td><td>SA</td></tr>
+        <tr><td><b>07</b></td><td>III · Functional Req</td><td>Non-Functional Req</td><td><code>NFR-[ID]</code> · nhóm + số đo lường + cách kiểm tra</td><td>SA</td></tr>
+        <tr><td><b>08</b></td><td>IV · Validation</td><td>Validation Rules</td><td>Bảng trường (kiểu/bắt buộc/min/max/format) + cross-field</td><td>QA</td></tr>
+        <tr><td><b>09</b></td><td>IV · Validation</td><td>Error Messages</td><td>Thông báo lỗi cụ thể + cách sửa, giọng tích cực, ≤2 câu</td><td>QA</td></tr>
+        <tr><td><b>10</b></td><td>V · Process Flow</td><td>User Flow</td><td>Mermaid <code>flowchart TD</code> (happy + error path)</td><td>BA</td></tr>
+        <tr><td><b>11</b></td><td>V · Process Flow</td><td>Business Process Flow</td><td>Mermaid swimlane theo vai trò + handoff + bước phê duyệt</td><td>BA</td></tr>
+        <tr><td><b>12</b></td><td>VI · BA Docs</td><td>URD Document</td><td>Overview · User roles · FR · Validation · User flow · AC</td><td>BA</td></tr>
+        <tr><td><b>13</b></td><td>VI · BA Docs</td><td>PRD Document</td><td>Overview · Problem · Personas · Features · Success metrics</td><td>PO</td></tr>
+        <tr><td><b>14</b></td><td>VI · BA Docs</td><td>SRS Document</td><td>System overview · FR · NFR · Architecture · API</td><td>SA</td></tr>
+        <tr><td><b>15</b></td><td>VII · UX/UI</td><td>Screen Specification</td><td>Bảng element · validation · hành động · navigation · responsive</td><td>BA</td></tr>
+        <tr><td><b>16</b></td><td>VII · UX/UI</td><td>UX Improvement</td><td>Đề xuất theo cognitive load / error prevention / feedback + Priority/Effort</td><td>BA</td></tr>
+        <tr><td><b>17</b></td><td>VIII · Dev Support</td><td>API Requirement</td><td><code>[METHOD] /path</code> · request/response schema · mã lỗi · auth</td><td>SA</td></tr>
+        <tr><td><b>18</b></td><td>VIII · Dev Support</td><td>Database Tables</td><td>Bảng cột (kiểu/nullable/default) · index · quan hệ FK · ER tóm tắt</td><td>SA</td></tr>
+        <tr><td><b>19</b></td><td>IX · QA Support</td><td>Test Cases</td><td><code>TC-[ID]</code> · ≥3 happy · 2 edge · 2 negative · expected cụ thể</td><td>QA</td></tr>
+        <tr><td><b>20</b></td><td>IX · QA Support</td><td>Edge Cases</td><td>6 nhóm (boundary · concurrent · timeout · permission · data · third-party) + mức rủi ro</td><td>QA·BA</td></tr>
+      </table>
+      <div class="callout ok"><span>🎭</span><div><b>Vai trò lọc tập prompt</b> (chọn ở B0): <b>BA</b> → 01–05,12,15 · <b>PO</b> → 01,03,13 + KPI/MoSCoW · <b>SA</b> → 06,07,14,17,18 · <b>QA</b> → 05,08,09,19,20. Cùng một yêu cầu, đổi vai trò → tập prompt &amp; output đổi theo (động theo domain + vai trò).</div></div>
       <p style="color:var(--muted)">Chi tiết runtime của 4 cổng trên (từ lời thường tới khi ghi tri thức):</p>
       <div class="flow">yêu cầu (lời thường)
    → hỏi VAI TRÒ + DOMAIN + template (1 thẻ, nhớ cả phiên)
