@@ -79,11 +79,14 @@ Chạy `git status --short` + `git diff --stat` → xem đã đổi gì:
 4. Trình bày tóm tắt cho user: version cũ → mới, danh sách "có gì mới", có migration không.
 5. ✋ **GATE — confirm** (push là thao tác công khai, BẮT BUỘC chờ user đồng ý).
 6. `git add -A && git commit -m "Kora-1 vX.Y.Z: <tóm tắt>"`.
-6b. **HỎI: Merge hay Deploy? — AskUserQuestion:**
-   - **[Deploy từ `release`]** (mặc định) → `git push origin release` → GitHub Pages deploy web từ `release`.
+6b. **HỎI: Phạm vi nhánh đẩy? — AskUserQuestion** (repo 5 nhánh env `dev/qc/uat/release/main` giữ đồng bộ 1 commit):
+   - **[Tất cả nhánh env] (khuyến nghị)** → `git push origin release`, rồi
+     `for b in dev qc uat main; do git checkout $b && git merge --ff-only release && git push origin $b; done && git checkout release`.
+     Đây là cách v2.3.0/v2.3.1 đã làm (mọi nhánh cùng commit).
+   - **[Deploy từ `release`]** → chỉ `git push origin release` → GitHub Pages deploy web từ `release`.
    - **[Merge `release` → `main`]** → `git push origin release`, rồi `git checkout main && git merge --ff-only
-     release && git push origin main && git checkout release` (Pages phục vụ `main` thì deploy từ đó). Không
-     ff-merge được → BÁO user, KHÔNG ép merge.
+     release && git push origin main && git checkout release`.
+   - Nhánh nào **không ff-merge được** → BÁO user, **BỎ QUA**, KHÔNG ép (không force-push).
 6c. **Đánh tag KHỚP version** (BẮT BUỘC; KHÔNG thêm hậu tố codename):
    `git tag vX.Y.Z && git push origin vX.Y.Z` — `vX.Y.Z` phải **TRÙNG** `version.json.version`.
 6d. **GitHub Release + release note** (nếu có `gh`): nội dung = đúng mục CHANGELOG vừa thêm:

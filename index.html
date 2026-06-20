@@ -257,7 +257,7 @@
     <div class="brand" data-go="home" title="Trang chủ">
       <span class="brandmark" aria-hidden="true">K</span>
       <span class="org">FPT TELECOM</span>
-      <div class="fw">KORA AI<span>v2.3.1 · Kora-1</span></div>
+      <div class="fw">KORA AI<span>v2.3.2 · Kora-1</span></div>
     </div>
     <nav class="nav">
       <div class="grp">Tổng quan</div>
@@ -284,7 +284,7 @@
     <!-- ===================== HOME ===================== -->
     <div class="page" id="home">
       <header class="hero">
-        <span class="badge">FPT Telecom · KORA AI · v2.3.1 · &ldquo;Kora-1&rdquo;</span>
+        <span class="badge">FPT Telecom · KORA AI · v2.3.2 · &ldquo;Kora-1&rdquo;</span>
         <h1>KORA AI — Sơ đồ nguyên lý hoạt động</h1>
         <p class="sub">Trợ lý tri thức tự lớn lên cùng dự án: hợp nhất tri thức phân tán, nối tri thức local của nhân viên với <b>Knowledge Base</b> chung (trên Cloud), và tự động hóa đồng bộ — báo cáo — cảnh báo.</p>
         <div class="pipe">
@@ -302,16 +302,16 @@
 
         <h2 class="sec" style="margin-top:26px">Nội dung</h2>
         <div class="home-cards">
-          <div class="hc" data-go="introduction"><span class="ic">📘</span><div><b>A · Giới thiệu</b><p>Tổng quan, nguyên lý 4 tầng, thuật ngữ</p></div></div>
-          <div class="hc" data-go="workflow"><span class="ic">🔁</span><div><b>B · Quy trình</b><p>Quy trình BA 8 bước + KORA thực thi</p></div></div>
+          <div class="hc" data-go="introduction"><span class="ic">📘</span><div><b>A · Giới thiệu</b><p>Tổng quan · nguyên lý 4 tầng · Responsible AI &amp; bảo mật dữ liệu</p></div></div>
+          <div class="hc" data-go="workflow"><span class="ic">🔁</span><div><b>B · Quy trình</b><p>BA 8 bước · 4 cổng phân tích · Quality Gate 3 tầng</p></div></div>
           <div class="hc" data-go="install"><span class="ic">⚙️</span><div><b>C · Cài đặt</b><p>Cài / cập nhật / gỡ (CLI + Desktop)</p></div></div>
           <div class="hc" data-go="features"><span class="ic">🧩</span><div><b>D · Chức năng</b><p>init · connect · scan · sync · schedule · mail · archive</p></div></div>
-          <div class="hc" data-go="prompts"><span class="ic">💬</span><div><b>E · Prompt &amp; Template</b><p>Template động theo domain + vai trò</p></div></div>
+          <div class="hc" data-go="prompts"><span class="ic">💬</span><div><b>E · Prompt &amp; Template</b><p>20 prompt + template động theo domain/vai trò · kỹ thuật prompt</p></div></div>
           <div class="hc" data-go="examples"><span class="ic">🎯</span><div><b>F · Ví dụ thực tế</b><p>Use case Input / Prompt / Output</p></div></div>
           <div class="hc" data-go="good-vs-bad"><span class="ic">✅</span><div><b>G · Output Tốt vs Chưa tốt</b><p>5 bảng so sánh tự đánh giá</p></div></div>
-          <div class="hc" data-go="troubleshooting"><span class="ic">🔧</span><div><b>H · Troubleshooting</b><p>Khắc phục sự cố thường gặp</p></div></div>
+          <div class="hc" data-go="troubleshooting"><span class="ic">🔧</span><div><b>H · Troubleshooting</b><p>Khắc phục sự cố · giới hạn &amp; hallucination</p></div></div>
           <div class="hc" data-go="release"><span class="ic">🆕</span><div><b>I · Release Note</b><p>Lịch sử phiên bản &amp; cách cập nhật</p></div></div>
-          <div class="hc" data-go="appendix"><span class="ic">📚</span><div><b>J · Phụ lục</b><p>Bảng lệnh, cấu hình, cấu trúc</p></div></div>
+          <div class="hc" data-go="appendix"><span class="ic">📚</span><div><b>J · Phụ lục</b><p>Bảng lệnh · cấu hình · tiêu chuẩn ngành &amp; tham khảo</p></div></div>
         </div>
       </header>
     </div>
@@ -417,6 +417,31 @@
         <tr><td><b>MoSCoW</b></td><td>Ưu tiên: Must / Should / Could / Won't have.</td></tr>
         <tr><td><b>HĐH · SMTP · PAT</b></td><td>Hệ điều hành · giao thức gửi mail · Personal Access Token.</td></tr>
       </table>
+
+      <h2 class="sec">VI · Responsible AI &amp; Bảo mật dữ liệu <span class="pill r">BẮT BUỘC</span></h2>
+      <div class="callout warn"><span>⚠️</span><div><b>Mọi BA phải đọc &amp; tuân thủ trước khi dùng Claude/KORA với dữ liệu thật</b> — vi phạm bảo mật dữ liệu có thể gây hậu quả pháp lý nghiêm trọng. KORA hỗ trợ: tự nhắc <b>ẩn danh ở bước B0</b>, và <b>không bao giờ</b> đưa token vào chat/git (lưu ở <b>shell env</b>).</div></div>
+      <div class="grid2">
+        <div class="card"><b>🎯 4 nguyên tắc cốt lõi</b><ul style="margin:8px 0 0;padding-left:18px;color:var(--muted);font-size:13.2px;line-height:1.7">
+          <li>Claude là <b>công cụ hỗ trợ</b>, không ra quyết định — BA review &amp; chịu trách nhiệm cuối.</li>
+          <li>Claude <b>có thể sai / hallucinate</b> — không nhận output mà chưa review.</li>
+          <li><b>Không copy-paste 100%</b> output vào tài liệu chính thức — luôn chỉnh trước khi submit.</li>
+          <li><b>Luôn ẩn danh</b> dữ liệu trước khi đưa vào Claude (checklist 2 phút bên cạnh).</li>
+        </ul></div>
+        <div class="card"><b>🧹 Checklist ẩn danh hóa (2 phút)</b><ul style="margin:8px 0 0;padding-left:18px;color:var(--muted);font-size:13.2px;line-height:1.7">
+          <li><code>Ctrl+F</code> tên người thật → <code>[TÊN]</code></li>
+          <li><code>Ctrl+F</code> tên công ty → <code>[CÔNG TY]</code></li>
+          <li><code>Ctrl+F</code> số điện thoại → <code>09xx-xxx-xxx</code></li>
+          <li><code>Ctrl+F</code> email → <code>name@company.com</code> · IP → <code>x.x.x.x</code></li>
+          <li>Soát lại <b>1 lượt cuối</b> trước khi paste</li>
+        </ul></div>
+      </div>
+      <table>
+        <tr><th>Nhóm dữ liệu</th><th>Ví dụ</th><th>Quy tắc xử lý</th></tr>
+        <tr><td><span class="pill g">🟢 XANH</span></td><td>Yêu cầu tổng quát, mô tả quy trình, template, câu hỏi kỹ thuật, mock data</td><td><b>Paste trực tiếp</b> — không cần xử lý</td></tr>
+        <tr><td><span class="pill" style="background:var(--warnbg);color:#f0c674;border:1px solid var(--warnbd)">🟡 VÀNG</span></td><td>Tên KH/nhân viên, email, số hợp đồng, IP nội bộ, dữ liệu tài chính</td><td><b>Ẩn danh trước</b>: <code>[TÊN KH]</code> · <code>[EMAIL]</code> · <code>CONTRACT-001</code> · <code>x.x.x.x</code></td></tr>
+        <tr><td><span class="pill r">🔴 ĐỎ</span></td><td>Mật khẩu, API key, CCCD, SĐT thật, tài liệu Confidential, thông tin M&amp;A</td><td><b>NGHIÊM CẤM</b> đưa vào Claude — không có ngoại lệ</td></tr>
+      </table>
+      <div class="callout"><span>🚑</span><div><b>Lỡ paste nhầm dữ liệu nhạy cảm?</b> Xóa ngay đoạn chat chứa nó → <b>đổi/thu hồi</b> bí mật đã lộ (mật khẩu / API key / token) → báo người phụ trách bảo mật → ghi nhận sự cố. (Token kết nối của KORA nằm ở shell env, không vào chat/git nên rủi ro thấp hơn.)</div></div>
     </div>
 
     <!-- ===================== WORKFLOW ===================== -->
@@ -440,6 +465,19 @@
       </table>
 
       <h2 class="sec">II · Luồng phân tích yêu cầu (đầu ra chuẩn)</h2>
+      <p class="lead">Mọi phân tích đi qua <b>4 cổng tuân thủ — ĐÚNG THỨ TỰ</b>, đảm bảo đầu ra <b>chuẩn · nhất quán · chuyên nghiệp · trace được nguồn</b>:</p>
+      <div style="margin:8px 0 20px">
+        <div class="step" data-n="1"><h3>Tuân thủ RULE DOMAIN</h3><p>Đọc <code>config/domain-rules.md</code> (theo preset đã chọn — Healthcare / Fintech / E-commerce / Retail…) <b>trước mỗi phân tích</b>; áp thuật ngữ, ngưỡng và rule thận trọng của ngành (vd y tế: phân biệt "hiển thị thông tin" vs "tư vấn y tế", không chẩn đoán thay bác sĩ).</p></div>
+        <div class="step" data-n="2"><h3>Theo WORKFLOW phân tích</h3><p>Bám <code>workflows/03-request.md</code> + quy trình BA 8 bước (B0→B7): đọc KB (index + vault + lessons) → phát hiện <b>xung đột · tác động · lỗ hổng</b> → trình bày tiếng Việt trích nguồn theo file → <b>✋ Approval Gate</b> trước khi ghi.</p></div>
+        <div class="step" data-n="3"><h3>Áp TEMPLATE PROMPT (theo vai trò)</h3><p>Theo vai trò chọn ở đầu phiên (BA / PO / SA / QA) nạp <code>templates/prompts/role-&lt;x&gt;.md</code> + thư viện <code>ba-prompt-library.md</code> → mỗi artifact (US / AC / BR / FR / NFR / validation / test…) ra <b>đúng ĐỊNH DẠNG CHUẨN TỰ ĐỘNG</b>, user không cần yêu cầu "viết theo format X".</p></div>
+        <div class="step" data-n="4"><h3>ĐÚNG THỨ TỰ prompt theo <code>_index</code></h3><p>Chạy chuỗi prompt <b>01→20</b> (lọc theo vai trò), <b>bước sau dựa bước trước</b> — thiếu đầu vào thì dừng hỏi <code>[CẦN XÁC NHẬN]</code>, không nhảy cóc:</p>
+          <div class="flow">01 Tổng quát → 02 Clarify → 03 Feature Tree → 04 User Story → 05 AC
+   → 06/07 FR · NFR → 08/09 Validation · Error → 10/11 Flow
+   → 12/13/14 BRD · PRD · SRS → 15/16 Screen · UX → 17/18 API · DB
+   → 19/20 Test Cases · Edge   (vai trò lọc: BA 01–05,12,15 · PO 01,03,13 · SA 06,07,14,17,18 · QA 05,08,09,19,20)</div>
+        </div>
+      </div>
+      <p style="color:var(--muted)">Chi tiết runtime của 4 cổng trên (từ lời thường tới khi ghi tri thức):</p>
       <div class="flow">yêu cầu (lời thường)
    → hỏi VAI TRÒ + DOMAIN + template (1 thẻ, nhớ cả phiên)
    → đọc KB (index + vault + lessons) · liên kết chéo project
@@ -461,7 +499,31 @@
       </table>
       <div class="callout ok"><span>✅</span><div><b>Vai trò lọc artifact:</b> BA → US/AC/BR/Screen · PO → value/KPI/MoSCoW/PRD · SA → FR/NFR/API/DB · QA → AC/Validation/Test/Edge. ⇒ Luồng phân tích đã <b>tích hợp</b> quy trình BA 8 bước + thư viện 20 prompt → <b>đầu ra chuẩn tự động</b>.</div></div>
 
-      <h2 class="sec">III · Tự trưởng thành &amp; học từ sai lầm</h2>
+      <h2 class="sec">III · Quality Gate — 3 tầng review trước khi submit</h2>
+      <p style="color:var(--muted)">Trước khi submit bất kỳ tài liệu nào do Claude hỗ trợ tạo, đi qua <b>Quality Gate 3 tầng</b> — KORA ráp vào <b>Approval Gate</b> + rà soát chốt phiên + <code>.kb/health-report.md</code>:</p>
+      <table>
+        <tr><th>Tầng</th><th>Tên</th><th>Người thực hiện</th><th>Thời gian</th></tr>
+        <tr><td>1</td><td><b>Accuracy Check</b></td><td>BA tự review</td><td>~5 phút</td></tr>
+        <tr><td>2</td><td><b>Completeness Check</b></td><td>BA đối chiếu yêu cầu gốc</td><td>~10 phút</td></tr>
+        <tr><td>3</td><td><b>Peer Review</b></td><td>BA khác / Tech Lead</td><td>~15 phút</td></tr>
+      </table>
+      <div class="grid2">
+        <div class="card"><b>✔️ Accuracy Check theo loại tài liệu (Tầng 1)</b><ul style="margin:8px 0 0;padding-left:18px;color:var(--muted);font-size:13px;line-height:1.65">
+          <li><b>User Story:</b> vai trò As-a đúng hệ thống thật? hành động khả thi kỹ thuật? lợi ích align mục tiêu? AC đủ Given/When/Then + ≥1 negative (tối thiểu 3 AC/US)?</li>
+          <li><b>Process Flow:</b> có điểm bắt đầu/kết thúc? mọi nhánh điều kiện đủ Yes/No (không dead-end)? đã vẽ error path?</li>
+          <li><b>Test Cases:</b> đủ 3 loại Happy/Edge/Negative (≈40/30/30)? Expected Result cụ thể (ghi rõ nội dung thông báo lỗi)?</li>
+          <li><b>Mọi loại:</b> <b>không lọt dữ liệu nhóm 🔴 ĐỎ / 🟡 VÀNG</b> (đối chiếu mục Bảo mật ở tab A).</li>
+        </ul></div>
+        <div class="card"><b>👥 Người review tối thiểu (Tầng 3)</b><ul style="margin:8px 0 0;padding-left:18px;color:var(--muted);font-size:13px;line-height:1.7">
+          <li><b>User Story</b> (1 feature) → BA cùng team</li>
+          <li><b>FRS / BRD</b> → Tech Lead + 1 BA senior</li>
+          <li><b>GAP Analysis</b> → Product Owner</li>
+          <li><b>Test Cases</b> → QA Lead</li>
+          <li><b>Tài liệu trình stakeholder</b> → Team Lead</li>
+        </ul></div>
+      </div>
+
+      <h2 class="sec">IV · Tự trưởng thành &amp; học từ sai lầm</h2>
       <div class="card">
         <ul style="margin:0;color:var(--muted)">
           <li>Mỗi khi đề xuất bị <b>bác / sửa lớn</b> → ghi NGAY 1 bài học vào <code>.kb/lessons.md</code> (ngày · sai gì · rút ra · áp dụng từ nay).</li>
@@ -472,7 +534,7 @@
         <p style="margin:10px 0 0;color:var(--accent2)"><b>⇒ KB + chất lượng phân tích lớn dần theo thời gian.</b></p>
       </div>
 
-      <h2 class="sec">IV · Báo cáo &amp; cảnh báo theo chuẩn Cloud</h2>
+      <h2 class="sec">V · Báo cáo &amp; cảnh báo theo chuẩn Cloud</h2>
       <p class="lead">Workflow báo cáo (<code>14</code>) đối chiếu số liệu với <b>chuẩn Cloud / best-practice</b> rồi đưa ra phân tích — rủi ro — cảnh báo — <b>dự đoán rủi ro</b> — đề xuất xử lý:</p>
       <table>
         <tr><th>Chiều phân tích (chuẩn)</th><th>Cảnh báo / dự đoán</th></tr>
@@ -534,14 +596,14 @@
         <div class="step"><div class="node">🚀</div><div class="body"><div class="t"><span class="num">1</span>Khởi tạo <code>/kora-init</code></div><p>Dựng project + vault + kéo domain/rule; hỏi domain / tên project.</p></div></div>
         <div class="step"><div class="node">🔌</div><div class="body"><div class="t"><span class="num">2</span>Connect <code>/kora-connect</code></div><p>Kết nối nguồn (Jira / Confluence / GitHub / Microsoft 365…); MCP &amp; API tính riêng.</p></div></div>
         <div class="step"><div class="node">🔎</div><div class="body"><div class="t"><span class="num">3</span>Scan <code>/kora-scan</code> · <code>/kora-import-files</code></div><p>Quét nguồn (cào hết field) → tổng hợp wiki liên kết; nạp PDF / DOCX / ảnh.</p></div></div>
-        <div class="step"><div class="node">⏰</div><div class="body"><div class="t"><span class="num">4</span>Schedule <code>/kora-schedule</code> <span class="pw">🔒 (Admin permission)</span></div><p>Lịch cấp HĐH (chạy cả khi đóng app): get → report → mail → (tùy chọn) sync; danh sách bật/tắt/xóa.</p></div></div>
+        <div class="step"><div class="node">⏰</div><div class="body"><div class="t"><span class="num">4</span>Schedule <code>/kora-schedule</code> <span class="pw">🔒 (Admin permission)</span></div><p>Lịch HĐH chạy LOCAL (cả khi đóng app, gọi API/mail được): scan KHÔNG gác · report/mail/sync cần mật khẩu. Nhiều mốc giờ + Thứ 2–6; quản lý HĐH &amp; Cowork — bật/tắt/sửa/xóa.</p></div></div>
         <div class="step"><div class="node">🔔</div><div class="body"><div class="t"><span class="num">4b</span>Report ticket issue qua mail <code>/kora-alert-mail</code></div><p>Đi kèm Schedule: lịch nền lỗi → tự tạo ticket issue + gửi email cảnh báo; chỉnh người nhận / bật–tắt / nơi tạo ticket tập trung 1 nơi (OVERRIDE mọi lịch).</p></div></div>
-        <div class="step"><div class="node">📊</div><div class="body"><div class="t"><span class="num">5</span>Report <code>/kora-daily-report</code></div><p>Dashboard tiến độ (giờ công / OT, rủi ro, dự đoán) — phân tầng + lọc đa chiều.</p></div></div>
+        <div class="step"><div class="node">📊</div><div class="body"><div class="t"><span class="num">5</span>Report <code>/kora-daily-report</code> <span class="pw">🔒 (Admin permission)</span></div><p>Dashboard tiến độ (giờ công / OT, rủi ro, dự đoán) — phân tầng + lọc đa chiều. Kéo dữ liệu live → cần mật khẩu vận hành.</p></div></div>
         <div class="step"><div class="node">✉️</div><div class="body"><div class="t"><span class="num">6</span>Send mail <code>/kora-send-mail</code> <span class="pw">🔒 (Admin permission)</span></div><p>Chọn Jira → project → người nhận → gửi ngay / đặt lịch; email có banner header + phân tích AI.</p></div></div>
         <div class="step"><div class="node">☁️</div><div class="body"><div class="t"><span class="num">7</span>Sync <code>/kora-sync</code> <span class="pw">🔒 (Admin permission)</span></div><p>Đẩy Knowledge Base lên Confluence / GitHub private — idempotent + versioning US ↔ Change Request.</p></div></div>
         <div class="step"><div class="node">📦</div><div class="body"><div class="t"><span class="num">8</span>Archive <code>/kora-archive</code> · <code>/kora-export-*</code> <span class="pw">🔑 Archive</span></div><p>Đóng gói bàn giao phân quyền + mật khẩu; xuất DOCX / PDF; sao lưu Knowledge Base.</p></div></div>
       </div>
-      <div class="callout warn"><span>🔒</span><div><b>Mật khẩu admin:</b> <b>🔒 (Admin permission)</b> = <code>KORA_OPS_PW</code> (gác <code>/kora-sync</code> · <code>/kora-send-mail</code> · bước sync trong <code>/kora-schedule</code> — không hỏi qua chat, không in ra). <b>🔑 Archive</b> = mật khẩu đóng gói (chỉ HOST). Export &amp; các bước khác <b>KHÔNG</b> cần.</div></div>
+      <div class="callout warn"><span>🔒</span><div><b>Mật khẩu admin:</b> <b>🔒 (Admin permission)</b> = <code>KORA_OPS_PW</code> (gác <code>/kora-sync</code> · <code>/kora-send-mail</code> · và bước <b>post/report/mail/sync</b> của <code>/kora-schedule</code> — <b>SCAN tri thức KHÔNG cần</b>; không hỏi qua chat, không in ra). <b>🔑 Archive</b> = mật khẩu đóng gói (chỉ HOST). Export &amp; các bước khác <b>KHÔNG</b> cần.</div></div>
       <div class="callout"><span>🔧</span><div><b>Lệnh bảo trì (ngoài 8 bước):</b> <code>/kora-evolve</code> (dọn dead-link · hợp nhất trùng · kiểm tra sức khỏe KB) · <code>/kora-update</code> · <code>/kora-uninstall</code> — xem tab <a data-go="install" style="cursor:pointer">Cài đặt (C)</a>.</div></div>
 
       <h2 class="sec">1 · 🚀 Khởi tạo — <code>/kora-init</code></h2>
@@ -567,11 +629,31 @@
       </div>
       <div class="callout warn"><span>🔑</span><div><b>Lưu khóa (token):</b> mặc định vào <b>shell env</b> (<code>~/.zshrc</code>: <code>export KORA_&lt;SRC&gt;_TOKEN=…</code>), <b>KHÔNG rải <code>.env</code></b> trong project. Chỉ tạo <code>.env.local</code> ở 2 ca: <b>archive</b> (key read-only) và <b>lịch sync nền</b> (mỗi nguồn user chọn sync). Token không vào chat / git / config.</div></div>
 
-      <h2 class="sec">3 · 🔎 Scan — <code>/kora-scan</code></h2>
-      <p style="color:var(--muted)">Danh sách nguồn + <b>[✓ Quét tất cả]</b>; chọn nguồn → chọn project/folder (mọi cấp có <b>[Chọn tất cả]</b>). Sau quét → <b>tổng hợp wiki liên kết</b> mỗi project; tùy chọn đào sâu thành feature/BR/AC.</p>
+      <h2 class="sec">3 · 🔎 Scan — <code>/kora-scan</code> · <code>/kora-import-files</code></h2>
+      <p style="color:var(--muted)">Danh sách nguồn + <b>[✓ Quét tất cả]</b>; chọn nguồn → chọn project/folder (mọi cấp có <b>[Chọn tất cả]</b>). Sau quét → <b>tổng hợp wiki liên kết</b> mỗi project; tùy chọn đào sâu thành feature/BR/AC. <b>Khi đào sâu / nạp file</b> (PDF/DOCX/ảnh): áp <b>cùng chuẩn với phân tích</b> — đọc <code>domain-rules.md</code> + cổng vai trò/domain/template + ghi theo ĐỊNH DẠNG CHUẨN <code>ba-prompt-library.md</code> → <b>Approval Gate</b> trước khi ghi.</p>
 
       <h2 class="sec">4 · ⏰ Schedule — <code>/kora-schedule</code></h2>
-      <p style="color:var(--muted)">Lịch cấp <b>Hệ điều hành</b> (chạy cả khi đóng app). Luồng: <b>get → 🔒 mật khẩu → report → mail → (tùy chọn) sync</b>. Có <b>danh sách lịch</b>: <b>bật / tắt (active/inactive) · xóa</b> + tạo mới. Task "đặt lịch" từ <code>/kora-send-mail</code> cũng hiện ở danh sách này. <b>Cảnh báo lỗi lịch</b> (ticket issue + email) chỉnh tập trung qua <code>/kora-alert-mail</code> — xem mục ngay dưới.</p>
+      <p style="color:var(--muted)">Lịch cấp <b>Hệ điều hành</b> (launchd / cron / schtasks) — chạy như <b>tiến trình LOCAL</b> kể cả khi đóng app, nên <b>gọi API + gửi mail được</b> (đúng mạng/VPN, tới được Jira nội bộ); <b>lịch Cowork chạy trong sandbox → chặn API/mail</b>, chỉ hợp việc nhẹ.</p>
+      <div class="flow">khi tạo lịch  →  🔒 hỏi mật khẩu vận hành (KORA_OPS_PW)
+        ├─ KHÔNG có/sai  →  chỉ đặt lịch SCAN tri thức mới về
+        └─ ĐÚNG          →  đầy đủ: chọn Jira → project (report)
+                              → người nhận mail → nhiều mốc giờ + [Mỗi ngày]/[Thứ 2–6]
+                              → email ticket sự cố → (tùy chọn) sync
+
+khi CHẠY:  scan/get (KHÔNG gác) → reindex → 🔒 cổng → post · report · mail · sync</div>
+      <div class="grid2">
+        <div class="card"><b>⚙️ Quản lý đầy đủ (cả 2 loại lịch)</b><ul style="margin:8px 0 0;padding-left:18px;color:var(--muted);font-size:13.2px;line-height:1.65">
+          <li><b>Lịch HĐH</b> (disk): liệt kê · bật/tắt · sửa · <b>xóa hẳn</b> (gỡ plist/cron/task)</li>
+          <li><b>Lịch Cowork</b> (RAM+disk): bật/tắt/sửa qua MCP · xóa = sửa registry + restart</li>
+          <li><b>Nhiều mốc giờ</b> + <b>[Mỗi ngày] / [Thứ 2–6]</b> (không cần gõ cron)</li>
+        </ul></div>
+        <div class="card"><b>🔒 Mô hình cổng mật khẩu</b><ul style="margin:8px 0 0;padding-left:18px;color:var(--muted);font-size:13.2px;line-height:1.65">
+          <li><b>SCAN tri thức</b> — KHÔNG cần mật khẩu</li>
+          <li><b>post · report · mail · sync</b> — cần <code>KORA_OPS_PW</code></li>
+          <li>Lịch nền đặt mật khẩu ở <code>~/.config/kora/ops-pw.env</code> (orchestrator tự nạp)</li>
+        </ul></div>
+      </div>
+      <p style="color:var(--muted)">Task "đặt lịch" từ <code>/kora-send-mail</code> cũng hiện &amp; quản lý ở đây. <b>Cảnh báo lỗi lịch</b> (ticket + email) chỉnh tập trung qua <code>/kora-alert-mail</code> — mục ngay dưới.</p>
 
       <h2 class="sec">4b · 🔔 Cảnh báo sự cố &amp; report ticket qua mail — <code>/kora-alert-mail</code></h2>
       <p style="color:var(--muted)">Đi kèm Schedule: khi một <b>lịch nền lỗi</b>, KORA không để lỗi trôi âm thầm mà <b>tự tạo ticket issue</b> + <b>gửi email cảnh báo</b> cho người phụ trách. <code>/kora-alert-mail</code> là nơi chỉnh <b>tập trung 1 chỗ</b> cho cơ chế này.</p>
@@ -596,8 +678,8 @@
       </div>
       <div class="callout"><span>↔️</span><div><b>Khác <code>/kora-send-mail</code>:</b> <code>/kora-alert-mail</code> = mail <b>CẢNH BÁO SỰ CỐ</b> (tự động khi lịch lỗi) · <code>/kora-send-mail</code> = mail <b>BÁO CÁO TIẾN ĐỘ</b> (chủ động gửi report). Việc GỬI mail cảnh báo nằm trong lượt lịch nền — đã gác <code>KORA_OPS_PW</code>, nên skill này chỉ sửa cấu hình, <b>không cần nhập mật khẩu</b>.</div></div>
 
-      <h2 class="sec">5 · 📊 Report — <code>/kora-daily-report</code></h2>
-      <p style="color:var(--muted)">Dashboard tiến độ: <b>giờ công chuẩn vs đã log + OT</b>, rủi ro · dự đoán theo <b>chuẩn Cloud</b>; <b>phân tầng + lọc</b> theo project / thành viên / thời gian. Hiện <b>UI inline trong Cowork</b> + file HTML.</p>
+      <h2 class="sec">5 · 📊 Report — <code>/kora-daily-report</code> <span class="pw">🔒 (Admin permission)</span></h2>
+      <p style="color:var(--muted)">Dashboard tiến độ: <b>giờ công chuẩn vs đã log + OT</b>, rủi ro · dự đoán theo <b>chuẩn Cloud</b>; <b>phân tầng + lọc</b> theo project / thành viên / thời gian. Hiện <b>UI inline trong Cowork</b> + file HTML. <b>Kéo dữ liệu live</b> → có <b>cổng mật khẩu vận hành</b> (<code>KORA_OPS_PW</code>).</p>
 
       <h2 class="sec">6 · ✉️ Send mail — <code>/kora-send-mail</code></h2>
       <div class="imgframe"><img src="assets/banner-daily-report.png" alt="Banner báo cáo tiến độ" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><div class="ph" style="display:none">🖼️ <b>assets/banner-daily-report.png</b> — banner header email.</div></div>
@@ -607,7 +689,7 @@
       <p style="color:var(--muted)">Đẩy Knowledge Base lên <b>Confluence / GitHub private</b> — idempotent, có <b>cổng mật khẩu vận hành</b>. Versioning <b>US ↔ Change Request</b>: giữ US cũ, đánh dấu superseded, link CR mới.</p>
 
       <h2 class="sec">8 · 📦 Archive — <code>/kora-archive</code></h2>
-      <p style="color:var(--muted)">Đóng gói KB phân quyền (read-only / read-write) + mật khẩu (chỉ gác HOST tạo gói). HOST đẩy KB lên Cloud → USER import → connect MCP → <code>/kora-schedule</code> kéo về local. Project import luôn <b>hỏi để nắm tri thức</b>.</p>
+      <p style="color:var(--muted)">Đóng gói KB phân quyền (read-only / read-write) + mật khẩu (chỉ gác HOST tạo gói). HOST đẩy KB lên Cloud → USER import → connect MCP → <code>/kora-schedule</code> kéo về local. Project import luôn <b>hỏi để nắm tri thức</b>. Gói USER tắt report/mail, tự lên lịch get&amp;post. <b>Báo lỗi về người phụ trách:</b> cấu hình email ticket sự cố (<code>scheduler.error_recipients</code>) đi theo gói + ship <b>cred SMTP no-reply</b> → khi lịch của USER lỗi, tự email người phụ trách (HOST). Hỗ trợ đầy đủ <b>Windows · macOS · Linux</b> (đóng gói &amp; import gói USER).</p>
     </div>
 
     <!-- ===================== PROMPTS ===================== -->
@@ -1129,12 +1211,33 @@ Chỉ ra CỤ THỂ theo từng mục:
 Tài liệu cần review:
 [Paste toàn bộ User Story và AC]</pre></div>
       <div class="callout"><span>📎</span><div>Tài liệu chuẩn đi kèm: <code>templates/docs/BRD-template.md</code>, <code>PRD-template.md</code> — ví dụ đã điền: <code>templates/examples/BRD-sample-giahan.md</code>, <code>PRD-sample-giahan.md</code>.</div></div>
+
+      <h2 class="sec">Kỹ thuật prompt &amp; Daily checklist</h2>
+      <p style="color:var(--muted)">6 kỹ thuật để prompt hiệu quả hơn — phần lớn KORA đã <b>tự áp</b> qua cổng vai trò/domain &amp; thư viện chuẩn, bạn vẫn nên nắm để chủ động:</p>
+      <table>
+        <tr><th>#</th><th>Kỹ thuật</th><th>Cách dùng</th></tr>
+        <tr><td>1</td><td><b>Cung cấp đủ Context</b></td><td>Nêu rõ dự án là gì, người dùng là ai, industry nào. <i>KORA nhớ vai trò+domain cả phiên (B0) + đọc KB → không phải paste lại.</i></td></tr>
+        <tr><td>2</td><td><b>Role Prompting</b></td><td>"Đóng vai BA senior 10 năm trong fintech…" → điều chỉnh ngôn ngữ, độ sâu, góc nhìn. <i>KORA tự áp theo vai trò chọn ở B0.</i></td></tr>
+        <tr><td>3</td><td><b>Yêu cầu Format cụ thể</b></td><td>Chỉ định bảng / Mermaid / markdown / JSON + độ dài. <i>KORA tự xuất theo ĐỊNH DẠNG CHUẨN của thư viện.</i></td></tr>
+        <tr><td>4</td><td><b>Phản biện &amp; Review</b></td><td>"Review tài liệu này, chỉ ra điểm thiếu / mâu thuẫn" — cho Claude tự soát lại output.</td></tr>
+        <tr><td>5</td><td><b>Iteration — làm từng bước</b></td><td>Chia nhỏ task, chỉnh dần: "Tốt, thêm edge case cho trường hợp timeout."</td></tr>
+        <tr><td>6</td><td><b>Daily Session Checklist</b></td><td>Quy trình 7 bước mỗi phiên (xem card bên dưới).</td></tr>
+      </table>
+      <div class="card"><b>📋 Daily session checklist (7 bước)</b>
+        <div class="flow">1. Nêu vai trò + domain (B0 — KORA nhớ cả phiên)
+2. Nêu rõ MỤC TIÊU phiên làm việc
+3. Paste context liên quan — ĐÃ ẨN DANH (xem mục Bảo mật, tab A)
+4. Làm TỪNG phần nhỏ (iteration), không hỏi tất cả 1 lúc
+5. REVIEW output (Quality Gate 3 tầng — tab B)
+6. Tóm tắt cuối phiên + trả lời các [CẦN XÁC NHẬN] còn treo
+7. Ghi tri thức đã duyệt → KORA tự reindex + cập nhật changelog</div>
+      </div>
     </div>
 
     <!-- ===================== GOOD VS BAD ===================== -->
     <div class="page" id="good-vs-bad">
       <div class="phead"><div class="pl">G · Output: Tốt vs Chưa tốt</div><h1><span class="em">✅</span>Output mẫu: Tốt vs Chưa tốt</h1></div>
-      <p class="lead">5 prompt quan trọng nhất, mỗi prompt có ví dụ output <b>chưa tốt</b> (và lý do tại sao) cạnh output <b>tốt</b> (và điểm cần có). Dùng để tự đánh giá output Claude của bạn.</p>
+      <p class="lead">8 artifact quan trọng nhất (AC · US · Validation · Test Case · GAP · Business Rule · NFR · API), mỗi cái có ví dụ output <b>chưa tốt</b> (và lý do) cạnh output <b>tốt</b> (và điểm cần có) — chuẩn để tự đánh giá output Claude của bạn.</p>
 
       <h3 class="sub3">I · Acceptance Criteria <span class="pr">Prompt 05</span></h3>
       <p class="gbsub">Đây là output thường gặp nhất khi dùng prompt sơ sài hoặc không chỉ định đủ context.</p>
@@ -1291,6 +1394,63 @@ Migration Path: Phase 1 (import data, parallel run 1 tháng)
         </tr>
         <tr class="note"><td class="bad">⚠ Chỉ liệt kê tính năng cần build, không có impact assessment, bỏ sót hoàn toàn data migration và change management.</td><td class="good">✓ Có Impact (H/M/L), estimate effort sơ bộ, có GAP về data migration và change management — 2 rủi ro dự án thực tế quan trọng nhất.</td></tr>
       </table>
+
+      <h3 class="sub3">VI · Business Rules <span class="pr">Prompt 03</span></h3>
+      <p class="gbsub">Lỗi phổ biến: rule không định lượng, không nguồn, không điều kiện/ngoại lệ → Dev/QA không implement &amp; test được.</p>
+      <table class="cmp">
+        <tr><th class="bad">✗ Output chưa tốt</th><th class="good">✓ Output tốt</th></tr>
+        <tr>
+          <td class="bad">BR-01: Đơn hàng lớn phải được duyệt.
+
+BR-02: Khách VIP được giảm giá.</td>
+          <td class="good">BR-01: Đơn B2B > 50.000.000đ phải được Trưởng phòng
+  duyệt trước khi chuyển kho.
+  Nguồn: Quy chế tài chính 2024, mục 4.2.
+  Điều kiện: chỉ đơn B2B; KHÔNG áp đơn nội bộ.
+
+BR-02: Khách VIP (tổng chi tiêu 12 tháng ≥ 200tr) giảm 10%,
+  cộng dồn tối đa 25% với khuyến mãi.
+  Ngoại lệ: không áp cho sản phẩm thanh lý.</td>
+        </tr>
+        <tr class="note"><td class="bad">⚠ "Lớn", "giảm giá" không định lượng; không nguồn, không điều kiện → không kiểm thử được.</td><td class="good">✓ <code>BR-[ID]</code> định lượng ngưỡng, có nguồn (trace được), nêu điều kiện áp dụng + ngoại lệ.</td></tr>
+      </table>
+
+      <h3 class="sub3">VII · Non-Functional Requirement <span class="pr">Prompt 07</span></h3>
+      <p class="gbsub">Lỗi phổ biến: yêu cầu định tính ("nhanh", "bảo mật") không đo lường được → không nghiệm thu được.</p>
+      <table class="cmp">
+        <tr><th class="bad">✗ Output chưa tốt</th><th class="good">✓ Output tốt</th></tr>
+        <tr>
+          <td class="bad">NFR-01: Hệ thống phải nhanh.
+
+NFR-02: Hệ thống phải bảo mật.</td>
+          <td class="good">NFR-01 [Performance]: 95% request &lt; 500ms ở tải
+  1.000 user đồng thời.
+  Cách kiểm tra: load test JMeter trên staging.
+
+NFR-02 [Security]: mật khẩu hash bcrypt (cost ≥ 12);
+  khóa tài khoản sau 5 lần sai; session timeout 30 phút.
+  Cách kiểm tra: pentest theo OWASP ASVS L2.</td>
+        </tr>
+        <tr class="note"><td class="bad">⚠ "Nhanh", "bảo mật" là gì? Không số đo, không cách kiểm tra → tranh cãi khi nghiệm thu.</td><td class="good">✓ <code>NFR-[ID]</code> có nhóm + con số đo lường + cách kiểm tra cụ thể → nghiệm thu khách quan.</td></tr>
+      </table>
+
+      <h3 class="sub3">VIII · API Requirement <span class="pr">Prompt 17</span></h3>
+      <p class="gbsub">Lỗi phổ biến: mô tả chung chung, thiếu method/path/schema/mã lỗi → Dev không implement được.</p>
+      <table class="cmp">
+        <tr><th class="bad">✗ Output chưa tốt</th><th class="good">✓ Output tốt</th></tr>
+        <tr>
+          <td class="bad">API tạo đơn hàng:
+nhận thông tin đơn, trả về kết quả.</td>
+          <td class="good">[POST] /api/v1/orders   ·   Auth: Bearer (role: sales)
+Request: { customerId: uuid, items:[{sku, qty}],
+           note?: string(≤500) }
+Response 201: { orderId, status:"PENDING", total }
+Errors: 400 thiếu items · 403 sai role
+        · 409 sku hết hàng · 422 qty ≤ 0
+Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
+        </tr>
+        <tr class="note"><td class="bad">⚠ Không method/path, không schema request/response, không mã lỗi, không auth → không thành contract.</td><td class="good">✓ <code>[METHOD] /path</code> + auth + schema + đủ mã lỗi + nối Business Rule → contract rõ cho FE/BE.</td></tr>
+      </table>
     </div>
 
     <!-- ===================== TROUBLESHOOTING ===================== -->
@@ -1341,6 +1501,25 @@ Migration Path: Phase 1 (import data, parallel run 1 tháng)
       </table>
 
       <div class="callout warn"><span>🛑</span><div><b>Khi nào bỏ cuộc &amp; làm thủ công:</b> đã iterate <b>3 lần</b> vẫn chưa đạt · domain quá đặc thù (luật / y tế / tài chính phức tạp) mà bạn không đủ context kiểm tra output · tài liệu <b>đã approve</b> (không sửa bằng Claude khi chưa có approval mới). → KORA tự ghi vào <code>.kb/lessons.md</code>: "Claude chưa xử lý tốt task [X] trong context [Y]" để lần sau không lặp lỗi (tự học, CLAUDE.md §0.3).</div></div>
+
+      <h2 class="sec">Giới hạn &amp; xử lý Hallucination</h2>
+      <p style="color:var(--muted)">Claude là <b>bộ khuếch đại</b>, KHÔNG thay phán đoán con người. Biết <b>khi nào KHÔNG nên</b> dùng Claude độc lập + nhận diện hallucinate:</p>
+      <table>
+        <tr><th>✅ Claude làm TỐT</th><th>⛔ KHÔNG nên dùng độc lập</th></tr>
+        <tr><td>Soạn thảo, format tài liệu</td><td>Quyết định ưu tiên feature (cần business judgment)</td></tr>
+        <tr><td>Generate template, checklist</td><td>Xác nhận yêu cầu với stakeholder</td></tr>
+        <tr><td>Phân tích, tìm edge case</td><td>Đánh giá technical feasibility (cần Dev)</td></tr>
+        <tr><td>Vẽ diagram từ mô tả</td><td>Thương lượng scope với khách hàng</td></tr>
+        <tr><td>Brainstorm câu hỏi · review logic, tìm mâu thuẫn</td><td>Rủi ro pháp lý / compliance · cam kết timeline &amp; resource</td></tr>
+      </table>
+      <table>
+        <tr><th>Dấu hiệu đang Hallucinate</th><th>Cách xử lý</th></tr>
+        <tr><td>Nhắc tên API / thư viện bạn chưa mention</td><td>Hỏi lại: "Bạn lấy thông tin này từ đâu?"</td></tr>
+        <tr><td>Số liệu rất cụ thể nhưng không có nguồn</td><td>Cung cấp thêm context, đính chính lại</td></tr>
+        <tr><td>Output mâu thuẫn context vừa cung cấp</td><td>"Chỉ dựa vào tài liệu tôi paste / KB, không dùng thông tin ngoài"</td></tr>
+        <tr><td>Tự bịa tên nhân vật / tổ chức không tồn tại</td><td>Nếu vẫn sai → làm thủ công phần đó</td></tr>
+      </table>
+      <div class="callout ok"><span>🛡️</span><div><b>KORA chống hallucinate sẵn:</b> bám tri thức KB + <b>trích nguồn theo file</b> (CLAUDE.md §1); thiếu thông tin → <code>[CẦN XÁC NHẬN]</code> (chuyên môn → <code>[CẦN XÁC NHẬN CHUYÊN MÔN]</code>), <b>không bịa</b>; mọi tri thức phải có trong <code>.kb/source-registry.json</code>.</div></div>
     </div>
 
     <!-- ===================== RELEASE ===================== -->
@@ -1348,11 +1527,24 @@ Migration Path: Phase 1 (import data, parallel run 1 tháng)
       <div class="phead"><div class="pl">I · Release Note</div><h1><span class="em">🆕</span>Lịch sử phiên bản</h1></div>
       <p class="lead">Lịch sử bản <b>APP</b> (CORE: skills, workflows, tools…). Cập nhật: chạy lại lệnh cài (bash CLI, tab <a data-go="install" style="cursor:pointer">C</a>) — <b>tri thức của bạn được giữ nguyên</b> (DATA không bị đụng).</p>
 
-      <div class="callout ok"><span>🆕</span><div><b>Bản mới nhất (latest): <code>v2.3.1</code> — "Kora-1"</b> · phát hành 2026-06-21. Tổng <b>19 bản</b>; danh sách đầy đủ ở <a href="https://github.com/isc-fkit/Kora-Framework/blob/release/CHANGELOG.md">CHANGELOG.md</a>.</div></div>
+      <div class="callout ok"><span>🆕</span><div><b>Bản mới nhất (latest): <code>v2.3.2</code> — "Kora-1"</b> · phát hành 2026-06-21. Tổng <b>20 bản</b>; danh sách đầy đủ ở <a href="https://github.com/isc-fkit/Kora-Framework/blob/release/CHANGELOG.md">CHANGELOG.md</a>.</div></div>
 
       <div class="card" style="border-color:var(--accent)">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.3.1 — "Kora-1" <span style="display:inline-block;margin-left:6px;padding:2px 9px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;font-size:10.5px;font-weight:800;vertical-align:2px">MỚI NHẤT</span></b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
+          <b style="font-size:16px">v2.3.2 — "Kora-1" <span style="display:inline-block;margin-left:6px;padding:2px 9px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;font-size:10.5px;font-weight:800;vertical-align:2px">MỚI NHẤT</span></b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
+        </div>
+        <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
+          <li><b>Windows toàn diện như macOS/Linux</b> — import-kb.bat nhận gói archive USER (marker · key READ · cred báo lỗi · py).</li>
+          <li><b>Luồng phân tích ép ĐÚNG THỨ TỰ prompt 01→20</b> theo <code>_index</code> (lọc theo vai trò, bước sau dựa bước trước).</li>
+          <li><b>Landing bổ sung</b>: Responsible AI &amp; bảo mật dữ liệu · Quality Gate 3 tầng · kỹ thuật prompt · giới hạn &amp; hallucination · 4 cổng tuân thủ phân tích.</li>
+          <li><b>Thêm ví dụ output Tốt/Chưa tốt</b> (Business Rule · NFR · API) · card mã nguồn + mục tiêu chuẩn ngành.</li>
+          <li><b>/kora-daily-report</b> gắn đúng cổng 🔒 · skill <code>/kora-release</code> đồng bộ 5 nhánh env.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
+          <b style="font-size:16px">v2.3.1 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>Lịch nền chạy LOCAL ngoài sandbox</b> — gọi API + gửi mail được (Cowork sandbox chặn); vá lỗi orchestrator không nạp <code>KORA_OPS_PW</code>.</li>
@@ -1422,15 +1614,10 @@ Migration Path: Phase 1 (import data, parallel run 1 tháng)
         </ul>
       </div>
 
-      <div class="card">
-        <b style="font-size:16px">🔜 Đang phát triển (sắp phát hành — chưa nằm trong v2.3.1)</b>
-        <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
-          <li><b>github-sync</b> — đẩy Knowledge Base lên GitHub private (git push, versioning US ↔ Change-Request).</li>
-          <li><b>Cổng mật khẩu vận hành</b> <code>KORA_OPS_PW</code> cho <code>/kora-sync</code> · <code>/kora-send-mail</code> · bước sync <code>/kora-schedule</code>.</li>
-          <li><b>Báo cáo</b>: giờ công chuẩn vs đã log + OT, phân tích theo chuẩn Cloud, lọc đa chiều.</li>
-          <li><b>Thư viện 20 prompt + đầu ra chuẩn tự động</b>; trang hướng dẫn đa-tab (design <code>ba-claude-guide</code>).</li>
-        </ul>
-      </div>
+      <a href="https://github.com/isc-fkit/Kora-Framework" class="card" style="border-color:var(--accent2);display:flex;align-items:center;gap:13px;text-decoration:none">
+        <svg viewBox="0 0 24 24" width="32" height="32" fill="#e8ebf2" aria-hidden="true" style="flex:none"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.5 11.5 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222 0 1.606-.014 2.898-.014 3.293 0 .322.216.694.825.576C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+        <span><b style="color:#fff;font-size:15px">📦 Mã nguồn</b><span style="color:var(--accent);font-size:13.4px"> — github.com/isc-fkit/Kora-Framework</span></span>
+      </a>
     </div>
 
     <!-- ===================== APPENDIX ===================== -->
@@ -1447,9 +1634,9 @@ Migration Path: Phase 1 (import data, parallel run 1 tháng)
         <tr><td><code>/kora-import-files</code></td><td>Nạp PDF / DOCX / ảnh / zip</td><td>—</td></tr>
         <tr><td><code>/kora-sync</code></td><td>Đẩy Knowledge Base lên Confluence / GitHub private</td><td>🔒 (Admin permission)</td></tr>
         <tr><td><code>/kora-send-mail</code></td><td>Gửi báo cáo, ngay / đặt lịch</td><td>🔒 (Admin permission)</td></tr>
-        <tr><td><code>/kora-schedule</code></td><td>Lịch HĐH: get → report → mail → sync</td><td>🔒 (bước sync)</td></tr>
+        <tr><td><code>/kora-schedule</code></td><td>Lịch HĐH (local): scan → report → mail → sync; quản lý HĐH+Cowork</td><td>🔒 (post/report/mail/sync · scan KHÔNG cần)</td></tr>
         <tr><td><code>/kora-alert-mail</code></td><td>Mail cảnh báo sự cố (issue ticket) — override mọi lịch</td><td>—</td></tr>
-        <tr><td><code>/kora-daily-report</code></td><td>Báo cáo tiến độ (lọc, theo thời gian)</td><td>—</td></tr>
+        <tr><td><code>/kora-daily-report</code></td><td>Báo cáo tiến độ (lọc, theo thời gian) — kéo dữ liệu live</td><td>🔒 (Admin permission)</td></tr>
         <tr><td><code>/kora-archive</code></td><td>Đóng gói Knowledge Base phân quyền + mật khẩu</td><td>🔑 Archive</td></tr>
         <tr><td><code>/kora-export-docs</code></td><td>Xuất DOCX / PDF theo doc template</td><td>—</td></tr>
         <tr><td><code>/kora-export-knowledge-base</code></td><td>Xuất toàn bộ Knowledge Base ra zip</td><td>—</td></tr>
@@ -1539,7 +1726,21 @@ Trạng thái: Pass / Fail / Blocked</code></pre></div>
 
       <h2 class="sec">VI · Cấu hình &amp; cấu trúc</h2>
       <p style="color:var(--muted)">Tất cả trong <code>config/factory-config.yaml</code> (DATA, gitignore) — mẫu <code>factory-config.example.yaml</code>. Mọi giá trị động (đường dẫn, domain, vault, lịch, target sync, người nhận mail, banner) — không hardcode. Mã nguồn: <a href="https://github.com/isc-fkit/Kora-Framework">github.com/isc-fkit/Kora-Framework</a>.</p>
-      <footer><b>FPT Telecom</b> · KORA AI — Kora-1 · <a href="https://github.com/isc-fkit/Kora-Framework">GitHub</a></footer>
+
+      <h2 class="sec">VII · Tiêu chuẩn ngành &amp; tài liệu tham khảo</h2>
+      <p style="color:var(--muted)">KORA bám các <b>chuẩn mở</b> khi xây dựng &amp; tài liệu hóa một framework lớn — README, versioning, changelog, commit, cấu hình, license:</p>
+      <table>
+        <tr><th>Lĩnh vực</th><th>Chuẩn / tài liệu tham khảo</th></tr>
+        <tr><td><b>README &amp; cấu trúc tài liệu</b></td><td><a href="https://www.makeareadme.com/" target="_blank" rel="noopener">Make a README</a> · <a href="https://github.com/RichardLitt/standard-readme" target="_blank" rel="noopener">Standard Readme</a> · <a href="https://diataxis.fr/" target="_blank" rel="noopener">Diátaxis</a> (tutorial · how-to · reference · explanation)</td></tr>
+        <tr><td><b>Phiên bản (versioning)</b></td><td><a href="https://semver.org/lang/vi/" target="_blank" rel="noopener">Semantic Versioning 2.0</a> — KORA: <code>vX.Y.Z</code> "Kora-1"</td></tr>
+        <tr><td><b>Changelog</b></td><td><a href="https://keepachangelog.com/vi/1.0.0/" target="_blank" rel="noopener">Keep a Changelog</a> — <code>CHANGELOG.md</code> theo bản, kèm migration note</td></tr>
+        <tr><td><b>Commit message</b></td><td><a href="https://www.conventionalcommits.org/" target="_blank" rel="noopener">Conventional Commits</a></td></tr>
+        <tr><td><b>Cấu hình ứng dụng</b></td><td><a href="https://12factor.net/" target="_blank" rel="noopener">The Twelve-Factor App</a> — config qua env (KORA: token ở shell env, không hardcode)</td></tr>
+        <tr><td><b>Open source &amp; license</b></td><td><a href="https://opensource.guide/" target="_blank" rel="noopener">Open Source Guides</a> · <a href="https://www.contributor-covenant.org/" target="_blank" rel="noopener">Contributor Covenant</a> · <a href="https://choosealicense.com/" target="_blank" rel="noopener">Choose a License</a></td></tr>
+      </table>
+      <div class="callout"><span>📄</span><div><b>Tài liệu dự án (GitHub Pages / repo):</b> <a href="https://github.com/isc-fkit/Kora-Framework/blob/release/README.md" target="_blank" rel="noopener">README.md</a> · <a href="https://github.com/isc-fkit/Kora-Framework/blob/release/CHANGELOG.md" target="_blank" rel="noopener">CHANGELOG.md</a> · <a href="https://github.com/isc-fkit/Kora-Framework/releases" target="_blank" rel="noopener">Releases</a> · trang giới thiệu này được deploy qua GitHub Pages.</div></div>
+
+      <footer><b>FPT Telecom</b> · KORA AI — Kora-1 · <a href="https://github.com/isc-fkit/Kora-Framework">GitHub</a> · theo Semantic Versioning &amp; Keep a Changelog</footer>
     </div>
 
   </main>

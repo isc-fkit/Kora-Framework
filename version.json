@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.3.1",
+  "version": "2.3.2",
   "codename": "Kora-1",
   "released": "2026-06-21",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.3.1: Lịch nền chạy LOCAL ngoài sandbox (gọi API/gửi mail được). Cổng mật khẩu nay CHỈ gác post/report/mail/sync — SCAN tri thức KHÔNG cần mật khẩu. /kora-schedule hỏi mật khẩu để rẽ luồng: không có → chỉ đặt lịch SCAN; có → đầy đủ (chọn Jira→project report → người nhận mail → thời gian → email ticket sự cố). Sửa lỗi orchestrator không nạp KORA_OPS_PW (tự nạp ~/.config/kora/ops-pw.env). Email ticket sự cố ship sẵn trong archive → gói USER lỗi tự báo người phụ trách (cred SMTP no-reply). Import/scan nay áp domain-rules + template + prompt flow (chung chuẩn với phân tích). Quản lý đầy đủ task Cowork (RAM/disk) qua /kora-schedule."
+  "intro": "Kora-Framework v2.3.2: Hỗ trợ Windows TOÀN DIỆN như macOS/Linux — viết lại import-kb.bat nhận gói archive USER (marker .kora-user, key READ, cred báo lỗi SMTP no-reply, py). Luồng phân tích nay ép ĐÚNG THỨ TỰ prompt 01→20 theo _index (lọc theo vai trò, bước sau dựa bước trước). Trang giới thiệu bổ sung: Responsible AI & bảo mật dữ liệu (3 nhóm Xanh/Vàng/Đỏ + checklist ẩn danh), Quality Gate 3 tầng, kỹ thuật prompt + daily checklist, giới hạn & hallucination, thêm ví dụ output Tốt/Chưa tốt (BR/NFR/API), card mã nguồn + tiêu chuẩn ngành (SemVer/Keep a Changelog/12-factor…). /kora-daily-report gắn đúng cổng mật khẩu. Skill /kora-release đồng bộ 5 nhánh env."
 }

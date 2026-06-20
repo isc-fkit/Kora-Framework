@@ -10,6 +10,27 @@
 
 ---
 
+## v2.3.2 "Kora-1" — 2026-06-21
+
+- **Windows TOÀN DIỆN như macOS/Linux** — viết lại `scripts/import-kb.bat` ngang `import-kb.command`:
+  nhận diện **gói archive** (`kora-archive/`), đặt key READ → `confluence-sync\.env.local`, cred báo lỗi
+  SMTP → `report-mailer\.env.local`, tạo marker `.kora-user`, tìm cả `kora-archive-*.zip`, reindex bằng `py`.
+  (Trước đây gói USER import trên Windows sẽ lỗi.)
+- **Luồng phân tích ép ĐÚNG THỨ TỰ prompt** — `workflows/03-request.md` nay bám chuỗi prompt **01→20** theo
+  `templates/prompts/_index.md` (lọc theo vai trò; bước sau dựa bước trước, thiếu đầu vào → `[CẦN XÁC NHẬN]`,
+  không nhảy cóc).
+- **Trang giới thiệu (landing) bổ sung — adapt từ BA Claude Guide:** Responsible AI & bảo mật dữ liệu (3 nhóm
+  🟢🟡🔴 + checklist ẩn danh 2 phút) · Quality Gate 3 tầng + review checklist · kỹ thuật prompt (6) + daily
+  checklist · giới hạn & hallucination · **4 cổng tuân thủ phân tích** (domain → workflow → template → thứ tự
+  prompt) · thêm ví dụ output Tốt/Chưa tốt (Business Rule, NFR, API) · **card mã nguồn** + mục **tiêu chuẩn
+  ngành** (Make a README · SemVer · Keep a Changelog · Conventional Commits · 12-factor…).
+- **`/kora-daily-report` gắn đúng cổng mật khẩu** 🔒 (Admin permission) ở danh sách chức năng + bảng lệnh
+  (kéo dữ liệu live → `KORA_OPS_PW`).
+- **Skill `/kora-release` + `workflows/12-release.md`** đồng bộ thực tế: phát hành đẩy **cả 5 nhánh env**
+  (`dev/qc/uat/release/main`) cùng 1 commit + ff-merge an toàn.
+
+> **Cập nhật:** thuần CORE, không cần migration DATA.
+
 ## v2.3.1 "Kora-1" — 2026-06-21
 
 - **Lịch nền chạy LOCAL — gọi API/gửi mail được (Cowork sandbox chặn).** Khẳng định lịch HĐH
