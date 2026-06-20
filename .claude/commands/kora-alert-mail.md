@@ -23,7 +23,7 @@ rỗng → nói rõ: hiện đang dùng người nhận của **từng lịch** 
 
 ### Bước 3 — Người nhận (override toàn cục)
 - Hiện danh sách `scheduler.error_recipients`. AskUserQuestion **thêm** (ô **"Other"** gõ email mới) /
-  **xóa** (chọn email đang có) — lặp tới khi hài lòng. Gợi ý nhanh: chào các email trong `reports.email.recipients`
+  **xóa** (chọn email đang có) — lặp tới khi hài lòng. Gợi ý nhanh: chào các email trong `reports.email.to`
   (danh bạ) để chọn lại.
 - ✋ **Đọc lại danh sách cuối cho user xác nhận** (mail = hành động ra ngoài).
 - Ghi **INLINE list** (bắt buộc — để orchestrator đọc được): `error_recipients: [a@x.com, b@y.com]`.

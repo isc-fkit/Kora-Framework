@@ -114,6 +114,11 @@ if [ "$ARCHIVE_MODE" = 1 ] && [ "$PKG_TYPE" = "user" ]; then
     cp "$PKG_ROOT/.env.local" "$REPO_ROOT/tools/confluence-sync/.env.local"
     echo "🔑 Đã đặt key READ cloud-KB vào tools/confluence-sync/.env.local (chỉ GET)."
   fi
+  if [ -f "$PKG_ROOT/notify-smtp.env" ]; then
+    mkdir -p "$REPO_ROOT/tools/report-mailer"
+    cp "$PKG_ROOT/notify-smtp.env" "$REPO_ROOT/tools/report-mailer/.env.local"
+    echo "📨 Đã đặt cred SMTP no-reply báo lỗi vào tools/report-mailer/.env.local → lịch USER lỗi sẽ email người phụ trách."
+  fi
   printf 'package=user\nimported_at=%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$REPO_ROOT/.kora-user"
   echo "🏷  Đã tạo .kora-user → máy này là GÓI NGƯỜI DÙNG: TẮT báo cáo/gửi mail; chỉ get&post KB chung."
   echo ""

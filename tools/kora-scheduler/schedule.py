@@ -436,6 +436,20 @@ def cmd_register(args):
               f"Post={entry['post_list']} → {artifact}")
     else:
         print(f"⚠️  Lịch '{sid}' đã LƯU vào danh sách nhưng {INSTALL_FAIL_HINT}")
+    _warn_if_ops_pw_missing()
+
+
+def _warn_if_ops_pw_missing():
+    """Lịch nền gác CẢ lượt bằng KORA_OPS_PW. launchd/cron không có shell env → cần file ops-pw.env.
+    Thiếu file → mỗi lượt nền bỏ TOÀN BỘ. Nhắc user tạo (KHÔNG in/hỏi mật khẩu)."""
+    candidates = [Path.home() / ".config" / "kora" / "ops-pw.env",
+                  Path.home() / ".kora" / "ops-pw.env"]
+    if any(p.exists() for p in candidates):
+        return
+    target = candidates[0]
+    print("🔑 LƯU Ý: lịch nền cần mật khẩu vận hành trong file (launchd/cron không có shell env).")
+    print(f"   Tạo 1 lần:  mkdir -p \"{target.parent}\" && printf 'KORA_OPS_PW=<mật khẩu>\\n' > \"{target}\" && chmod 600 \"{target}\"")
+    print("   (Windows: %USERPROFILE%\\.kora\\ops-pw.env). Thiếu file → mỗi lượt nền BỎ TOÀN BỘ (kể cả scan).")
 
 
 def cmd_remove(args):

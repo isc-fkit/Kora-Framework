@@ -2,11 +2,11 @@
 """
 orchestrator.py — Chu trình lịch chạy NỀN của Kora (không cần app Claude).
 
-Một lần `--run <id>`: CỔNG MẬT KHẨU (KORA_OPS_PW) gác cả lượt → SCAN/auto-get các nguồn
-(lỗi thì skip + ghi log) → reindex → ĐẨY (post) lên Confluence chung → đánh dấu độ mới →
-sinh report → gửi mail (nếu HOST) → có lỗi thì TẠO TICKET ISSUE + email danh sách nhận.
-Cổng sai/thiếu → BỎ QUA TOÀN BỘ (kể cả auto-get), chỉ cảnh báo. KHÔNG fail im — exit code
-ok(0)/partial(2)/failed(1).
+Một lần `--run <id>`: SCAN/auto-get các nguồn (KHÔNG gác — luôn chạy) → reindex → **CỔNG MẬT
+KHẨU (KORA_OPS_PW)** mới gác bước GHI/PHÁT RA NGOÀI → ĐẨY (post) Confluence → đánh dấu độ mới →
+sinh report → gửi mail (nếu HOST) → có lỗi thì TẠO TICKET ISSUE + email người phụ trách.
+Cổng sai/thiếu → CHỈ chạy scan (kéo tri thức về), BỎ post/report/mail/sync, chỉ cảnh báo.
+KHÔNG fail im — exit code ok(0)/partial(2)/failed(1).
 
 Đọc cấu hình từ config/factory-config.yaml + lịch từ tools/kora-scheduler/schedules.json.
 Chỉ thư viện chuẩn Python 3. KHÔNG in secret.
@@ -115,10 +115,43 @@ def run_tool(script: Path, args, extra_env=None, cwd=None):
 
 GATE_SCRIPT = REPO_ROOT / "tools" / "archive-gate" / "verify_ops_password.py"
 
+# File mật khẩu vận hành cho LỊCH NỀN — vì launchd/cron/schtasks KHÔNG có shell env tương tác.
+# Đặt 1 lần: ghi `KORA_OPS_PW=<mật khẩu>` vào file dưới (chmod 600). orchestrator TỰ nạp lúc chạy.
+OPS_ENV_FILES = [
+    Path.home() / ".config" / "kora" / "ops-pw.env",   # macOS/Linux (khuyến nghị)
+    Path.home() / ".kora" / "ops-pw.env",              # Windows: %USERPROFILE%\.kora\ops-pw.env
+]
+
+
+def load_ops_env():
+    """Nạp KORA_OPS_PW (và biến khác) từ file env vào os.environ cho lịch nền.
+
+    launchd/cron/schtasks chạy orchestrator TRỰC TIẾP (không qua shell login) nên KORA_OPS_PW
+    không có sẵn → cổng mật khẩu sẽ fail và bỏ cả lượt. Hàm này nạp từ OPS_ENV_FILES, CHỈ đặt
+    biến CHƯA có trong môi trường (không ghi đè khi chạy tay đã export). KHÔNG in giá trị."""
+    for p in OPS_ENV_FILES:
+        try:
+            if not p.exists():
+                continue
+            for line in p.read_text(encoding="utf-8").splitlines():
+                s = line.strip()
+                if not s or s.startswith("#"):
+                    continue
+                if s.startswith("export "):
+                    s = s[7:].strip()
+                if "=" not in s:
+                    continue
+                k, v = s.split("=", 1)
+                k, v = k.strip(), v.strip().strip('"').strip("'")
+                if k and k not in os.environ:
+                    os.environ[k] = v
+        except OSError:
+            continue
+
 
 def ops_gate() -> bool:
     """Cổng mật khẩu vận hành cho bước GHI/PHÁT ra ngoài (POST/MAIL/SYNC) trong lịch nền.
-    Mật khẩu lấy từ env KORA_OPS_PW (wrapper source ~/.config/kora/ops-pw.env). KHÔNG in mật khẩu."""
+    Mật khẩu lấy từ env KORA_OPS_PW (orchestrator tự nạp từ ~/.config/kora/ops-pw.env). KHÔNG in mật khẩu."""
     rc, _o, _e = run_tool(GATE_SCRIPT, [])
     return rc == 0
 
@@ -219,6 +252,7 @@ def main():
     ap.add_argument("--dry-run", action="store_true", help="In kế hoạch, không thực thi.")
     args = ap.parse_args()
 
+    load_ops_env()  # nạp KORA_OPS_PW từ file cho lịch nền (launchd/cron không có shell env)
     cfg = load_config(CONFIG)
     sch = load_schedule(args.run)
     if not sch:
@@ -240,19 +274,22 @@ def main():
     is_user_pkg = (cfg.get("package.type") or "host").lower() == "user" or (REPO_ROOT / ".kora-user").exists()
     started = now_iso()
     try:
-        # 0) CỔNG MẬT KHẨU vận hành — gác TOÀN BỘ lượt chạy, KỂ CẢ auto-get/scan.
-        #    Sai/thiếu KORA_OPS_PW → KHÔNG get/scan, KHÔNG post/report/mail/sync; chỉ cảnh báo cuối lượt.
+        # 0) CỔNG MẬT KHẨU vận hành — chỉ gác bước GHI/PHÁT RA NGOÀI (post · report · mail · sync).
+        #    SCAN/auto-get (kéo tri thức VỀ local) KHÔNG bị gác → vẫn chạy khi thiếu/sai mật khẩu.
         gate_ok = True
         if not args.dry_run:
             gate_ok = ops_gate()
-            if not gate_ok:
-                log("🔒 Cổng mật khẩu KHÔNG qua (KORA_OPS_PW sai/thiếu) → "
-                    "BỎ QUA TOÀN BỘ lượt: auto-get/scan, post, report, mail, sync.")
+        wants_outward = bool(sch.get("post_list") or (sch.get("report") or {}).get("enabled")
+                             or (sch.get("email") or {}).get("enabled") or (sch.get("sync") or {}).get("enabled"))
+        if not gate_ok:
+            log("🔒 Thiếu/sai KORA_OPS_PW → CHỈ chạy SCAN (kéo tri thức về). "
+                "BỎ QUA post · report · mail · sync.")
+            if wants_outward:
                 run_errors.append({"step": "gate",
-                                   "reason": "KORA_OPS_PW sai/thiếu — bỏ toàn bộ lượt (kể cả auto-get)"})
+                                   "reason": "Thiếu KORA_OPS_PW — đã chạy scan, BỎ QUA post/report/mail/sync"})
 
-        # 1) SCAN (auto-get) — CHỈ khi qua cổng
-        for tok in (sch.get("scan_list", []) if (gate_ok or args.dry_run) else []):
+        # 1) SCAN (auto-get) — LUÔN chạy (KHÔNG gác): kéo tri thức mới về local.
+        for tok in sch.get("scan_list", []):
             kind, _, name = tok.partition(":")
             log(f"SCAN {tok}")
             if args.dry_run:
@@ -272,8 +309,8 @@ def main():
             else:
                 sources.append({"name": tok, "fresh": True, "error": None})
 
-        # 2) REINDEX — chỉ khi qua cổng (có thể vừa quét dữ liệu mới)
-        if gate_ok and not args.dry_run:
+        # 2) REINDEX — LUÔN (sau scan, để index/graph khớp dữ liệu mới). Local, không gác.
+        if not args.dry_run:
             run_tool(REPO_ROOT / "tools" / "kb-indexer" / "build_index.py", ["--root", "."])
 
         # 3) POST (đẩy lên Confluence chung) — chỉ khi qua cổng

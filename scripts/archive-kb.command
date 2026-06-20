@@ -82,6 +82,23 @@ else
   echo "ℹ️  Không có KORA_CLOUD_READ_TOKEN → gói KHÔNG kèm key đọc (user tự cấu hình sau)."
 fi
 
+# --- (Tùy chọn) Cred SMTP NO-REPLY báo lỗi → để gói USER tự email người phụ trách khi lịch lỗi ----
+# Chỉ ship khi HOST cung cấp (KHÔNG dùng mail cá nhân host). Gửi 1 chiều, đặt vào report-mailer/.env.local lúc import.
+if [ -n "${KORA_NOTIFY_SMTP_USER:-}" ] && [ -n "${KORA_NOTIFY_SMTP_PASS:-}" ]; then
+  cat > "$STAGE/notify-smtp.env" <<EOF
+# SMTP NO-REPLY báo SỰ CỐ (ship trong archive USER) — gửi 1 chiều cho người phụ trách khi lịch nền lỗi.
+SMTP_HOST=${KORA_NOTIFY_SMTP_HOST:-smtp.gmail.com}
+SMTP_PORT=${KORA_NOTIFY_SMTP_PORT:-587}
+SMTP_SECURITY=${KORA_NOTIFY_SMTP_SECURITY:-starttls}
+SMTP_USER=${KORA_NOTIFY_SMTP_USER}
+SMTP_PASS=${KORA_NOTIFY_SMTP_PASS}
+MAIL_FROM=${KORA_NOTIFY_MAIL_FROM:-${KORA_NOTIFY_SMTP_USER}}
+EOF
+  echo "📨 Đã ship cred SMTP no-reply báo lỗi (notify-smtp.env trong gói) → USER lỗi sẽ email người phụ trách."
+else
+  echo "ℹ️  Không có KORA_NOTIFY_SMTP_USER/PASS → gói USER lỗi chỉ GHI LOG cục bộ (không email người phụ trách)."
+fi
+
 # --- manifest + marker (KHÔNG secret trong manifest) -------------------------
 cat > "$STAGE/manifest.json" <<EOF
 {

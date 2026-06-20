@@ -10,6 +10,32 @@
 
 ---
 
+## v2.3.1 "Kora-1" — 2026-06-21
+
+- **Lịch nền chạy LOCAL — gọi API/gửi mail được (Cowork sandbox chặn).** Khẳng định lịch HĐH
+  (launchd/cron/schtasks) chạy như tiến trình local (đúng mạng/VPN, tới Jira nội bộ). Mọi lịch có
+  scan/report/mail/sync → bắt buộc dùng Máy (OS), không Cowork.
+- **SỬA lỗi orchestrator không nạp `KORA_OPS_PW`.** launchd/cron không có shell env → cổng luôn fail →
+  trước đây bỏ cả lượt. Nay `orchestrator.py` **tự nạp** `~/.config/kora/ops-pw.env`
+  (Windows `%USERPROFILE%\.kora\ops-pw.env`); `schedule.py register` nhắc tạo file nếu thiếu.
+- **Cổng mật khẩu CHỈ gác outward — SCAN không gác.** scan/get + reindex LUÔN chạy (kéo tri thức về);
+  chỉ **post/report/mail/sync** cần `KORA_OPS_PW`. Thiếu mật khẩu → vẫn scan, bỏ outward (không fail cứng).
+- **`/kora-schedule` hỏi mật khẩu để RẼ LUỒNG (Bước 1.5):** sai/không có → chỉ tạo lịch **SCAN-ONLY**;
+  đúng → luồng **ĐẦY ĐỦ**: scan → chọn **Jira→project** tạo report → **người nhận mail** → **thời gian/tần
+  suất** → **email ticket sự cố** → (tùy chọn) sync.
+- **Email ticket sự cố áp dụng sẵn cho ARCHIVE.** `scheduler.error_recipients` (người phụ trách) +
+  `ticket_issue` đi theo gói; ship thêm **cred SMTP no-reply** (`KORA_NOTIFY_SMTP_*` → `notify-smtp.env`) để
+  **gói USER khi lỗi tự email người phụ trách**. Thiếu cred → USER chỉ log cục bộ.
+- **Quản lý ĐẦY ĐỦ task Cowork (RAM+disk) ở `/kora-schedule`:** bật/tắt/sửa giờ/sửa prompt qua
+  `update_scheduled_task`; xóa hẳn = sửa registry `scheduled-tasks.json` + restart (MCP không có delete).
+- **Import/scan áp CHUẨN phân tích:** WF02 + `/kora-scan` nay đọc `domain-rules.md` + áp cổng vai
+  trò/domain/template + ghi theo **ĐỊNH DẠNG CHUẨN** `ba-prompt-library.md` + `templates/` — chung chuẩn đầu ra
+  với workflow 03.
+- **Thống nhất `reports.email.to`** (bỏ `recipients` sai) trong kora-schedule/send-mail/alert-mail.
+
+> **Cập nhật:** thuần CORE, không cần migration DATA. Lịch nền có report/mail → tạo
+> `~/.config/kora/ops-pw.env` (chmod 600) để cổng qua được.
+
 ## v2.3.0 "Kora-1" — 2026-06-21
 
 - **SỬA lịch HĐH: nhiều mốc giờ + Thứ 2–6 nay chạy ĐÚNG trên mọi OS.**

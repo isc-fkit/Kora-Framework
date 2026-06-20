@@ -13,19 +13,20 @@
 | Quản lý | `tools/kora-scheduler/schedule.py` (register/list/edit/remove/**enable/disable**) | panel "Scheduled tasks" của app |
 
 - **Máy (HĐH):** dùng `scripts/schedule.command` / `.bat` → `schedule.py`. Job chạy
-  `tools/kora-scheduler/orchestrator.py --run <id>`: **CỔNG MẬT KHẨU (`KORA_OPS_PW`) gác CẢ lượt →
-  scan/auto-get → reindex → POST Confluence → report → mail → lỗi thì ticket**. Cổng sai/thiếu →
-  bỏ TOÀN BỘ lượt (kể cả auto-get), chỉ cảnh báo — KHÔNG fail cứng. Đây là cách đáp ứng "chạy đúng
+  `tools/kora-scheduler/orchestrator.py --run <id>`: **scan/auto-get (KHÔNG gác) → reindex → [CỔNG `KORA_OPS_PW`]
+  → POST Confluence → report → mail → (sync) → lỗi thì ticket + email người phụ trách**. Cổng sai/thiếu →
+  **vẫn scan/get**, chỉ bỏ post/report/mail/sync, cảnh báo — KHÔNG fail cứng. Đây là cách đáp ứng "chạy đúng
   giờ trong máy, không qua sandbox". Xem chi tiết ở **Mục A-HĐH** bên dưới.
 - **Cowork:** giữ nguyên cách cũ (`mcp__scheduled-tasks__create_scheduled_task`) — Bước 1–3 + Mục B.
 - **Liệt kê = hợp nhất** cả hai: `schedule.py list` + `mcp__scheduled-tasks__list_scheduled_tasks`.
 
 ## Mục A-HĐH — Lịch get & post cấp hệ điều hành
 
-> 🔒 **CỔNG MẬT KHẨU gác CẢ lượt (kể cả auto-get).** Mỗi lần orchestrator chạy, việc ĐẦU TIÊN là
-> `verify_ops_password.py` (env `KORA_OPS_PW`). Sai/thiếu → **bỏ TOÀN BỘ lượt**: không scan/get, không
-> post/report/mail/sync (chỉ ghi log + cảnh báo, không fail cứng). ⇒ Lịch nền PHẢI có mật khẩu ở
-> `~/.config/kora/ops-pw.env` (chmod 600) để wrapper source — kể cả lịch chỉ-get. KHÁC mật khẩu archive.
+> 🔒 **CỔNG MẬT KHẨU gác bước PHÁT RA NGOÀI — KHÔNG gác scan/get.** Orchestrator: chạy **scan/get + reindex
+> trước (không cần mật khẩu)**, rồi `verify_ops_password.py` (env `KORA_OPS_PW`) mới mở **post/report/mail/sync**.
+> Sai/thiếu → **vẫn scan/get**, chỉ bỏ post/report/mail/sync (ghi log + cảnh báo, không fail cứng). ⇒ Lịch nền có
+> outward PHẢI có mật khẩu ở `~/.config/kora/ops-pw.env` (Windows `%USERPROFILE%\.kora\ops-pw.env`), nội dung
+> `KORA_OPS_PW=<mk>`, chmod 600 — `orchestrator.py` **TỰ nạp** lúc chạy (không cần wrapper). KHÁC mật khẩu archive.
 
 1. **Tiền kiểm:** mỗi nguồn trong scan/post-list phải có credential **chạy nền được**
    (PAT/API token/OAuth còn refresh) — cron không mở trình duyệt. Kiểm bằng
@@ -122,8 +123,9 @@ Báo user: lịch đã đặt, chạy lúc nào, đồng bộ kiểu gì, đổi
 
 **Cách thay thế (chỉ khi app mở) — Cowork scheduled task qua `/schedule`:** chạy trọn chu trình mỗi ngày —
 **kéo dữ liệu → sinh report tiến độ (workflow 14) → (tùy chọn) tự gửi email**. Task chạy LOCAL khi máy thức
-và hiện trong panel "Scheduled tasks" của Cowork (KHÔNG nằm trong `/kora-schedule`; MCP không có hàm xóa —
-gỡ bằng nút trong panel app). ✋ Automation thường trực → **confirm trước khi tạo**.
+và hiện trong panel "Scheduled tasks" của Cowork. **Vẫn quản lý được ở `/kora-schedule` Bước 2 mục B**:
+bật/tắt/sửa giờ/sửa prompt qua `update_scheduled_task`; xóa hẳn = sửa registry `scheduled-tasks.json` + restart
+(MCP không có hàm delete). ✋ Automation thường trực → **confirm trước khi tạo**.
 
 1. **Hỏi tần suất** (mặc định **8:00 mỗi sáng** `0 8 * * *`) như Bước 1.
 
@@ -167,8 +169,12 @@ giá trị mới — KHÔNG phải sửa/tạo lại task** (đáp ứng "thêm/
 > ⏰ Chạy bù khi mở app (như lịch sync). Lịch nền có thể thiếu MCP/connector → đã có nhánh "báo cũ +
 > hướng dẫn" / "thiếu creds → báo, không fail" để không bao giờ fail im lặng.
 >
-> 🗂 **Scope `/schedule` (quan trọng):** task tạo qua `/schedule` đăng ký theo **phiên/agent tạo ra nó**.
-> Để task hiện trong panel **"Scheduled tasks" của Cowork app**, phải chạy luồng này **TRONG Cowork app**
-> (chạy ở phiên Claude Code khác sẽ tạo task ở scope khác, KHÔNG hiện trong panel đó). Registry thật nằm ở
-> `~/Library/Application Support/Claude/claude-code-sessions/<...>/scheduled-tasks.json` (service giữ trong
-> RAM — sửa file phải đóng app rồi mở lại). **MCP không có hàm delete** → gỡ task bằng nút xoá trong panel app.
+> 🗂 **Quản lý task Cowork (RAM + disk) — `/kora-schedule` Bước 2 mục B làm được:**
+> - **Bật/Tắt · Sửa giờ · Sửa prompt** → `mcp__scheduled-tasks__update_scheduled_task`
+>   (`{taskId, enabled}` / `{cronExpression}` / `{prompt}`) — ghi thẳng service, KHÔNG cần restart.
+> - **Xóa hẳn** (MCP KHÔNG có hàm delete) → xóa entry trong registry
+>   `~/Library/Application Support/Claude/claude-code-sessions/<...>/scheduled-tasks.json` (sao lưu `.bak`, giữ JSON
+>   hợp lệ) + xóa `~/.claude/scheduled-tasks/<id>/`, rồi **khởi động lại app** để service nạp lại (giữ RAM), hoặc
+>   nút thùng rác trong panel. Đừng đụng registry `local-agent-mode-sessions/...` (project khác).
+> - **Scope:** task tạo qua `/schedule` đăng ký theo phiên/agent tạo ra; muốn hiện trong panel Cowork thì tạo
+>   **trong Cowork app**.

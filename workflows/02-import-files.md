@@ -52,6 +52,11 @@ như không có sơ đồ ảnh (không bịa). Với mỗi ảnh sơ đồ đã
 
 ## Bước 3 — Phân loại (Auto Classifier)
 
+> 📐 **Đọc `config/domain-rules.md` TRƯỚC khi phân loại** (như mọi phiên phân tích — CLAUDE.md §0.1/§2):
+> phân loại + nhận diện thuật ngữ/rule thận trọng theo domain hiện hành (vd Healthcare: tách "hiển thị
+> thông tin" vs "tư vấn y tế"). Nếu vai trò/domain CHƯA chốt trong phiên → áp cổng vai trò/domain/template
+> (`workflows/03-request.md` Bước 0) 1 lần rồi nhớ cho cả phiên.
+
 Phân mỗi tài liệu/đoạn thành: project, epic, user_story, requirement,
 business_rule_candidate, acceptance_criteria_candidate, design_note, api_spec,
 test_case, bug_report, decision_candidate, domain_knowledge, unknown.
@@ -84,6 +89,13 @@ Rồi hỏi:
 KHÔNG ghi bất cứ gì vào `docs/` hay vault khi user chưa chọn [A]/[B].
 
 ## Bước 6 — Ghi KB (chỉ sau approve)
+
+> 📋 **ÁP TEMPLATE + ĐẦU RA CHUẨN (giống workflow 03):** mọi artifact ghi ra theo **ĐỊNH DẠNG CHUẨN TỰ
+> ĐỘNG** của `templates/prompts/ba-prompt-library.md` (US-[ID] As a/I want/So that · AC Given-When-Then đủ
+> happy+edge+negative · BR-[ID] · validation · FR/NFR · test TC-[ID]) và **cấu trúc template** trong
+> `templates/` (feature `F-xxx/source/` theo `templates/feature-readme-template.md` + `*-template.md`; doc
+> BRD/PRD theo `templates/docs/` khi xuất). Vai trò đã chốt (Bước 3) lọc tập artifact. Thiếu thông tin →
+> `[CẦN XÁC NHẬN]`, KHÔNG bịa để "đủ format". Đây là cùng chuẩn đầu ra với workflow 03 (mục "ĐẦU RA CHUẨN TỰ ĐỘNG").
 
 1. Ghi vào `docs/` đúng vị trí (feature → `docs/03-features/F-xxx/source/`,
    domain → `docs/01-domain/`, thuật ngữ → `docs/08-glossary/`...).

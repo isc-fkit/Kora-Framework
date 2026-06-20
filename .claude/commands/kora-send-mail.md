@@ -11,8 +11,8 @@ The user invoked `/kora-send-mail` — gửi email báo cáo tiến độ. **CÓ
    (Chưa có Jira nào → mời chạy `/kora-connect` trước.)
 2. **Chọn project trong Jira đó:** lấy danh sách project của Jira đã chọn (API `/rest/api/2/project`
    hoặc MCP `getVisibleJiraProjects`) → AskUserQuestion **multi-select project cần report** (+ **[Chọn tất cả]**).
-3. **Chọn người nhận (mail gửi đến):** danh bạ `reports.email.recipients` (multi-select) + **[+ Thêm mới]**
-   (ô "Other" → gõ địa chỉ → **lưu vào `reports.email.recipients`**).
+3. **Chọn người nhận (mail gửi đến):** danh bạ `reports.email.to` (multi-select) + **[+ Thêm mới]**
+   (ô "Other" → gõ địa chỉ → **lưu vào `reports.email.to`**). Đây là nguồn người nhận DUY NHẤT mà lịch/task đọc.
 4. **Gửi ngay hay đặt lịch:** AskUserQuestion **[Gửi ngay] / [Đặt lịch]**.
    - **[Gửi ngay]:**
      a. **CỔNG MẬT KHẨU vận hành `KORA_OPS_PW`** → `python3 tools/archive-gate/verify_ops_password.py`

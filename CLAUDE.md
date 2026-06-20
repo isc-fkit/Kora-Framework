@@ -29,7 +29,7 @@
 | "đẩy lên Confluence", "đồng bộ KB chung", "post tri thức", "sync cloud KB" | Confirm → `tools/confluence-sync/sync_confluence.py --push` (headless) / MCP Atlassian (tương tác); `--pull` để kéo về. `permission: read_only` → chỉ pull. |
 | "đồng bộ KB", "sync tri thức", "đẩy KB lên GitHub/Confluence", "sync lên repo" | Confirm → `/kora-sync` (`workflows/16-sync.md`): chọn target [Confluence / GitHub / Cả hai] → **CỔNG MẬT KHẨU `KORA_OPS_PW`** → `tools/kb-sync/version_mark.py` (US↔Change-Request) → `--dry-run` → đẩy **idempotent** (không nhân bản, chỉ mới/đổi). KHÔNG áp cho export. |
 | "gửi mail báo cáo", "email tiến độ cho team", "gửi report qua mail" | Confirm → `/kora-send-mail`: chọn **nguồn Jira đã kết nối → project → người nhận → [Gửi ngay / Đặt lịch]**. Gửi ngay qua **cổng `KORA_OPS_PW`** → quét Jira → report → gửi (banner + AI). Đặt lịch → task vào danh sách `/kora-schedule` (bật/tắt/xóa). |
-| "đặt lịch quét jira", "tự động đồng bộ", "lên lịch sync", "đặt lịch đẩy Confluence" | Confirm → `workflows/08-schedule-sync.md` / `/kora-schedule`: **liệt kê & quản lý** lịch hiện có (**bật/tắt active-inactive · xóa · sửa**) + tạo mới. Lịch khi chạy: **cổng `KORA_OPS_PW` (gác CẢ lượt) → get → report → mail → (tùy chọn) sync** — cổng sai/thiếu thì BỎ TOÀN BỘ lượt (kể cả get) (✋ confirm trước khi tạo). |
+| "đặt lịch quét jira", "tự động đồng bộ", "lên lịch sync", "đặt lịch đẩy Confluence" | Confirm → `workflows/08-schedule-sync.md` / `/kora-schedule`: **liệt kê & quản lý** lịch hiện có (**bật/tắt active-inactive · xóa · sửa**) + tạo mới. Lịch khi chạy: **get/scan (KHÔNG gác) → reindex → cổng `KORA_OPS_PW` → post → report → mail → (tùy chọn) sync** — cổng sai/thiếu thì VẪN get/scan, chỉ bỏ post/report/mail/sync. **Bước 1.5 của `/kora-schedule` hỏi mật khẩu để phân luồng: không có → chỉ tạo lịch SCAN; có → đầy đủ report/mail/ticket** (✋ confirm trước khi tạo). |
 | "báo cáo tiến độ", "report tiến độ", "tiến độ dự án", "sinh báo cáo" | Confirm → **CỔNG MẬT KHẨU `KORA_OPS_PW`** (báo cáo kéo dữ liệu live; sai → DỪNG) → chạy `workflows/14-progress-report.md`: **tự LÀM MỚI dữ liệu trước** (Cloud `*.atlassian.net` → kéo qua MCP nạp vault; self-host → kiểm tra độ mới, nếu CŨ thì báo + nhắc lệnh terminal) → sinh dashboard (time/sprint active/assignee) → **UI inline Cowork** + file HTML. |
 | "đặt lịch báo cáo", "lịch báo cáo tiến độ" | Confirm → `workflows/08-schedule-sync.md` **Mục B**: tạo lịch 8:00 tự làm mới→report; có **tùy chọn tự gửi email** (cổng mật khẩu `send_report.py --check` + danh sách người nhận sửa được) (✋ confirm trước khi tạo scheduled task). |
 | "sửa danh sách email báo cáo", "thêm/bớt người nhận mail", "bật/tắt auto gửi mail" | Confirm → cập nhật `reports.email` (to / enabled) trong `config/factory-config.yaml`; lịch tự dùng list mới, KHÔNG cần tạo lại task (WF08 Mục B → mục "Sửa danh sách"). |
@@ -125,10 +125,11 @@ Mục tiêu: user KHÔNG cần thuộc lệnh nào — chỉ nói bằng lời t
    "sẽ làm gì" rồi DỪNG hỏi user, **chờ user đồng ý mới làm**. KHÔNG tự suy diễn user đã đồng ý,
    KHÔNG tự quyết thay user, KHÔNG chạy lướt nhiều thao tác liền nhau.
    **Cổng mật khẩu vận hành (`KORA_OPS_PW`):** `/kora-sync`, `/kora-send-mail`, `/kora-daily-report` (báo
-   cáo kéo dữ liệu live), và **CẢ LƯỢT chạy** của `/kora-schedule` (gồm **auto-get/scan**, không chỉ SYNC)
-   PHẢI qua `tools/archive-gate/verify_ops_password.py` (exit 0) TRƯỚC khi get/đẩy/gửi — mật khẩu do CHỦ
-   REPO đặt (hash trên repo framework), **KHÔNG hỏi qua card, KHÔNG in**. Cổng sai/thiếu ở lịch nền → bỏ
-   TOÀN BỘ lượt (kể cả get), chỉ cảnh báo. `/kora-export` và `/kora-export-docs` **TUYỆT ĐỐI không** dùng cổng này.
+   cáo kéo dữ liệu live), và **bước PHÁT RA NGOÀI** của `/kora-schedule` (**post · report · mail · sync** —
+   KHÔNG gồm scan/get) PHẢI qua `tools/archive-gate/verify_ops_password.py` (exit 0) TRƯỚC khi đẩy/gửi — mật khẩu
+   do CHỦ REPO đặt (hash trên repo framework), **KHÔNG hỏi qua card, KHÔNG in**. Cổng sai/thiếu ở lịch nền → **vẫn
+   chạy scan/get** (kéo tri thức về), chỉ bỏ post/report/mail/sync + cảnh báo. `/kora-export` và `/kora-export-docs`
+   **TUYỆT ĐỐI không** dùng cổng này.
 3. **Trình bày bằng ngôn ngữ tự nhiên trước.** Khi phân tích xong, trả lời user bằng
    tiếng Việt dễ hiểu (không dán file thô), rồi mới hỏi confirm để ghi vào `.md`.
 4. **Không bịa tri thức.** Thiếu thông tin → đánh dấu `[CẦN XÁC NHẬN]`.
@@ -290,7 +291,7 @@ User nêu vấn đề (ngôn ngữ tự nhiên)
   Cowork) tạo lịch **kéo (pull) đồng bộ** → đúng giờ tự kéo tri thức mới về **local knowledge**.
 - **Mật khẩu ARCHIVE chỉ gác HOST tạo gói** (`verify_password.py` trong `archive-kb.command`) — **KHÔNG**
   hỏi lại khi user cài/import (`import-kb.command` không gọi cổng). Mật khẩu VẬN HÀNH (`KORA_OPS_PW`,
-  `verify_ops_password.py`) mới gác sync/mail/**báo cáo** + **cả lượt lịch nền (kể cả auto-get)** — khác hẳn mật khẩu archive.
+  `verify_ops_password.py`) mới gác sync/mail/**báo cáo** + **bước post/report/mail/sync của lịch nền** (scan/get KHÔNG gác) — khác hẳn mật khẩu archive.
 - **Project IMPORT luôn HỎI để nắm tri thức trước khi trả lời.** Khi mở 1 project vừa import KB (có
   `.kora-user` hoặc vault/docs đã có dữ liệu nhưng phiên chưa nạp), TRƯỚC khi trả lời câu hỏi nghiệp vụ,
   đọc `.kb/index.json` + vault và **hỏi 1–2 câu làm rõ phạm vi/feature đang nói tới** để bám đúng tri
@@ -325,5 +326,12 @@ User nêu vấn đề (ngôn ngữ tự nhiên)
   `clones`, `relates`…) hoặc **issue type** `Change Request` — bộ này tùy biến trong `sync.versioning`.
   US cũ được **GIỮ** + đánh dấu `superseded` + link CR (KHÔNG xoá, KHÔNG nhân bản trên target). Vault quét
   bằng bản cũ (đồ thị thiếu `link_type`) chỉ nhận theo issue-type → nên **quét lại nguồn** cho đủ.
-- **Lịch nền** cần mật khẩu `KORA_OPS_PW` (gác **CẢ lượt, kể cả auto-get**) mà cron/launchd không hỏi được → đặt ở
-  `~/.config/kora/ops-pw.env` (chmod 600) cho wrapper source; thiếu → lịch **bỏ TOÀN BỘ lượt** (kể cả get — không chỉ post/mail/sync), chỉ cảnh báo, không fail cứng.
+- **Lịch nền:** scan/get (kéo tri thức về) **KHÔNG gác**; chỉ **post/report/mail/sync** cần `KORA_OPS_PW`. Vì
+  cron/launchd không có shell env → đặt mật khẩu ở `~/.config/kora/ops-pw.env` (Windows `%USERPROFILE%\.kora\ops-pw.env`),
+  nội dung `KORA_OPS_PW=<mk>`, chmod 600 — `orchestrator.py` **TỰ nạp** lúc chạy (không cần wrapper). Thiếu → lịch
+  **vẫn chạy scan**, chỉ bỏ post/report/mail/sync, chỉ cảnh báo, không fail cứng. **Lỗi lượt nền → tạo ticket
+  (`scheduler.ticket_issue`) + email người phụ trách (`scheduler.error_recipients`)** — cấu hình này **ship sẵn
+  trong archive** nên gói USER lỗi cũng báo về người phụ trách.
+- **Sandbox Cowork chặn API/SMTP** → mọi lịch có **scan/report/mail/sync BẮT BUỘC chạy ở MÁY (OS launchd/cron/schtasks)**,
+  là tiến trình local (đúng mạng/VPN, tới Jira nội bộ). Lịch **Cowork** chỉ cho việc nhẹ không gọi API/mail. Quản lý task Cowork:
+  `update_scheduled_task` (bật/tắt/sửa giờ/sửa prompt); xóa hẳn = sửa registry `scheduled-tasks.json` + restart (MCP không có delete).

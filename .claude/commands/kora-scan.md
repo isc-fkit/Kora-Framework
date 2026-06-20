@@ -37,5 +37,9 @@ The user invoked `/kora-scan` — scan & import knowledge.
 4. **(Tùy chọn) Đào sâu → `docs/`:** AskUserQuestion **[Phân loại sâu thành feature/BR/AC]** / **[Để vậy]**.
    Chọn đào sâu → Claude đọc issue thô (kể cả AC/BR raw) → đề xuất phân loại vào `docs/03-features/F-xxx/…`,
    BR/AC (ID nối tiếp max trong `.kb/index.json`) → **✋ Approval Gate (Tầng B)** → ghi + reindex.
+   - 📐 **Tuân thủ chuẩn phân tích:** đọc `config/domain-rules.md` (phân loại theo domain) + áp cổng
+     **vai trò/domain/template** (`workflows/03-request.md` Bước 0) nếu phiên chưa chốt; ghi artifact theo
+     **ĐỊNH DẠNG CHUẨN** `templates/prompts/ba-prompt-library.md` + cấu trúc `templates/` (như WF02 Bước 6 /
+     WF03 "ĐẦU RA CHUẨN TỰ ĐỘNG"). Tức **import/scan và phân tích dùng CHUNG một chuẩn đầu ra**.
 
 Giữ bảo mật token (env var) + Approval Gate trước khi ghi vào `docs/` / vault.

@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "codename": "Kora-1",
   "released": "2026-06-21",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.3.0: LỊCH HĐH chạy ĐÚNG NHIỀU MỐC GIỜ + THỨ 2–6 trên cả macOS/Linux/Windows (sửa lỗi launchd chỉ chạy mốc đầu & schtasks '1-5' biến thành MON,FRI). Đặt lịch THÂN THIỆN: chọn mốc giờ + [Mỗi ngày]/[Thứ 2–6] (không cần gõ cron). Cài HĐH lỗi → báo rõ + lưu enabled=false + gợi ý fallback Cowork (không còn báo ✅ giả). Gửi mail báo cáo: quét Jira → [Gửi ngay]/[Đặt lịch]; lịch hiện trong /kora-schedule, sửa/xóa được. Dọn dẹp: gỡ file tạm/test, ngưng theo dõi config DATA, vá rò rỉ .env trên Windows archive."
+  "intro": "Kora-Framework v2.3.1: Lịch nền chạy LOCAL ngoài sandbox (gọi API/gửi mail được). Cổng mật khẩu nay CHỈ gác post/report/mail/sync — SCAN tri thức KHÔNG cần mật khẩu. /kora-schedule hỏi mật khẩu để rẽ luồng: không có → chỉ đặt lịch SCAN; có → đầy đủ (chọn Jira→project report → người nhận mail → thời gian → email ticket sự cố). Sửa lỗi orchestrator không nạp KORA_OPS_PW (tự nạp ~/.config/kora/ops-pw.env). Email ticket sự cố ship sẵn trong archive → gói USER lỗi tự báo người phụ trách (cred SMTP no-reply). Import/scan nay áp domain-rules + template + prompt flow (chung chuẩn với phân tích). Quản lý đầy đủ task Cowork (RAM/disk) qua /kora-schedule."
 }

@@ -20,6 +20,17 @@
    `KORA_CLOUD_READ_BASE_URL`, `KORA_CLOUD_READ_USER`, `KORA_CLOUD_READ_TOKEN`, `KORA_CLOUD_SPACE`.
    (Token chỉ đi qua env → file `.env.local` trong gói; KHÔNG vào chat/manifest/git.)
 
+3b. **Email TICKET SỰ CỐ cho gói USER (áp dụng sẵn).** Cấu hình `scheduler.error_recipients` (NGƯỜI PHỤ TRÁCH)
+   + `scheduler.ticket_issue` trong `config/factory-config.yaml` **đi theo gói** (nằm trong DATA). ⇒ Khi lịch nền
+   của USER **lỗi**, orchestrator tạo ticket + **gửi email cho người phụ trách này** (cùng cấu hình HOST đặt qua
+   `/kora-alert-mail` hoặc `/kora-schedule` Bước 3B §5). TRƯỚC khi đóng gói:
+   - Hỏi/确认 `scheduler.error_recipients` = email người phụ trách (HOST). `error_email.enabled: true`.
+   - **Kênh GỬI cho USER (bắt buộc nếu muốn USER báo lỗi được):** gói chỉ có key Confluence READ → KHÔNG tự tạo
+     ticket (cần write) / KHÔNG có SMTP. Chọn 1 kênh và ship qua env (như key READ):
+     • **SMTP no-reply** → ship `tools/report-mailer/.env.local` (cred gửi 1 chiều, KHÔNG phải mail cá nhân host); hoặc
+     • **Token WRITE tới space "incidents"** riêng (`scheduler.ticket_issue.target: confluence` + space đó).
+     Không ship kênh nào → USER chỉ GHI LOG lỗi cục bộ (không báo ra ngoài) — báo rõ cho user.
+
 4. ✋ **Confirm → chạy** `scripts/archive-kb.command` (Windows `scripts\archive-kb.bat`) với các biến
    trên. Tạo `kora-archive-<project>-<date>.zip` = thư mục `kora-archive/` {manifest, data/, .env.local
    (chỉ key READ), markers/package.type}. **AN TOÀN:** script loại mọi `.env` token write/mail/jira

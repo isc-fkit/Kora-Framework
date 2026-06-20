@@ -97,6 +97,24 @@ if defined KORA_CLOUD_READ_TOKEN (
   echo [..] Khong co KORA_CLOUD_READ_TOKEN - goi khong kem key doc.
 )
 
+REM (Tuy chon) Cred SMTP NO-REPLY bao loi -> goi USER tu email nguoi phu trach khi lich loi.
+if defined KORA_NOTIFY_SMTP_USER if defined KORA_NOTIFY_SMTP_PASS (
+  if not defined KORA_NOTIFY_SMTP_HOST set "KORA_NOTIFY_SMTP_HOST=smtp.gmail.com"
+  if not defined KORA_NOTIFY_SMTP_PORT set "KORA_NOTIFY_SMTP_PORT=587"
+  if not defined KORA_NOTIFY_SMTP_SECURITY set "KORA_NOTIFY_SMTP_SECURITY=starttls"
+  if not defined KORA_NOTIFY_MAIL_FROM set "KORA_NOTIFY_MAIL_FROM=%KORA_NOTIFY_SMTP_USER%"
+  (
+    echo # SMTP NO-REPLY bao SU CO ^(ship trong archive USER^) - gui 1 chieu cho nguoi phu trach.
+    echo SMTP_HOST=%KORA_NOTIFY_SMTP_HOST%
+    echo SMTP_PORT=%KORA_NOTIFY_SMTP_PORT%
+    echo SMTP_SECURITY=%KORA_NOTIFY_SMTP_SECURITY%
+    echo SMTP_USER=%KORA_NOTIFY_SMTP_USER%
+    echo SMTP_PASS=%KORA_NOTIFY_SMTP_PASS%
+    echo MAIL_FROM=%KORA_NOTIFY_MAIL_FROM%
+  ) > "%STAGE%\notify-smtp.env"
+  echo [OK] Da ship cred SMTP no-reply bao loi ^(notify-smtp.env^).
+)
+
 for /f %%T in ('powershell -NoProfile -Command "(Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')"') do set "EXPORTED_AT=%%T"
 (
   echo {
