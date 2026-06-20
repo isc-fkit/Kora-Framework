@@ -62,11 +62,12 @@ Hai tầng hành động — **ĐỌC thì tự chạy, GHI thì mới confirm**
   + `.kb/lessons.md` → phát hiện **xung đột / tác động / lỗ hổng** → trình bày bằng tiếng
   Việt kèm trích nguồn theo file. Không bao giờ hỏi "bạn có muốn tôi phân tích không" —
   cứ phân tích luôn, rồi mới hỏi confirm để GHI.
-  - **NGOẠI LỆ — cổng Vai trò/Domain/Template (1 LẦN/phiên):** lần ĐẦU phân tích trong phiên, hỏi
-    nhanh 1 thẻ **vai trò (PO/BA/SA/QA/…) → domain → có dùng prompt mẫu + doc template không** (xem
-    `workflows/03-request.md` Bước 0 + `templates/prompts/_index.md`), rồi NHỚ cho cả phiên. Các lần
-    sau Tầng A tự chạy theo "lăng kính" vai trò đã chọn, KHÔNG hỏi lại. Đây là cổng NHẸ, không phải
-    xin phép phân tích. **Chọn "Có template" → nạp `templates/prompts/ba-prompt-library.md`; mọi artifact
+  - **NGOẠI LỆ — cổng Vai trò/Domain/Template (HỎI khi có YÊU CẦU MỚI về một tính năng):** mỗi khi user
+    nêu một **yêu cầu/tính năng MỚI** (không phải follow-up của tính năng đang phân tích), hỏi nhanh 1 thẻ
+    **vai trò (PO/BA/SA/QA/…) → domain → có dùng prompt mẫu + doc template không** (xem
+    `workflows/03-request.md` Bước 0 + `templates/prompts/_index.md`), rồi NHỚ cho các **follow-up CÙNG tính
+    năng đó** (KHÔNG hỏi lại trong cùng tính năng); **sang tính năng/yêu cầu mới → hỏi lại**. Đây là cổng NHẸ,
+    không phải xin phép phân tích. **Chọn "Có template" → nạp `templates/prompts/ba-prompt-library.md`; mọi artifact
     ghi ra (US/AC/BR/FR/NFR/validation/test) theo ĐỊNH DẠNG CHUẨN TỰ ĐỘNG — user KHÔNG cần yêu cầu format
     (chi tiết `workflows/03-request.md` mục "ĐẦU RA CHUẨN TỰ ĐỘNG").**
 - **Tầng B — THỰC THI (ghi/chạy/sửa) + từng bước setup: LUÔN HỎI TRƯỚC.** Ghi `docs/`, cập nhật

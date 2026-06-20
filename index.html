@@ -257,7 +257,7 @@
     <div class="brand" data-go="home" title="Trang chủ">
       <span class="brandmark" aria-hidden="true">K</span>
       <span class="org">FPT TELECOM</span>
-      <div class="fw">KORA AI<span>v2.3.2 · Kora-1</span></div>
+      <div class="fw">KORA AI<span>v2.3.3 · Kora-1</span></div>
     </div>
     <nav class="nav">
       <div class="grp">Tổng quan</div>
@@ -284,7 +284,7 @@
     <!-- ===================== HOME ===================== -->
     <div class="page" id="home">
       <header class="hero">
-        <span class="badge">FPT Telecom · KORA AI · v2.3.2 · &ldquo;Kora-1&rdquo;</span>
+        <span class="badge">FPT Telecom · KORA AI · v2.3.3 · &ldquo;Kora-1&rdquo;</span>
         <h1>KORA AI — Sơ đồ nguyên lý hoạt động</h1>
         <p class="sub">Trợ lý tri thức tự lớn lên cùng dự án: hợp nhất tri thức phân tán, nối tri thức local của nhân viên với <b>Knowledge Base</b> chung (trên Cloud), và tự động hóa đồng bộ — báo cáo — cảnh báo.</p>
         <div class="pipe">
@@ -469,7 +469,7 @@
       <div style="margin:8px 0 20px">
         <div class="step" data-n="1"><h3>Tuân thủ RULE DOMAIN</h3><p>Đọc <code>config/domain-rules.md</code> (theo preset đã chọn — Healthcare / Fintech / E-commerce / Retail…) <b>trước mỗi phân tích</b>; áp thuật ngữ, ngưỡng và rule thận trọng của ngành (vd y tế: phân biệt "hiển thị thông tin" vs "tư vấn y tế", không chẩn đoán thay bác sĩ).</p></div>
         <div class="step" data-n="2"><h3>Theo WORKFLOW phân tích</h3><p>Bám <code>workflows/03-request.md</code> + quy trình BA 8 bước (B0→B7): đọc KB (index + vault + lessons) → phát hiện <b>xung đột · tác động · lỗ hổng</b> → trình bày tiếng Việt trích nguồn theo file → <b>✋ Approval Gate</b> trước khi ghi.</p></div>
-        <div class="step" data-n="3"><h3>Áp TEMPLATE PROMPT (theo vai trò)</h3><p>Theo vai trò chọn ở đầu phiên (BA / PO / SA / QA) nạp <code>templates/prompts/role-&lt;x&gt;.md</code> + thư viện <code>ba-prompt-library.md</code> → mỗi artifact (US / AC / BR / FR / NFR / validation / test…) ra <b>đúng ĐỊNH DẠNG CHUẨN TỰ ĐỘNG</b>, user không cần yêu cầu "viết theo format X".</p></div>
+        <div class="step" data-n="3"><h3>Áp TEMPLATE PROMPT (theo vai trò)</h3><p>Theo vai trò được hỏi <b>mỗi khi có yêu cầu/tính năng mới</b> (BA / PO / SA / QA) nạp <code>templates/prompts/role-&lt;x&gt;.md</code> + thư viện <code>ba-prompt-library.md</code> → mỗi artifact (US / AC / BR / FR / NFR / validation / test…) ra <b>đúng ĐỊNH DẠNG CHUẨN TỰ ĐỘNG</b>, user không cần yêu cầu "viết theo format X".</p></div>
         <div class="step" data-n="4"><h3>ĐÚNG THỨ TỰ prompt theo <code>_index</code></h3><p>Chạy chuỗi prompt <b>01→20</b> (lọc theo vai trò), <b>bước sau dựa bước trước</b> — thiếu đầu vào thì dừng hỏi <code>[CẦN XÁC NHẬN]</code>, không nhảy cóc. Bản đồ đầy đủ ở <b>bảng dưới</b>.</p></div>
       </div>
 
@@ -500,7 +500,7 @@
       <div class="callout ok"><span>🎭</span><div><b>Vai trò lọc tập prompt</b> (chọn ở B0): <b>BA</b> → 01–05,12,15 · <b>PO</b> → 01,03,13 + KPI/MoSCoW · <b>SA</b> → 06,07,14,17,18 · <b>QA</b> → 05,08,09,19,20. Cùng một yêu cầu, đổi vai trò → tập prompt &amp; output đổi theo (động theo domain + vai trò).</div></div>
       <p style="color:var(--muted)">Chi tiết runtime của 4 cổng trên (từ lời thường tới khi ghi tri thức):</p>
       <div class="flow">yêu cầu (lời thường)
-   → hỏi VAI TRÒ + DOMAIN + template (1 thẻ, nhớ cả phiên)
+   → hỏi VAI TRÒ + DOMAIN + template (1 thẻ — mỗi yêu cầu/tính năng mới)
    → đọc KB (index + vault + lessons) · liên kết chéo project
    → phân tích: xung đột · tác động · lỗ hổng · [CẦN XÁC NHẬN]
    → trình bày tiếng Việt (trích nguồn theo file)   ✋ GATE 1
@@ -1245,7 +1245,7 @@ Tài liệu cần review:
         <tr><td>6</td><td><b>Daily Session Checklist</b></td><td>Quy trình 7 bước mỗi phiên (xem card bên dưới).</td></tr>
       </table>
       <div class="card"><b>📋 Daily session checklist (7 bước)</b>
-        <div class="flow">1. Nêu vai trò + domain (B0 — KORA nhớ cả phiên)
+        <div class="flow">1. Nêu vai trò + domain (B0 — hỏi mỗi khi có yêu cầu/tính năng mới)
 2. Nêu rõ MỤC TIÊU phiên làm việc
 3. Paste context liên quan — ĐÃ ẨN DANH (xem mục Bảo mật, tab A)
 4. Làm TỪNG phần nhỏ (iteration), không hỏi tất cả 1 lúc
@@ -1548,11 +1548,22 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
       <div class="phead"><div class="pl">I · Release Note</div><h1><span class="em">🆕</span>Lịch sử phiên bản</h1></div>
       <p class="lead">Lịch sử bản <b>APP</b> (CORE: skills, workflows, tools…). Cập nhật: chạy lại lệnh cài (bash CLI, tab <a data-go="install" style="cursor:pointer">C</a>) — <b>tri thức của bạn được giữ nguyên</b> (DATA không bị đụng).</p>
 
-      <div class="callout ok"><span>🆕</span><div><b>Bản mới nhất (latest): <code>v2.3.2</code> — "Kora-1"</b> · phát hành 2026-06-21. Tổng <b>20 bản</b>; danh sách đầy đủ ở <a href="https://github.com/isc-fkit/Kora-Framework/blob/release/CHANGELOG.md">CHANGELOG.md</a>.</div></div>
+      <div class="callout ok"><span>🆕</span><div><b>Bản mới nhất (latest): <code>v2.3.3</code> — "Kora-1"</b> · phát hành 2026-06-21. Tổng <b>21 bản</b>; danh sách đầy đủ ở <a href="https://github.com/isc-fkit/Kora-Framework/blob/release/CHANGELOG.md">CHANGELOG.md</a>.</div></div>
 
       <div class="card" style="border-color:var(--accent)">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.3.2 — "Kora-1" <span style="display:inline-block;margin-left:6px;padding:2px 9px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;font-size:10.5px;font-weight:800;vertical-align:2px">MỚI NHẤT</span></b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
+          <b style="font-size:16px">v2.3.3 — "Kora-1" <span style="display:inline-block;margin-left:6px;padding:2px 9px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;font-size:10.5px;font-weight:800;vertical-align:2px">MỚI NHẤT</span></b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
+        </div>
+        <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
+          <li><b>Cổng vai trò hỏi theo TÍNH NĂNG</b> (không "1 lần/phiên") — mỗi yêu cầu/tính năng mới → hỏi lại vai trò/domain/template.</li>
+          <li><b>README</b>: sửa link "Hướng dẫn đầy đủ" về GitHub Pages chính thức + đồng bộ badge version.</li>
+          <li><b>Landing</b>: bảng 20 prompt theo <code>_index</code> dễ đọc hơn (bỏ ô gộp); đồng bộ wording cổng vai trò.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
+          <b style="font-size:16px">v2.3.2 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>Windows toàn diện như macOS/Linux</b> — import-kb.bat nhận gói archive USER (marker · key READ · cred báo lỗi · py).</li>

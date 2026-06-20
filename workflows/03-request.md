@@ -7,10 +7,11 @@
 > tính năng / yêu cầu / thay đổi nghiệp vụ là phân tích luôn (đọc KB → xung đột/tác động/
 > lỗ hổng → trình bày). Chỉ Bước 4 (ghi) mới cần confirm. Đừng hỏi "có muốn phân tích không".
 
-## Bước 0 — Vai trò + Domain + Template (HỎI 1 LẦN/phiên, trước lần phân tích ĐẦU TIÊN)
+## Bước 0 — Vai trò + Domain + Template (HỎI khi có YÊU CẦU MỚI về một tính năng)
 
-Lần ĐẦU user yêu cầu phân tích trong phiên, HỎI nhanh bằng AskUserQuestion (rồi **NHỚ cho cả phiên** —
-các lần sau KHÔNG hỏi lại; Tầng A tự chạy theo vai trò đã chọn):
+Mỗi khi user nêu một **YÊU CẦU / TÍNH NĂNG MỚI** (feature mới, hoặc chuyển sang phân tích một tính năng khác —
+KHÔNG phải tin nhắn follow-up của tính năng đang phân tích), HỎI nhanh bằng AskUserQuestion (rồi **NHỚ cho các
+follow-up CÙNG tính năng đó**; sang tính năng/yêu cầu mới → **hỏi lại**; Tầng A tự chạy theo vai trò đã chọn):
 
 1. **Vai trò?** → **[BA] / [PO] / [SA] / [QA] / [Khác]**. Nạp prompt mẫu theo vai trò từ
    `templates/prompts/role-<x>.md` (đã cài: `~/.claude/kora-framework/templates/prompts/...`) — bản đồ
@@ -25,8 +26,9 @@ các lần sau KHÔNG hỏi lại; Tầng A tự chạy theo vai trò đã chọ
    cuối file này), KHÔNG cần user yêu cầu format; đề xuất doc template (`templates/docs/BRD-template.md` /
    `PRD-template.md`) khi user muốn xuất tài liệu (qua `/kora-export-docs`). Mẫu output đã điền: `templates/examples/`.
 
-> Cổng NHẸ (1 thẻ, nhớ cả phiên) — KHÔNG biến mỗi tin nhắn thành 1 lần hỏi. Sau khi chốt vai trò/domain,
-> Tầng A (Bước 1–3) tự chạy như thường, chỉ thêm "lăng kính" vai trò + áp prompt mẫu đã chọn.
+> Cổng NHẸ (1 thẻ/tính năng) — KHÔNG biến mỗi tin nhắn thành 1 lần hỏi; chỉ hỏi khi BẮT ĐẦU một yêu cầu/tính
+> năng mới. Sau khi chốt vai trò/domain cho tính năng đó, Tầng A (Bước 1–3) tự chạy như thường (giữ "lăng kính"
+> vai trò + prompt mẫu đã chọn) cho các follow-up cùng tính năng.
 
 ## Bước 1 — Hiểu yêu cầu, load đúng tri thức (BẮT BUỘC trước khi trả lời)
 

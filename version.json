@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.3.2",
+  "version": "2.3.3",
   "codename": "Kora-1",
   "released": "2026-06-21",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.3.2: Hỗ trợ Windows TOÀN DIỆN như macOS/Linux — viết lại import-kb.bat nhận gói archive USER (marker .kora-user, key READ, cred báo lỗi SMTP no-reply, py). Luồng phân tích nay ép ĐÚNG THỨ TỰ prompt 01→20 theo _index (lọc theo vai trò, bước sau dựa bước trước). Trang giới thiệu bổ sung: Responsible AI & bảo mật dữ liệu (3 nhóm Xanh/Vàng/Đỏ + checklist ẩn danh), Quality Gate 3 tầng, kỹ thuật prompt + daily checklist, giới hạn & hallucination, thêm ví dụ output Tốt/Chưa tốt (BR/NFR/API), card mã nguồn + tiêu chuẩn ngành (SemVer/Keep a Changelog/12-factor…). /kora-daily-report gắn đúng cổng mật khẩu. Skill /kora-release đồng bộ 5 nhánh env."
+  "intro": "Kora-Framework v2.3.3: Cổng vai trò/domain/template nay hỏi MỖI KHI có yêu cầu/tính năng MỚI (thay vì 1 lần/phiên) — nhớ cho follow-up cùng tính năng, sang tính năng mới thì hỏi lại; áp đúng vai trò cho từng feature. Sửa link 'Hướng dẫn đầy đủ' trong README về trang GitHub Pages (isc-fkit.github.io/Kora-Framework) + đồng bộ badge version. Bảng 20 prompt theo thứ tự _index trên landing trình bày dễ đọc hơn (bỏ ô gộp). Đồng bộ tài liệu CLAUDE.md + workflow 03 + trang giới thiệu."
 }

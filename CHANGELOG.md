@@ -10,6 +10,19 @@
 
 ---
 
+## v2.3.3 "Kora-1" — 2026-06-21
+
+- **Cổng vai trò/domain/template hỏi theo TÍNH NĂNG, không "1 lần/phiên".** `workflows/03-request.md` Bước 0
+  + `CLAUDE.md` §0.1: mỗi khi user nêu **yêu cầu/tính năng MỚI** → hỏi vai trò (BA/PO/SA/QA) + domain + template;
+  nhớ cho follow-up **cùng** tính năng, sang tính năng/yêu cầu mới → **hỏi lại**. Áp đúng "lăng kính" vai trò
+  cho từng feature thay vì khóa 1 vai trò cả phiên.
+- **README:** sửa link **"📖 Hướng dẫn đầy đủ"** trỏ về trang GitHub Pages chính thức
+  `https://isc-fkit.github.io/Kora-Framework/#home` (trước trỏ nhầm site khác) + đồng bộ **badge version**.
+- **Landing:** bảng **20 prompt theo thứ tự `_index`** trình bày dễ đọc hơn — bỏ ô gộp (`rowspan`), lặp tên
+  nhóm mỗi hàng; đồng bộ wording cổng vai trò ("mỗi yêu cầu/tính năng mới") ở các mục liên quan.
+
+> **Cập nhật:** thuần CORE (đổi nhịp hỏi vai trò) + landing/README — không cần migration DATA.
+
 ## v2.3.2 "Kora-1" — 2026-06-21
 
 - **Windows TOÀN DIỆN như macOS/Linux** — viết lại `scripts/import-kb.bat` ngang `import-kb.command`:
