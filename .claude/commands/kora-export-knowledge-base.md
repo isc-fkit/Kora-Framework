@@ -10,3 +10,7 @@ Read and execute `workflows/11-export-import.md` **section A (export)** followin
   into `kora-kb-*.zip`.
 - ⚠️ Consider token security in `.env.local` when moving / handing over.
 - Keep the Approval Gate.
+
+> 🔓 **KHÔNG cổng mật khẩu — export thuần.** Luồng này TUYỆT ĐỐI không dùng `KORA_OPS_PW` /
+> `verify_ops_password.py` và không có bước sync/gửi-mail nào. Cần phân quyền + mật khẩu để bàn giao →
+> dùng `/kora-archive` (riêng).

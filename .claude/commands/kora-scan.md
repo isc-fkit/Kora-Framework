@@ -13,17 +13,29 @@ The user invoked `/kora-scan` — scan & import knowledge.
      đổi sau bằng *"đổi domain"* / `/kora-init`). **KHÔNG hỏi từng bước domain/rule** — tất cả tự động.
    - Nếu ĐÃ có project → bỏ qua, sang bước 1.
 
-1. **Đọc nguồn ĐÃ KẾT NỐI** từ `config/factory-config.yaml > connections`. **KHÔNG hiện đoạn giới
-   thiệu "quét Jira".**
-   - **Chưa kết nối nguồn nào** → mời chạy **`/kora-connect`**.
-   - **Có rồi** → hiện **checklist (multi-select)** các nguồn đã kết nối (vd *"Jira Cloud (MCP)",
-     "SharePoint (MCP)", "Jira self-host (API)", "GitHub (MCP)"*) → user tích nguồn muốn quét. Kèm
-     **[+ Kết nối nguồn mới]** → `/kora-connect`.
+1. **Đọc nguồn ĐÃ KẾT NỐI:** chạy `python3 tools/connections/check_connection.py --list` (Windows: `py`)
+   để lấy danh sách từ `config/factory-config.yaml > connections`. **KHÔNG hiện đoạn giới thiệu "quét Jira".**
+   - **Chưa kết nối nguồn nào** (registry rỗng) → mời chạy **`/kora-connect`**.
+   - **Có rồi** → hiện **checklist (multi-select)** với item đầu **[✓ Quét tất cả nguồn]** (lấy HẾT),
+     rồi từng nguồn kèm trạng thái: `display_name + ✓ connected · checked <thời gian tương đối>`
+     (vd *"Jira Cloud (MCP) ✓ · 2h trước", "GitHub (API) ✓ · hôm qua"*). Nguồn `last_checked` quá cũ
+     (>24h) / `status≠connected` → `⟳ chưa kiểm tra gần đây`, **kiểm tra lại** (`--check <id>`) trước khi quét.
+     Kèm **[+ Kết nối nguồn mới]** → `/kora-connect`.
+   - **Chọn 1 nguồn cụ thể** (không phải "tất cả") → kết nối rồi **trả về danh sách project/folder** để
+     chọn (Jira: `python3 tools/jira-to-obsidian/import_jira.py --list-projects` → JSON `[{key,name}]`;
+     SharePoint/GitHub: liệt kê folder/repo qua MCP). **MỌI cấp chọn đều có [Chọn tất cả].**
+   - ⚠️ **Tránh quét trùng:** nếu user tích 2 entry CÙNG `source_type` (vd `jira_cloud__api` và `jira_cloud__mcp`)
+     → cảnh báo có thể nạp trùng; nhắc chọn 1 (vault vẫn dedupe theo `jira_key` nhưng tốn công).
 2. **Kéo dữ liệu** từng nguồn đã chọn vào vault:
    - **Jira (API/MCP)** → `workflows/01-import-jira.md`; cào **HẾT field, kể cả custom field & comment**.
    - **SharePoint (MCP)** → `sharepoint_search` / `sharepoint_folder_search`.
    - **GitHub (MCP)** → MCP tool của GitHub (repo/issues/PR/wiki).
    - **Confluence (MCP)** → MCP tool của Confluence.
-3. Sau khi nạp → reindex; báo số note đã thêm.
+3. **Tổng hợp NHẸ (tự động, ngay sau khi nạp):** `python3 tools/kb-synth/synthesize.py --root .` → dựng
+   trang `_wiki/<Project>-Wiki.md` liên kết cho mỗi project (index theo loại + mục "Quan hệ"). Rồi reindex
+   `python3 tools/kb-indexer/build_index.py --root .`; báo số note đã thêm + số trang wiki.
+4. **(Tùy chọn) Đào sâu → `docs/`:** AskUserQuestion **[Phân loại sâu thành feature/BR/AC]** / **[Để vậy]**.
+   Chọn đào sâu → Claude đọc issue thô (kể cả AC/BR raw) → đề xuất phân loại vào `docs/03-features/F-xxx/…`,
+   BR/AC (ID nối tiếp max trong `.kb/index.json`) → **✋ Approval Gate (Tầng B)** → ghi + reindex.
 
 Giữ bảo mật token (env var) + Approval Gate trước khi ghi vào `docs/` / vault.

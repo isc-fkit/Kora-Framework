@@ -1,0 +1,6 @@
+# DATA / bí mật của user — KHÔNG commit. Giữ .env.example làm template.
+.env.local
+.env.*
+!.env.example
+.oauth-token.json
+__pycache__/

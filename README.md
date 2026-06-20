@@ -1,114 +1,191 @@
-# Kora-Framework — AI Product Factory
+<div align="center">
 
-Hệ thống giúp bạn (không cần biết kỹ thuật) biến yêu cầu bằng lời thường thành:
-tri thức có cấu trúc → tài liệu chuẩn (URD/SRS) → prototype Claude Design → kế hoạch code.
-Mọi bước AI tự chạy, **bạn chỉ cần confirm**.
+# 🦊 KORA AI — Framework
 
-## Phiên bản
+### Bộ não thứ hai tự lớn lên cùng dự án
 
-**Kora-1 · v2.0.0** (xem `version.json` và `CHANGELOG.md`).
-Đây là bản nền đầu tiên: điều phối qua `CLAUDE.md` + workflows, quét Jira đa nguồn,
-import Word/PDF, tự phân tích xung đột, tự học, tự reindex.
+**Kết nối đa nguồn → Tổng hợp tri thức → Đồng bộ Cloud KB chung → Tự động báo cáo & cảnh báo**
 
-## Tải & cài đặt
+[![Version](https://img.shields.io/badge/version-2.2.0-2f7bff)](./version.json)
+[![Codename](https://img.shields.io/badge/codename-Kora--1-5b9bff)](./CHANGELOG.md)
+[![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-444)](#-cài-đặt)
+[![Claude](https://img.shields.io/badge/runs%20in-Claude%20CLI%20%2B%20Desktop-7c5cff)](https://claude.ai/code)
+[![By FPT Telecom](https://img.shields.io/badge/by-FPT%20Telecom-ff7a00)](https://fpt.vn)
 
-1. **Tải mã nguồn** — chọn 1 trong 2 cách:
-   - Tải file zip: <https://github.com/isc-fkit/Kora-Framework/archive/refs/heads/release.zip>
-     → giải nén.
-   - Hoặc clone bằng git:
-     ```
-     git clone https://github.com/isc-fkit/Kora-Framework
-     ```
-2. **Mở trong Cowork**: tạo project → chọn folder vừa giải nén/clone làm thư mục làm việc.
-   (Thấy "Instructions · CLAUDE.md" ở sidebar là đúng.)
-3. **Khởi tạo**: nhắn **`@khởi tạo dự án`** → Claude hỏi xác nhận rồi chạy setup từng bước.
+<a href="https://fkit.onebot.meobeo.ai/ba-claude-guide"><b>📖 Hướng dẫn đầy đủ</b></a> ·
+<a href="#-cài-đặt"><b>⚙️ Cài đặt</b></a> ·
+<a href="#-các-lệnh-kora"><b>📚 Lệnh</b></a> ·
+<a href="#-bảo-mật--khóa-token"><b>🔐 Bảo mật</b></a>
 
-## Lần đầu sử dụng (3 bước)
+<img src="assets/flow.png" alt="KORA AI — Sơ đồ nguyên lý hoạt động" width="900">
 
-1. **Import folder**: mở Cowork → tạo project → chọn folder này làm thư mục làm việc.
-   (Claude sẽ tự nạp `CLAUDE.md` — thấy "Instructions · CLAUDE.md" ở sidebar là đúng.)
-2. Nhắn: **`@khởi tạo dự án`** → Claude hỏi xác nhận rồi chạy setup từng bước:
-   domain (có preset gợi ý) → tên project → nơi lưu Obsidian vault → quét Jira? →
-   nạp file PDF/DOCX? → kết nối Claude Design. Mỗi câu có mô tả rõ + phương án mặc định.
-3. Setup xong → chỉ cần nhắn vấn đề bằng lời thường, Claude phân tích dựa trên tri thức
-   hiện có và chỉ hỏi khi cần xác nhận.
+</div>
 
-> Lưu ý: Claude luôn **hỏi confirm trước khi chạy lệnh** — nếu bạn chỉ hỏi thông tin
-> có chứa keyword (vd "quét jira là gì?"), Claude sẽ trả lời chứ không tự chạy.
+---
 
-## Bảng lệnh
+KORA hợp nhất tri thức phân tán (Jira, Confluence, GitHub, SharePoint…) thành một **knowledge base có
+cấu trúc, liên kết kiểu wiki**, đồng bộ hai chiều với **Cloud KB chung** (Confluence / GitHub private),
+và **tự động hóa** báo cáo tiến độ — cảnh báo rủi ro. Người **không cần biết kỹ thuật** chỉ nhắn bằng
+lời thường; mọi bước AI tự chạy, **bạn chỉ confirm**.
 
-| Lệnh / bạn nhắn | Hệ thống làm | Workflow |
-|---|---|---|
-| `@khởi tạo dự án` | Setup toàn bộ hệ thống lần đầu | workflows/00-setup.md |
-| `quét jira` | Quét TOÀN BỘ project Jira → vault, **cào HẾT mọi field** (priority, labels, sprint, mọi custom field…) + comment + metadata đính kèm (tự chạy; Jira nội bộ/VPN thì đưa lệnh Terminal copy-paste điền sẵn đường dẫn) | workflows/01-import-jira.md |
-| `quét task PROJ-102` | Quét RIÊNG 1 hoặc vài issue/epic (cách nhau dấu phẩy) | workflows/01b-import-jira-single.md |
-| Mô tả một vấn đề / tính năng | Phân tích → trình bày dễ hiểu → bạn duyệt → ghi KB | workflows/03-request.md |
-| `thiết kế <tính năng>` | Chọn project Design → sinh brief → dựng prototype liên kết | workflows/04-claude-design.md |
-| `sync design` | Cập nhật thay đổi từ prototype ngược về KB (có duyệt) | workflows/05-sync-back.md |
-| Gửi file PDF/DOCX/zip Obsidian | Nạp tri thức qua pipeline duyệt | workflows/02-import-files.md |
-| `xuất tài liệu` | Tạo DOCX/PDF cho người đọc | workflows/06-export-docs.md |
-| `lên kế hoạch code <tính năng>` | Sinh implementation plan (cần BR/AC đã duyệt) | workflows/07-code-plan.md |
-| `đặt lịch quét jira` | Tự động đồng bộ issue mới định kỳ (incremental --since) | workflows/08-schedule-sync.md |
-| `báo cáo tiến độ` | **Tự làm mới dữ liệu** (Cloud→kéo qua MCP; self-host→nhắc lệnh nếu cũ) rồi sinh dashboard (time/sprint active/assignee/rủi ro) — **UI inline Cowork** + file HTML, local no-server | workflows/14-progress-report.md |
-| `đặt lịch báo cáo` | Lịch 8:00 tự làm mới→report tiến độ (chạy bù, idempotent) | workflows/08-schedule-sync.md |
-| `tiến hóa KB` / `dọn dẹp KB` | Tự dựng lại chỉ mục, báo sức khỏe, dọn dead-link, hợp nhất trùng, học từ lỗi | workflows/09-evolve.md |
-| `đổi domain` / `sửa rule` | Đổi rule phân tích bất cứ lúc nào | workflows/00-setup.md mục B |
+## Mục lục
 
-## Cấu trúc
+- [Tính năng](#-tính-năng)
+- [Nguyên lý hoạt động](#-nguyên-lý-hoạt-động)
+- [Cài đặt](#-cài-đặt)
+- [Hành trình sử dụng](#-hành-trình-sử-dụng)
+- [Các lệnh /kora-*](#-các-lệnh-kora)
+- [Template phân tích theo vai trò](#-template-phân-tích-theo-vai-trò)
+- [Bảo mật & khóa (token)](#-bảo-mật--khóa-token)
+- [Bàn giao & đồng bộ](#-bàn-giao--đồng-bộ)
+- [Cấu trúc dự án](#-cấu-trúc-dự-án)
+- [Cấu hình](#-cấu-hình)
+- [Đóng góp](#-đóng-góp)
 
-- `CLAUDE.md` — bộ não điều phối (Claude tự nạp)
-- `workflows/` — kịch bản từng luồng, chạy step-by-step
-- `config/` — domain + rules **động**, đổi được mọi lúc
-- `docs/` — Knowledge Base chính (chỉ ghi sau khi bạn duyệt)
-- `Project_Name_Brain/` — vault "bộ não" tri thức = **thư mục các file `.md`** (setup tự đổi tên thành `<TênProject>_Brain`). **Obsidian là TÙY CHỌN** — hệ thống chạy bình thường không cần nó; Obsidian chỉ để xem backlink trực quan (mở bằng "Open folder as vault"), không có thì mở bằng VS Code / editor markdown bất kỳ.
-- `inbox/` — vùng đệm dữ liệu chưa duyệt
-- `projects/` — danh bạ các project Claude Design
-- `tools/jira-to-obsidian/` — tool quét Jira (script sẵn, chỉ điền `.env.local`)
-- `.kb/` — chỉ mục, relation graph, source registry, changelog, **health-report**, **lessons** (bài học)
-- `tools/kb-indexer/` — bộ tự-dựng-chỉ-mục (chạy bằng máy, không tốn token)
+## ✨ Tính năng
 
-## Quét Jira — những điều nên biết
+| | |
+|---|---|
+| 🔌 **Kết nối đa nguồn** | Jira (Cloud/Server), Confluence, GitHub, GitLab, SharePoint, Outlook, Gmail — qua **MCP** hoặc **API** (OAuth 2.0 / PAT). API và MCP tính riêng. |
+| 🔎 **Scan & tổng hợp** | Quét cào hết field (kể cả comment) → chuẩn hóa → loại trùng lặp → dựng **wiki liên kết** mỗi project; tùy chọn đào sâu thành feature / BR / AC. |
+| ☁️ **Đồng bộ Cloud KB** | Đẩy/kéo **idempotent** lên Confluence chung và **GitHub private** (git push). Versioning US ↔ Change-Request (giữ bản cũ, đánh dấu superseded, link bản mới). |
+| 📊 **Báo cáo tiến độ** | Dashboard nhiều project × thành viên × loại issue, **lọc chi tiết**, phân tích **giờ công chuẩn vs đã log + OT**, cảnh báo rủi ro — nhìn sơ là nắm tình hình. |
+| ✉️ **Mail & cảnh báo** | Gửi báo cáo (Gmail / Outlook / SMTP) có banner; lỗi lịch tự bắn ticket + email. |
+| ⏰ **Lịch cấp HĐH** | launchd / cron / schtasks — chạy đúng giờ **kể cả khi đóng app**. |
+| 📝 **Template động** | Prompt + tài liệu (BRD/PRD…) tự điều chỉnh theo **vai trò (BA/PO/SA/QA)** và **domain** đang chọn. |
+| 📦 **Archive bàn giao** | Đóng gói KB có **mật khẩu + phân quyền** (read-only / read-write) để giao cho user khác. |
+| 🔐 **Cổng mật khẩu** | Sync / gửi mail / sync-trong-lịch đi qua mật khẩu vận hành; export thì không. |
 
-- Kết quả lưu vào thư mục vault (`vault_path` trong config) — mở bằng Obsidian (tùy chọn) hoặc editor markdown bất kỳ.
-- Mặc định **mỗi project Jira một thư mục riêng** tên `KEY_Tên-project` (vd `PROJ_MyApp/`);
-  đổi mẫu tên bằng `PROJECT_FOLDER_PATTERN`, tắt gom bằng `GROUP_BY_PROJECT=false` trong `.env.local`.
-- Quét lẻ vài task: `quét task PROJ-102` (merge vào vault, không đụng phần khác).
-- Jira đặt tên loại issue không chuẩn (vd tiếng Việt) → khai `JIRA_TYPE_MAP` trong `.env.local`.
-- Token chỉ nằm trong `.env.local` — Claude tạo file và mở cho bạn tự dán, không dán vào chat.
-- **Hỗ trợ cả Jira Server/DC (Bearer PAT) lẫn Jira Cloud/Atlassian (email + API token)** — script tự nhận diện. Cloud lấy token tại: avatar → Account settings → Security → Create and manage API tokens.
-- **Lấy dữ liệu mới định kỳ**: `python3 import_jira.py --since` chỉ kéo issue mới/cập nhật từ lần quét trước (nhanh). Đặt lịch tự động bằng lệnh `đặt lịch quét jira`.
+## 🧭 Nguyên lý hoạt động
 
-> ⚠️ **Lưu ý lịch tự đồng bộ**: scheduled task chỉ **tự quét được khi Jira là Cloud/Atlassian
-> hoặc public** (môi trường Claude ra được mạng). Với **Jira nội bộ/VPN** (vd `jira.company.vn`),
-> lịch chỉ có thể **nhắc bạn** chạy lệnh Terminal `python3 "<đường-dẫn>/import_jira.py" --since`
-> — vì sandbox không vào được mạng nội bộ, không có cron nào vượt qua rào đó.
+```text
+  ┌─────────────┐   ┌──────────────────┐   ┌───────────────────┐   ┌──────────────────────────┐
+  │ 1. NGUỒN    │   │ 2. SCAN & TỔNG    │   │ 3. CLOUD KB CHUNG  │   │ 4. AUTOMATION            │
+  │   (Connect) │──▶│   HỢP (wiki KB)   │──▶│  Confluence/GitHub │──▶│  Schedule · Report · Mail │
+  │  MCP / API  │   │  chuẩn hóa·dedup  │   │  GET & POST (idemp) │   │  · Alert (ticket lỗi)    │
+  └─────────────┘   └──────────────────┘   └───────────────────┘   └──────────────────────────┘
+```
 
-## Cập nhật (giữ nguyên tri thức)
+## ⚙️ Cài đặt
 
-Khi có bản app mới, gõ **"cập nhật phiên bản"** trong Cowork (hoặc chạy file
-**`scripts/update.command`**). Nó chỉ cập nhật phần **CORE** của app (CLAUDE.md, workflows, templates, tools, scripts…)
-và **KHÔNG đụng tới DATA** của bạn — tri thức trong `docs/`, vault `*_Brain/`, `inbox/`,
-`.kb/*`, `config/factory-config.yaml`, `config/domain-rules.md`, và token Jira được giữ
-nguyên. Sau cập nhật, xem `CHANGELOG.md` để biết bản app có gì mới.
+Một bộ cài cho **cả Claude CLI và Desktop**. Cài skill vào `~/.claude` và tự tạo sẵn project trong
+`Downloads/Knowledge-Base` (folder `Skill/` bên trong).
 
-## Dời sang máy khác (export → import)
+**macOS / Linux (bash):**
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/isc-fkit/Kora-Framework/release/install.command)
+```
 
-1. Trên máy cũ: chạy **`scripts/export-kb.command`** → đóng gói toàn bộ DATA (tri thức,
-   vault, config, inbox, `.kb/*`) thành 1 file để mang đi.
-2. Trên máy mới: tải bản app như mục "Tải & cài đặt", rồi chạy **`scripts/import-kb.command`**
-   với gói vừa export → tri thức trở về đúng chỗ.
+**Windows (cmd / PowerShell):**
+```bat
+curl -fsSL https://raw.githubusercontent.com/isc-fkit/Kora-Framework/release/install.bat -o "%TEMP%\kora-install.bat" && "%TEMP%\kora-install.bat"
+```
 
-Riêng `.env.local` (token Jira) **không** đi theo gói export (chủ đích bảo mật) — điền lại
-trên máy mới. Quét Jira chỉ cần Python 3 có sẵn (script dùng thư viện chuẩn, không phải
-cài thêm gì); các luồng khác không cần gì.
+> Không quen Terminal? Tải `install.command` / `install.bat` rồi chạy. macOS lần đầu bị chặn →
+> **System Settings → Privacy & Security → Open Anyway**. Khi cài, **cấp quyền** truy cập thư mục
+> project + chạy script + các Connector cần dùng.
 
-## Phản hồi & báo lỗi
+Chạy lại cùng lệnh = **cập nhật**. Gỡ: `/kora-uninstall` (hoặc `uninstall.command` / `uninstall.bat`).
 
-Gặp lỗi hoặc muốn góp ý? Mở issue tại:
-<https://github.com/isc-fkit/Kora-Framework/issues>
+## 🚀 Hành trình sử dụng
 
-## Nguyên tắc an toàn
+```text
+setup → init → connect → scan → schedule → mail → archive
+```
 
-Không gì được ghi vào KB chính khi bạn chưa duyệt. Token Jira chỉ nằm trong
-`.env.local` (không commit, không dán vào chat). Mọi tri thức truy được nguồn gốc.
+1. **`/kora-init`** — chọn domain (tự kéo preset + rule), tên project, vault.
+2. **`/kora-connect`** — kết nối nguồn (MCP/API); xem nguồn đã kết nối.
+3. **`/kora-scan`** — quét & tổng hợp (scan-all hoặc chọn project).
+4. **`/kora-sync`** — đẩy KB lên Confluence / GitHub private (có cổng mật khẩu).
+5. **`/kora-schedule`** — lịch nền: get → mật khẩu → report → mail → (tùy chọn) sync.
+6. **`/kora-send-mail`** — gửi báo cáo, gửi ngay hoặc đặt lịch.
+7. **`/kora-archive`** — đóng gói bàn giao có phân quyền.
+
+## 📚 Các lệnh /kora-*
+
+| Lệnh | Việc | Gác mật khẩu |
+|---|---|:--:|
+| `/kora-init` | Khởi tạo dự án (domain, rule, project, vault) | |
+| `/kora-connect` | Kết nối nguồn / xem nguồn đã kết nối | |
+| `/kora-scan` | Quét & nạp tri thức + tổng hợp wiki | |
+| `/kora-scan-jira-task` | Quét 1 task/epic Jira theo mã | |
+| `/kora-import-files` | Nạp PDF / DOCX / ảnh / zip Obsidian | |
+| `/kora-sync` | Đẩy KB lên Confluence / GitHub private (versioning) | 🔒 |
+| `/kora-send-mail` | Gửi báo cáo (Gmail/Outlook/SMTP), ngay/đặt lịch | 🔒 |
+| `/kora-schedule` | Lịch cấp HĐH: get → report → mail → (tùy chọn) sync | 🔒¹ |
+| `/kora-daily-report` | Báo cáo tiến độ (chọn project, lọc, theo thời gian) | |
+| `/kora-archive` | Đóng gói KB phân quyền + mật khẩu để bàn giao | 🔑² |
+| `/kora-export-docs` | Xuất tài liệu DOCX / PDF theo doc template | |
+| `/kora-export-knowledge-base` | Xuất toàn bộ KB ra zip (sao lưu / dời máy) | |
+| `/kora-evolve` | Dọn / tiến hóa / kiểm tra sức khỏe KB | |
+| `/kora-update` · `/kora-uninstall` | Cập nhật app/skill · Gỡ skill | |
+
+<sub>¹ bước **sync** trong lịch gác bằng `KORA_OPS_PW`. ² archive gác bằng mật khẩu riêng, chỉ chặn HOST tạo gói.</sub>
+
+## 📝 Template phân tích theo vai trò
+
+Khi user yêu cầu phân tích, KORA hỏi **vai trò** → nạp **prompt mẫu động** → hỏi/áp **domain rule** →
+đề xuất **doc template**. Prompt tự thay `[domain]` theo cấu hình và đổi "lăng kính" theo vai trò:
+
+| Vai trò | Prompt | Doc template | Output |
+|---|---|---|---|
+| BA | `templates/prompts/role-ba.md` | `templates/docs/BRD-template.md`, `PRD-template.md` | Actors, tính năng, user story |
+| PO | `templates/prompts/role-po.md` | BRD, Roadmap | Business value, KPI, MoSCoW |
+| SA | `templates/prompts/role-sa.md` | PRD (Part B), SDD | Kiến trúc, data model, API, NFR |
+| QA | `templates/prompts/role-qa.md` | Test plan | AC, test scenario, edge case |
+
+Bản đồ: `templates/prompts/_index.md` · output mẫu đã điền: `templates/examples/`.
+
+## 🔐 Bảo mật & khóa (token)
+
+- **Khóa mặc định ở SHELL ENV**, KHÔNG rải `.env` trong project: `export KORA_<SRC>_TOKEN=…` trong
+  `~/.zshrc` / `~/.bashrc`. Các tool đọc qua `os.getenv`.
+- **Chỉ tạo `.env.local`** ở 2 ca: **archive** (ship 1 key read-only) và **lịch sync nền** (mỗi nguồn
+  user chọn auto-sync mới có `.env.local` riêng — cron/launchd không đọc shell tương tác).
+- Token **KHÔNG** vào chat / log / git / config. github-sync bơm PAT qua `GIT_CONFIG_*` (không vào
+  `.git/config`/argv). Hai cổng mật khẩu tách biệt: **archive** (HOST tạo gói) và **ops** `KORA_OPS_PW`
+  (sync / mail / sync-trong-lịch). `/kora-export` **không** gác.
+
+## 📦 Bàn giao & đồng bộ
+
+HOST đẩy KB lên **GitHub private / Confluence** → `/kora-archive` ship gói USER (key đọc + tắt
+report/mail). USER mở **Claude Desktop** → tạo project → **import gói host export** → connect MCP tới
+nguồn đó → `/kora-schedule` tạo lịch **kéo (pull)** → đúng giờ tự đồng bộ KB về local. Project import
+luôn **hỏi để nắm tri thức** trước khi trả lời (tránh lạc đề).
+
+## 🗂️ Cấu trúc dự án
+
+```text
+.claude/commands/     # Skill /kora-* (markdown)
+workflows/            # Kịch bản step-by-step cho từng luồng
+config/               # domain presets, rule, factory-config, ops-pw.sha256
+templates/            # prompts/ (theo vai trò) · docs/ (BRD/PRD) · examples/
+tools/
+  connections/        # sổ đăng ký + probe nguồn
+  jira-to-obsidian/   # quét Jira → vault
+  kb-synth/           # tổng hợp wiki nhẹ
+  kb-sync/            # versioning US↔Change-Request
+  confluence-sync/    # đẩy/kéo KB ↔ Confluence (REST + OAuth)
+  github-sync/        # đẩy KB → GitHub private (git push)
+  kora-scheduler/     # lịch HĐH + orchestrator
+  progress-report/    # dashboard tiến độ
+  report-mailer/      # gửi email (SMTP)
+  archive-gate/       # cổng mật khẩu (archive + ops)
+docs/                 # KB chính (chỉ ghi sau khi duyệt)
+assets/               # ảnh landing + banner email
+```
+
+## ⚙️ Cấu hình
+
+Tất cả trong `config/factory-config.yaml` (DATA, gitignore) — bản mẫu `config/factory-config.example.yaml`.
+Mọi giá trị **động** (đường dẫn, domain, vault, lịch, target sync, người nhận mail, banner) — không hardcode.
+
+## 🤝 Đóng góp
+
+Repo vừa là **landing** (GitHub Pages tự deploy mỗi push) vừa là **app base**. Sửa CORE muốn app đã cài
+nhận được → **tăng `version.json` + ghi `CHANGELOG.md`** → push (`/kora-release` cho maintainer). Chỉ sửa
+landing (`index.html`) → giữ nguyên `version.json`. Xem `RELEASING.md`.
+
+---
+
+<div align="center"><sub>Made with 🦊 by <b>FPT Telecom</b> · KORA AI — Kora-1</sub></div>

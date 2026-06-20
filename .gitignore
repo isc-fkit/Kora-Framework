@@ -4,6 +4,17 @@ tools/jira-to-obsidian/.env.local
 # Env per-source (mỗi nguồn Jira 1 file) — DATA của user, KHÔNG commit. Giữ lại .env.example làm template.
 tools/jira-to-obsidian/.env.*
 !tools/jira-to-obsidian/.env.example
+# Confluence-sync: env (kể cả read-cred ship trong archive) + token OAuth — DATA, KHÔNG commit.
+tools/confluence-sync/.env.*
+!tools/confluence-sync/.env.example
+tools/confluence-sync/.oauth-token.json
+# GitHub-sync: PAT (.env) + worktree làm việc — DATA/máy-cục-bộ, KHÔNG commit. Giữ .env.example.
+tools/github-sync/.env.*
+!tools/github-sync/.env.example
+tools/github-sync/work/
+# Lịch cấp HĐH (DATA, máy-cục-bộ) — registry + log. Plist/crontab nằm NGOÀI repo.
+tools/kora-scheduler/schedules.json
+reports/scheduler-logs/
 
 # ===== KHÔNG public nội dung nghiệp vụ (chỉ host trang giới thiệu) =====
 # Bỏ comment các dòng dưới nếu muốn GIỮ KB ở local, chỉ đẩy landing page + source code:
@@ -31,11 +42,15 @@ Project_Name_Brain/
 config/factory-config.yaml
 config/domain-rules.md
 
-# ===== Gói export tri thức (tạo bởi scripts/export-kb) — không commit =====
+# ===== Gói export / archive tri thức (tạo bởi scripts/export-kb, archive-kb) — không commit =====
 genesis1-kb-*.zip
+kora-kb-*.zip
+kora-archive-*.zip
 
 # ===== Đánh dấu máy người duy trì (bật quyền "phát hành") — local-only =====
 .maintainer
+# ===== Đánh dấu gói "user" (tắt report/mail, bật get&post) — local-only =====
+.kora-user
 
 # ===== Rác hệ thống =====
 .DS_Store

@@ -1,9 +1,56 @@
-# Workflow 08 — Lịch tự động đồng bộ Jira (scheduled sync)
+# Workflow 08 — Lịch tự động đồng bộ (scheduled sync) + báo cáo
 
-> Trigger: "đặt lịch quét jira", "tự động đồng bộ jira", "lên lịch sync" (confirm ý định trước).
-> Cũng được hỏi ở Bước 4 của setup khi user bật quét Jira.
+> Trigger: "đặt lịch quét jira", "tự động đồng bộ", "lên lịch sync", "đặt lịch báo cáo" (confirm ý định trước).
+> Cũng được hỏi ở Bước 4 của setup khi user bật quét nguồn.
 
-## Điều kiện
+## 0. Chọn CƠ CHẾ lịch (hỏi đầu tiên, AskUserQuestion)
+
+| | **Máy (HĐH)** — khuyến nghị | **Cowork** |
+|---|---|---|
+| Chạy khi ĐÓNG app? | ✅ Có (launchd/cron/schtasks) | ❌ Không (chỉ khi mở app, chạy bù) |
+| MCP connector? | ❌ Không (dùng API/token + tool REST) | ✅ Có |
+| Get & **Post** Confluence? | ✅ orchestrator tự đẩy | Hạn chế |
+| Quản lý | `tools/kora-scheduler/schedule.py` (register/list/edit/remove/**enable/disable**) | panel "Scheduled tasks" của app |
+
+- **Máy (HĐH):** dùng `scripts/schedule.command` / `.bat` → `schedule.py`. Job chạy
+  `tools/kora-scheduler/orchestrator.py --run <id>`: **CỔNG MẬT KHẨU (`KORA_OPS_PW`) gác CẢ lượt →
+  scan/auto-get → reindex → POST Confluence → report → mail → lỗi thì ticket**. Cổng sai/thiếu →
+  bỏ TOÀN BỘ lượt (kể cả auto-get), chỉ cảnh báo — KHÔNG fail cứng. Đây là cách đáp ứng "chạy đúng
+  giờ trong máy, không qua sandbox". Xem chi tiết ở **Mục A-HĐH** bên dưới.
+- **Cowork:** giữ nguyên cách cũ (`mcp__scheduled-tasks__create_scheduled_task`) — Bước 1–3 + Mục B.
+- **Liệt kê = hợp nhất** cả hai: `schedule.py list` + `mcp__scheduled-tasks__list_scheduled_tasks`.
+
+## Mục A-HĐH — Lịch get & post cấp hệ điều hành
+
+> 🔒 **CỔNG MẬT KHẨU gác CẢ lượt (kể cả auto-get).** Mỗi lần orchestrator chạy, việc ĐẦU TIÊN là
+> `verify_ops_password.py` (env `KORA_OPS_PW`). Sai/thiếu → **bỏ TOÀN BỘ lượt**: không scan/get, không
+> post/report/mail/sync (chỉ ghi log + cảnh báo, không fail cứng). ⇒ Lịch nền PHẢI có mật khẩu ở
+> `~/.config/kora/ops-pw.env` (chmod 600) để wrapper source — kể cả lịch chỉ-get. KHÁC mật khẩu archive.
+
+1. **Tiền kiểm:** mỗi nguồn trong scan/post-list phải có credential **chạy nền được**
+   (PAT/API token/OAuth còn refresh) — cron không mở trình duyệt. Kiểm bằng
+   `python3 tools/connections/check_connection.py --check <id>`. Nguồn chỉ-MCP không quét nền được → báo user.
+2. **Hỏi (THÂN THIỆN — KHÔNG bắt gõ cron):**
+   - **Mốc giờ** → AskUserQuestion **multi-select** gợi ý `08:00 / 12:00 / 14:00 / 17:00` + ô **"Other"** (HH:MM).
+     Cho chọn **NHIỀU mốc** (cùng số phút; khác phút → lịch riêng).
+   - **Tần suất** → AskUserQuestion **[Mỗi ngày] / [Thứ 2–6] / [Ngày tùy chọn]** → `--days every|mon-fri|<csv>`.
+   - **scan-list** (id nguồn trong `connections:`, vd `jira:local,confluence:KB`) · **post-list** (đích đẩy,
+     vd `confluence:KB`) · (HOST) bật email báo cáo? (qua cổng mật khẩu `send_report.py --check`).
+3. ✋ **Confirm** → `python3 tools/kora-scheduler/schedule.py register --id <slug> --times "08:00,14:00" --days mon-fri
+   --scan <scan-list> --post <post-list> [--email <list>]` (Windows: `py` / `scripts\schedule.bat`).
+   (Power-user: thay `--times/--days` bằng `--cron "<expr>"`. Cài HĐH lỗi → in `⚠️ CHƯA cài được vào HĐH`,
+   lưu `enabled=false`; mời `enable` lại hoặc dùng cơ chế **Cowork** ở Mục 0 làm fallback.)
+4. Báo user: lịch chạy lúc nào, ghi ở `schedules.json`, sửa scan/post/email KHÔNG cần tạo lại
+   (`schedule.py edit`), **bật/tắt** bằng `schedule.py enable|disable --id <slug>` (tắt = gỡ artifact OS
+   nhưng GIỮ trong danh sách → bật lại được), gỡ hẳn bằng `schedule.py remove --id <slug>`. Log ở `reports/scheduler-logs/`.
+
+> Lỗi khi chạy nền: orchestrator **skip nguồn lỗi + ghi log**, cuối lượt **tạo ticket issue**
+> (`scheduler.ticket_issue.target` = confluence|jira) **và email** `scheduler.error_recipients`
+> (rỗng → `reports.email.to`). Idempotent theo ngày, có `.lock` chống chồng lượt.
+
+---
+
+## Điều kiện (cho Mục Cowork bên dưới)
 
 - Đã cấu hình `.env.local` (token + URL) và quét đầy đủ ít nhất 1 lần (có mốc
   `_system/last-import-<host>.txt`).
@@ -66,18 +113,62 @@ Báo user: lịch đã đặt, chạy lúc nào, đồng bộ kiểu gì, đổi
 
 ## Mục B — Đặt lịch BÁO CÁO tiến độ (trigger: "đặt lịch báo cáo")
 
-Lịch 8:00 **tự làm mới + sinh report tiến độ** (workflow 14). ✋ Tạo scheduled task là automation
-thường trực → **confirm trước khi tạo**.
+> 🥇 **CÁCH KHUYẾN NGHỊ — lịch HĐH (quản lý được ở `/kora-schedule`).** Để lịch báo cáo+mail **hiện trong
+> danh sách `/kora-schedule`, SỬA và XÓA được** (đúng yêu cầu quản lý), đăng ký qua **Mục A-HĐH** với
+> `--report-projects` + `--email` (chạy cả khi đóng app, cùng `schedules.json`, cùng cổng `KORA_OPS_PW`):
+> `schedule.py register --id <slug> --times "08:00" --days mon-fri --scan <jira-id> --report-projects "<KEYS>"
+> --mail-provider smtp --email "<list>"`. Đây là cùng đường mà `/kora-send-mail` → [Đặt lịch] dùng. Hỗ trợ
+> **nhiều mốc giờ** + **[Mỗi ngày]/[Thứ 2–6]**; bật/tắt/sửa/xóa bằng `schedule.py enable|disable|edit|remove`.
 
-1. Hỏi tần suất (mặc định **8:00 mỗi sáng** `0 8 * * *`) như Bước 1.
-2. `mcp__scheduled-tasks__create_scheduled_task`, `notifyOnCompletion:true`, prompt đại ý:
+**Cách thay thế (chỉ khi app mở) — Cowork scheduled task qua `/schedule`:** chạy trọn chu trình mỗi ngày —
+**kéo dữ liệu → sinh report tiến độ (workflow 14) → (tùy chọn) tự gửi email**. Task chạy LOCAL khi máy thức
+và hiện trong panel "Scheduled tasks" của Cowork (KHÔNG nằm trong `/kora-schedule`; MCP không có hàm xóa —
+gỡ bằng nút trong panel app). ✋ Automation thường trực → **confirm trước khi tạo**.
+
+1. **Hỏi tần suất** (mặc định **8:00 mỗi sáng** `0 8 * * *`) như Bước 1.
+
+2. **Hỏi tự động gửi email?** (AskUserQuestion: "Tự động gửi báo cáo qua email mỗi lần chạy?" → [Có] / [Không]).
+   - **Không** → đặt `reports.email.enabled: false`, sang bước 3.
+   - **Có** →
+     a. **Cổng MẬT KHẨU (bắt buộc):** chạy `python3 tools/report-mailer/send_report.py --check` (Windows `py`).
+        `--check` chỉ thử đăng nhập SMTP, KHÔNG gửi.
+        - ❌ Lỗi (chưa cấu hình / app password sai) → **CHƯA bật được auto-gửi**. Hướng dẫn user: copy
+          `tools/report-mailer/.env.local.example` → `.env.local`, tạo Google App Password
+          (myaccount.google.com/apppasswords), điền `SMTP_USER` + `SMTP_PASS`. Bí mật CHỈ ở `.env.local`
+          (gitignore) — **KHÔNG hỏi/nhập password qua chat/card**. Xong → chạy lại `--check`.
+        - ✅ OK → đi tiếp.
+     b. **Danh sách người nhận (thêm/xoá tùy ý):** đọc `reports.email.to` hiện có trong
+        `config/factory-config.yaml`, trình bày. Dùng AskUserQuestion cho user **thêm** (ô "Other" nhập
+        email mới) / **xoá** (chọn email đang có) — lặp tới khi hài lòng. Ghi danh sách cuối vào
+        `reports.email.to`. ✋ **Đọc lại danh sách cuối cho user xác nhận** (gửi mail = hành động ra ngoài).
+     c. Đặt `reports.email.enabled: true`, `reports.email.method: smtp` trong config.
+
+3. ✋ Confirm → tạo **Cowork scheduled task qua `/schedule`** = gọi `mcp__scheduled-tasks__create_scheduled_task`,
+   `notifyOnCompletion:true`. Prompt = **1 task TỰ làm trọn chu trình mỗi lần chạy (kéo dữ liệu → report → gửi mail)**:
    > "Chạy `workflows/14-progress-report.md` chế độ TỰ ĐỘNG cho project này: làm mới dữ liệu
    > (Cloud→kéo qua MCP nạp vault; self-host→`--check-fresh`, không tự kéo) → sinh report
    > `reports/progress-report-latest.html`. Idempotent: hôm nay đã chạy thành công thì bỏ qua.
    > Báo cho user: tiến độ tóm tắt + đường dẫn report. **Nếu KHÔNG làm mới được** (phiên nền thiếu
-   > MCP / Jira nội bộ không tới): vẫn sinh report (dữ liệu CŨ, có banner) + hướng dẫn cập nhật —
-   > Cloud: 'mở Cowork gõ báo cáo tiến độ'; self-host: lệnh terminal `import_jira.py --since`."
-3. Ghi `reports.scheduled` (cron + task_id) vào `factory-config.yaml`. Báo user cách đổi/huỷ.
+   > MCP / Jira nội bộ không tới): vẫn sinh report (dữ liệu CŨ, có banner) + hướng dẫn cập nhật.
+   > **ĐỌC `reports.email` TỪ config lúc chạy (nguồn DUY NHẤT):** nếu `enabled:true` → gửi tới
+   > `reports.email.to`. method `smtp`: `python3 tools/report-mailer/send_report.py --to '<reports.email.to nối phẩy>' --subject '<subject, {date}=hôm nay>' --html-file reports/progress-report-latest.html`;
+   > method `gmail_draft`: tạo nháp qua Gmail connector. Thiếu creds → báo user, KHÔNG fail im."
+4. Ghi `reports.scheduled` (cron + task_id) vào config. Báo user: cách đổi/huỷ lịch + **cách sửa danh sách nhận** (mục dưới).
 
-> ⏰ Chạy bù khi mở app (như lịch sync). Lịch nền dùng MCP có thể không ổn định → đã có nhánh
-> "báo cũ + hướng dẫn" để không bao giờ fail im lặng.
+### Sửa danh sách / bật-tắt gửi mail (bất cứ lúc nào)
+> Trigger: "sửa danh sách email báo cáo", "thêm/bớt người nhận mail", "bật/tắt auto gửi mail".
+
+Vì scheduled task **đọc `reports.email` từ config lúc chạy**, nên chỉ cần sửa config là **lịch tự dùng
+giá trị mới — KHÔNG phải sửa/tạo lại task** (đáp ứng "thêm/xoá → tự cập nhật lịch"):
+- Đọc `reports.email.to`, trình bày; AskUserQuestion thêm/xoá; ghi lại config. Bật/tắt = đổi `enabled`.
+- Bật auto-gửi lần đầu mà chưa có creds → chạy `--check` (cổng mật khẩu như trên) trước khi `enabled:true`.
+- Báo user: "đã cập nhật — lịch sẽ gửi theo danh sách mới (không cần tạo lại lịch)."
+
+> ⏰ Chạy bù khi mở app (như lịch sync). Lịch nền có thể thiếu MCP/connector → đã có nhánh "báo cũ +
+> hướng dẫn" / "thiếu creds → báo, không fail" để không bao giờ fail im lặng.
+>
+> 🗂 **Scope `/schedule` (quan trọng):** task tạo qua `/schedule` đăng ký theo **phiên/agent tạo ra nó**.
+> Để task hiện trong panel **"Scheduled tasks" của Cowork app**, phải chạy luồng này **TRONG Cowork app**
+> (chạy ở phiên Claude Code khác sẽ tạo task ở scope khác, KHÔNG hiện trong panel đó). Registry thật nằm ở
+> `~/Library/Application Support/Claude/claude-code-sessions/<...>/scheduled-tasks.json` (service giữ trong
+> RAM — sửa file phải đóng app rồi mở lại). **MCP không có hàm delete** → gỡ task bằng nút xoá trong panel app.

@@ -21,6 +21,16 @@ Lệnh "phát hành" KHÔNG dành cho user đã cài app — chỉ chủ repo. K
 
 > 🔒 **Bảo vệ kép:** dù có lỡ chạy tiếp, `git push` vẫn cần quyền đẩy lên repo gốc — user thường
 > KHÔNG có quyền → push thất bại an toàn, không đụng được repo gốc.
+>
+> 📦 **KHÔNG phát hành cho người dùng:** `kora-release.md` (skill) + `workflows/12-release.md` +
+> `workflows/13-evolve-system.md` bị **installer/update TỰ LOẠI** khỏi bản cài (`install.command`/`.bat`,
+> `scripts/update.command`) — chỉ tồn tại trên repo của người duy trì. Người dùng thường không thấy lệnh phát hành.
+
+## Bước 0b — HỎI 3 câu trước khi làm (qua `/kora-release`)
+
+1. **Có phát hành version MỚI không?** → [Có — bump] (Luồng B/Bước 2B) / [Không — chỉ push landing/code] (Luồng A/Bước 2A).
+2. **Push lên nhánh nào?** → [release] (mặc định) / [main] / [Other].
+3. **Merge nhánh nào → nhánh nào?** → [release → main] / [Không merge] / [Other]. Chỉ ff-merge.
 
 ## Bước 1 — Xác định loại thay đổi
 
@@ -55,10 +65,13 @@ Chạy `git status --short` + `git diff --stat` → xem đã đổi gì:
      `workflows/10-update.md` Bước 2 sẽ hiện `intro` + đánh dấu khi `force:true` cho user bản cũ.
 2. Sửa `version.json`: `version` mới + `released` = **ngày hôm nay** + `force` + `intro` (Bước 1b).
    (giữ `name`, `repo`, `codename`)
-2b. **BẮT BUỘC — đồng bộ nhãn version trên landing `index.html`** theo `version` mới:
-   thẻ badge hero `<div class="badge">FPT ISC · vX.Y.Z · "Kora-1"</div>` (và mọi chỗ in version khác).
-   (Quên bước này → web hiện version cũ dù đã phát hành bản mới. `grep -n 'class="badge"\|v[0-9]\.[0-9]' index.html`
-   để soát + sửa cho khớp `version.json`.)
+2b. **BẮT BUỘC — MAP nhãn version trên landing `index.html`** theo `version` mới (3 chỗ):
+   - **Brand sidebar:** `<div class="fw">KORA AI<span>vX.Y.Z · Kora-1</span></div>`.
+   - **Badge hero:** `<span class="badge">FPT Telecom · KORA AI · vX.Y.Z · "Kora-1"</span>`.
+   - **Release Note (`#release`):** thêm **card version mới** (ngày + bullet rút từ CHANGELOG), chuyển badge
+     **MỚI NHẤT** sang card đó, cập nhật callout *"Bản mới nhất (latest): vX.Y.Z"* + tăng tổng số bản.
+   Soát: `grep -nE 'v[0-9]+\.[0-9]+\.[0-9]+' index.html` → mọi nhãn version khớp `version.json`
+   (quên bước này → web hiện version cũ dù đã phát hành bản mới).
 3. Thêm mục ĐẦU vào `CHANGELOG.md`:
    `## vX.Y.Z "Kora-1" — YYYY-MM-DD` + các gạch đầu dòng "có gì mới".
    **Nếu cần thao tác khi cập nhật** (migration: đổi cấu trúc config/vault…) → ghi RÕ các bước ở đây —
@@ -75,8 +88,8 @@ Chạy `git status --short` + `git diff --stat` → xem đã đổi gì:
    `git tag vX.Y.Z && git push origin vX.Y.Z` — `vX.Y.Z` phải **TRÙNG** `version.json.version`.
 6d. **GitHub Release + release note** (nếu có `gh`): nội dung = đúng mục CHANGELOG vừa thêm:
    `gh release create vX.Y.Z --title "Kora-1 vX.Y.Z" --notes "<nội dung mục CHANGELOG vX.Y.Z>"`.
-7. **KIỂM VERSION KHỚP (4–5 nơi)** trước khi xong: `version.json.version` == header `CHANGELOG`
-   (`## vX.Y.Z`) == nhãn landing (`mc-ver`/footer — Bước 2b) == git tag `vX.Y.Z` == GitHub Release.
+7. **KIỂM VERSION KHỚP (5 nơi)** trước khi xong: `version.json.version` == header `CHANGELOG`
+   (`## vX.Y.Z`) == **brand + badge `index.html`** (Bước 2b) == git tag `vX.Y.Z` == GitHub Release.
    Lệch chỗ nào → sửa cho khớp rồi báo.
 8. Báo: app đã cài gõ **`cập nhật phiên bản`** sẽ thấy bản này (đọc CHANGELOG → confirm → tải CORE, giữ DATA);
    **web (GitHub Pages) đã deploy** bản mới.

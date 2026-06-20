@@ -8,10 +8,25 @@
 
 ## Bước 0 — Kiểm tra dữ liệu
 
+- 🚫 **Guard gói USER:** có `.kora-user` (hoặc `package.type: user`) → máy NGƯỜI DÙNG, KHÔNG báo cáo/gửi
+  mail. Báo nhẹ "chỉ HOST mới có báo cáo; máy này chỉ get&post KB chung" rồi DỪNG.
 - Đọc `vault_path` từ `config/factory-config.yaml`. Vault chưa có note Jira (`source: jira`) →
   báo nhẹ + gợi ý **`quét jira`** trước (workflow 01). KHÔNG sinh report rỗng.
 - Khuyến nghị: nếu vault quét bằng bản < v1.1.0 (thiếu `time_*_s` / `sprint_state`) → nhắc **quét lại**
   để có đủ số liệu thời gian/sprint.
+
+## Bước 0.4 — Cổng mật khẩu vận hành (KORA_OPS_PW)
+
+> 🔒 Báo cáo kéo dữ liệu **live** từ nguồn → PHẢI qua cổng vận hành TRƯỚC khi làm mới/sinh report.
+> Cùng cổng với `/kora-sync`, `/kora-send-mail`, lịch nền — **KHÁC** mật khẩu archive. `/kora-export*` KHÔNG dùng cổng này.
+
+`python3 tools/archive-gate/verify_ops_password.py` (đọc env `KORA_OPS_PW` — **KHÔNG hỏi qua card, KHÔNG in**;
+Windows `py`). **Exit ≠ 0 → DỪNG**: không làm mới, không sinh report.
+- Khác nhánh "dữ liệu CŨ + banner" ở Bước 0.5: nhánh đó chỉ áp **SAU** khi đã qua cổng mà không kéo được
+  (mạng/MCP nội bộ) — KHÔNG phải khi cổng hỏng.
+- Chế độ TỰ ĐỘNG/lịch (Cowork-scheduled chạy workflow này): mật khẩu lấy từ env
+  (`KORA_OPS_PW` / `~/.config/kora/ops-pw.env`); thiếu → cổng hỏng → bỏ lượt, KHÔNG sinh report.
+- Gói `.kora-user` đã bị chặn ở Bước 0 nên không tới bước này.
 
 ## Bước 0.5 — LÀM MỚI dữ liệu trước khi report (Pha 2)
 
@@ -52,7 +67,9 @@ python3 tools/progress-report/build_report.py
 Tạo trong `reports/`:
 - `progress-data-<ngày>.json` — số liệu thô (nguồn cho UI inline).
 - `progress-report-<ngày>.html` + `progress-report-latest.html` — **dashboard standalone** (mở bằng
-  trình duyệt, chia sẻ được; phong cách tối glass như landing).
+  trình duyệt, chia sẻ được; phong cách tối glass; có filter tương tác + chỗ `#kr-ai`).
+- `email-body-<ngày>.html` + `email-body-latest.html` — **thân email tĩnh, responsive cho điện thoại**
+  (email-safe, KHÔNG JS; có khối AI giữa `<!--KR-AI-START-->`/`<!--KR-AI-END-->` để điền ở Bước 1.5).
 
 ## Bước 1.5 — PHÂN TÍCH AI (rủi ro · phân loại · đề xuất · dự đoán trượt timeline)
 
@@ -60,12 +77,25 @@ Tạo trong `reports/`:
 > by-assignee, status, risks). Claude TỰ tính & viết phần này — đây là **"phân tích AI trong dashboard"**.
 > KHÔNG bịa số: chỉ suy luận từ JSON; thiếu dữ liệu thì nói rõ.
 
-Sinh khối **🤖 Phân tích AI** — in inline ở Bước 2 **VÀ** ghi vào container `<section id="kr-ai">`
-của `reports/progress-report-<ngày>.html` (+ `progress-report-latest.html`). Gồm:
+Sinh khối **🤖 Phân tích AI — CỰC KỲ CHI TIẾT**, ghi vào **3 nơi**: (a) in inline ở Bước 2; (b) container
+`<section id="kr-ai">` của `progress-report-<ngày>.html` (+ `-latest.html`); (c) **THAY toàn bộ** nội dung giữa
+`<!--KR-AI-START-->` và `<!--KR-AI-END-->` trong `email-body-<ngày>.html` (+ `email-body-latest.html`) bằng
+HTML email-safe (`<div>`/inline-style, KHÔNG `<script>`). Mỗi rủi ro nêu đủ: **mức độ (🔴/🟡) → khả năng/DỰ
+ĐOÁN + lý do bằng số liệu → tác động → PHƯƠNG ÁN ĐỀ XUẤT từng bước + ai làm + khi nào**. Gồm:
 
+0. **Đối chiếu theo CHUẨN (Cloud / industry best-practice) — nền cho mọi cảnh báo:** so số liệu với mốc
+   chuẩn rồi gọi tên "vượt / đạt / dưới chuẩn" kèm con số (đọc `capacity`, `logged_by_type`, `work_no_log`
+   trong JSON):
+   - **Năng suất giờ công:** đã log so với **giờ công chuẩn** (ngày làm việc trong tháng × 8h × 5 ngày/tuần).
+     `ot_seconds` > 0 → **cảnh báo OT** (nguy cơ burnout/ước tính thấp); đạt < ~80% chuẩn → **log thiếu**
+     (nguy cơ under-report / dữ liệu nỗ lực không đủ). Nêu rõ % năng lực + OT/thiếu của nhóm VÀ từng thành viên.
+   - **Phủ logtime theo loại:** chỉ Task/Sub-task/Bug log giờ — Epic/User Story/Request KHÔNG; nếu nhiều
+     `work_no_log` (Task/Sub-task chưa làm xong mà chưa log) → **dữ liệu nỗ lực không tin cậy**, cảnh báo.
+   - **Sprint health:** % done so với % thời gian sprint đã trôi; WIP (đang-làm) quá cao so với sức nhóm; quá hạn.
+   - **Phân bổ:** lệch tải giữa thành viên; issue thiếu estimate/assignee.
 1. **Phân loại tình trạng (health) theo issue/nhóm:** 🟢 đúng tiến độ · 🟡 cần chú ý · 🔴 rủi ro cao.
    Tiêu chí: quá hạn (duedate < hôm nay & chưa done), sprint active sắp hết hạn mà chưa xong, thiếu
-   estimate/assignee, `remaining_s` cao so với thời gian còn lại.
+   estimate/assignee, `remaining_s` cao so với thời gian còn lại, **lệch chuẩn năng suất (OT/thiếu)**.
 2. **Dự đoán TRƯỢT TIMELINE (mỗi active sprint):** so `sprint_end` với hôm nay → `days_left`; cân khối
    còn lại (`remaining_s`, số issue chưa done) → **nguy cơ trượt: Thấp / Vừa / Cao** + lý do (vd "còn 2
    ngày, 6 issue chưa done, remaining 40h ≫ sức chứa → **Cao**"). Nêu issue kéo lùi tiến độ.
@@ -92,6 +122,27 @@ của `reports/progress-report-<ngày>.html` (+ `progress-report-latest.html`). 
 4. **Nêu rõ PHẠM VI đã lọc** ở đầu dashboard: project(s) + thành viên + khoảng thời gian user đã chọn ở
    `/kora-daily-report` (report sinh trên đúng tập đã lọc).
 
+## Bước 2.7 — Gửi báo cáo qua email (nếu `reports.email.enabled: true`)
+
+Đọc `reports.email` từ `config/factory-config.yaml`. `enabled: false` → **BỎ QUA** bước này.
+
+- **`method: smtp`** (full-auto, hợp lịch nền) — chạy (Claude tự chạy trong sandbox; user chạy tay thì Windows `py`):
+  ```bash
+  python3 tools/report-mailer/send_report.py \
+    --to "<nối reports.email.to bằng dấu phẩy>" \
+    --subject "<reports.email.subject, thay {date} bằng ngày hôm nay>" \
+    --html-file reports/email-body-latest.html \
+    --no-attach-html \
+    --attach reports/progress-report-latest.html
+  ```
+  → thân thư = **email-body** (mobile, đã chèn AI ở Bước 1.5); đính kèm = **dashboard tương tác** (lọc trên máy tính).
+  Mật khẩu/App Password ở `tools/report-mailer/.env.local` (gitignore). Thiếu `.env.local` → script tự
+  báo lỗi rõ: nhắc user copy `.env.local.example` + tạo Google App Password. **TUYỆT ĐỐI không in mật khẩu.**
+- **`method: gmail_draft`** (bán tự động) — gọi tool `create_draft` của Gmail connector: `to`=list,
+  `subject`, `htmlBody`=nội dung `email-body-latest.html` (đã chèn AI). Báo user: mở Gmail → Drafts → **Gửi**.
+- **Lần ĐẦU bật gửi:** ✋ gửi thử tới 1 địa chỉ của user trước, xác nhận nhận được rồi mới gửi cả `to`.
+- **Phiên nền thiếu creds/connector → KHÔNG fail im:** vẫn giữ report ở `reports/`, báo user cách khắc phục.
+
 ## Bước 3 — Báo file + bước kế
 
 - Báo đường dẫn `reports/progress-report-latest.html` (mở bằng trình duyệt / gửi cho sếp).
@@ -99,6 +150,6 @@ của `reports/progress-report-<ngày>.html` (+ `progress-report-latest.html`). 
   [B] Quét Jira lấy dữ liệu mới (workflows/01) · [C] Phân loại issue thành tri thức (workflows/03) · [D] Dừng`.
 
 ## Guardrails
-- KHÔNG đẩy dữ liệu ra ngoài (local-only). KHÔNG ghi vào `docs/` KB chính — report là artifact ở `reports/`.
+- Mặc định **local-only**. CHỈ gửi ra ngoài khi `reports.email.enabled: true` — và chỉ tới đúng `reports.email.to` user đã cấu hình (xác nhận lần đầu). KHÔNG ghi vào `docs/` KB chính — report là artifact ở `reports/`.
 - `reports/` là DATA (gitignore + giữ khi update) — không commit báo cáo của user.
 - Thiếu số liệu (issue thiếu time/sprint) → report vẫn chạy, nêu rõ "X issue thiếu dữ liệu", không bịa.

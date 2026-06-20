@@ -10,14 +10,14 @@
 > **TUYỆT ĐỐI KHÔNG**: tự chọn mặc định thay user, gộp nhiều bước vào một lượt, hay chạy thẳng tới
 > cuối. Rule "tự chạy không hỏi" (CLAUDE.md §0.1 Tầng A) **CHỈ** dành cho phân tích read-only —
 > **KHÔNG áp cho setup**. Thà hỏi thừa còn hơn tự quyết thay user.
-> 📋 **Task tracker:** dùng danh sách bước thì **tick từng bước khi xong** và **đóng Bước 6
-> (cả danh sách) khi setup hoàn tất** — không để bước nào treo (xem Bước 6 mục 0).
+> 📋 **Task tracker:** dùng danh sách bước thì **tick từng bước khi xong** và **đóng Bước 5
+> (cả danh sách) khi setup hoàn tất** — không để bước nào treo (xem Bước 5 mục 0).
 >
 > 🟦 **Cách HỎI (rule §1.8) — áp cho mọi bước:** mỗi khi có **lựa chọn hữu hạn (2–4 phương án)**
 > → **BẮT BUỘC dùng AskUserQuestion** (thẻ bấm được), KHÔNG bắt user gõ trả lời trong chat.
 > **Input TỰ DO** (tên project, URL, đường dẫn, mô tả, mã, tên thư mục tùy biến) → hỏi bằng
 > **câu thường** (AskUserQuestion sẽ báo "Failed"). **Ca LAI** (chọn 1 nhánh rồi mới phải nhập
-> giá trị tự do — vd "Dùng vault có sẵn", "Đường dẫn khác", "Tạo project Design mới"):
+> giá trị tự do — vd "Dùng vault có sẵn", "Đường dẫn khác", "Kết nối nguồn mới"):
 > AskUserQuestion CHỈ để **chọn nhánh**; SAU KHI user chọn mới hỏi giá trị tự do bằng câu thường
 > ở **lượt kế** — KHÔNG nhồi giá trị tự do vào AskUserQuestion.
 >
@@ -31,7 +31,7 @@
 
 > ⚡ **TỐI ƯU THỜI GIAN SETUP — hỏi TỐI THIỂU.** Chỉ HỎI 2 thứ BẮT BUỘC: **(1) domain** (Healthcare/Y tế
 > luôn có), **(2) tên project**. Mọi thứ khác DÙNG MẶC ĐỊNH, KHÔNG hỏi trừ khi user chủ động muốn đổi:
-> vault = `<Tên>_Brain/` trong project · cấu trúc thư mục mặc định · Obsidian tùy chọn · Design để sau.
+> vault = `<Tên>_Brain/` trong project · cấu trúc thư mục mặc định · Obsidian tùy chọn.
 > Mục tiêu xong setup trong **~2 câu hỏi**. Phần **CÀO SÂU nhiều bước, phân tích kỹ CHỈ dành cho
 > `workflows/03-request.md` (phân tích yêu cầu)** — KHÔNG phải setup. (Khi gọi từ `/kora-scan` ở chế độ
 > AUTO thì còn nhanh hơn: domain mặc định `generic`, chỉ hỏi nơi lưu.)
@@ -61,7 +61,22 @@ có `~/.claude/kora-framework/`. Khi đó dựng **project GỌN** ngay trong fo
    Lệnh chỉ mục dùng đường dẫn chung: `python3 ~/.claude/kora-framework/tools/kb-indexer/build_index.py --root .`.
 6. Vault `<Tên>_Brain/` dựng ở **Bước 4** (sau khi có tên project ở Bước 3).
 
-Xong scaffold → tiếp **Bước 1**.
+Xong scaffold → tiếp **Bước 0b**.
+
+## Bước 0b — Tự kéo domain phổ biến + rule (LUÔN chạy, IM LẶNG, không hỏi)
+
+Mỗi lần `/kora-init`, TRƯỚC khi hỏi domain, **tự làm mới bộ preset** để user luôn có đủ domain phổ
+biến (KHÔNG hỏi phần này — rule "tự chạy" chỉ áp cho bước copy preset này):
+
+1. **Làm mới `config/domain-presets/`** từ CORE `~/.claude/kora-framework/config/domain-presets/`
+   (ghi đè các file preset — chúng là TEMPLATE của CORE, không phải DATA của user).
+2. **Thử kéo bản mới nhất từ repo framework** (remote-first, fallback CORE/offline):
+   `raw.githubusercontent.com/isc-fkit/Kora-Framework/release/config/domain-presets/<file>.md`.
+   Lỗi mạng → dùng bản bundle, KHÔNG báo lỗi ồn ào.
+3. **`config/domain-rules.md`:** chỉ làm mới nếu còn là template CHƯA chỉnh (so với preset gốc).
+   User đã sửa → **GIỮ NGUYÊN**, không ghi đè.
+
+Xong → tiếp **Bước 1**.
 
 ## Bước 1 — Chào + chọn Domain
 
@@ -178,29 +193,12 @@ Hành động:
 > - `/kora-schedule` — đặt lịch + cấu hình kết nối nguồn (token API ghi vào `~/.zshrc` / `~/.bashrc`).
 > - `/kora-daily-report` — báo cáo (chọn project, lọc thành viên, kéo dữ liệu theo khoảng thời gian).
 
-## Bước 5 — Kết nối Claude Design
+## Bước 5 — Tổng kết & kích hoạt
 
-Hỏi:
-
-> "Khi tính năng được chốt, hệ thống sẽ tạo design brief để dựng prototype trong
-> Claude Design (artifact/preview). Bạn muốn quản lý prototype theo project nào?"
-
-**→ Dùng AskUserQuestion** (3 nhánh). Nhánh 1 & 2 là **ca LAI**: sau khi chọn mới hỏi tên/mô tả
-bằng **câu thường** ở lượt kế (KHÔNG nhồi tên/mô tả vào AskUserQuestion):
-
-1. **Tạo project Design mới** — (lượt kế) hỏi tên → Claude tạo entry trong `projects/_registry.md`
-   theo `templates/design-project-template.md`.
-2. **Đăng ký project đã có** — (lượt kế) user mô tả project Design hiện hữu (tên, link nếu có,
-   các màn hình đã dựng) → Claude ghi vào registry để các lần sau chỉ tương tác đúng
-   feature liên quan.
-3. **Để sau** — sẽ hỏi lại khi có feature đầu tiên cần design.
-
-## Bước 6 — Tổng kết & kích hoạt
-
-0. ✅ **ĐÓNG TASK TRACKER:** ngay khi làm xong Bước 6 và đã đặt `setup_completed: true`, **đánh
-   dấu Bước 6 + TOÀN BỘ danh sách bước = HOÀN THÀNH** trong trình theo dõi tiến độ (TaskUpdate →
-   `completed`). TUYỆT ĐỐI không để Bước 6 treo "chưa hoàn thành", **kể cả khi user yêu cầu chạy
-   thẳng một mạch tới cuối** — chạy tới đâu tick tới đó, xong Bước 6 thì đóng cả danh sách.
+0. ✅ **ĐÓNG TASK TRACKER:** ngay khi làm xong Bước 5 và đã đặt `setup_completed: true`, **đánh
+   dấu Bước 5 + TOÀN BỘ danh sách bước = HOÀN THÀNH** trong trình theo dõi tiến độ (TaskUpdate →
+   `completed`). TUYỆT ĐỐI không để Bước 5 treo "chưa hoàn thành", **kể cả khi user yêu cầu chạy
+   thẳng một mạch tới cuối** — chạy tới đâu tick tới đó, xong Bước 5 thì đóng cả danh sách.
 1. Điền nốt `factory-config.yaml`, đặt `setup_completed: true` + ngày giờ.
 2. Chạy lập chỉ mục: `python3 tools/kb-indexer/build_index.py --root .` (Windows: `py`; nếu cài qua
    installer thì tools ở chung: `python3 ~/.claude/kora-framework/tools/kb-indexer/build_index.py --root .`) → tự dựng
@@ -210,14 +208,13 @@ bằng **câu thường** ở lượt kế (KHÔNG nhồi tên/mô tả vào Ask
 4. In tổng kết cho user (ngôn ngữ tự nhiên):
    - Domain + số rule đang áp dụng
    - Vault ở đâu, bao nhiêu note
-   - Project Design nào được đăng ký
-   - Nhắc: nạp tri thức bằng skill SAU init (`/kora-scan`, `/kora-import-files`).
+   - Nhắc: nạp tri thức bằng skill SAU init (`/kora-connect`, `/kora-scan`, `/kora-import-files`).
 5. Kết bằng hướng dẫn dùng:
 
 > "Setup xong! Từ giờ bạn chỉ cần **nhắn vấn đề hoặc yêu cầu** bằng lời thường,
 > tôi sẽ tự phân tích dựa trên tri thức hiện có và chỉ hỏi bạn khi cần xác nhận.
-> Lệnh tắt: `/kora-scan`, `/kora-import-files`, `/kora-daily-report`, `/kora-schedule`,
-> `/kora-design`, `/kora-export-docs`, `/kora-evolve`. Gõ `/` để xem đủ 12 lệnh."
+> Lệnh tắt: `/kora-connect`, `/kora-scan`, `/kora-import-files`, `/kora-daily-report`, `/kora-schedule`,
+> `/kora-export-docs`, `/kora-evolve`. Gõ `/` để xem đủ danh sách lệnh."
 
 6. **Đề xuất bước kế (§0.4) — → dùng AskUserQuestion** (1–3 lựa chọn hợp lý theo những gì vừa
    setup) để user chỉ việc bấm, KHÔNG phải tự nhớ lệnh. Ví dụ: `[A] /kora-scan nạp tri thức ·

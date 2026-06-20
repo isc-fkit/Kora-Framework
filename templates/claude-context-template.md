@@ -29,13 +29,10 @@
 
 ## Code Rules
 
-## Claude Design Instruction
-<!-- chỉ đụng màn hình nào, link với prototype nào, state dùng chung gì -->
-
 ## Claude Code Instruction
 
 ## Guardrails
 <!-- những gì tuyệt đối không làm với feature này -->
 
 ## Sync Rules
-<!-- khi design/code đổi thì file nào trong KB phải cập nhật theo -->
+<!-- khi code đổi thì file nào trong KB phải cập nhật theo -->

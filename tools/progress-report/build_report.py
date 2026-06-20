@@ -18,6 +18,7 @@ Chỉ dùng thư viện chuẩn Python 3 — KHÔNG cần pip install gì.
 """
 
 import argparse
+import calendar
 import glob
 import html
 import json
@@ -203,6 +204,7 @@ def compute(issues, smap, today):
                 "key": i.get("jira_key"), "summary": i.get("_summary", ""),
                 "assignee": i.get("assignee", "—"), "status": i.get("status", ""),
                 "group": issue_group(i, smap),
+                "project": i.get("project", "—"), "type": i.get("type", "issue"),
                 "spent_s": int(i.get("time_spent_s") or 0), "est_s": int(i.get("time_estimate_s") or 0),
                 "story_points": i.get("story_points", ""),
             } for i in items], key=lambda x: x["group"]),
@@ -234,13 +236,53 @@ def compute(issues, smap, today):
                            "pct_done": pct(g["done"], len(items)), "time": _time_sum(items)})
     by_project.sort(key=lambda x: -x["total"])
 
+    # ── Năng lực giờ công (giờ chuẩn) + thời gian OT — THÁNG hiện tại: 5 ngày/tuần × 8 giờ/ngày ──
+    try:
+        ty, tmo = int(today[:4]), int(today[5:7])
+    except Exception:  # noqa: BLE001
+        ty, tmo = datetime.now().year, datetime.now().month
+    working_days = sum(1 for d in range(1, calendar.monthrange(ty, tmo)[1] + 1)
+                       if date(ty, tmo, d).weekday() < 5)
+    std_person = working_days * 8 * 3600          # giờ công chuẩn / người (giây)
+    for a in by_assignee:
+        sp = a["time"]["spent_s"]
+        a["std_seconds"] = std_person
+        a["ot_seconds"] = max(0, sp - std_person)        # log vượt chuẩn = OT
+        a["under_seconds"] = max(0, std_person - sp)      # log thiếu so với chuẩn
+        a["pct_capacity"] = pct(sp, std_person)
+    members = [a for a in by_assignee if a["assignee"] not in ("(chưa giao)", "—", "")]
+    team_std = len(members) * std_person
+    capacity = {
+        "month": f"{tmo:02d}/{ty}", "working_days": working_days,
+        "std_hours_person": working_days * 8, "std_seconds_person": std_person,
+        "num_members": len(members), "team_std_seconds": team_std,
+        "logged_seconds": tsum["spent_s"],
+        "ot_seconds": max(0, tsum["spent_s"] - team_std),
+        "under_seconds": max(0, team_std - tsum["spent_s"]),
+        "pct_capacity": pct(tsum["spent_s"], team_std),
+    }
+
+    # ── Logtime theo LOẠI — chỉ Task/Sub-task/Bug thực sự log; Epic/Story/Request thường KHÔNG log ──
+    LOG_TYPES = {"task", "sub-task", "subtask", "bug"}
+    logged_by_type, est_by_type = {}, {}
+    for i in issues:
+        tt = i.get("type") or "issue"
+        logged_by_type[tt] = logged_by_type.get(tt, 0) + int(i.get("time_spent_s") or 0)
+        est_by_type[tt] = est_by_type.get(tt, 0) + int(i.get("time_estimate_s") or 0)
+    work_no_log = [{"key": i.get("jira_key"), "summary": i.get("_summary", ""),
+                    "type": i.get("type"), "assignee": i.get("assignee", "—")}
+                   for i in issues
+                   if (i.get("type") or "") in LOG_TYPES
+                   and not int(i.get("time_spent_s") or 0) and issue_group(i, smap) != "done"]
+
     # Rủi ro
     overdue, no_assignee, no_est = [], [], []
     for i in issues:
         dd = str(i.get("duedate") or "")[:10]
         if dd and dd < today and issue_group(i, smap) != "done":
             overdue.append({"key": i.get("jira_key"), "summary": i.get("_summary", ""),
-                            "assignee": i.get("assignee", "—"), "duedate": dd, "status": i.get("status", "")})
+                            "assignee": i.get("assignee", "—"), "duedate": dd, "status": i.get("status", ""),
+                            "project": i.get("project", "—")})
     for i in active:
         if not i.get("assignee"):
             no_assignee.append({"key": i.get("jira_key"), "summary": i.get("_summary", "")})
@@ -254,6 +296,8 @@ def compute(issues, smap, today):
         "risks": {"overdue": overdue[:50], "active_sprint_no_assignee": no_assignee[:50],
                   "active_sprint_no_estimate": no_est[:50]},
         "with_time": sum(1 for i in issues if i.get("time_estimate_s") or i.get("time_spent_s")),
+        "capacity": capacity, "logged_by_type": logged_by_type, "est_by_type": est_by_type,
+        "log_types": sorted(LOG_TYPES), "work_no_log": work_no_log[:50],
     }
 
 
@@ -286,36 +330,50 @@ def render_fragment(m, vault):
         kpi("Đã log", human_seconds(t["spent_s"]), f'{t["pct_logged"]}% ước tính', "teal"),
         kpi("Còn lại", human_seconds(t["remaining_s"]), color="orange"),
         kpi("Sprint đang chạy", len(m["active_sprints"]), color="vio"),
+        kpi("Giờ công chuẩn (nhóm)", human_seconds(m["capacity"]["team_std_seconds"]),
+            f'{m["capacity"]["working_days"]} ngày làm việc · {m["capacity"]["num_members"]} thành viên', "blue"),
+        kpi("Thời gian OT" if m["capacity"]["ot_seconds"] else "Thiếu so với chuẩn",
+            human_seconds(m["capacity"]["ot_seconds"] or m["capacity"]["under_seconds"]),
+            f'Đạt {m["capacity"]["pct_capacity"]}% giờ chuẩn',
+            "red" if m["capacity"]["ot_seconds"] else "orange"),
     ])
 
     sprint_html = ""
     for s in m["active_sprints"]:
         rows = "".join(
-            f'<tr class="pr-row" data-assignee="{esc(i["assignee"])}" data-status="{i["group"]}">'
+            f'<tr class="pr-row" data-assignee="{esc(i["assignee"])}" data-status="{i["group"]}" '
+            f'data-project="{esc(i["project"])}" data-type="{esc(i["type"])}">'
             f'<td class="pr-k">{esc(i["key"])}</td><td>{esc(i["summary"])[:70]}</td>'
             f'<td>{esc(i["assignee"])}</td>'
             f'<td><span class="pr-pill pr-{i["group"]}">{esc(i["status"])}</span></td>'
-            f'<td>{human_seconds(i["spent_s"])}/{human_seconds(i["est_s"])}</td>'
+            f'<td>{human_seconds(i["spent_s"])} / {human_seconds(i["est_s"])}</td>'
             f'<td>{esc(i["story_points"])}</td></tr>' for i in s["issues"])
         sprint_html += (
             f'<div class="pr-card"><div class="pr-card-h"><b>🏃 {esc(s["name"])}</b>'
             f'<span class="pr-mut">{esc(s["end"]) and "đến " + esc(s["end"])} · {s["done"]}/{s["total"]} done · '
             f'log {human_seconds(s["time"]["spent_s"])}/{human_seconds(s["time"]["estimate_s"])}</span></div>'
             f'{bar(s["pct_done"], "green")}'
-            f'<table class="pr-t"><thead><tr><th>Key</th><th>Tóm tắt</th><th>Assignee</th>'
-            f'<th>Trạng thái</th><th>Log/Ước tính</th><th>SP</th></tr></thead><tbody>{rows}</tbody></table></div>')
+            f'<table class="pr-t"><thead><tr><th>Mã</th><th>Tóm tắt</th><th>Thành viên</th>'
+            f'<th>Trạng thái</th><th>Đã log / Ước tính</th><th>Story Points</th></tr></thead><tbody>{rows}</tbody></table></div>')
     if not m["active_sprints"]:
         sprint_html = '<div class="pr-card pr-mut">Không có sprint đang chạy (active) — kiểm tra field Sprint trên Jira.</div>'
 
+    def _ot_cell(a):
+        if a.get("ot_seconds"):
+            return f'<span style="color:{PAL["red"]}">+{human_seconds(a["ot_seconds"])}</span>'
+        return f'<span class="pr-mut">−{human_seconds(a.get("under_seconds", 0))}</span>'
     arows = "".join(
         f'<tr class="pr-row" data-assignee="{esc(a["assignee"])}"><td>{esc(a["assignee"])}</td><td>{a["total"]}</td>'
         f'<td>{a["todo"]}</td><td>{a["in_progress"]}</td><td>{a["done"]}</td>'
         f'<td style="min-width:90px">{bar(a["pct_done"], "green")}</td>'
-        f'<td>{human_seconds(a["time"]["spent_s"])}/{human_seconds(a["time"]["estimate_s"])}</td>'
+        f'<td>{human_seconds(a["time"]["spent_s"])} / {human_seconds(a["time"]["estimate_s"])}</td>'
+        f'<td>{human_seconds(a.get("std_seconds", 0))}</td><td>{_ot_cell(a)}</td>'
+        f'<td>{a.get("pct_capacity", 0)}%</td>'
         f'<td>{a["story_points"] or ""}</td></tr>' for a in m["by_assignee"])
     assignee_html = (
-        f'<table class="pr-t"><thead><tr><th>Assignee</th><th>Tổng</th><th>Chưa</th><th>Đang</th>'
-        f'<th>Done</th><th>% Done</th><th>Log/Ước tính</th><th>SP</th></tr></thead><tbody>{arows}</tbody></table>')
+        f'<table class="pr-t"><thead><tr><th>Thành viên</th><th>Tổng</th><th>Chưa làm</th><th>Đang làm</th>'
+        f'<th>Hoàn thành</th><th>% Hoàn thành</th><th>Đã log / Ước tính</th><th>Giờ chuẩn</th>'
+        f'<th>OT / Thiếu</th><th>% Năng suất</th><th>Story Points</th></tr></thead><tbody>{arows}</tbody></table>')
 
     def risk_list(items, fmt):
         return "".join(f"<li>{fmt(x)}</li>" for x in items) or '<li class="pr-mut">(không có)</li>'
@@ -337,25 +395,47 @@ def render_fragment(m, vault):
             f'<td style="min-width:90px">{bar(p["pct_done"], "teal")}</td>'
             f'<td>{human_seconds(p["time"]["spent_s"])}/{human_seconds(p["time"]["estimate_s"])}</td></tr>'
             for p in m["by_project"])
-        proj_html = ('<table class="pr-t"><thead><tr><th>Project</th><th>Tổng</th><th>Done</th>'
-                     f'<th>% Done</th><th>Log/Ước tính</th></tr></thead><tbody>{prows}</tbody></table>')
+        proj_html = ('<table class="pr-t"><thead><tr><th>Dự án</th><th>Tổng</th><th>Hoàn thành</th>'
+                     f'<th>% Hoàn thành</th><th>Đã log / Ước tính</th></tr></thead><tbody>{prows}</tbody></table>')
+
+    # Log giờ theo loại + cảnh báo (Epic/User Story/Request không log; chỉ Task/Sub-task/Bug)
+    lbt, ebt = m.get("logged_by_type", {}), m.get("est_by_type", {})
+    _ltkeys = sorted(set(lbt) | set(ebt), key=lambda k: -lbt.get(k, 0))
+    lt_rows = "".join(
+        f'<tr><td>{esc(_type_label(k))}</td><td>{human_seconds(ebt.get(k, 0))}</td>'
+        f'<td>{human_seconds(lbt.get(k, 0))}</td></tr>' for k in _ltkeys)
+    n_nolog = len(m.get("work_no_log", []))
+    logtype_html = (
+        '<div class="pr-card"><div class="pr-card-h"><b>⏱ Log giờ theo loại</b>'
+        '<span class="pr-mut">Epic / User Story / Request thường KHÔNG log giờ — chỉ Task / Sub-task / Bug</span></div>'
+        f'<table class="pr-t"><thead><tr><th>Loại</th><th>Ước tính</th><th>Đã log</th></tr></thead><tbody>{lt_rows}</tbody></table>'
+        f'<div class="pr-warn" style="margin-top:8px"><b>{n_nolog} Task / Sub-task</b> chưa làm xong nhưng '
+        'chưa log giờ → nguy cơ thiếu dữ liệu nỗ lực thực tế.</div></div>')
     # Filter bar (người + trạng thái) — lọc tương tác trên bảng
     assignees = sorted({a["assignee"] for a in m["by_assignee"]})
-    _opt = lambda v: f'<option value="{esc(v)}">{esc(v)}</option>'
+    projects = sorted({p["project"] for p in m.get("by_project", [])})
+    types = sorted(set(m.get("logged_by_type", {})) | set(m.get("by_type", {})))
+    _opt = lambda v, lbl=None: f'<option value="{esc(v)}">{esc(lbl if lbl is not None else v)}</option>'
+    proj_sel = (('<select id="kr-fp" onchange="krFilter()"><option value="">Tất cả dự án</option>'
+                 + "".join(_opt(p) for p in projects) + '</select>') if len(projects) > 1 else '')
+    type_sel = ('<select id="kr-ft" onchange="krFilter()"><option value="">Mọi loại</option>'
+                + "".join(_opt(tk, _type_label(tk)) for tk in types) + '</select>')
     filter_bar = (
-        '<div class="pr-filter"><span>🔎 Lọc:</span>'
-        '<select id="kr-fa" onchange="krFilter()"><option value="">Tất cả người</option>'
-        + "".join(_opt(a) for a in assignees) + '</select>'
+        '<div class="pr-filter"><span>🔎 Lọc:</span>' + proj_sel +
+        '<select id="kr-fa" onchange="krFilter()"><option value="">Tất cả thành viên</option>'
+        + "".join(_opt(a) for a in assignees) + '</select>' + type_sel +
         '<select id="kr-fs" onchange="krFilter()"><option value="">Mọi trạng thái</option>'
         '<option value="todo">Chưa làm</option><option value="in_progress">Đang làm</option>'
-        '<option value="done">Done</option></select></div>')
+        '<option value="done">Hoàn thành</option></select></div>')
     ai_anchor = ('<section class="pr-card pr-ai" id="kr-ai"><b style="color:#c9b8ff">🤖 Phân tích AI</b>'
                  '<div class="pr-mut" style="margin-top:6px">Khu vực này được Claude điền khi chạy báo cáo: '
                  'phân loại rủi ro theo mức · dự đoán nguy cơ trượt timeline mỗi sprint (kèm lý do) · giải pháp '
                  'cho từng rủi ro · đề xuất theo từng thành viên · tổng kết điều hành.</div></section>')
-    krscript = ('<script>function krFilter(){var a=document.getElementById("kr-fa").value,'
-                's=document.getElementById("kr-fs").value;document.querySelectorAll(".pr-row").forEach('
-                'function(r){var ok=(!a||r.dataset.assignee===a)&&(!s||!r.dataset.status||r.dataset.status===s);'
+    krscript = ('<script>function krV(id){var e=document.getElementById(id);return e?e.value:"";}'
+                'function krFilter(){var a=krV("kr-fa"),s=krV("kr-fs"),p=krV("kr-fp"),t=krV("kr-ft");'
+                'document.querySelectorAll(".pr-row").forEach(function(r){var d=r.dataset;'
+                'var ok=(!a||d.assignee===a)&&(!s||!d.status||d.status===s)'
+                '&&(!p||!d.project||d.project===p)&&(!t||!d.type||d.type===t);'
                 'r.style.display=ok?"":"none";});}</script>')
 
     gen = m["generated_at"][:16].replace("T", " ")
@@ -399,10 +479,12 @@ def render_fragment(m, vault):
 .pr-filter select{{background:{PAL['card']};color:{PAL['ink']};border:1px solid {PAL['line']};border-radius:8px;padding:5px 9px;font-size:12.5px}}
 .pr-ai{{border-left:3px solid {PAL['vio']};margin-top:12px}}
 </style>"""
-    proj_section = f'<h2>Theo project</h2><div class="pr-card">{proj_html}</div>' if proj_html else ''
+    proj_section = f'<h2>Theo dự án</h2><div class="pr-card">{proj_html}</div>' if proj_html else ''
+    _bp = [p for p in m.get('by_project', []) if p.get('project') not in (None, '', '—')]
+    _scope = f"{len(_bp)} dự án" if len(_bp) > 1 else (esc(_bp[0]['project']) if _bp else '—')
     return f"""{style}<div class="pr">
 <h1>📊 Báo cáo tiến độ dự án</h1>
-<div class="pr-sub">Vault: {esc(os.path.basename(vault.rstrip('/')))} · cập nhật {esc(gen)} (giờ UTC) · {m['total']} issue</div>
+<div class="pr-sub">{_scope} · Vault: {esc(os.path.basename(vault.rstrip('/')))} · cập nhật {esc(gen)} (giờ UTC) · {m['total']} issue</div>
 {stale}
 {note}
 {filter_bar}
@@ -411,8 +493,9 @@ def render_fragment(m, vault):
 <h2>Tiến độ tổng thể</h2><div class="pr-card">{stacked(m['by_status_group'])}</div>
 {proj_section}
 <h2>Sprint đang chạy</h2>{sprint_html}
-<h2>Theo người phụ trách</h2><div class="pr-card">{assignee_html}</div>
-<h2>Rủi ro & lỗ hổng</h2><div class="pr-grid2">{risk_html}</div>
+<h2>Theo người phụ trách (giờ công &amp; OT)</h2><div class="pr-card">{assignee_html}</div>
+<h2>Log giờ theo loại</h2>{logtype_html}
+<h2>Rủi ro &amp; lỗ hổng</h2><div class="pr-grid2">{risk_html}</div>
 {krscript}
 </div>"""
 
@@ -422,6 +505,160 @@ def standalone(fragment):
             '<meta name="viewport" content="width=device-width,initial-scale=1">'
             f'<title>Báo cáo tiến độ</title></head><body style="margin:0;background:{PAL["deep"]}">'
             f'{fragment}</body></html>')
+
+
+# ── Render EMAIL BODY (tĩnh, email-safe, responsive cho điện thoại — để GỬI MAIL) ──
+EPAL = {"bg": "#eef1f6", "card": "#ffffff", "ink": "#0b1f44", "mut": "#6b7891",
+        "green": "#1a9e63", "amber": "#b7791f", "red": "#c0392b", "vio": "#6b46c1",
+        "orange": "#ef7d23", "chip": "#f4f7fb", "blue": "#0a4aa0", "blue2": "#1463c4",
+        "cream": "#fff8ec", "creambd": "#ffe2b0", "line": "#e6eaf0"}
+
+
+def _ecard(label, value, unit="", highlight=False):
+    bg = "#fff6ec" if highlight else "#f7f9fc"
+    bd = EPAL["orange"] if highlight else EPAL["line"]
+    vc = EPAL["orange"] if highlight else EPAL["blue"]
+    return (f'<td class="kc" width="33.33%" valign="top" style="padding:5px"><div style="background:{bg};'
+            f'border:1px solid {bd};border-radius:12px;padding:14px 8px;text-align:center">'
+            f'<div style="font-size:10.5px;font-weight:700;color:{EPAL["mut"]};text-transform:uppercase;'
+            f'letter-spacing:.03em;line-height:1.3;min-height:26px">{esc(label)}</div>'
+            f'<div style="font-size:30px;font-weight:800;color:{vc};margin:3px 0 0">{value}</div>'
+            f'<div style="font-size:11.5px;color:{EPAL["mut"]}">{esc(unit)}</div></div></td>')
+
+
+_TYPE_LABELS = {"epic": "Epic", "story": "User Story", "user_story": "User Story",
+                "task": "Task", "sub-task": "Sub-task", "subtask": "Sub-task",
+                "bug": "Bug", "request": "Request", "issue": "Issue"}
+
+
+def _type_label(t):
+    return _TYPE_LABELS.get((t or "issue").lower(), (t or "Issue").title())
+
+
+def render_email_body(m, vault, banner_url=""):
+    """HTML tĩnh, email-safe, responsive. Chừa khối AI giữa <!--KR-AI-START--> ... <!--KR-AI-END-->
+    để Claude THAY bằng phân tích CHI TIẾT (rủi ro · dự đoán · đề xuất) trước khi gửi."""
+    t, g = m["time"], m["by_status_group"]
+    tot = max(m["total"], 1)
+    risks = m["risks"]
+    od = "".join(
+        f'<li style="margin:3px 0"><b>{esc(x["key"])}</b> · {esc(x["summary"])[:60]} '
+        f'<span style="color:{EPAL["red"]}">(quá hạn {esc(x["duedate"])}'
+        + (f' · {esc(x["project"])}' if x.get("project") not in (None, "", "—") else "")
+        + f')</span> — {esc(x["assignee"])}</li>'
+        for x in risks["overdue"][:6])
+    od = od or '<li style="margin:3px 0;color:#5b7a4f">Không có issue quá hạn 👍</li>'
+    gen = m["generated_at"][:16].replace("T", " ")
+    sp = lambda k: 100 * g[k] / tot
+    # Phạm vi báo cáo = theo DỰ ÁN (lọc node rỗng 1 lần → dùng cho cả scope + tiering, nhất quán).
+    bp = [p for p in m.get("by_project", []) if p.get("project") not in (None, "", "—")]
+    scope = f"{len(bp)} dự án" if len(bp) > 1 else (esc(bp[0]["project"]) if bp else "—")
+    banner_row = (f'<tr><td style="padding:0;line-height:0"><img src="{banner_url}" '
+                  f'alt="Cập nhật tiến độ dự án mỗi ngày" width="600" style="display:block;width:100%;'
+                  f'max-width:600px;height:auto;border:0"></td></tr>') if banner_url else ""
+    # ── Năng suất & giờ công + lưu ý logtime theo loại ──
+    cap = m.get("capacity", {})
+    hs = human_seconds
+    if cap.get("ot_seconds"):
+        ot_txt = f'<span style="color:{EPAL["red"]}"><b>Thời gian OT (vượt giờ chuẩn): +{hs(cap["ot_seconds"])}</b></span>'
+    else:
+        ot_txt = f'<span style="color:{EPAL["amber"]}">Còn thiếu so với giờ chuẩn: {hs(cap.get("under_seconds", 0))}</span>'
+    lbt = m.get("logged_by_type", {})
+    log_rows = "".join(
+        f'<tr><td style="padding:3px 0;font-size:13px;color:{EPAL["ink"]}">{esc(_type_label(k))}</td>'
+        f'<td style="padding:3px 0;font-size:13px;color:#39465c;text-align:right">{hs(v)}</td></tr>'
+        for k, v in sorted(lbt.items(), key=lambda kv: -kv[1]) if v) or \
+        f'<tr><td style="font-size:13px;color:{EPAL["mut"]}">Chưa có dữ liệu log giờ.</td></tr>'
+    n_nolog = len(m.get("work_no_log", []))
+    cap_block = f'''<tr><td class="kpad" style="padding:8px 22px 2px">
+      <div style="font-size:12px;color:{EPAL['mut']};text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px">Năng suất &amp; giờ công — tháng {esc(cap.get('month', ''))}</div>
+      <div style="font-size:13.5px;color:{EPAL['ink']};line-height:1.75">
+        • Số ngày làm việc trong tháng: <b>{cap.get('working_days', 0)} ngày</b> (5 ngày mỗi tuần × 8 giờ mỗi ngày).<br>
+        • Giờ công chuẩn mỗi thành viên: <b>{cap.get('std_hours_person', 0)} giờ</b> · cả nhóm ({cap.get('num_members', 0)} thành viên): <b>{hs(cap.get('team_std_seconds', 0))}</b>.<br>
+        • Tổng thời gian đã log: <b>{hs(cap.get('logged_seconds', 0))}</b> → đạt <b>{cap.get('pct_capacity', 0)}%</b> giờ công chuẩn của cả nhóm.<br>
+        • {ot_txt}.
+      </div>
+      <div style="background:#fff8ec;border:1px solid #ffe2b0;border-radius:10px;padding:11px 13px;margin-top:10px;font-size:12.5px;color:#7a5b16">
+        ⚠️ <b>Lưu ý về log giờ theo loại:</b> Epic / User Story / Request thường <b>KHÔNG log giờ</b> — chỉ <b>Task / Sub-task</b> (và Bug) mới log giờ.
+        Vì vậy giờ công ở trên chỉ phản ánh phần Task / Sub-task. Hiện có <b>{n_nolog} Task / Sub-task chưa làm xong nhưng chưa log giờ</b> — nguy cơ thiếu dữ liệu nỗ lực thực tế.
+        <table role="presentation" width="100%" style="margin-top:7px;border-top:1px solid #ffe2b0">{log_rows}</table>
+      </div></td></tr>'''
+    # ── Phân tầng THEO DỰ ÁN (chỉ hiện khi quản lý nhiều dự án) — ngay trong BODY mail ──
+    proj_block = ""
+    if len(bp) > 1:
+        od_by_proj = {}
+        for x in risks["overdue"]:
+            od_by_proj[x.get("project", "—")] = od_by_proj.get(x.get("project", "—"), 0) + 1
+        prows = ""
+        for p in sorted(bp, key=lambda z: -z["total"]):
+            pt = p["time"]
+            nod = od_by_proj.get(p["project"], 0)
+            od_cell = (f'<span style="color:{EPAL["red"]};font-weight:700">{nod}</span>'
+                       if nod else f'<span style="color:{EPAL["mut"]}">0</span>')
+            prows += (
+                f'<tr>'
+                f'<td style="padding:7px 9px;font-size:13px;color:{EPAL["ink"]};font-weight:700;border-top:1px solid #eef1f6">{esc(p["project"])}</td>'
+                f'<td style="padding:7px 9px;font-size:13px;color:#39465c;text-align:center;border-top:1px solid #eef1f6">{p["total"]}</td>'
+                f'<td style="padding:7px 9px;font-size:13px;color:{EPAL["green"]};font-weight:700;text-align:center;border-top:1px solid #eef1f6">{p["pct_done"]}%</td>'
+                f'<td style="padding:7px 9px;font-size:12.5px;color:#39465c;text-align:right;border-top:1px solid #eef1f6">{hs(pt["spent_s"])} / {hs(pt["estimate_s"])}</td>'
+                f'<td style="padding:7px 9px;font-size:12.5px;color:{EPAL["orange"]};text-align:right;border-top:1px solid #eef1f6">{hs(pt["remaining_s"])}</td>'
+                f'<td style="padding:7px 9px;font-size:13px;text-align:center;border-top:1px solid #eef1f6">{od_cell}</td>'
+                f'</tr>')
+        proj_block = f'''<tr><td class="kpad" style="padding:8px 22px 2px">
+      <div style="font-size:12px;color:{EPAL['mut']};text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px">Theo dự án ({len(bp)})</div>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e6eaf0;border-radius:10px;overflow:hidden">
+        <tr style="background:{EPAL['chip']}">
+          <td style="padding:7px 9px;font-size:11px;color:{EPAL['mut']};text-transform:uppercase;letter-spacing:.03em">Dự án</td>
+          <td style="padding:7px 9px;font-size:11px;color:{EPAL['mut']};text-align:center">Issue</td>
+          <td style="padding:7px 9px;font-size:11px;color:{EPAL['mut']};text-align:center">% xong</td>
+          <td style="padding:7px 9px;font-size:11px;color:{EPAL['mut']};text-align:right">Đã log / Ước tính</td>
+          <td style="padding:7px 9px;font-size:11px;color:{EPAL['mut']};text-align:right">Còn lại</td>
+          <td style="padding:7px 9px;font-size:11px;color:{EPAL['mut']};text-align:center">Quá hạn</td>
+        </tr>{prows}
+      </table>
+      <div style="font-size:11.5px;color:{EPAL['mut']};margin-top:6px">Lọc &amp; drill-down chi tiết từng dự án có trong dashboard đính kèm.</div></td></tr>'''
+    return f"""<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="utf-8">
+<style>@media only screen and (max-width:600px){{.kc{{display:block!important;width:100%!important;box-sizing:border-box}}.kpad{{padding:16px!important}}}}</style>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:{EPAL['bg']};padding:16px 8px;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif">
+<tr><td align="center"><table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:{EPAL['card']};border-radius:14px;overflow:hidden">
+  {banner_row}
+  <tr><td class="kpad" style="padding:18px 22px 2px">
+    <span style="display:inline-block;background:{EPAL['cream']};border:1px solid {EPAL['creambd']};color:#b45309;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:6px 13px;border-radius:999px">⏱️ Cập nhật tiến độ · {scope}</span></td></tr>
+  <tr><td class="kpad" style="padding:10px 22px 0">
+    <div style="font-size:15px;color:{EPAL['ink']};font-weight:700;font-style:italic">Kính gửi Anh/Chị,</div>
+    <div style="font-size:13.5px;color:#33405a;line-height:1.7;margin-top:6px">Trợ lý <b>KORA AI</b> – FPT Telecom xin cập nhật <b>tiến độ dự án</b> ({scope}) tới <b>{esc(gen)}</b> (UTC) như sau:</div></td></tr>
+  <tr><td class="kpad" style="padding:14px 17px 2px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
+    {_ecard("Tổng số issue", m['total'], "issue")}{_ecard("Đã hoàn thành", g['done'], "issue")}{_ecard("Còn lại", m['total'] - g['done'], "issue", True)}
+  </tr></table></td></tr>
+  <tr><td class="kpad" style="padding:8px 22px">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#e9edf3;border-radius:999px;overflow:hidden"><tr style="height:12px">
+      <td width="{sp('done'):.0f}%" bgcolor="{EPAL['green']}"></td><td bgcolor="#e9edf3"></td></tr></table>
+    <table role="presentation" width="100%" style="margin-top:7px"><tr>
+      <td style="font-size:12.5px;color:{EPAL['mut']}">Tiến độ hoàn thành</td>
+      <td style="font-size:12.5px;text-align:right;color:#39465c"><b style="color:{EPAL['green']}">{m['pct_done']}%</b> · còn lại {m['total'] - g['done']} issue · <span style="color:{EPAL['amber']}">đang làm {g['in_progress']}</span></td>
+    </tr></table></td></tr>
+  {proj_block}
+  {cap_block}
+  <tr><td class="kpad" style="padding:12px 22px 4px">
+    <div style="background:{EPAL['cream']};border:1px solid {EPAL['creambd']};border-radius:12px;padding:14px 16px">
+      <div style="font-size:13px;font-weight:800;color:#b45309;text-transform:uppercase;letter-spacing:.03em;margin-bottom:8px">⚠️ Lưu ý quan trọng</div>
+      <ul style="margin:0;padding-left:18px;font-size:12.8px;color:#7a5b16;line-height:1.6">
+        <li style="margin:3px 0"><b>Quá hạn ({len(risks['overdue'])}):</b></li>
+        {od}
+        <li style="margin:7px 0 3px"><b>Log giờ theo loại:</b> Epic / User Story / Request thường <b>KHÔNG log giờ</b> — chỉ Task / Sub-task / Bug. Hiện <b>{len(m.get('work_no_log', []))} Task/Sub-task chưa xong nhưng chưa log giờ</b>.</li>
+      </ul></div></td></tr>
+  <tr><td class="kpad" style="padding:12px 22px 4px">
+    <div style="font-size:13px;font-weight:800;color:{EPAL['blue']};text-transform:uppercase;letter-spacing:.03em;margin-bottom:6px">🤖 Phân tích &amp; khuyến nghị (AI)</div>
+    <!--KR-AI-START-->
+    <div style="font-size:12.5px;color:{EPAL['mut']};line-height:1.6">(Claude điền phân tích chi tiết khi gửi: mức rủi ro · dự đoán trượt timeline + lý do · đề xuất từng bước · theo từng thành viên · tổng kết điều hành.)</div>
+    <!--KR-AI-END--></td></tr>
+  <tr><td class="kpad" style="padding:8px 22px 16px">
+    <div style="font-size:13px;color:#33405a;line-height:1.7">Để xem chi tiết từng issue / sprint / thành viên (có bộ lọc), vui lòng mở <b>Dashboard đính kèm</b>. Mọi thông tin cần hỗ trợ, vui lòng liên hệ đầu mối bên dưới.</div>
+    <div style="font-size:13.5px;color:{EPAL['ink']};font-weight:700;margin-top:10px">Trân trọng!</div></td></tr>
+  <tr><td style="background:linear-gradient(135deg,#0b2a5e,#15428f);padding:16px 22px;text-align:center">
+    <div style="color:#ffffff;font-size:13px;font-weight:700">KORA AI · Trợ lý tiến độ dự án — FPT Telecom</div>
+    <div style="color:#a9c2ee;font-size:11.5px;margin-top:4px">Báo cáo tạo tự động mỗi ngày · Dữ liệu cập nhật {esc(gen)} (UTC)</div></td></tr>
+</table></td></tr></table>"""
 
 
 def main():
@@ -458,6 +695,11 @@ def main():
         if sm:
             stale_after = int(sm.group(1))
     m["freshness"] = vault_freshness(vault, stale_after)
+    banner_url = ""
+    if os.path.exists(cfg_path):
+        bm = re.search(r'banner_url:\s*"([^"]*)"', open(cfg_path, encoding="utf-8").read())
+        if bm:
+            banner_url = bm.group(1).strip()
     fragment = render_fragment(m, vault)
 
     out = args.out or os.path.join(REPO_ROOT, "reports")
@@ -470,7 +712,15 @@ def main():
     open(html_p, "w", encoding="utf-8").write(standalone(fragment))
     open(latest_p, "w", encoding="utf-8").write(standalone(fragment))
 
+    # Email body (tĩnh, mobile) để gửi mail — Claude điền khối AI giữa <!--KR-AI-START/END-->
+    ebody = render_email_body(m, vault, banner_url)
+    ebody_p = os.path.join(out, f"email-body-{day}.html")
+    ebody_latest = os.path.join(out, "email-body-latest.html")
+    open(ebody_p, "w", encoding="utf-8").write(ebody)
+    open(ebody_latest, "w", encoding="utf-8").write(ebody)
+
     print(f"Report tiến độ đã tạo từ {len(issues)} issue.")
+    print(f"  - Email body (mobile, để gửi mail): {ebody_latest}")
     print(f"  - Dashboard (mở trình duyệt): {html_p}")
     print(f"  - Bản mới nhất: {latest_p}")
     print(f"  - Dữ liệu (cho UI Cowork inline): {json_p}")

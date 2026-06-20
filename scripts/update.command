@@ -107,6 +107,8 @@ else
   while IFS= read -r envp; do
     [ -n "$envp" ] && RSYNC_EXCLUDES+=( --exclude "/$envp" )
   done < <(data_env_files)
+  # Maintainer-only (phát hành/tiến hóa hệ thống) — KHÔNG kéo về bản người dùng.
+  RSYNC_EXCLUDES+=( --exclude "/.claude/commands/kora-release.md" --exclude "/workflows/12-release.md" --exclude "/workflows/13-evolve-system.md" )
 
   # rsync ĐÈ (không --delete để không xóa file người dùng ngoài danh sách).
   rsync -a "${RSYNC_EXCLUDES[@]}" "$SRC_DIR"/ "$REPO_ROOT"/ \

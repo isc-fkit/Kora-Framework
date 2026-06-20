@@ -96,6 +96,36 @@ data_env_files() {
   done
 }
 
+# confluence_env_files: liệt kê .env* trong tools/confluence-sync (TRỪ .env.example),
+# in ra đường dẫn tương đối repo root. Dùng khi HOST export/dời máy để giữ creds Confluence.
+# ⚠️ archive-kb.command KHÔNG dùng hàm này (chỉ ship 1 file read-only riêng) — chỉ export/dời-máy mới gói.
+confluence_env_files() {
+  local dir="$REPO_ROOT/tools/confluence-sync"
+  [ -d "$dir" ] || return 0
+  local f base
+  for f in "$dir"/.env*; do
+    [ -e "$f" ] || continue
+    base="$(basename "$f")"
+    [ "$base" = ".env.example" ] && continue
+    printf '%s\n' "tools/confluence-sync/$base"
+  done
+}
+
+# archive_root: thư mục ghi gói archive (= repo root, giống export-kb). Tách hàm để dễ đổi sau.
+archive_root() {
+  printf '%s' "$REPO_ROOT"
+}
+
+# read_manifest_field <đường dẫn manifest.json> <tên field>
+# Đọc 1 field chuỗi/giá-trị-đơn ở manifest.json mà KHÔNG cần jq. Rỗng nếu không thấy.
+read_manifest_field() {
+  local mf="$1" key="$2"
+  [ -f "$mf" ] || return 0
+  grep -E "\"$key\"[[:space:]]*:" "$mf" | head -n1 \
+    | sed -E "s/.*\"$key\"[[:space:]]*:[[:space:]]*\"?([^\",}]*)\"?.*/\1/" \
+    | sed -E 's/[[:space:]]+$//'
+}
+
 # self_dequarantine: gỡ nhãn ẩn 'com.apple.quarantine' mà macOS dán cho file tải từ web.
 # Mục đích: sau khi user "Open Anyway" 1 file .command ở lần đầu, các script CÒN LẠI sẽ
 # KHÔNG bị Gatekeeper hỏi nữa ở những lần double-click sau (chỉ cần vượt 1 lần duy nhất).

@@ -96,5 +96,5 @@ KHÔNG ghi bất cứ gì vào `docs/` hay vault khi user chưa chọn [A]/[B].
 
 ## Bước 7 — Đề xuất bước kế (§0.4)
 
-Hỏi **AskUserQuestion** (đừng chỉ dừng): `[A] Dựng prototype / phân tích sâu tính năng vừa nạp ·
+Hỏi **AskUserQuestion** (đừng chỉ dừng): `[A] Phân tích sâu tính năng vừa nạp ·
 [B] Nạp thêm tài liệu (PDF/DOCX/ảnh) · [C] Quét thêm nguồn Jira khác (→ workflow 01) · [D] Dừng`.

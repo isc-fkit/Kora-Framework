@@ -1,13 +1,16 @@
 # Workflow 11 — Sao lưu & dời máy (export → import tri thức)
 
 > Trigger EXPORT: "sao lưu", "xuất tri thức", "backup", "chuyển máy", "dời máy".
-> Trigger IMPORT: "nhập tri thức", "khôi phục", "restore", hoặc đưa file `genesis1-kb-*.zip`.
+> Trigger IMPORT: "nhập tri thức", "khôi phục", "restore", hoặc đưa file `kora-kb-*.zip` / `kora-archive-*.zip`.
 > (confirm ý định trước). Tri thức = DATA: vault + `.kb` data + nội dung `docs/` + config setup + `inbox/`.
+>
+> 📦 **Bàn giao có phân quyền + mật khẩu?** → dùng `workflows/15-archive.md` (`/kora-archive`) thay vì luồng này.
+> Luồng 11 là **sao lưu/dời máy thuần** (không cổng, không phân quyền). `import-kb` nhận được CẢ hai loại gói.
 
 ## A. EXPORT (máy cũ) — đóng gói tri thức
 
 1. Chạy `scripts/export-kb.command` (Claude tự chạy trong Cowork).
-   → tạo `genesis1-kb-<project>-<ngày>.zip` ở gốc repo: DATA + `manifest.json`
+   → tạo `kora-kb-<project>-<ngày>.zip` ở gốc repo: DATA + `manifest.json`
    (version, `vault_path`, `project_name`).
 2. Báo user đường dẫn file zip (kèm folder tuyệt đối để copy) + "Chép file zip này sang máy mới."
 3. **Token:** `.env.local` (token Jira) CÓ trong gói. Nhắc user cân nhắc bảo mật — hoặc xoá
@@ -27,5 +30,5 @@
 
 ## Lưu ý
 - Export/import chỉ thao tác DATA, KHÔNG đụng CORE → an toàn với mọi bản app tương thích.
-- Gói `genesis1-kb-*.zip` đã được gitignore (không lọt vào repo).
+- Gói `kora-kb-*.zip` / `kora-archive-*.zip` đã được gitignore (không lọt vào repo).
 - Đây là cách CHÍNH thức "không mất tri thức khi đổi máy": export ở máy cũ → import ở máy mới.

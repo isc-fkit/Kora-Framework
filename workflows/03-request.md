@@ -7,6 +7,27 @@
 > tính năng / yêu cầu / thay đổi nghiệp vụ là phân tích luôn (đọc KB → xung đột/tác động/
 > lỗ hổng → trình bày). Chỉ Bước 4 (ghi) mới cần confirm. Đừng hỏi "có muốn phân tích không".
 
+## Bước 0 — Vai trò + Domain + Template (HỎI 1 LẦN/phiên, trước lần phân tích ĐẦU TIÊN)
+
+Lần ĐẦU user yêu cầu phân tích trong phiên, HỎI nhanh bằng AskUserQuestion (rồi **NHỚ cho cả phiên** —
+các lần sau KHÔNG hỏi lại; Tầng A tự chạy theo vai trò đã chọn):
+
+1. **Vai trò?** → **[BA] / [PO] / [SA] / [QA] / [Khác]**. Nạp prompt mẫu theo vai trò từ
+   `templates/prompts/role-<x>.md` (đã cài: `~/.claude/kora-framework/templates/prompts/...`) — bản đồ
+   `templates/prompts/_index.md`. Vai trò = "lăng kính" phân tích + loại output mong đợi.
+2. **Domain?** → nếu `config/factory-config.yaml > domain.preset` đã có thì DÙNG luôn (báo 1 dòng);
+   chưa có/không rõ → hỏi chọn preset. Áp THÊM `config/domain-rules.md`. Placeholder `[domain]` trong
+   prompt mẫu ← domain này.
+3. **Dùng template prompt mẫu + doc template?** → **[Có — role-<x> + doc BRD/PRD] / [Không — tự do]**.
+   Nếu **Có**: chèn yêu cầu vào `[<<YÊU CẦU>>]` của prompt mẫu, phân tích đúng theo các mục của prompt;
+   **nạp `templates/prompts/ba-prompt-library.md`** (thư viện 20 artifact + định dạng chuẩn) → từ đó mọi
+   artifact (US / AC / BR / FR / NFR / validation / test…) ghi ra theo **ĐỊNH DẠNG CHUẨN TỰ ĐỘNG** (mục
+   cuối file này), KHÔNG cần user yêu cầu format; đề xuất doc template (`templates/docs/BRD-template.md` /
+   `PRD-template.md`) khi user muốn xuất tài liệu (qua `/kora-export-docs`). Mẫu output đã điền: `templates/examples/`.
+
+> Cổng NHẸ (1 thẻ, nhớ cả phiên) — KHÔNG biến mỗi tin nhắn thành 1 lần hỏi. Sau khi chốt vai trò/domain,
+> Tầng A (Bước 1–3) tự chạy như thường, chỉ thêm "lăng kính" vai trò + áp prompt mẫu đã chọn.
+
 ## Bước 1 — Hiểu yêu cầu, load đúng tri thức (BẮT BUỘC trước khi trả lời)
 
 1. Đọc `.kb/index.json` + `.kb/relation-graph.json`.
@@ -68,6 +89,10 @@ Trình bày bản tổng kết ngắn (checklist) → nếu còn `[CẦN XÁC NH
 
 ## Bước 4 — Ghi tri thức (chỉ sau confirm)
 
+> **Mỗi artifact ghi theo ĐỊNH DẠNG CHUẨN** của `templates/prompts/ba-prompt-library.md`
+> (US / AC / BR / FR / NFR / validation / test…) — **TỰ ĐỘNG**, không cần user yêu cầu định dạng.
+> Vai trò đã chọn ở Bước 0 lọc *tập artifact* nào được ghi (xem mục "ĐẦU RA CHUẨN TỰ ĐỘNG" cuối file).
+
 Với feature mới `F-xxx-<slug>` (xem `templates/`):
 
 ```
@@ -75,10 +100,9 @@ docs/03-features/F-xxx-<slug>/
   README.md
   source/
     01-user-document.md        ← tài liệu cho người đọc (template user-document)
-    02-claude-context.md       ← context cho Claude Design/Code (template claude-context)
+    02-claude-context.md       ← context cho Claude Code (template claude-context)
     03-business-rules.md
     04-acceptance-criteria.md
-    05-design-brief.md         ← tạo ở workflow 04
     06-implementation-plan.md  ← tạo ở workflow 07 (nếu có code)
     07-test-plan.md
     changelog.md
@@ -101,9 +125,61 @@ Sau đó:
 
 ## Bước 5 — Đề xuất bước tiếp
 
-Hỏi user (1 câu):
+Hỏi user (1 câu, dùng AskUserQuestion):
 
-> "Tri thức đã ghi xong. Bạn muốn: [A] 🎨 Dựng prototype với Claude Design
+> "Tri thức đã ghi xong. Bạn muốn: [A] ☁️ Đẩy lên Confluence chung
 > [B] 📄 Xuất DOCX/PDF [C] Dừng ở đây?"
 
-[A] → `workflows/04-claude-design.md`. [B] → `workflows/06-export-docs.md`.
+[A] → `tools/confluence-sync/sync_confluence.py --push` (hoặc MCP Atlassian khi tương tác);
+chỉ hiện khi `confluence.enabled: true`. [B] → `workflows/06-export-docs.md`.
+
+---
+
+## Quy trình BA CHUẨN — để có ĐẦU RA CHUẨN (8 bước)
+
+Khi đi sâu phân tích một feature, bám **quy trình BA 8 bước** (đầu ra mỗi bước là artifact chuẩn). Bước 0–4
+ở trên là lõi; dưới là bản đồ đầy đủ + KORA tự thực thi phần nào:
+
+| Bước | Trigger | Mô tả | Đầu ra | KORA thực thi |
+|---|---|---|---|---|
+| **B0 · Tiếp nhận yêu cầu** | Meeting / Email yêu cầu | Thu thập yêu cầu thô; **ẩn danh dữ liệu nhạy cảm** trước khi đưa vào AI | Yêu cầu thô đã ẩn danh | `/kora-connect` + `/kora-scan` gom nguồn → vault |
+| **B1 · Clarify** | Yêu cầu còn mơ hồ | Sinh câu hỏi làm rõ (group Business Rules/Data/UI/Technical); BA bổ sung theo domain | Danh sách câu hỏi clarification | Bước 0 (vai trò+domain) + `[CẦN XÁC NHẬN]` ở Bước 2/3 |
+| **B2 · User Story + AC** | Yêu cầu đã rõ | "As a… I want… So that…" + Given/When/Then | User Story + AC | prompt `role-ba.md` → `docs/03-features/.../04-acceptance-criteria.md` |
+| **B3 · Process Flow** | US được duyệt | Mermaid flow; đối chiếu nghiệp vụ thật | Flowchart Mermaid | sinh Mermaid trong feature doc |
+| **B4 · FRS/BRD/PRD** | Flow đã duyệt | Bullet → tài liệu chuyên nghiệp; soát theo glossary | BRD/PRD draft | `templates/docs/BRD-template.md` / `PRD-template.md` → `/kora-export-docs` |
+| **B5 · Quality Gate** | Tài liệu draft xong | Soát 3 mức: chính xác · đầy đủ · peer-review | Tài liệu đã review | **Approval Gate (Bước 4)** + rà soát chốt phiên (Bước 3.5) + `.kb/health-report.md` |
+| **B6 · Test Cases** | Tài liệu được duyệt | Happy / edge / negative | Test Cases + UAT script | prompt `role-qa.md` |
+| **B7 · UAT** | Test Cases được duyệt | Soạn UAT checklist + kịch bản | UAT checklist + kịch bản | `/kora-export-docs` (UAT) |
+
+**TỰ TRƯỞNG THÀNH & HỌC TỪ SAI LẦM (không phải bước 1 lần):** mỗi khi một đề xuất bị user **bác/sửa lớn**,
+ghi NGAY 1 bài học vào `.kb/lessons.md` (ngày · bối cảnh · sai gì · rút ra · áp dụng từ nay — §0.3); **đọc lại
+`.kb/lessons.md` trước mỗi lần phân tích** để không lặp lỗi. Sau mỗi lần ghi tri thức → **tự reindex**
+(`build_index.py`) để index/graph/health luôn khớp. Định kỳ `/kora-evolve` (workflow 09) dọn dead-link, hợp
+nhất trùng lặp, bù lỗ hổng coverage. ⇒ KB + chất lượng phân tích **lớn dần theo thời gian**.
+
+---
+
+## ĐẦU RA CHUẨN TỰ ĐỘNG (auto-standard output) — TÍCH HỢP thư viện 20 prompt
+
+**Trả lời thẳng câu hỏi "luồng phân tích đã cho output chuẩn tự động chưa?": CÓ.** Luồng phân tích (Bước
+1–4) đã **tích hợp** quy trình BA 8 bước **+** thư viện `templates/prompts/ba-prompt-library.md`. Khi chọn
+"Có template" (Bước 0), KORA nạp thư viện và **tự động** xuất mỗi artifact theo đúng định dạng chuẩn — user
+**KHÔNG** phải yêu cầu "viết theo format X". Bản đồ artifact → định dạng → file ghi:
+
+| Artifact | Định dạng chuẩn (auto) | Prompt | File ghi (`source/`) |
+|---|---|---|---|
+| **User Story** | `US-[ID]` · `As a… I want… So that…` · Priority · Story Points · OUT OF SCOPE | 04 | `01-user-document.md` |
+| **Acceptance Criteria** | `Given-When-Then`, đủ **happy + edge + negative**; negative có **thông báo lỗi** | 05 | `04-acceptance-criteria.md` |
+| **Business Rules** | `BR-[ID]` mô tả rule + nguồn/điều kiện | 01/03 | `03-business-rules.md` |
+| **Validation + Error msg** | bảng `Tên trường·Kiểu·Bắt buộc·Min·Max·Định dạng·Business Rule` + cross-field | 08/09 | `04-acceptance-criteria.md` (mục Validation) |
+| **FR / NFR** | `FR-[ID]` (Actor/Pre/Post) · `NFR-[ID]` (nhóm + số đo + cách kiểm tra) | 06/07 | `02-claude-context.md` |
+| **Flow** | Mermaid `flowchart TD` / swimlane (happy + error path) | 10/11 | trong feature doc |
+| **Test Cases / Edge** | `TC-[ID]` 3 loại (≥3 happy·2 edge·2 negative) + edge theo 6 nhóm | 19/20 | `07-test-plan.md` |
+| **BRD / PRD / SRS** | theo `templates/docs/` (cấu trúc mục cố định) | 12/13/14 | `export/` qua `/kora-export-docs` |
+
+**Vai trò lọc tập artifact** (lăng kính chọn ở Bước 0): **BA** → US/AC/BR/Screen Spec · **PO** → Business
+value/KPI(SMART)/MoSCoW/PRD · **SA** → FR/NFR/API/DB/SDD · **QA** → AC/Validation/Test/Edge. Chi tiết định
+dạng từng artifact: `templates/prompts/ba-prompt-library.md`.
+
+**Nguyên tắc khi auto-xuất:** vẫn bám tri thức KB + trích nguồn (§1), thiếu thông tin → `[CẦN XÁC NHẬN]`
+(không bịa để "đủ format"); áp `config/domain-rules.md`; chờ **Approval Gate (Bước 4)** trước khi ghi.

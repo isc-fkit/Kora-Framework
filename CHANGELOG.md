@@ -10,6 +10,58 @@
 
 ---
 
+## v2.3.0 "Kora-1" — 2026-06-21
+
+- **SỬA lịch HĐH: nhiều mốc giờ + Thứ 2–6 nay chạy ĐÚNG trên mọi OS.**
+  - **macOS (launchd):** `cron_to_launchd` cũ chỉ lấy mốc giờ ĐẦU (vd `0 8,12,17 * * 1-5` chỉ chạy 8:00).
+    Nay sinh MỘT `StartCalendarInterval` cho MỖI tổ hợp (phút × giờ × thứ × ngày × tháng) → chạy đủ mọi mốc.
+  - **Windows (schtasks):** `1-5` từng bị `replace('-',',')` thành `MON,FRI` (mất T3/T4/T5) — nay expand range
+    đầy đủ `MON,TUE,WED,THU,FRI`; nhiều mốc giờ → tạo nhiều task (`Kora\<id>`, `Kora\<id>__HHMM`), `remove`/
+    `disable` gỡ sạch tất cả.
+- **Đặt lịch THÂN THIỆN (không cần gõ cron):** `schedule.py` thêm `--times "08:00,14:00" --days every|mon-fri|<csv>`
+  (dựng cron qua `build_cron`). Skill `/kora-schedule`, `/kora-send-mail` và workflow 08 hỏi bằng thẻ: chọn
+  **mốc giờ (nhiều mốc)** + **[Mỗi ngày]/[Thứ 2–6]/[Ngày tùy chọn]**.
+- **Fallback khi cài HĐH lỗi:** `install_*` trả `(artifact, ok)`; thất bại → lịch lưu `enabled=false` +
+  `install_error`, `list` hiện `⚠️CHƯA-CÀI-HĐH`, gợi ý `enable` lại hoặc dùng cơ chế **Cowork** (hết báo ✅ giả).
+- **`cron_fields` soát khoảng giá trị** (chặn cron rác kiểu `99 99 * * *`).
+- **Workflow 08 Mục B** ưu tiên lịch HĐH (`--report-projects`/`--email`, quản lý ở `/kora-schedule`), Cowork
+  là cách thay thế "chỉ khi app mở".
+- **Bảo mật/dọn dẹp:** vá `archive-kb.bat` strip MỌI `.env*` (gom `.env.jira`/`.env.github`, giữ `.env.example`);
+  ngưng theo dõi `config/factory-config.yaml` + `config/domain-rules.md` (DATA, giữ bản local); thêm `assets/`
+  (banner/flow được tham chiếu); regenerate `install/uninstall.command.zip`; gỡ file tạm/test
+  (`__pycache__`, `.DS_Store`, log gatetest, lịch test cũ `com.kora.daily-report`).
+
+> **Cập nhật:** thuần CORE, **không cần migration DATA**. Lịch đã tạo từ bản cũ giữ nguyên; tạo lại (hoặc
+> `edit --times/--days`) để hưởng bản vá nhiều-mốc-giờ/Thứ-2–6.
+
+## v2.2.0 "Kora-1" — 2026-06-19
+
+- **KB ĐÁM MÂY CHUNG (Confluence get & post).** Tool mới `tools/confluence-sync/sync_confluence.py`
+  (REST, thư viện chuẩn): `--check`/`--login` (OAuth 2.0 3LO, tự refresh; fallback API token cho cron)
+  /`--push` (upsert idempotent: map theo `kb_id`, nhận trang theo title tránh trùng, bỏ qua trang không
+  đổi theo hash, tôn trọng trang bị sửa tay) /`--pull` (kéo về vault) /`--check-fresh`. Lỗi từng trang
+  được gom, không dừng cả lượt. `permission: read_only` chặn `--push`. Cấu hình ở `confluence:` / `cloud_kb:`.
+- **Lịch cấp HỆ ĐIỀU HÀNH** (`tools/kora-scheduler/`): `schedule.py register|list|edit|remove` cài
+  launchd (macOS) / crontab (Linux) / schtasks (Windows) → chạy đúng giờ **kể cả khi đóng app**.
+  `orchestrator.py` chạy nền: scan nguồn (lỗi thì skip + ghi log) → reindex → ĐẨY Confluence → report →
+  mail (chỉ HOST) → **lỗi tự tạo TICKET ISSUE (Confluence/Jira) + email**. Idempotent theo ngày + `.lock`.
+  Phân tích rủi ro AI headless qua `claude -p` (best-effort). Wrapper `scripts/schedule.{command,bat}`.
+- **Archive bàn giao có MẬT KHẨU + phân quyền.** `scripts/archive-kb.{command,bat}` + `/kora-archive` +
+  `workflows/15-archive.md`: cổng mật khẩu `isc-fkit-kora` (hash salted trên repo `config/archive-pw.sha256`,
+  chủ repo đổi từ xa) qua `tools/archive-gate/verify_password.py`; gói `kora-archive-*.zip` = `{manifest,
+  data/, .env.local (CHỈ key READ), markers/}`; chọn HOST/USER + read-only/read-write. Gói USER: import tạo
+  marker `.kora-user` → tắt report/mail, đặt key READ, tự lên lịch get&post. **An toàn:** chỉ ship 1 `.env.local`
+  read-only, loại mọi token write/mail/jira khỏi gói.
+- **Connect mở rộng + sổ `connections:`.** Block `connections` thật trong config (id =
+  `<source_type>__<method>` → **API vs MCP tính RIÊNG**). `/kora-connect` viết lại: OAuth 2.0 Device Flow
+  ưu tiên cho API (GitHub/GitLab/Jira), PAT fallback cho cron; MCP cho Atlassian/Gmail/Microsoft 365;
+  verify trước khi ghi; ESC quay lại/huỷ. Helper `tools/connections/check_connection.py` (`--list`/`--check`).
+- **Migration:** thêm block `connections`/`confluence`/`cloud_kb`/`scheduler`/`package` vào
+  `config/factory-config.yaml` (copy từ `.example`); bỏ block `design`. Token Confluence ở
+  `tools/confluence-sync/.env.local`. Lịch Cowork cũ vẫn chạy; nên chuyển sang lịch HĐH cho tự động thật.
+- **Bỏ HẲN Claude Design** (workflows 04/05, `/kora-design`, `projects/`, template design) — luồng host
+  gọn: init → connect → scan → schedule (get & post) → report. Cổng duyệt còn 3 (tri thức / tài liệu·Confluence / code).
+
 ## v2.1.0 "Kora-1" — 2026-06-18
 
 - **Cài bằng installer `.command`/`.bat`** (mô hình FKit Reporter): `install.command` / `install.bat`

@@ -1,0 +1,408 @@
+#!/usr/bin/env python3
+"""
+orchestrator.py — Chu trình lịch chạy NỀN của Kora (không cần app Claude).
+
+Một lần `--run <id>`: CỔNG MẬT KHẨU (KORA_OPS_PW) gác cả lượt → SCAN/auto-get các nguồn
+(lỗi thì skip + ghi log) → reindex → ĐẨY (post) lên Confluence chung → đánh dấu độ mới →
+sinh report → gửi mail (nếu HOST) → có lỗi thì TẠO TICKET ISSUE + email danh sách nhận.
+Cổng sai/thiếu → BỎ QUA TOÀN BỘ (kể cả auto-get), chỉ cảnh báo. KHÔNG fail im — exit code
+ok(0)/partial(2)/failed(1).
+
+Đọc cấu hình từ config/factory-config.yaml + lịch từ tools/kora-scheduler/schedules.json.
+Chỉ thư viện chuẩn Python 3. KHÔNG in secret.
+
+Token map:
+  scan_list / post_list dùng token "type:name":
+    jira:<name>        → import_jira.py --since với JIRA_ENV_FILE=.env.<name> (name=local → .env.local)
+    confluence:<space> → sync_confluence.py --pull (scan) / --push (post) --space <space>
+"""
+import argparse
+import json
+import os
+import subprocess
+import sys
+import urllib.request
+import urllib.error
+from datetime import datetime, timezone
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+REPO_ROOT = HERE.parents[1]
+CONFIG = REPO_ROOT / "config" / "factory-config.yaml"
+REGISTRY = HERE / "schedules.json"
+JIRA_DIR = REPO_ROOT / "tools" / "jira-to-obsidian"
+CONFL_DIR = REPO_ROOT / "tools" / "confluence-sync"
+MAILER = REPO_ROOT / "tools" / "report-mailer" / "send_report.py"
+PY = sys.executable or "python3"
+
+
+def now_iso():
+    return datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds")
+
+
+def today():
+    return datetime.now().strftime("%Y-%m-%d")
+
+
+def log(msg):
+    print(f"[{now_iso()}] {msg}", flush=True)
+
+
+def load_env(path: Path) -> dict:
+    env = {}
+    if path and path.exists():
+        for line in path.read_text(encoding="utf-8").splitlines():
+            s = line.strip()
+            if s and not s.startswith("#") and "=" in s:
+                k, v = s.split("=", 1)
+                env[k.strip()] = v.strip()
+    return env
+
+
+def load_config(path: Path) -> dict:
+    """factory-config.yaml → dict dotted-key -> scalar (cùng logic với sync_confluence)."""
+    result, stack = {}, []
+    if not path.exists():
+        return result
+    import re
+    for raw in path.read_text(encoding="utf-8").splitlines():
+        if not raw.strip() or raw.lstrip().startswith("#") or raw.lstrip().startswith("- "):
+            continue
+        indent = len(raw) - len(raw.lstrip(" "))
+        if ":" not in raw.strip():
+            continue
+        key, _, rawval = raw.strip().partition(":")
+        key, rawval = key.strip(), rawval.strip()
+        quoted = rawval[:1] in ('"', "'")
+        if quoted:
+            q = rawval[0]
+            end = rawval.find(q, 1)
+            val = rawval[1:end] if end != -1 else rawval[1:]
+        else:
+            val = re.sub(r"(^|\s)#.*$", "", rawval).strip()
+        while stack and stack[-1][0] >= indent:
+            stack.pop()
+        dotted = ".".join([k for _, k in stack] + [key])
+        if val == "" and not quoted:
+            stack.append((indent, key))
+            continue
+        result[dotted] = val
+    return result
+
+
+def load_schedule(sid: str):
+    if not REGISTRY.exists():
+        return None
+    data = json.loads(REGISTRY.read_text(encoding="utf-8"))
+    for s in data.get("schedules", []):
+        if s.get("id") == sid:
+            return s
+    return None
+
+
+def run_tool(script: Path, args, extra_env=None, cwd=None):
+    """Chạy 1 tool Python con; trả (rc, stdout, stderr). KHÔNG raise."""
+    env = dict(os.environ)
+    if extra_env:
+        env.update(extra_env)
+    try:
+        p = subprocess.run([PY, str(script), *args], cwd=str(cwd or REPO_ROOT),
+                           env=env, capture_output=True, text=True, timeout=1800)
+        return p.returncode, p.stdout, p.stderr
+    except Exception as e:  # noqa: BLE001
+        return 1, "", str(e)
+
+
+GATE_SCRIPT = REPO_ROOT / "tools" / "archive-gate" / "verify_ops_password.py"
+
+
+def ops_gate() -> bool:
+    """Cổng mật khẩu vận hành cho bước GHI/PHÁT ra ngoài (POST/MAIL/SYNC) trong lịch nền.
+    Mật khẩu lấy từ env KORA_OPS_PW (wrapper source ~/.config/kora/ops-pw.env). KHÔNG in mật khẩu."""
+    rc, _o, _e = run_tool(GATE_SCRIPT, [])
+    return rc == 0
+
+
+# ───────────────────────────── ticket issue ────────────────────────────────
+def create_ticket(cfg, title, body_md):
+    """Tạo ticket issue khi lịch lỗi. target: confluence | jira | none. Trả (created, url|err)."""
+    target = (cfg.get("scheduler.ticket_issue.target") or "confluence").lower()
+    if target == "none" or (cfg.get("scheduler.ticket_issue.enabled") or "true") in ("false", "False"):
+        return False, "ticket_issue tắt"
+    try:
+        if target == "confluence":
+            return _ticket_confluence(cfg, title, body_md)
+        if target == "jira":
+            return _ticket_jira(cfg, title, body_md)
+    except Exception as e:  # noqa: BLE001
+        return False, f"tạo ticket lỗi: {e}"
+    return False, "target không hợp lệ"
+
+
+def _ticket_confluence(cfg, title, body_md):
+    sys.path.insert(0, str(CONFL_DIR))
+    import sync_confluence as sc  # noqa: E402
+    env = sc.load_env(CONFL_DIR / ".env.local")
+    client = sc.build_client(env, cfg)  # die nếu thiếu creds → bắt ở caller
+    space = cfg.get("scheduler.ticket_issue.space_key") or cfg.get("confluence.space_key")
+    if not space:
+        return False, "thiếu ticket_issue.space_key"
+    storage = sc.md_to_storage(body_md)
+    # idempotent theo ngày: nhận trang cùng title nếu đã có
+    found = sc.find_page_by_title(client, space, title)
+    if found:
+        pid = found["id"]
+        _st, cur = client.get(f"/rest/api/content/{pid}", {"expand": "version"})
+        ver = cur.get("version", {}).get("number", 1)
+        client.put(f"/rest/api/content/{pid}", {
+            "id": pid, "type": "page", "title": title, "space": {"key": space},
+            "version": {"number": ver + 1}, "body": {"storage": {"value": storage, "representation": "storage"}}})
+        return True, f"{client.base}/spaces/{space}/pages/{pid}"
+    _st, res = client.post("/rest/api/content", {
+        "type": "page", "title": title, "space": {"key": space},
+        "metadata": {"labels": [{"name": "kora-incident"}]},
+        "body": {"storage": {"value": storage, "representation": "storage"}}})
+    return True, f"{client.base}/spaces/{space}/pages/{res.get('id')}"
+
+
+def _ticket_jira(cfg, title, body_md):
+    import base64
+    env = load_env(JIRA_DIR / ".env.local")
+    base = (env.get("JIRA_BASE_URL") or "").rstrip("/")
+    project = cfg.get("scheduler.ticket_issue.jira_project")
+    if not (base and project):
+        return False, "thiếu JIRA_BASE_URL hoặc ticket_issue.jira_project"
+    email, token = env.get("JIRA_EMAIL"), env.get("JIRA_PAT")
+    headers = {"Content-Type": "application/json", "Accept": "application/json"}
+    if email and token:  # Cloud
+        headers["Authorization"] = "Basic " + base64.b64encode(f"{email}:{token}".encode()).decode()
+    elif token:           # Server
+        headers["Authorization"] = f"Bearer {token}"
+    else:
+        return False, "thiếu token Jira"
+    payload = {"fields": {"project": {"key": project}, "summary": title[:250],
+                          "description": body_md, "issuetype": {"name": "Bug"}}}
+    req = urllib.request.Request(base + "/rest/api/2/issue",
+                                 data=json.dumps(payload).encode(), headers=headers, method="POST")
+    with urllib.request.urlopen(req, timeout=45) as r:
+        res = json.loads(r.read())
+    return True, f"{base}/browse/{res.get('key')}"
+
+
+def send_error_email(cfg, schedule, subject, body):
+    """Mail báo SỰ CỐ (issue ticket) khi lịch nền lỗi — cấu hình tập trung qua /kora-alert-mail.
+
+    OVERRIDE: scheduler.error_recipients (khi != rỗng) ÁP cho MỌI lịch, ĐÈ người nhận của
+    từng lịch. Đọc config lúc chạy → sửa 1 lần áp cho mọi lịch, KHÔNG cần tạo lại lịch nào.
+    Tắt toàn cục bằng scheduler.error_email.enabled=false (vẫn có thể tạo ticket riêng).
+    """
+    if (cfg.get("scheduler.error_email.enabled") or "true").strip().lower() == "false":
+        log("  (mail sự cố đang TẮT toàn cục: scheduler.error_email.enabled=false)")
+        return
+    override = (cfg.get("scheduler.error_recipients") or "").strip("[]").replace('"', "").replace("'", "")
+    recips = [x.strip() for x in override.split(",") if x.strip()]          # 1) override toàn cục
+    if not recips:
+        recips = schedule.get("email", {}).get("to") or []                  # 2) người nhận của lịch
+    if not recips:
+        recips = [x.strip() for x in (cfg.get("reports.email.to") or "").split(",") if x.strip()]  # 3) fallback
+    if not recips or not MAILER.exists():
+        log("  (không gửi được error email: thiếu người nhận hoặc mailer)")
+        return
+    run_tool(MAILER, ["--to", ",".join(recips), "--subject", subject, "--body", body])
+
+
+# ──────────────────────────────── pipeline ─────────────────────────────────
+def main():
+    ap = argparse.ArgumentParser(description="Chu trình lịch nền Kora.")
+    ap.add_argument("--run", metavar="ID", required=True, help="id lịch trong schedules.json")
+    ap.add_argument("--once", action="store_true", help="Bỏ qua guard idempotent theo ngày.")
+    ap.add_argument("--dry-run", action="store_true", help="In kế hoạch, không thực thi.")
+    args = ap.parse_args()
+
+    cfg = load_config(CONFIG)
+    sch = load_schedule(args.run)
+    if not sch:
+        log(f"❌ Không thấy lịch id='{args.run}' trong {REGISTRY.name}")
+        sys.exit(1)
+    if sch.get("enabled") is False:
+        log(f"⏸  Lịch '{args.run}' đang TẮT (inactive) → bỏ qua.")
+        sys.exit(0)
+
+    log_dir = REPO_ROOT / (cfg.get("scheduler.log_dir") or "reports/scheduler-logs")
+    log_dir.mkdir(parents=True, exist_ok=True)
+    lock = log_dir / f"{args.run}.lock"
+    if lock.exists() and not args.once:
+        log("⏭  Lượt trước còn chạy (.lock) → bỏ qua để tránh chồng.")
+        sys.exit(0)
+    lock.write_text(now_iso(), encoding="utf-8")
+
+    run_errors, sources, posted = [], [], []
+    is_user_pkg = (cfg.get("package.type") or "host").lower() == "user" or (REPO_ROOT / ".kora-user").exists()
+    started = now_iso()
+    try:
+        # 0) CỔNG MẬT KHẨU vận hành — gác TOÀN BỘ lượt chạy, KỂ CẢ auto-get/scan.
+        #    Sai/thiếu KORA_OPS_PW → KHÔNG get/scan, KHÔNG post/report/mail/sync; chỉ cảnh báo cuối lượt.
+        gate_ok = True
+        if not args.dry_run:
+            gate_ok = ops_gate()
+            if not gate_ok:
+                log("🔒 Cổng mật khẩu KHÔNG qua (KORA_OPS_PW sai/thiếu) → "
+                    "BỎ QUA TOÀN BỘ lượt: auto-get/scan, post, report, mail, sync.")
+                run_errors.append({"step": "gate",
+                                   "reason": "KORA_OPS_PW sai/thiếu — bỏ toàn bộ lượt (kể cả auto-get)"})
+
+        # 1) SCAN (auto-get) — CHỈ khi qua cổng
+        for tok in (sch.get("scan_list", []) if (gate_ok or args.dry_run) else []):
+            kind, _, name = tok.partition(":")
+            log(f"SCAN {tok}")
+            if args.dry_run:
+                sources.append({"name": tok, "fresh": None, "error": "(dry)"}); continue
+            if kind == "jira":
+                envfile = ".env.local" if name in ("", "local", "default") else f".env.{name}"
+                rc, out, err = run_tool(JIRA_DIR / "import_jira.py", ["--since"],
+                                        extra_env={"JIRA_ENV_FILE": envfile}, cwd=JIRA_DIR)
+            elif kind == "confluence":
+                rc, out, err = run_tool(CONFL_DIR / "sync_confluence.py",
+                                        ["--pull"] + (["--space", name] if name else []))
+            else:
+                rc, out, err = 1, "", f"loại nguồn không hỗ trợ: {kind}"
+            if rc not in (0, 2):
+                run_errors.append({"step": "scan", "source": tok, "reason": (err or out)[:300]})
+                sources.append({"name": tok, "fresh": False, "error": (err or out)[:200]})
+            else:
+                sources.append({"name": tok, "fresh": True, "error": None})
+
+        # 2) REINDEX — chỉ khi qua cổng (có thể vừa quét dữ liệu mới)
+        if gate_ok and not args.dry_run:
+            run_tool(REPO_ROOT / "tools" / "kb-indexer" / "build_index.py", ["--root", "."])
+
+        # 3) POST (đẩy lên Confluence chung) — chỉ khi qua cổng
+        for tok in (sch.get("post_list", []) if (gate_ok or args.dry_run) else []):
+            kind, _, name = tok.partition(":")
+            log(f"POST {tok}")
+            if args.dry_run:
+                posted.append({"target": tok, "result": "(dry)"}); continue
+            if kind == "confluence":
+                rc, out, err = run_tool(CONFL_DIR / "sync_confluence.py",
+                                        ["--push"] + (["--space", name] if name else []))
+                posted.append({"target": tok, "result": out.strip()[-200:] or err[-200:]})
+                if rc not in (0,):
+                    run_errors.append({"step": "post", "target": tok, "reason": (err or out)[:300]})
+            else:
+                run_errors.append({"step": "post", "target": tok, "reason": f"loại đích không hỗ trợ: {kind}"})
+
+        # 4) REPORT + MAIL — chỉ HOST (gói user không có) và CHỈ khi qua cổng
+        report = None
+        if gate_ok and not is_user_pkg and not args.dry_run:
+            rc, out, err = run_tool(REPO_ROOT / "tools" / "progress-report" / "build_report.py", [])
+            if rc != 0:
+                run_errors.append({"step": "report", "reason": (err or out)[:300]})
+            else:
+                report = "reports/progress-report-latest.html"
+                # AI risk analysis (headless, best-effort)
+                _ai_analysis(cfg, log_dir)
+                em = sch.get("email", {})
+                mail_on = (em.get("enabled") or
+                           (cfg.get("reports.email.enabled") or "false").lower() == "true")
+                provider = (em.get("provider") or cfg.get("reports.email.provider") or "smtp").lower()
+                recips = em.get("to") or [x.strip() for x in
+                                          (cfg.get("reports.email.to") or "").split(",") if x.strip()]
+                if mail_on and provider != "smtp":
+                    log(f"  (mail provider={provider} cần gửi tương tác qua connector — "
+                        f"lịch nền chỉ gửi SMTP → bỏ qua)")
+                elif mail_on and recips and MAILER.exists():
+                    subj = (cfg.get("reports.email.subject") or "[Kora] Báo cáo tiến độ {date}").replace("{date}", today())
+                    rc2, o2, e2 = run_tool(MAILER, ["--to", ",".join(recips), "--subject", subj,
+                                                    "--html-file", "reports/email-body-latest.html",
+                                                    "--no-attach-html",
+                                                    "--attach", "reports/progress-report-latest.html"])
+                    if rc2 != 0:
+                        run_errors.append({"step": "email", "reason": (e2 or o2)[:300]})
+
+        # 4.5) SYNC KB lên target (versioning + push) — chỉ khi bật & qua cổng. Áp cả gói USER.
+        sy = sch.get("sync", {})
+        if sy.get("enabled") and (gate_ok or args.dry_run):
+            targets = sy.get("targets", [])
+            log(f"SYNC targets={targets}")
+            if not args.dry_run:
+                run_tool(REPO_ROOT / "tools" / "kb-sync" / "version_mark.py", ["--root", ".", "--apply"])
+                run_tool(REPO_ROOT / "tools" / "kb-indexer" / "build_index.py", ["--root", "."])
+                if "confluence" in targets:
+                    rc, out, err = run_tool(CONFL_DIR / "sync_confluence.py", ["--push"])
+                    posted.append({"target": "sync:confluence", "result": (out.strip()[-150:] or err[-150:])})
+                    if rc not in (0,):
+                        run_errors.append({"step": "sync", "target": "confluence", "reason": (err or out)[:300]})
+                if "github" in targets:
+                    rc, out, err = run_tool(REPO_ROOT / "tools" / "github-sync" / "sync_github.py", ["--push"])
+                    posted.append({"target": "sync:github", "result": (out.strip()[-150:] or err[-150:])})
+                    if rc not in (0,):
+                        run_errors.append({"step": "sync", "target": "github", "reason": (err or out)[:300]})
+
+        # 5) TICKET + ERROR EMAIL nếu có lỗi
+        ticket = {"created": False, "url": None}
+        if run_errors and not args.dry_run:
+            title = f"[Kora] Lịch {args.run} lỗi {today()}"
+            body = _incident_body(args.run, run_errors, sources)
+            try:
+                created, url = create_ticket(cfg, title, body)
+                ticket = {"created": created, "url": url}
+            except SystemExit:
+                ticket = {"created": False, "url": "thiếu creds tạo ticket"}
+            except Exception as e:  # noqa: BLE001
+                ticket = {"created": False, "url": str(e)}
+            send_error_email(cfg, sch, title, body)
+
+        status = "failed" if (run_errors and not sources) else ("partial" if run_errors else "ok")
+        record = {"id": args.run, "started_at": started, "finished_at": now_iso(),
+                  "status": status, "sources": sources, "posted": posted,
+                  "report": report, "ticket_issue": ticket, "errors": run_errors}
+        if not args.dry_run:
+            (log_dir / f"last-run-{args.run}.json").write_text(
+                json.dumps(record, indent=2, ensure_ascii=False), encoding="utf-8")
+        log(f"DONE status={status} errors={len(run_errors)} ticket={ticket.get('created')}")
+        sys.exit({"ok": 0, "partial": 2, "failed": 1}[status])
+    finally:
+        try:
+            lock.unlink()
+        except OSError:
+            pass
+
+
+def _incident_body(sid, errors, sources):
+    lines = [f"Lịch Kora `{sid}` gặp lỗi lúc {now_iso()}.", "", "## Lỗi"]
+    for e in errors:
+        loc = e.get("source") or e.get("target") or e.get("step")
+        lines.append(f"- **{e.get('step')}** ({loc}): {e.get('reason')}")
+    lines += ["", "## Nguồn đã quét"]
+    for s in sources:
+        lines.append(f"- {s['name']}: {'OK' if s.get('fresh') else 'LỖI — ' + str(s.get('error'))}")
+    return "\n".join(lines)
+
+
+def _ai_analysis(cfg, log_dir):
+    mode = (cfg.get("scheduler.ai_risk_analysis.mode") or "auto").lower()
+    if mode == "off":
+        return
+    claude = cfg.get("scheduler.ai_risk_analysis.claude_bin") or "auto"
+    if claude == "auto":
+        from shutil import which
+        claude = which("claude")
+    if not claude:
+        log("  (AI analysis: không thấy 'claude' bin — bỏ qua, report vẫn có dữ liệu)")
+        return
+    data = REPO_ROOT / "reports" / f"progress-data-{today()}.json"
+    if not data.exists():
+        return
+    prompt = ("Đọc dữ liệu tiến độ JSON sau và viết 5-8 dòng phân tích RỦI RO + đề xuất "
+              "(tiếng Việt, ngắn gọn) cho quản lý:\n" + data.read_text(encoding='utf-8')[:6000])
+    try:
+        p = subprocess.run([claude, "-p", prompt], capture_output=True, text=True, timeout=180)
+        if p.returncode == 0 and p.stdout.strip():
+            (log_dir / f"ai-analysis-{today()}.md").write_text(p.stdout, encoding="utf-8")
+            log("  (AI analysis: đã ghi)")
+    except Exception as e:  # noqa: BLE001
+        log(f"  (AI analysis bỏ qua: {e})")
+
+
+if __name__ == "__main__":
+    main()

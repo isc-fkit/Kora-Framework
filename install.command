@@ -52,6 +52,8 @@ fi
 echo "📥 Cài lệnh /kora-* ..."
 rm -f "$DEST_CMD"/kora-*.md 2>/dev/null || true
 cp "$SRC"/.claude/commands/kora-*.md "$DEST_CMD"/ 2>/dev/null || die "Không thấy skill kora-*.md trong nguồn."
+# Skill CHỈ-DUY-TRÌ (maintainer-only) — KHÔNG cài cho người dùng thường (phát hành = chỉ người viết repo).
+for ms in kora-release; do rm -f "$DEST_CMD/$ms.md" 2>/dev/null || true; done
 N="$(ls -1 "$DEST_CMD"/kora-*.md 2>/dev/null | wc -l | tr -d ' ')"
 
 # --- 2) CORE hỗ trợ → ~/.claude/kora-framework/ (ẩn, quản lý; KHÔNG phải folder source để sửa) ---
@@ -62,41 +64,52 @@ for d in workflows scripts templates config tools; do
     cp -R "$SRC/$d" "$DEST_CORE/$d"
   fi
 done
+# Workflow CHỈ-DUY-TRÌ — gỡ khỏi bản cài người dùng (phát hành/tiến hóa hệ thống chỉ ở người viết repo).
+for mw in 12-release.md 13-evolve-system.md; do rm -f "$DEST_CORE/workflows/$mw" 2>/dev/null || true; done
 [ -f "$SRC/CLAUDE.md" ] && cp "$SRC/CLAUDE.md" "$DEST_CORE/" || true
 # Domain + rule preset đã nằm trong config/ vừa copy (gồm Healthcare/Y tế). Đếm để báo.
 NDOM="$(ls -1 "$DEST_CORE"/config/domain-presets/*.md 2>/dev/null | wc -l | tr -d ' ')"
 [ -f "$DEST_CORE/config/domain-presets/healthcare.md" ] || echo "⚠️  Thiếu preset Healthcare — nguồn cài có thể cũ."
 
-# --- 3) Đặt skill vào ~/Downloads để UPLOAD TAY vào Claude Cowork (Cowork import skill thủ công) ---
-DL="$HOME/Downloads/Kora-Skills"
-echo "📦 Chuẩn bị gói skill để upload tay vào Cowork..."
-rm -rf "$DL" 2>/dev/null || true
-mkdir -p "$DL"
-cp "$SRC"/.claude/commands/kora-*.md "$DL"/ 2>/dev/null || true
-( cd "$HOME/Downloads" && rm -f Kora-Skills.zip && have zip && zip -qr Kora-Skills.zip Kora-Skills ) 2>/dev/null || true
-
-# --- 4) TỰ ĐỘNG dựng project (init): cấu trúc thư mục + folder skill BÊN TRONG project ---
-PROJ="${KORA_PROJECT:-$HOME/Kora-Knowledge}"
-mkdir -p "$PROJ/.claude/commands"
-cp "$DEST_CMD"/kora-*.md "$PROJ/.claude/commands/" 2>/dev/null || true   # refresh skill trong project mỗi lần cài
-if [ ! -f "$PROJ/config/factory-config.yaml" ]; then
-  echo "📁 Dựng project (init) tại: $PROJ"
-  mkdir -p "$PROJ"/docs/01-domain "$PROJ"/docs/02-product "$PROJ"/docs/03-features "$PROJ"/docs/04-design \
-           "$PROJ"/docs/05-architecture "$PROJ"/docs/06-decisions "$PROJ"/docs/07-research "$PROJ"/docs/08-glossary \
-           "$PROJ/inbox" "$PROJ/.kb" "$PROJ/config" "$PROJ/Kora_Brain/00_Index"
-  [ -f "$DEST_CORE/config/factory-config.example.yaml" ] && cp "$DEST_CORE/config/factory-config.example.yaml" "$PROJ/config/factory-config.yaml"
-  [ -d "$DEST_CORE/config/domain-presets" ] && cp -R "$DEST_CORE/config/domain-presets" "$PROJ/config/domain-presets"
-  printf '@~/.claude/kora-framework/CLAUDE.md\n' > "$PROJ/CLAUDE.md"   # Cowork nạp rule orchestrator khi mở folder
-  printf '# Knowledge Base\n' > "$PROJ/Kora_Brain/00_Index/Knowledge-Base.md"
+# --- Resolve thư mục Downloads động (theo OS; tự fallback nếu không có) ---
+DL_BASE="$HOME/Downloads"
+if [ "$(uname -s 2>/dev/null)" = "Linux" ] && have xdg-user-dir; then
+  _d="$(xdg-user-dir DOWNLOAD 2>/dev/null || true)"
+  [ -n "$_d" ] && DL_BASE="$_d"
 fi
+[ -d "$DL_BASE" ] || DL_BASE="$HOME"   # Downloads không tồn tại → về home
+
+# --- 3) Dựng ROOT Knowledge-Base trong Downloads + KHỞI TẠO project NGAY (folder skill BÊN TRONG) ---
+ROOT="${KORA_PROJECT:-$DL_BASE/Knowledge-Base}"
+SKILL_DIR="$ROOT/Skill"
+echo "📦 Khởi tạo project tại: $ROOT"
+mkdir -p "$SKILL_DIR"
+
+# Folder skill nằm BÊN TRONG ROOT (để upload tay vào Cowork) — refresh mỗi lần cài/update.
+rm -f "$SKILL_DIR"/kora-*.md 2>/dev/null || true
+cp "$DEST_CMD"/kora-*.md "$SKILL_DIR"/ 2>/dev/null || true
+
+# Khởi tạo cấu trúc project GỌN ngay trong ROOT — CHỈ khi chưa phải project Kora (tránh đè tri thức).
+if [ ! -f "$ROOT/config/factory-config.yaml" ] && [ ! -d "$ROOT/config/domain-presets" ]; then
+  echo "📁 Dựng cấu trúc project (docs/ + vault + config) bên trong $ROOT"
+  mkdir -p "$ROOT"/docs/01-domain "$ROOT"/docs/02-product "$ROOT"/docs/03-features "$ROOT"/docs/04-design \
+           "$ROOT"/docs/05-architecture "$ROOT"/docs/06-decisions "$ROOT"/docs/07-research "$ROOT"/docs/08-glossary \
+           "$ROOT/inbox" "$ROOT/.kb" "$ROOT/config" "$ROOT/Kora_Brain/00_Index"
+  [ -f "$DEST_CORE/config/factory-config.example.yaml" ] && cp "$DEST_CORE/config/factory-config.example.yaml" "$ROOT/config/factory-config.yaml"
+  [ -d "$DEST_CORE/config/domain-presets" ] && cp -R "$DEST_CORE/config/domain-presets" "$ROOT/config/domain-presets"
+  printf '@~/.claude/kora-framework/CLAUDE.md\n' > "$ROOT/CLAUDE.md"   # Cowork/CLI nạp rule orchestrator khi mở folder
+  printf '# Knowledge Base\n' > "$ROOT/Kora_Brain/00_Index/Knowledge-Base.md"
+fi
+
+# (Dọn folder Kora-Skills kiểu cũ nếu còn sót từ bản trước)
+rm -rf "$DL_BASE/Kora-Skills" "$DL_BASE/Kora-Skills.zip" 2>/dev/null || true
 
 echo ""
 echo "✅ Đã cài $N skill Kora + $NDOM domain preset (gồm Healthcare/Y tế, Retail, Manufacturing…) vào ~/.claude."
-echo "   📁 Project init sẵn: $PROJ  (docs/ + vault Kora_Brain/ + .claude/commands có skill bên trong)."
-echo "   • Claude Code (CLI): xong — gõ /kora-… được ngay."
-echo "   • Claude Cowork (App, upload skill THỦ CÔNG): mở  ~/Downloads/Kora-Skills/  (hoặc Kora-Skills.zip)"
-echo "     → upload các file kora-*.md vào mục Skills."
-echo "   Mở project: mở  $PROJ  trong Cowork → gõ  /kora-init  (đặt domain/tên) hoặc  /kora-scan."
-echo "   Cập nhật:    chạy lại file này → skill mới tự kéo vào ~/.claude VÀ ~/Downloads/Kora-Skills/."
-echo "   Gỡ:          chạy uninstall.command (hoặc /kora-uninstall)."
+echo "   📁 Project đã khởi tạo sẵn: $ROOT"
+echo "   📁 Folder skill (upload vào Cowork): $SKILL_DIR"
+echo "   • Claude Code (CLI): mở  $ROOT  → gõ  /kora-init  (đặt domain/tên) rồi  /kora-scan."
+echo "   • Claude Cowork (App): upload các file kora-*.md trong  $SKILL_DIR/  vào mục Skills → mở  $ROOT  → gõ /kora-init."
+echo "   Cập nhật: chạy lại file này → skill mới tự kéo vào ~/.claude VÀ $SKILL_DIR/ (tri thức GIỮ NGUYÊN)."
+echo "   Gỡ:       chạy uninstall.command (hoặc /kora-uninstall)."
 pause

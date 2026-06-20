@@ -692,14 +692,19 @@ def write_issue(issue, pkey, fname_map, nodes, edges, registry):
     write(os.path.join(vault_base(pkey), folder, f"{fname_map[key]}.md"), issue_note(issue, pkey, fname_map))
 
     nodes.append({"id": key, "type": itype, "title": issue["fields"].get("summary", ""),
-                  "status": status, "project": pkey})
+                  "status": status, "project": pkey,
+                  "issue_type": issue["fields"]["issuetype"]["name"]})
     edges.append({"from": pkey, "to": key, "relation": "has_issue"})
     if parent:
         edges.append({"from": parent, "to": key, "relation": "parent_of"})
     for ln in issue["fields"].get("issuelinks", []):
-        other = ln.get("outwardIssue") or ln.get("inwardIssue")
+        out = ln.get("outwardIssue")
+        other = out or ln.get("inwardIssue")
         if other:
-            edges.append({"from": key, "to": other["key"], "relation": "linked"})
+            # GIỮ tên loại link (outward/inward) + chiều → /kora-sync nhận diện CR↔US (versioning).
+            ltype = (ln.get("type") or {}).get("outward" if out else "inward", "related")
+            edges.append({"from": key, "to": other["key"], "relation": "linked",
+                          "link_type": ltype, "direction": "outward" if out else "inward"})
     registry.append({
         "source_id": f"SRC-JIRA-{key}", "source_type": "jira_issue", "jira_key": key,
         "project": pkey, "issue_type": issue["fields"]["issuetype"]["name"],
@@ -914,6 +919,8 @@ def main():
     ap.add_argument("--names", help="File JSON map field id→tên (cho --from-mcp)")
     ap.add_argument("--check-fresh", action="store_true",
                     help="In độ mới của vault (last-import vs hôm nay) dạng JSON rồi thoát")
+    ap.add_argument("--list-projects", action="store_true",
+                    help="In danh sách project [{key,name}] dạng JSON (cho /kora-scan chọn project)")
     ap.add_argument("--force", action="store_true", help="Bỏ qua guard idempotent-per-day")
     args = ap.parse_args()
     global PER_PROJECT, FIELD_MAP
@@ -947,6 +954,11 @@ def main():
         return
 
     check_config()
+    if args.list_projects:
+        projects = fetch_projects()
+        print(json.dumps([{"key": p["key"], "name": p.get("name", p["key"])} for p in projects],
+                         ensure_ascii=False))
+        return
     if args.test:
         # 1) Token hợp lệ? (gọi /myself — nhẹ, không cần quyền project)
         me = api_get("/rest/api/2/myself")

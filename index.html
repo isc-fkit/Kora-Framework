@@ -3,268 +3,1569 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>FPT ISC — Kora-Framework</title>
-<meta name="description" content="Kora-Framework — bộ não thứ hai tự lớn lên cùng dự án. Cài đặt qua Claude CLI hoặc Claude App/Desktop, và hướng dẫn dùng các lệnh /kora-*.">
+<title>KORA AI — Hướng dẫn (FPT Telecom)</title>
+<meta name="description" content="KORA AI — Kết nối đa nguồn → Tổng hợp tri thức → Đồng bộ Knowledge Base chung → Tự động báo cáo &amp; cảnh báo. Giới thiệu, quy trình BA, chức năng, template, ví dụ, troubleshooting.">
 <style>
   :root{
-    --bg:#0b0e14; --panel:#12151d; --panel2:#171b25;
-    --border:rgba(255,255,255,.08); --border2:rgba(255,255,255,.16);
-    --text:#e8ebf2; --muted:#9aa3b2; --faint:#6b7384;
-    --accent:#6366f1; --accent2:#818cf8; --accentbg:rgba(99,102,241,.12);
+    --bg:#0b1024; --bg-card:#151a30; --bg-elev:#1c2240; --bg-sidebar:#0e1330; --bg-hover:#232a50;
+    --text:#e9ebf6; --text-muted:#b6bee0; --text-heading:#f7f8ff;
+    --accent:#818cf8; --accent-2:#a78bfa; --accent-3:#c4b5fd; --accent-soft:#6366f1; --accent-deep:#4f46e5;
+    --border:#2a3160; --border-soft:#1f2447; --sidebar-w:288px; --sidebar-w-mini:68px;
+    --panel:var(--bg-card); --panel2:var(--bg-elev); --border2:#3a4275;
+    --muted:var(--text-muted); --faint:#969ec6; --accent2:var(--accent-2); --accentbg:rgba(99,102,241,.13);
     --green:#22c55e; --greenbg:rgba(34,197,94,.10);
-    --warnbg:rgba(245,158,11,.10); --warnbd:rgba(245,158,11,.35);
-    --code:#0c0f16; --radius:14px;
+    --warnbg:rgba(245,158,11,.12); --warnbd:rgba(245,158,11,.35);
+    --redbg:rgba(239,68,68,.12); --redbd:rgba(239,68,68,.35);
+    --code:#0d1326; --radius-sm:8px; --radius:12px;
     --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
     --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
   }
   *{box-sizing:border-box}
   html{scroll-behavior:smooth}
   body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);
-    line-height:1.6;-webkit-font-smoothing:antialiased;
-    background-image:radial-gradient(900px 500px at 80% -5%,rgba(99,102,241,.10),transparent 60%);}
-  .wrap{max-width:920px;margin:0 auto;padding:0 22px 80px}
+    line-height:1.62;-webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(ellipse 80% 60% at 50% 0%, #1a1f4d 0%, var(--bg) 50%);}
   a{color:var(--accent2);text-decoration:none}
   a:hover{text-decoration:underline}
   code{font-family:var(--mono);font-size:.92em}
+  img{max-width:100%}
 
-  header.hero{max-width:920px;margin:0 auto;padding:54px 22px 26px}
-  .brand{display:inline-flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:.2px}
-  .brand .dot{width:11px;height:11px;border-radius:3px;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 0 16px rgba(99,102,241,.7)}
-  .badge{display:inline-block;margin-top:14px;padding:5px 11px;border:1px solid var(--border2);border-radius:999px;color:var(--muted);font-size:12.5px}
-  h1{font-size:clamp(28px,5vw,46px);line-height:1.12;margin:16px 0 8px;font-weight:800;
-    background:linear-gradient(180deg,#fff,#aab3c5);-webkit-background-clip:text;background-clip:text;color:transparent}
-  .sub{color:var(--muted);font-size:17px;max-width:640px}
+  .layout{display:grid;grid-template-columns:var(--sidebar-w) 1fr;transition:grid-template-columns .3s cubic-bezier(.4,0,.2,1)}
+  .sidebar{position:sticky;top:0;align-self:start;height:100vh;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;padding:22px 14px 16px;border-right:1px solid var(--border);background:var(--bg-sidebar);transition:padding .3s cubic-bezier(.4,0,.2,1)}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;letter-spacing:.3px;padding:6px 10px 4px;cursor:pointer}
+  .brand .dot{width:11px;height:11px;border-radius:3px;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 0 16px rgba(47,123,255,.7)}
+  .brand small{display:block;font-size:11px;font-weight:600;color:var(--faint);letter-spacing:.2px}
+  .nav{margin-top:14px;display:flex;flex-direction:column;gap:2px}
+  .nav a{display:flex;gap:9px;align-items:center;padding:9px 12px;border-radius:9px;color:var(--muted);font-size:13.8px;font-weight:600;border-left:2px solid transparent;cursor:pointer}
+  .nav a:hover{background:var(--panel);color:var(--text);text-decoration:none}
+  .nav a.active{background:var(--accentbg);color:#fff;border-left-color:var(--accent)}
+  .nav .em{width:18px;text-align:center}
+  .nav .grp{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--accent-3);font-weight:700;margin:14px 0 5px 12px}
+  .nav .grp~.grp{border-top:1px solid var(--border-soft);padding-top:14px;margin-top:12px}
+  .brand{flex-direction:column;align-items:flex-start;gap:0;padding-bottom:13px;border-bottom:1px solid var(--border);margin-bottom:2px}
+  .brand .org{font-size:10.5px;font-weight:800;letter-spacing:1.6px;color:var(--faint)}
+  .brand .fw{font-size:18px;font-weight:800;line-height:1.15;margin-top:3px;background:linear-gradient(120deg,#fff,#c4b5fd);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .brand .fw span{display:block;font-size:10.5px;font-weight:600;color:var(--faint);letter-spacing:.2px;margin-top:2px;-webkit-text-fill-color:var(--faint)}
+  .nav .lb{display:inline-grid;place-items:center;width:17px;height:17px;border-radius:5px;background:var(--panel2);border:1px solid var(--border2);font-size:9.5px;font-weight:800;color:var(--muted);flex:0 0 auto}
+  .nav a.active .lb{background:var(--accent);border-color:var(--accent);color:#fff}
+  .home-cards{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:18px 0}
+  .hc{display:flex;gap:11px;align-items:flex-start;background:linear-gradient(135deg,rgba(99,102,241,.12) 0%,rgba(168,85,247,.08) 100%),var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:13px 15px;cursor:pointer}
+  .hc:hover{border-color:var(--accent);background:var(--panel2)}
+  .hc .ic{font-size:19px;line-height:1}.hc b{font-size:14px}.hc p{margin:2px 0 0;color:var(--faint);font-size:12.3px}
+  .srcico{width:18px;height:18px;vertical-align:-4px;margin-right:9px}
+  .msq{display:inline-grid;grid-template-columns:1fr 1fr;gap:2px;width:15px;height:15px;vertical-align:-2px;margin-right:9px}
+  .msq i{display:block;border-radius:1px}
+  /* timeline 8 bước (step-node) */
+  .tl{margin:18px 0 8px}
+  .tl .step{position:relative;display:flex;gap:15px;padding-bottom:14px}
+  .tl .step:not(:last-child)::before{content:"";position:absolute;left:22px;top:48px;bottom:-2px;width:2px;background:linear-gradient(180deg,var(--accent),var(--border-soft))}
+  .tl .node{flex:0 0 auto;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-size:21px;background:linear-gradient(135deg,var(--accent-soft),var(--accent-deep));border:3px solid var(--bg-sidebar);box-shadow:0 0 0 1px var(--border);position:relative;z-index:1}
+  .tl .body{flex:1;min-width:0;background:linear-gradient(135deg,rgba(99,102,241,.12) 0%,rgba(168,85,247,.08) 100%),var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:11px 15px}
+  .tl .body .t{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14.5px;font-weight:700;color:var(--text-heading)}
+  .tl .body .t .num{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 5px;border-radius:6px;background:var(--accent-deep);color:#fff;font-size:11px;font-weight:800}
+  .tl .body .t .pw{font-size:10.5px;font-weight:800;color:#f6b65a;background:var(--warnbg);border:1px solid var(--warnbd);border-radius:999px;padding:1px 8px;letter-spacing:.02em}
+  .tl .body p{margin:5px 0 0;color:var(--muted);font-size:12.8px;line-height:1.55}
+  /* flow diagram (sơ đồ nguyên lý) */
+  .fd{margin:14px 0 8px;border:1px solid var(--border);border-radius:14px;overflow:hidden;background:linear-gradient(180deg,rgba(99,102,241,.06),transparent)}
+  .fd .tier{display:flex;gap:14px;padding:14px 16px;border-top:1px solid var(--border-soft)}
+  .fd .tier:first-child{border-top:0}
+  .fd .tlab{flex:0 0 120px;display:flex;gap:9px;align-items:flex-start}
+  .fd .tlab .n{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,var(--accent-soft),var(--accent-deep));color:#fff;font-weight:800;display:grid;place-items:center;font-size:13px;flex:0 0 auto}
+  .fd .tlab .nm{font-size:11.5px;font-weight:800;color:var(--text-heading);text-transform:uppercase;letter-spacing:.03em;line-height:1.25}
+  .fd .tco{flex:1;min-width:0}
+  .fd .srcs{display:flex;flex-wrap:wrap;gap:13px;align-items:flex-start}
+  .fd .src{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10.5px;color:var(--muted);width:60px;text-align:center}
+  .fd .src svg{width:26px;height:26px}.fd .src .msq{width:22px;height:22px;margin:0}
+  .fd .chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  .fd .chip{background:var(--bg-elev);border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-size:12px;color:var(--text)}
+  .fd .chip.ar{border:0;background:none;color:var(--accent2);padding:0 1px;font-weight:800}
+  .fd .cloud{background:linear-gradient(135deg,rgba(99,102,241,.16),rgba(168,85,247,.08));border:1px solid var(--border2);border-radius:12px;padding:11px 14px;font-size:13px;color:var(--text)}
+  .fd .a3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+  .fd .abox{background:var(--bg-elev);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
+  .fd .abox b{font-size:12px;color:var(--accent-3)}.fd .abox ul{margin:5px 0 0;padding-left:15px;color:var(--muted);font-size:11.4px;line-height:1.5}
+  .fd .roles{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;padding:14px 16px;border-top:1px solid var(--border-soft)}
+  .fd .role{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
+  .fd .role.ai{border-color:var(--accent);background:linear-gradient(135deg,rgba(99,102,241,.18),rgba(168,85,247,.09))}
+  .fd .role b{font-size:11.6px;color:var(--text-heading)}.fd .role ul{margin:5px 0 0;padding-left:14px;color:var(--muted);font-size:11px;line-height:1.5}
+  .fd .fdfoot{padding:12px 16px;border-top:1px solid var(--border-soft);text-align:center;color:var(--accent-3);font-size:12.5px;background:rgba(99,102,241,.06)}
+  @media(max-width:860px){.fd .a3,.fd .roles{grid-template-columns:1fr}.fd .tier{flex-direction:column;gap:8px}.fd .tlab{flex-basis:auto}}
 
-  .tabs{display:flex;gap:6px;border-bottom:1px solid var(--border);margin:8px 0 24px;position:sticky;top:0;background:var(--bg);padding-top:10px;z-index:5}
-  .tab{appearance:none;background:none;border:0;color:var(--muted);font-family:inherit;font-size:15px;font-weight:600;
-    padding:12px 16px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;border-radius:8px 8px 0 0}
-  .tab:hover{color:var(--text)}
-  .tab.active{color:var(--text);border-bottom-color:var(--accent)}
-  .sub-tabs{position:static;border-bottom:0;gap:8px;margin:2px 0 20px;padding-top:0}
-  .subtab{appearance:none;font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer;
-    padding:8px 14px;border-radius:999px;border:1px solid var(--border2);background:var(--panel);color:var(--muted)}
-  .subtab:hover{color:var(--text)}
-  .subtab.active{background:var(--accentbg);border-color:var(--accent);color:var(--text)}
+  .content{padding:0 46px 90px;max-width:none;min-width:0}
+  .page{display:none;animation:fade .24s ease}
+  .page.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
 
-  .panel-tab{display:none;animation:fade .25s ease}
-  .panel-tab.active{display:block}
-  .subpanel{display:none}
-  .subpanel.active{display:block}
-  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  header.hero{padding:48px 0 6px}
+  .badge{display:inline-block;padding:5px 11px;border:1px solid var(--border2);border-radius:999px;color:var(--muted);font-size:12.5px}
+  h1{font-size:clamp(28px,4.4vw,44px);line-height:1.12;margin:14px 0 10px;font-weight:800;background:linear-gradient(120deg,#fff,#c4b5fd);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);font-size:17px;max-width:660px}
+  .pipe{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 6px}
+  .pipe span{background:var(--panel);border:1px solid var(--border);border-radius:999px;padding:6px 13px;font-size:13px;color:var(--muted)}
+  .pipe b{color:var(--accent2)}
 
-  .step{position:relative;padding:0 0 8px 46px;margin:0 0 26px}
-  .step::before{content:attr(data-n);position:absolute;left:0;top:-2px;width:30px;height:30px;border-radius:50%;
-    display:grid;place-items:center;font-weight:700;font-size:14px;color:#fff;
-    background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 0 0 4px rgba(99,102,241,.12)}
-  .step:not(:last-child)::after{content:"";position:absolute;left:14px;top:32px;bottom:-18px;width:2px;background:var(--border)}
-  .step h3{margin:2px 0 8px;font-size:18px}
-  .step p{margin:0 0 10px;color:var(--muted)}
+  .page>h2.t{font-size:13px;text-transform:uppercase;letter-spacing:.5px;color:var(--accent2);margin:40px 0 2px}
+  .page>h1.pt{font-size:30px;margin:2px 0 6px;font-weight:800}
+  .page .lead{color:var(--text);font-size:17.5px;line-height:1.6;margin:0 0 10px;max-width:840px}
+  h2.sec{font-size:20px;margin:28px 0 6px;font-weight:800;display:flex;align-items:center;gap:8px}
+  h3.sub3{font-size:16px;margin:18px 0 6px}
 
-  .card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;margin:14px 0}
-  .os-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
-  .os-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center}
-  .os-card svg{width:30px;height:30px;fill:var(--text);opacity:.92}
-  .os-card h4{margin:10px 0 4px;font-size:15px}
-  .os-card p{margin:0 0 14px;color:var(--faint);font-size:13px}
-  .os-card code{color:var(--accent2)}
+  .step{position:relative;padding:0 0 4px 44px;margin:0 0 20px}
+  .step::before{content:attr(data-n);position:absolute;left:0;top:-2px;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:13px;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 0 0 4px rgba(47,123,255,.12)}
+  .step:not(:last-child)::after{content:"";position:absolute;left:14px;top:32px;bottom:-12px;width:2px;background:var(--border)}
+  .step h3{margin:2px 0 6px;font-size:16px}
+  .step p{margin:0 0 8px;color:var(--muted)}
 
-  .btn{display:inline-block;background:var(--accentbg);border:1px solid var(--accent);color:#dfe2ff;
-    padding:9px 15px;border-radius:10px;font-size:13.5px;font-weight:600}
-  .btn:hover{background:rgba(99,102,241,.2);text-decoration:none}
+  .card{background:linear-gradient(135deg,rgba(99,102,241,.12) 0%,rgba(168,85,247,.08) 100%),var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin:14px 0}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+  .os-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:18px;text-align:center}
+  .os-card svg{width:28px;height:28px;fill:var(--text);opacity:.92}
+  .os-card h4{margin:9px 0 4px;font-size:15px}
+  .os-card p{margin:0 0 12px;color:var(--faint);font-size:13px}
+  .btn{display:inline-block;background:var(--accentbg);border:1px solid var(--accent);color:#dbe6ff;padding:9px 15px;border-radius:10px;font-size:13.5px;font-weight:600;cursor:pointer}
+  .btn:hover{background:rgba(47,123,255,.2);text-decoration:none}
+  .btn.ghost{background:none;border-color:var(--border2);color:var(--muted)}
 
   .code{background:var(--code);border:1px solid var(--border);border-radius:12px;margin:12px 0;overflow:hidden}
   .code-head{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.02)}
   .code-head span{color:var(--faint);font-size:12px;font-family:var(--mono)}
-  .copy{appearance:none;background:var(--panel2);border:1px solid var(--border2);color:var(--muted);
-    font-family:inherit;font-size:12px;padding:4px 10px;border-radius:7px;cursor:pointer}
+  .copy{appearance:none;background:var(--panel2);border:1px solid var(--border2);color:var(--muted);font-family:inherit;font-size:12px;padding:4px 10px;border-radius:7px;cursor:pointer}
   .copy:hover{color:var(--text);border-color:var(--accent)}
-  .code pre{margin:0;padding:14px 14px;overflow-x:auto}
+  .code pre{margin:0;padding:13px 14px;overflow-x:auto}
   .code code{color:#cdd6ea;white-space:pre}
 
-  .callout{display:flex;gap:10px;background:var(--accentbg);border:1px solid var(--border2);border-radius:12px;padding:13px 15px;margin:14px 0;font-size:14px;color:#dfe3ee}
+  .callout{display:flex;gap:10px;background:var(--accentbg);border:1px solid var(--border2);border-radius:12px;padding:12px 15px;margin:13px 0;font-size:14px;color:#dfe3ee}
   .callout.warn{background:var(--warnbg);border-color:var(--warnbd)}
   .callout.ok{background:var(--greenbg);border-color:rgba(34,197,94,.35)}
   .callout b{color:#fff}
 
-  table{width:100%;border-collapse:collapse;margin:12px 0;font-size:14px}
+  table{width:100%;border-collapse:collapse;margin:12px 0;font-size:14.6px}
   th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:top}
-  th{color:var(--faint);font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.3px}
-  td code{color:var(--accent2);white-space:nowrap}
+  th{color:var(--faint);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.3px}
+  td code{color:var(--accent2)}
+  .yes{color:var(--green);font-weight:700}.no{color:var(--faint)}
 
-  h2.sec{font-size:14px;text-transform:uppercase;letter-spacing:.4px;color:var(--faint);margin:30px 0 6px}
-  footer{max-width:920px;margin:40px auto 0;padding:24px 22px;border-top:1px solid var(--border);color:var(--faint);font-size:13px}
+  .imgframe{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:var(--panel);margin:14px 0}
+  .imgframe img{display:block;width:100%}
+  .imgframe .ph{padding:46px 16px;text-align:center;color:var(--faint);font-size:13px;background:repeating-linear-gradient(45deg,rgba(255,255,255,.02),rgba(255,255,255,.02) 12px,transparent 12px,transparent 24px)}
+
+  .twocol{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+  .twocol .card{margin:0}
+  .pill{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px}
+  .pill.g{background:var(--greenbg);color:#7ee2a8;border:1px solid rgba(34,197,94,.3)}
+  .pill.r{background:var(--redbg);color:#f4a3a3;border:1px solid rgba(239,68,68,.3)}
+
+  /* comparison table (Good vs Bad) */
+  .cmp{width:100%;border-collapse:separate;border-spacing:0;margin:8px 0 6px;table-layout:fixed}
+  .cmp th{padding:8px 12px;font-size:12px;font-weight:700;text-transform:none;letter-spacing:0}
+  .cmp th.bad{background:var(--redbg);color:#f4a3a3;border:1px solid var(--redbd);border-bottom:0;border-radius:9px 0 0 0}
+  .cmp th.good{background:var(--greenbg);color:#7ee2a8;border:1px solid rgba(34,197,94,.3);border-left:0;border-bottom:0;border-radius:0 9px 0 0}
+  .cmp td{padding:11px 13px;vertical-align:top;border:1px solid var(--border);border-top:0;white-space:pre-wrap;font-family:var(--mono);font-size:11.6px;color:#cdd6ea}
+  .cmp td.good{border-left:0;background:rgba(34,197,94,.04)}.cmp td.bad{background:rgba(239,68,68,.04)}
+  .cmp .note td{font-family:var(--sans);font-size:12.3px}
+  .cmp .note .bad{color:#f0b9b9}.cmp .note .good{color:#9fe2bb}
+  .gbsub{color:var(--faint);font-size:12.6px;line-height:1.5;margin:1px 0 9px;max-width:900px}
+  .gbsub b{color:var(--text-muted)}
+  h3.sub3 .pr{font-weight:700;font-size:12px;color:var(--accent-3);background:var(--accentbg);border:1px solid var(--border2);border-radius:999px;padding:1px 9px;margin-left:8px;vertical-align:1px}
+  /* use-case input/output tables */
+  .uctx{color:var(--muted);font-size:13px;margin:0 0 8px}
+  /* ===== reference design-system (ba-claude-guide) ===== */
+  th{background:linear-gradient(135deg,rgba(99,102,241,.25) 0%,rgba(168,85,247,.18) 100%);color:var(--text-heading);text-transform:none;font-weight:700;font-size:13px;letter-spacing:.2px;border-bottom:1px solid var(--border2)}
+  table:not(.cmp):not(.uc){border-collapse:separate;border-spacing:0 7px}
+  table:not(.cmp):not(.uc) td{background:var(--panel);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:11px 13px}
+  table:not(.cmp):not(.uc) td:first-child{border-left:1px solid var(--border);border-radius:9px 0 0 9px}
+  table:not(.cmp):not(.uc) td:last-child{border-right:1px solid var(--border);border-radius:0 9px 9px 0}
+  table:not(.cmp):not(.uc) tr:hover td{background:var(--panel2);border-color:var(--border2)}
+  th:first-child{border-top-left-radius:10px}
+  th:last-child{border-top-right-radius:10px}
+  .cmp th.bad,.cmp th.good{background:linear-gradient(135deg,rgba(99,102,241,.25) 0%,rgba(168,85,247,.18) 100%);color:var(--text-heading)}
+  .phead{border:1px solid var(--border2);border-radius:16px;padding:16px 20px;margin:34px 0 20px;background:linear-gradient(120deg,rgba(99,102,241,.15),rgba(168,85,247,.05) 62%,transparent)}
+  .phead .pl{font-size:11px;font-weight:800;letter-spacing:1.6px;color:var(--accent2);text-transform:uppercase}
+  .phead h1{font-size:clamp(21px,2.5vw,29px);margin:6px 0 0;font-weight:800}
+  .phead h1 .em{margin-right:9px;color:var(--text);-webkit-text-fill-color:var(--text);background:none;-webkit-background-clip:border-box;background-clip:border-box}
+  .phead+.lead{margin-top:10px}
+  .secbig{font-size:16.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin:30px 0 8px;padding-bottom:9px;position:relative}
+  .secbig::after{content:"";position:absolute;left:0;bottom:0;width:100%;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2) 45%,transparent)}
+  .subh{font-size:15px;font-weight:700;color:#ececf6;margin:22px 0 9px;display:flex;align-items:center;gap:9px}
+  .subh::before{content:"▸";color:var(--accent2);font-size:12px}
+  .subh .rn{color:var(--accent2);font-weight:800;margin-right:-3px}
+  .pcard{border:1px solid var(--border);border-radius:12px;overflow:hidden;margin:13px 0;background:var(--panel)}
+  .pcard .phd{display:flex;align-items:center;gap:12px;padding:10px 14px;background:linear-gradient(90deg,rgba(99,102,241,.24),rgba(168,85,247,.09));border-bottom:1px solid var(--border)}
+  .pcard .pchip{padding:3px 10px;border-radius:7px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;font-size:11.5px;font-weight:800;letter-spacing:.3px;flex:0 0 auto;white-space:nowrap}
+  .pcard .phd b{font-size:13.5px}
+  .pcard pre{margin:0;padding:13px 15px;background:#16121f;font-family:var(--mono);font-size:12.3px;line-height:1.62;color:#cdd2e4;white-space:pre-wrap;overflow-x:auto}
+  .pcard .pex{border-top:1px dashed var(--border2);background:rgba(168,85,247,.05)}
+  .pcard .pex .pexh{font-size:12px;font-weight:700;color:var(--accent2);padding:9px 15px 0}
+  .pcard .pex pre{background:transparent;padding-top:6px;font-size:11.9px;color:#c2c7db}
+  table.uc{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin:10px 0 4px}
+  table.uc td{padding:12px 15px;vertical-align:top;border-top:1px solid var(--border)}
+  table.uc tr:first-child td{border-top:none}
+  table.uc td.k{width:174px;font-weight:700;font-size:12.8px;background:var(--panel2);color:#e9e9f3;white-space:nowrap;border-right:1px solid var(--border)}
+  table.uc td.v{color:#c7ccdd;font-size:13.1px;line-height:1.6;white-space:pre-wrap}
+  table.uc td.v.mono{font-family:var(--mono);font-size:12.1px;color:#cdd2e4}
+  @media(max-width:860px){.cmp{table-layout:auto}.cmp td,.cmp th{font-size:11px}
+    table.uc td{display:block;width:auto}
+    table.uc td.k{width:auto;white-space:normal;border-right:none;border-bottom:1px solid var(--border)}}
+
+  .flow{font-family:var(--mono);font-size:12px;color:var(--muted);background:var(--code);border:1px solid var(--border);border-radius:12px;padding:14px;overflow-x:auto;white-space:pre;line-height:1.5}
+
+  footer{margin-top:46px;padding-top:22px;border-top:1px solid var(--border);color:var(--faint);font-size:13px}
   footer a{color:var(--muted)}
+  .menu-btn{display:none}
 
-  @media(max-width:640px){.os-cards{grid-template-columns:1fr}.step{padding-left:40px}}
+  /* ---- Sidebar collapse: full ↔ minimal (icon-only), desktop ---- */
+  .sb-toggle{display:none}
+  .brandmark{display:none}
+  @media(min-width:861px){
+    .sb-toggle{display:flex;align-items:center;justify-content:center;flex:0 0 auto;width:30px;height:30px;
+      margin-top:auto;align-self:flex-end;padding:0;border-radius:9px;background:var(--bg-elev);
+      border:1px solid var(--border2);color:var(--text-muted);cursor:pointer;
+      transition:background .18s,color .18s}
+    .sb-toggle:hover{background:var(--bg-hover);color:var(--text)}
+    .sb-toggle .chev{display:block;transition:transform .3s cubic-bezier(.4,0,.2,1)}
+    .layout.mini{grid-template-columns:var(--sidebar-w-mini) 1fr}
+    .layout.mini .sidebar{padding-left:9px;padding-right:9px}
+    .layout.mini .sb-toggle{align-self:center}
+    .layout.mini .sb-toggle .chev{transform:rotate(180deg)}
+    .layout.mini .brand .org,.layout.mini .brand .fw{display:none}
+    .layout.mini .brand{align-items:center;padding:4px 0 13px}
+    .layout.mini .brandmark{display:grid;place-items:center;width:36px;height:36px;border-radius:10px;
+      background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;font-weight:800;font-size:17px}
+    .layout.mini .nav a{justify-content:center;gap:0;padding-left:0;padding-right:0}
+    .layout.mini .nav a .lb,.layout.mini .nav a .tx{display:none}
+    .layout.mini .nav .em{width:auto}
+    .layout.mini .nav .grp{font-size:0;line-height:0;height:0;margin:10px 12px;padding:0;border:0}
+    .layout.mini .nav .grp~.grp{border-top:1px solid var(--border-soft);margin:13px 12px}
+  }
+
+  @media(max-width:860px){
+    .layout{grid-template-columns:1fr}
+    .sidebar{position:sticky;top:0;height:auto;max-height:0;overflow:hidden;border-right:0;border-bottom:1px solid var(--border);padding:0 14px;z-index:20;background:var(--bg-sidebar);transition:max-height .25s}
+    .sidebar.open{max-height:84vh;overflow-y:auto;padding:14px}
+    .content{padding:0 18px 80px}
+    .grid2,.twocol,.home-cards{grid-template-columns:1fr}
+    .menu-btn{display:flex;gap:8px;align-items:center;position:sticky;top:0;z-index:21;width:100%;background:var(--panel);border:0;border-bottom:1px solid var(--border);color:var(--text);font-family:inherit;font-weight:700;font-size:15px;padding:13px 16px;cursor:pointer}
+  }
 </style>
 </head>
 <body>
 
-<header class="hero">
-  <div class="brand"><span class="dot"></span>Kora-Framework</div>
-  <div class="badge">FPT ISC · v2.1.0 · &ldquo;Kora-1&rdquo;</div>
-  <h1>Hướng dẫn sử dụng Claude Kora</h1>
-  <p class="sub">Cài đặt và dùng 12 lệnh <code>/kora-*</code> để nạp tri thức từ Jira &amp; tài liệu, tự phân tích và sinh báo cáo — ngay trong Claude.</p>
-</header>
+<button class="menu-btn" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰ &nbsp;KORA AI — Mục lục</button>
 
-<main class="wrap">
-  <div class="tabs main-tabs">
-    <button class="tab active" data-tab="install">⚙️&nbsp; Cài đặt</button>
-    <button class="tab" data-tab="usage">📖&nbsp; Hướng dẫn sử dụng</button>
-  </div>
+<div class="layout">
+  <script>try{if(localStorage.getItem('kora-sb')==='mini')document.currentScript.parentNode.classList.add('mini');}catch(e){}</script>
+  <aside class="sidebar">
+    <div class="brand" data-go="home" title="Trang chủ">
+      <span class="brandmark" aria-hidden="true">K</span>
+      <span class="org">FPT TELECOM</span>
+      <div class="fw">KORA AI<span>v2.3.0 · Kora-1</span></div>
+    </div>
+    <nav class="nav">
+      <div class="grp">Tổng quan</div>
+      <a data-go="home" title="Trang chủ"><span class="em">🏠</span><span class="tx">Trang chủ</span></a>
+      <div class="grp">Nội dung</div>
+      <a data-go="introduction" title="Giới thiệu"><span class="lb">A</span><span class="em">📘</span><span class="tx">Giới thiệu</span></a>
+      <a data-go="workflow" title="Quy trình"><span class="lb">B</span><span class="em">🔁</span><span class="tx">Quy trình</span></a>
+      <a data-go="install" title="Cài đặt"><span class="lb">C</span><span class="em">⚙️</span><span class="tx">Cài đặt</span></a>
+      <a data-go="features" title="Chức năng"><span class="lb">D</span><span class="em">🧩</span><span class="tx">Chức năng</span></a>
+      <a data-go="prompts" title="Prompt &amp; Template"><span class="lb">E</span><span class="em">💬</span><span class="tx">Prompt &amp; Template</span></a>
+      <a data-go="examples" title="Ví dụ thực tế"><span class="lb">F</span><span class="em">🎯</span><span class="tx">Ví dụ thực tế</span></a>
+      <a data-go="good-vs-bad" title="Output: Tốt vs Chưa tốt"><span class="lb">G</span><span class="em">✅</span><span class="tx">Output: Tốt vs Chưa tốt</span></a>
+      <a data-go="troubleshooting" title="Troubleshooting"><span class="lb">H</span><span class="em">🔧</span><span class="tx">Troubleshooting</span></a>
+      <a data-go="release" title="Release Note"><span class="lb">I</span><span class="em">🆕</span><span class="tx">Release Note</span></a>
+      <a data-go="appendix" title="Phụ lục"><span class="lb">J</span><span class="em">📚</span><span class="tx">Phụ lục</span></a>
+    </nav>
+    <button class="sb-toggle" id="sbToggle" type="button" aria-label="Thu gọn / mở rộng menu" aria-expanded="true" title="Thu gọn menu">
+      <svg class="chev" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+    </button>
+  </aside>
 
-  <!-- ================= TAB: CÀI ĐẶT ================= -->
-  <section class="panel-tab active" id="tab-install">
-    <div class="tabs sub-tabs">
-      <button class="subtab active" data-sub="cli">Cách 1 — Claude CLI</button>
-      <button class="subtab" data-sub="app">Cách 2 — Claude App / Desktop</button>
+  <main class="content">
+
+    <!-- ===================== HOME ===================== -->
+    <div class="page" id="home">
+      <header class="hero">
+        <span class="badge">FPT Telecom · KORA AI · v2.3.0 · &ldquo;Kora-1&rdquo;</span>
+        <h1>KORA AI — Sơ đồ nguyên lý hoạt động</h1>
+        <p class="sub">Trợ lý tri thức tự lớn lên cùng dự án: hợp nhất tri thức phân tán, nối tri thức local của nhân viên với <b>Knowledge Base</b> chung (trên Cloud), và tự động hóa đồng bộ — báo cáo — cảnh báo.</p>
+        <div class="pipe">
+          <span><b>1.</b> Kết nối đa nguồn</span><span>→</span>
+          <span><b>2.</b> Tổng hợp tri thức</span><span>→</span>
+          <span><b>3.</b> Đồng bộ Knowledge Base chung (Cloud)</span><span>→</span>
+          <span><b>4.</b> Tự động báo cáo &amp; cảnh báo</span>
+        </div>
+        <div style="margin:18px 0 4px;display:flex;gap:10px;flex-wrap:wrap">
+          <span class="btn" data-go="introduction">📘 Bắt đầu — Giới thiệu</span>
+          <span class="btn ghost" data-go="install">⚙️ Cài đặt</span>
+          <span class="btn ghost" data-go="workflow">🔁 Quy trình</span>
+        </div>
+        <div class="card"><b>Dành cho MỌI vai trò — không chỉ BA.</b> BA · PO · SA · QA đều dùng được: hỏi <b>vai trò</b> trước → nạp đúng prompt mẫu + doc template theo vai trò &amp; domain. HOST dựng <b>Knowledge Base</b> chung &amp; đẩy lên Cloud; user kéo tri thức về local và phân tích — luôn bám đúng tri thức dự án.</div>
+
+        <h2 class="sec" style="margin-top:26px">Nội dung</h2>
+        <div class="home-cards">
+          <div class="hc" data-go="introduction"><span class="ic">📘</span><div><b>A · Giới thiệu</b><p>Tổng quan, nguyên lý 4 tầng, thuật ngữ</p></div></div>
+          <div class="hc" data-go="workflow"><span class="ic">🔁</span><div><b>B · Quy trình</b><p>Quy trình BA 8 bước + KORA thực thi</p></div></div>
+          <div class="hc" data-go="install"><span class="ic">⚙️</span><div><b>C · Cài đặt</b><p>Cài / cập nhật / gỡ (CLI + Desktop)</p></div></div>
+          <div class="hc" data-go="features"><span class="ic">🧩</span><div><b>D · Chức năng</b><p>init · connect · scan · sync · schedule · mail · archive</p></div></div>
+          <div class="hc" data-go="prompts"><span class="ic">💬</span><div><b>E · Prompt &amp; Template</b><p>Template động theo domain + vai trò</p></div></div>
+          <div class="hc" data-go="examples"><span class="ic">🎯</span><div><b>F · Ví dụ thực tế</b><p>Use case Input / Prompt / Output</p></div></div>
+          <div class="hc" data-go="good-vs-bad"><span class="ic">✅</span><div><b>G · Output Tốt vs Chưa tốt</b><p>5 bảng so sánh tự đánh giá</p></div></div>
+          <div class="hc" data-go="troubleshooting"><span class="ic">🔧</span><div><b>H · Troubleshooting</b><p>Khắc phục sự cố thường gặp</p></div></div>
+          <div class="hc" data-go="release"><span class="ic">🆕</span><div><b>I · Release Note</b><p>Lịch sử phiên bản &amp; cách cập nhật</p></div></div>
+          <div class="hc" data-go="appendix"><span class="ic">📚</span><div><b>J · Phụ lục</b><p>Bảng lệnh, cấu hình, cấu trúc</p></div></div>
+        </div>
+      </header>
     </div>
 
-    <!-- ----- Cách 1: CLI ----- -->
-    <div class="subpanel active" id="sub-cli">
-      <div class="step" data-n="1">
-        <h3>Dán 1 dòng vào Terminal</h3>
-        <p>Cài sạch vào <code>~/.claude</code> — không để lại thư mục source. Cách này <b>không bao giờ</b> bị macOS Gatekeeper cảnh báo.</p>
-        <div class="code">
-          <div class="code-head"><span>Terminal — macOS / Linux</span><button class="copy">Copy</button></div>
-<pre><code>bash &lt;(curl -fsSL https://raw.githubusercontent.com/isc-fkit/Kora-Framework/release/install.command)</code></pre>
-        </div>
-      </div>
-      <div class="step" data-n="2">
-        <h3>Mở Claude rồi gõ <code>/kora-init</code></h3>
-        <p>Skill đã nằm trong <code>~/.claude/commands</code>. Mở một phiên chat mới, gõ <code>/</code> để thấy đủ 12 lệnh <code>/kora-*</code>.</p>
-      </div>
-      <div class="step" data-n="3">
-        <h3>Cập nhật &amp; gỡ</h3>
-        <p>Chạy lại đúng lệnh trên = <b>cập nhật</b> (tự kéo bản mới, tự thêm skill mới). Gỡ sạch:</p>
-        <div class="code">
-          <div class="code-head"><span>Terminal — gỡ cài đặt</span><button class="copy">Copy</button></div>
-<pre><code>bash &lt;(curl -fsSL https://raw.githubusercontent.com/isc-fkit/Kora-Framework/release/uninstall.command)</code></pre>
-        </div>
-      </div>
-      <div class="callout"><span>🔑</span><div>Nếu kết nối nguồn bằng <b>API token</b>, token được lưu thành biến môi trường trong <code>~/.zshrc</code> / <code>~/.bashrc</code> — không lộ trong source hay chat.</div></div>
-    </div>
+    <!-- ===================== INTRODUCTION ===================== -->
+    <div class="page" id="introduction">
+      <div class="phead"><div class="pl">A · Giới thiệu</div><h1><span class="em">📘</span>KORA AI là gì?</h1></div>
+      <p class="lead">KORA chuẩn hóa cách dùng Claude xuyên suốt vòng đời dự án — là <b>bộ khuếch đại phân tích</b>, không thay thế phán đoán của con người. Mọi bước AI tự chạy, bạn chỉ confirm.</p>
 
-    <!-- ----- Cách 2: App/Desktop ----- -->
-    <div class="subpanel" id="sub-app">
-      <div class="step" data-n="1">
-        <h3>Tải &amp; giải nén → double-click</h3>
-        <p>Không quen Terminal? Tải file <code>.zip</code> → giải nén (Finder tự bung) → nhấn đúp <code>install.command</code> — script tự cài skill vào <code>~/.claude</code>.</p>
-        <div class="os-cards">
-          <div class="os-card">
-            <svg viewBox="0 0 384 512"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C61.4 141.9 0 184.4 0 270.2c0 25.4 4.6 51.6 13.9 78.5 12.4 35.4 57.2 122.2 103.9 120.8 24.4-.6 41.6-17.3 73.4-17.3 30.8 0 46.8 17.3 73.9 17.3 47.1-.7 87.6-79.6 99.4-115.1-63.2-29.8-59.7-87.3-59.7-89.7zM262.1 104.5c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg>
-            <h4>macOS / Linux</h4><p>Tải <code>install.command.zip</code> → giải nén</p>
-            <a class="btn" href="install.command.zip" download="install.command.zip">⬇ install.command.zip</a>
+      <h2 class="sec">I · Thông tin chung</h2>
+      <table>
+        <tr><th>Mục</th><th>Nội dung</th></tr>
+        <tr><td><b>Tổng quan</b></td><td>Hợp nhất tri thức phân tán → <b>Knowledge Base</b> có cấu trúc, liên kết wiki → đồng bộ <b>Knowledge Base chung trên Cloud</b> → tự động báo cáo &amp; cảnh báo.</td></tr>
+        <tr><td><b>Hiện trạng</b></td><td>Tri thức rải rác nhiều nguồn, mỗi người dùng Claude một kiểu → chất lượng &amp; bảo mật không đồng nhất.</td></tr>
+        <tr><td><b>Mục tiêu</b></td><td>Tiết kiệm 30–50% thời gian làm tài liệu/báo cáo; tri thức tập trung, truy vết được; bảo mật token.</td></tr>
+        <tr><td><b>Phạm vi</b></td><td>BA/PO/SA/QA junior→senior; dự án nội bộ &amp; khách hàng; chạy trong Claude CLI và Desktop/Cowork.</td></tr>
+        <tr><td><b>Loại trừ</b></td><td>Quyết định chiến lược; dữ liệu cá nhân chưa ẩn danh; tài liệu tối mật.</td></tr>
+      </table>
+
+      <h2 class="sec">II · Nguyên lý hoạt động</h2>
+      <div class="imgframe"><img src="assets/flow.png" alt="KORA AI — Sơ đồ nguyên lý hoạt động" style="width:100%;display:block;border-radius:14px;border:1px solid var(--border)"></div>
+      <details style="margin:12px 0 4px"><summary style="cursor:pointer;color:var(--accent-3);font-size:13.5px;font-weight:600">▸ Xem sơ đồ dạng tương tác (chi tiết từng tầng)</summary>
+      <div class="fd">
+        <div class="tier">
+          <div class="tlab"><span class="n">1</span><span class="nm">Nguồn<br>Connect</span></div>
+          <div class="tco">
+            <div style="font-size:11px;color:var(--faint);margin-bottom:8px">Kết nối qua <b>MCP / API</b></div>
+            <div class="srcs">
+              <div class="src"><svg viewBox="0 0 24 24" fill="#2684FF"><path d="M11.571 11.513H0a5.218 5.218 0 0 0 5.232 5.215h2.13v2.057A5.215 5.215 0 0 0 12.575 24V12.518a1.005 1.005 0 0 0-1.005-1.005zm5.723-5.756H5.736a5.215 5.215 0 0 0 5.215 5.214h2.129v2.058a5.218 5.218 0 0 0 5.215 5.214V6.758a1.001 1.001 0 0 0-1-1.001zM23.013 0H11.455a5.215 5.215 0 0 0 5.215 5.215h2.129v2.057A5.215 5.215 0 0 0 24 12.483V1.005A1.001 1.001 0 0 0 23.013 0z"/></svg><span>Jira</span></div>
+              <div class="src"><svg viewBox="0 0 24 24" fill="#1868DB"><path d="M.87 18.257c-.248.382-.53.875-.763 1.245a.764.764 0 0 0 .255 1.04l4.965 3.054a.764.764 0 0 0 1.058-.26c.199-.332.454-.763.733-1.221 1.967-3.247 3.945-2.853 7.508-1.146l4.957 2.337a.764.764 0 0 0 1.028-.382l2.364-5.346a.764.764 0 0 0-.382-1.003c-1.046-.49-3.123-1.469-4.994-2.372-6.748-3.265-12.477-3.053-16.728 4.06zM23.131 5.743c.249-.382.53-.875.764-1.245a.764.764 0 0 0-.255-1.04L18.675.404a.764.764 0 0 0-1.058.26c-.199.332-.454.763-.733 1.221-1.967 3.247-3.945 2.853-7.508 1.146L4.42.694a.764.764 0 0 0-1.028.382L1.028 6.422a.764.764 0 0 0 .382 1.003c1.046.49 3.123 1.469 4.994 2.372 6.748 3.264 12.477 3.053 16.728-4.054z"/></svg><span>Confluence</span></div>
+              <div class="src"><svg viewBox="0 0 24 24" fill="#EA4335"><path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/></svg><span>Gmail</span></div>
+              <div class="src"><span class="msq"><i style="background:#F25022"></i><i style="background:#7FBA00"></i><i style="background:#00A4EF"></i><i style="background:#FFB900"></i></span><span>SharePoint</span></div>
+              <div class="src"><span class="msq"><i style="background:#F25022"></i><i style="background:#7FBA00"></i><i style="background:#00A4EF"></i><i style="background:#FFB900"></i></span><span>Outlook</span></div>
+              <div class="src"><svg viewBox="0 0 24 24" fill="#e8ebf2"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.5 11.5 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222 0 1.606-.014 2.898-.014 3.293 0 .322.216.694.825.576C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg><span>GitHub</span></div>
+              <div class="src"><svg viewBox="0 0 24 24" fill="#FC6D26"><path d="m23.6 9.593-.033-.086L20.3.677a.851.851 0 0 0-.336-.405.875.875 0 0 0-1 .054.875.875 0 0 0-.29.448l-2.207 6.752H7.535L5.327.774a.857.857 0 0 0-.29-.448.875.875 0 0 0-1-.054.85.85 0 0 0-.336.405L.433 9.502.4 9.593a6.056 6.056 0 0 0 2.01 6.997l.01.009.03.022 4.969 3.722 2.458 1.86 1.497 1.131a1.008 1.008 0 0 0 1.22 0l1.497-1.131 2.458-1.86 5-3.744.012-.01a6.058 6.058 0 0 0 2.008-6.996z"/></svg><span>GitLab</span></div>
+              <div class="src"><svg viewBox="0 0 24 24" fill="#2684FF"><path d="M11.571 11.513H0a5.218 5.218 0 0 0 5.232 5.215h2.13v2.057A5.215 5.215 0 0 0 12.575 24V12.518a1.005 1.005 0 0 0-1.005-1.005zm5.723-5.756H5.736a5.215 5.215 0 0 0 5.215 5.214h2.129v2.058a5.218 5.218 0 0 0 5.215 5.214V6.758a1.001 1.001 0 0 0-1-1.001zM23.013 0H11.455a5.215 5.215 0 0 0 5.215 5.215h2.129v2.057A5.215 5.215 0 0 0 24 12.483V1.005A1.001 1.001 0 0 0 23.013 0z"/></svg><span>Jira Server</span></div>
+            </div>
           </div>
-          <div class="os-card">
-            <svg viewBox="0 0 448 512"><path d="M0 93.7l183.6-25.3v177.4H0V93.7zm0 324.6l183.6 25.3V268.4H0v149.9zm203.8 28L448 480V268.4H203.8v177.6zm0-380.6v180.1H448V32L203.8 65.7z"/></svg>
-            <h4>Windows</h4><p>Tải <code>install.bat</code></p>
-            <a class="btn" href="install.bat" download="install.bat">⬇ install.bat</a>
-          </div>
         </div>
-        <p style="color:var(--faint);font-size:13px;margin:8px 0 0">Nếu trình duyệt <b>mở ra dạng chữ</b> thay vì tải → chuột phải nút → &ldquo;Lưu liên kết thành…&rdquo; (Save Link As). Hoặc dùng <b>Cách 1</b> (dán 1 dòng vào Terminal) — không cần tải file.</p>
-        <div class="callout warn"><span>⚠️</span><div><b>macOS — lần đầu mở (cấp quyền chạy app):</b> double-click <code>install.command</code> (đã giải nén). Nếu bị chặn → vào <b>System Settings → Privacy &amp; Security</b> → kéo xuống mục <b>Security</b> → bấm <b>&ldquo;Open Anyway&rdquo;</b> → xác nhận bằng Touch ID / mật khẩu → double-click lại. (Hoặc chuột phải file → <b>Open</b> → <b>Open</b>.) &nbsp;<b>Windows:</b> &ldquo;More info&rdquo; → &ldquo;Run anyway&rdquo;. Sau lần đầu script tự gỡ nhãn → lần sau chạy thẳng.</div></div>
-        <div class="callout"><span>🔧</span><div>Báo <i>&ldquo;could not be executed because you do not have appropriate access privileges&rdquo;</i>? Đó là do tải file <code>.command</code> <b>trực tiếp</b> (mất quyền chạy). Hãy tải bản <b>.zip</b> ở trên (giải nén giữ nguyên quyền chạy), hoặc dùng <b>Cách 1</b> (curl|bash) — không cần file.</div></div>
+        <div class="tier">
+          <div class="tlab"><span class="n">2</span><span class="nm">Scan &amp;<br>Tổng hợp</span></div>
+          <div class="tco"><div class="chips">
+            <span class="chip">🔎 Quét dữ liệu</span><span class="chip ar">→</span><span class="chip">🧱 Chuẩn hóa</span><span class="chip ar">→</span><span class="chip">🧹 Loại trùng lặp</span><span class="chip ar">→</span><span class="chip">🏷️ Phân loại / gán nhãn</span><span class="chip ar">→</span><span class="chip">📚 Tạo Knowledge Base chung</span>
+          </div></div>
+        </div>
+        <div class="tier">
+          <div class="tlab"><span class="n">3</span><span class="nm">Cloud<br>KB chung</span></div>
+          <div class="tco"><div class="cloud"><b>Confluence / SharePoint / GitHub Cloud</b><br><span style="color:var(--muted);font-size:12.3px">🔄 GET &amp; POST đồng bộ 2 chiều · 🗄️ Kho tri thức tập trung · idempotent (không trùng lặp)</span></div></div>
+        </div>
+        <div class="tier">
+          <div class="tlab"><span class="n">4</span><span class="nm">Automation<br>Schedule</span></div>
+          <div class="tco"><div class="a3">
+            <div class="abox"><b>⏰ Schedule Sync</b><ul><li>Tạo / sửa / xóa · bật–tắt</li><li>Chọn scan &amp; post list</li><li>Đặt thời gian &amp; tần suất</li><li>Tự vận hành theo lịch</li></ul></div>
+            <div class="abox"><b>📊 Daily Report &amp; AI</b><ul><li>Đọc dữ liệu mới nhất</li><li>Phân tích tiến độ · OT</li><li>Nhận diện rủi ro · dự đoán</li><li>Tạo báo cáo thông minh</li></ul></div>
+            <div class="abox"><b>✉️ Mail &amp; Alert</b><ul><li>Gửi mail theo lịch</li><li>Lỗi schedule / sync / report</li><li>→ ticket issue + email (<code>/kora-alert-mail</code>)</li></ul></div>
+          </div></div>
+        </div>
+        <div class="roles">
+          <div class="role"><b>🖥️ A · HOST</b><ul><li>Cài framework · setup package</li><li>Cấu hình Cloud KB chung</li><li>Vận hành schedule tự động</li><li>Phân phối cho nhân viên</li></ul></div>
+          <div class="role ai"><b>🤖 AI Review &amp; tự xử lý</b><ul><li>Phân tích yêu cầu user</li><li>Đối chiếu tri thức · phát hiện xung đột rule/domain</li><li>Đề xuất chỉnh + đầu ra chuẩn</li><li>Tự thực thi bước kế tiếp</li></ul></div>
+          <div class="role"><b>👤 B · USER local KB</b><ul><li>Nối knowledge local theo phân quyền</li><li>Read-only: đồng bộ 1 chiều GET</li><li>Contribute: GET &amp; POST 2 chiều</li></ul></div>
+          <div class="role"><b>📦 C · Export / Archive</b><ul><li>Export knowledge package</li><li>Phân quyền read-only / contribute</li><li>KHÔNG gồm flow report &amp; send-mail</li></ul></div>
+        </div>
+        <div class="fdfoot">Framework hợp nhất tri thức phân tán, nối <b>Knowledge Base local</b> của nhân viên với <b>Knowledge Base chung trên Cloud</b> + tự động hóa đồng bộ · báo cáo · cảnh báo.</div>
+      </div></details>
+
+      <h2 class="sec">III · Cấu trúc Framework</h2>
+      <p style="color:var(--muted);margin:0 0 6px">Các thành phần chính — mỗi item kèm giới thiệu ngắn:</p>
+      <div class="home-cards">
+        <div class="hc" style="cursor:default"><span class="ic">🧩</span><div><b>Skill <code>/kora-*</code></b><p>17 lệnh điều khiển toàn bộ luồng (xem Phụ lục).</p></div></div>
+        <div class="hc" style="cursor:default"><span class="ic">🔁</span><div><b>Workflows</b><p>Kịch bản step-by-step từng luồng (setup · scan · sync · report…).</p></div></div>
+        <div class="hc" style="cursor:default"><span class="ic">🛠️</span><div><b>Tools (Python thuần)</b><p>Quét Jira · tổng hợp wiki · sync Confluence/GitHub · scheduler · report · mailer · cổng mật khẩu.</p></div></div>
+        <div class="hc" style="cursor:default"><span class="ic">💬</span><div><b>Templates</b><p>Prompt theo vai trò (BA/PO/SA/QA) + doc template (BRD/PRD) — động theo domain.</p></div></div>
+        <div class="hc" style="cursor:default"><span class="ic">🔌</span><div><b>Nguồn (Connect)</b><p>Jira · Confluence · Gmail · SharePoint · Outlook · GitHub · GitLab — qua MCP / API.</p></div></div>
+        <div class="hc" style="cursor:default"><span class="ic">📚</span><div><b>Knowledge Base</b><p>Source <code>docs/</code> + vault Obsidian local <code>*_Brain/</code> (note + backlink).</p></div></div>
+        <div class="hc" style="cursor:default"><span class="ic">☁️</span><div><b>Cloud KB chung</b><p>Confluence / GitHub private — GET &amp; POST idempotent, kho tri thức tập trung.</p></div></div>
+        <div class="hc" style="cursor:default"><span class="ic">⚙️</span><div><b>Config (động)</b><p><code>factory-config.yaml</code> + <code>domain-rules</code> — mọi giá trị động, không hardcode.</p></div></div>
+        <div class="hc" style="cursor:default"><span class="ic">🔒</span><div><b>Bảo mật</b><p>Cổng mật khẩu vận hành (<code>KORA_OPS_PW</code>) + archive; token ở shell env, không vào git.</p></div></div>
       </div>
-      <div class="step" data-n="2">
-        <h3>Mở Claude App / Cowork → gõ <code>/kora-init</code></h3>
-        <p>Skill xuất hiện trong menu <code>/</code> ở mọi phiên chat (không cần mở thư mục dự án nào).</p>
+
+      <h2 class="sec">IV · Knowledge Base trong source &amp; vault Obsidian local</h2>
+      <p style="color:var(--muted)">Tri thức lưu ở 2 nơi bổ trợ nhau — đều là <b>Knowledge Base</b> (viết đầy đủ, không viết tắt):</p>
+      <table>
+        <tr><th>Nơi lưu</th><th>Vai trò</th><th>Logic đặt tên file</th></tr>
+        <tr><td><b>Knowledge Base (source)</b><br><code>docs/</code></td><td>Nguồn chuẩn cho người đọc &amp; Claude; chỉ ghi sau khi duyệt (Gate 1).</td><td><code>docs/03-features/F-xxx-&lt;slug&gt;/source/</code> → <code>01-user-document.md</code> · <code>03-business-rules.md</code> · <code>04-acceptance-criteria.md</code> · <code>07-test-plan.md</code></td></tr>
+        <tr><td><b>Vault Obsidian local</b><br><code>&lt;TênProject&gt;_Brain/</code></td><td>"Bộ não" — note + backlink <code>[[…]]</code>; gồm <b>raw quét</b> + <b>tri thức tổng hợp sau duyệt</b>, tự liên kết chéo project.</td><td><b>Raw (quét Jira/file):</b> <code>01_Projects</code> · <code>02_Epics</code> · <code>03_UserStories</code> · <code>04_Tasks</code> · <code>05_Bugs</code> · <code>06_SubTasks</code> · <code>08_RawIssues</code>; note <code>KEY_&lt;tiêu-đề&gt;.md</code> (vd <code>PROJ-123_…md</code>).<br><b>Tổng hợp (sau duyệt — workflow 03):</b> <code>04_BusinessRules/BR-*.md</code> · <code>05_AcceptanceCriteria/AC-*.md</code> · <code>06_Features/F-*.md</code>.</td></tr>
+      </table>
+      <p style="color:var(--faint);font-size:13px">Tên vault lấy <b>động</b> từ <code>config &gt; vault_path</code> (đặt lúc <code>/kora-init</code> theo tên project: <code>&lt;TênProject&gt;_Brain</code>). File hệ thống ở <code>.kb/</code> (index · relation-graph · health-report).</p>
+
+      <h2 class="sec">V · Thuật ngữ &amp; từ viết tắt</h2>
+      <table>
+        <tr><th>Thuật ngữ / viết tắt</th><th>Nghĩa</th></tr>
+        <tr><td><b>Knowledge Base</b> (KB)</td><td>Kho tri thức có cấu trúc của dự án — ở <code>docs/</code> (source) + vault Obsidian local.</td></tr>
+        <tr><td><b>MCP / API</b></td><td>2 phương thức kết nối nguồn; cùng nguồn nhưng khác phương thức = tính riêng.</td></tr>
+        <tr><td><b>Knowledge Base chung (Cloud)</b></td><td>Confluence / GitHub private nơi đồng bộ tri thức tập trung.</td></tr>
+        <tr><td><b>Idempotent</b></td><td>Đẩy lại nhiều lần không tạo trùng — chỉ cập nhật cái mới/đổi.</td></tr>
+        <tr><td><b>Logtime / OT</b></td><td>Giờ đã log; OT = giờ vượt giờ công chuẩn.</td></tr>
+        <tr><td><b>BRD / PRD / URD / SRS</b></td><td>Các loại tài liệu nghiệp vụ &amp; yêu cầu.</td></tr>
+        <tr><td><b>US ↔ CR</b></td><td>User Story ↔ Change Request — yêu cầu thay đổi thay thế US cũ (versioning).</td></tr>
+        <tr><td><b>FR / NFR</b></td><td>Functional / Non-Functional Requirement — yêu cầu chức năng / phi chức năng.</td></tr>
+        <tr><td><b>AC</b></td><td>Acceptance Criteria — tiêu chí nghiệm thu (Given-When-Then).</td></tr>
+        <tr><td><b>BR</b></td><td>Business Rule — quy tắc nghiệp vụ.</td></tr>
+        <tr><td><b>MoSCoW</b></td><td>Ưu tiên: Must / Should / Could / Won't have.</td></tr>
+        <tr><td><b>HĐH · SMTP · PAT</b></td><td>Hệ điều hành · giao thức gửi mail · Personal Access Token.</td></tr>
+      </table>
+    </div>
+
+    <!-- ===================== WORKFLOW ===================== -->
+    <div class="page" id="workflow">
+      <div class="phead"><div class="pl">B · Quy trình</div><h1><span class="em">🔁</span>Quy trình BA &amp; cách KORA tự thực thi</h1></div>
+      <p class="lead">Bám <b>quy trình BA 8 bước</b> để có <b>đầu ra chuẩn</b>; KORA tự ráp các luồng đang chạy của framework vào từng bước và <b>tự trưởng thành theo thời gian</b>.</p>
+
+      <div class="card"><b>Cách framework hiện tại vận hành:</b> 4 tầng <b>Nguồn (Connect) → Scan &amp; Tổng hợp (wiki KB) → Cloud KB chung (Confluence/GitHub) → Automation (Schedule/Report/Mail/Alert)</b>. Mỗi bước BA dưới đây được một <code>/kora-*</code> hoặc workflow thực thi — cột "KORA thực thi".</div>
+
+      <h2 class="sec">I · Quy trình phát triển feature (8 bước)</h2>
+      <table>
+        <tr><th>STT</th><th>Bước</th><th>Trigger</th><th>Mô tả</th><th>Đầu ra</th><th>KORA thực thi</th></tr>
+        <tr><td>1</td><td><b>B0 · Tiếp nhận yêu cầu</b></td><td>Meeting / Email yêu cầu</td><td>Thu thập yêu cầu thô từ khách hàng / Product Owner. <b>Ẩn danh dữ liệu nhạy cảm</b> trước khi đưa vào AI.</td><td>Yêu cầu thô đã ẩn danh</td><td><code>/kora-connect</code> + <code>/kora-scan</code> gom nguồn → vault</td></tr>
+        <tr><td>2</td><td><b>B1 · Clarify yêu cầu</b></td><td>Yêu cầu còn mơ hồ</td><td>Sinh danh sách câu hỏi làm rõ (group theo Business Rules / Data / UI / Technical); BA bổ sung câu hỏi domain.</td><td>Danh sách câu hỏi clarification</td><td>Hỏi vai trò + domain (1 thẻ) + đánh dấu <code>[CẦN XÁC NHẬN]</code></td></tr>
+        <tr><td>3</td><td><b>B2 · Viết User Story + AC</b></td><td>Yêu cầu đã rõ</td><td>"As a… I want… So that…" + Acceptance Criteria Given/When/Then.</td><td>User Story + AC</td><td>prompt <code>role-ba.md</code> → <code>docs/03-features/…</code></td></tr>
+        <tr><td>4</td><td><b>B3 · Vẽ Process Flow</b></td><td>User Story được duyệt</td><td>Xuất Mermaid diagram; BA xác minh logic nghiệp vụ với quy trình thực tế.</td><td>Flowchart Mermaid</td><td>sinh Mermaid trong feature doc</td></tr>
+        <tr><td>5</td><td><b>B4 · Viết FRS / BRD / PRD</b></td><td>Process Flow đã duyệt</td><td>Bullet points → văn bản chuyên nghiệp; soát theo Glossary dự án.</td><td>BRD / PRD draft</td><td><code>templates/docs/BRD-template.md</code> · <code>PRD-template.md</code> → <code>/kora-export-docs</code></td></tr>
+        <tr><td>6</td><td><b>B5 · Quality Gate</b></td><td>Tài liệu draft xong</td><td>3 tầng review: Accuracy → Completeness → Peer-review (prompt tự review).</td><td>Tài liệu đã review</td><td><b>Approval Gate</b> + rà soát chốt phiên + <code>.kb/health-report.md</code></td></tr>
+        <tr><td>7</td><td><b>B6 · Sinh Test Cases</b></td><td>Tài liệu được duyệt</td><td>Generate test cases từ AC — đủ 3 loại: Happy / Edge / Negative.</td><td>Test Cases + UAT script</td><td>prompt <code>role-qa.md</code></td></tr>
+        <tr><td>8</td><td><b>B7 · Chuẩn bị UAT</b></td><td>Test Cases được duyệt</td><td>Soạn UAT checklist + kịch bản; BA &amp; QA review trước khi gửi khách hàng.</td><td>UAT checklist + kịch bản</td><td><code>/kora-export-docs</code> (UAT)</td></tr>
+      </table>
+
+      <h2 class="sec">II · Luồng phân tích yêu cầu (đầu ra chuẩn)</h2>
+      <div class="flow">yêu cầu (lời thường)
+   → hỏi VAI TRÒ + DOMAIN + template (1 thẻ, nhớ cả phiên)
+   → đọc KB (index + vault + lessons) · liên kết chéo project
+   → phân tích: xung đột · tác động · lỗ hổng · [CẦN XÁC NHẬN]
+   → trình bày tiếng Việt (trích nguồn theo file)   ✋ GATE 1
+   → ghi tri thức (docs/ + vault + .kb)              ✋ confirm
+   → TỰ REINDEX (index/graph/health khớp)
+   → đề xuất bước kế (đẩy Confluence / xuất tài liệu)</div>
+      <p style="color:var(--muted)">Workflow <code>03-request.md</code> nạp thư viện <code>templates/prompts/ba-prompt-library.md</code> → mỗi feature ra <b>artifact chuẩn TỰ ĐỘNG</b>, user không cần yêu cầu định dạng:</p>
+      <table>
+        <tr><th>Artifact</th><th>Định dạng chuẩn (auto)</th><th>File ghi</th></tr>
+        <tr><td>User Story</td><td><code>US-[ID]</code> · As a… I want… So that… · Priority · Story Points · OUT OF SCOPE</td><td><code>01-user-document.md</code></td></tr>
+        <tr><td>Acceptance Criteria</td><td>Given-When-Then · đủ happy + edge + negative (negative có thông báo lỗi)</td><td><code>04-acceptance-criteria.md</code></td></tr>
+        <tr><td>Business Rules</td><td><code>BR-[ID]</code> + nguồn / điều kiện</td><td><code>03-business-rules.md</code></td></tr>
+        <tr><td>FR / NFR</td><td><code>FR-[ID]</code> (Actor/Pre/Post) · <code>NFR-[ID]</code> (nhóm + số đo + cách kiểm tra)</td><td><code>02-claude-context.md</code></td></tr>
+        <tr><td>Validation</td><td>bảng trường + cross-field · error message cụ thể</td><td><code>04-acceptance-criteria.md</code></td></tr>
+        <tr><td>Test Cases / Edge</td><td><code>TC-[ID]</code> 3 loại (≥3 happy · 2 edge · 2 negative) + edge 6 nhóm</td><td><code>07-test-plan.md</code></td></tr>
+        <tr><td>BRD / PRD / SRS</td><td>theo <code>templates/docs/</code> (cấu trúc mục cố định)</td><td><code>export/</code> · <code>/kora-export-docs</code></td></tr>
+      </table>
+      <div class="callout ok"><span>✅</span><div><b>Vai trò lọc artifact:</b> BA → US/AC/BR/Screen · PO → value/KPI/MoSCoW/PRD · SA → FR/NFR/API/DB · QA → AC/Validation/Test/Edge. ⇒ Luồng phân tích đã <b>tích hợp</b> quy trình BA 8 bước + thư viện 20 prompt → <b>đầu ra chuẩn tự động</b>.</div></div>
+
+      <h2 class="sec">III · Tự trưởng thành &amp; học từ sai lầm</h2>
+      <div class="card">
+        <ul style="margin:0;color:var(--muted)">
+          <li>Mỗi khi đề xuất bị <b>bác / sửa lớn</b> → ghi NGAY 1 bài học vào <code>.kb/lessons.md</code> (ngày · sai gì · rút ra · áp dụng từ nay).</li>
+          <li><b>Đọc lại lessons trước mỗi lần phân tích</b> → không lặp lỗi cũ.</li>
+          <li>Sau mỗi lần ghi → <b>tự reindex</b> (index / relation-graph / health luôn khớp <code>docs/</code>).</li>
+          <li>Định kỳ <code>/kora-evolve</code> → dọn dead-link, hợp nhất trùng lặp, phát hiện mâu thuẫn, bù lỗ hổng coverage.</li>
+        </ul>
+        <p style="margin:10px 0 0;color:var(--accent2)"><b>⇒ KB + chất lượng phân tích lớn dần theo thời gian.</b></p>
       </div>
-      <div class="step" data-n="3">
-        <h3>Cập nhật &amp; gỡ</h3>
-        <p>Chạy lại file cài đặt = cập nhật. Gỡ: gõ <code>/kora-uninstall</code> trong Claude (gọn nhất), hoặc tải <code>uninstall.command.zip</code> / <code>uninstall.bat</code> rồi chạy.</p>
+
+      <h2 class="sec">IV · Báo cáo &amp; cảnh báo theo chuẩn Cloud</h2>
+      <p class="lead">Workflow báo cáo (<code>14</code>) đối chiếu số liệu với <b>chuẩn Cloud / best-practice</b> rồi đưa ra phân tích — rủi ro — cảnh báo — <b>dự đoán rủi ro</b> — đề xuất xử lý:</p>
+      <table>
+        <tr><th>Chiều phân tích (chuẩn)</th><th>Cảnh báo / dự đoán</th></tr>
+        <tr><td><b>Năng suất giờ công</b> — đã log vs giờ chuẩn (ngày làm việc × 8h × 5 ngày)</td><td>OT vượt chuẩn (burnout) · log thiếu &lt;80% (under-report)</td></tr>
+        <tr><td><b>Phủ logtime theo loại</b> — chỉ Task/Sub-task log; Epic/US/Request không</td><td>Nhiều Task/Sub-task chưa log → dữ liệu nỗ lực không tin cậy</td></tr>
+        <tr><td><b>Sprint health</b> — % done vs % thời gian đã trôi · WIP</td><td><b>Dự đoán trượt timeline</b>: Thấp / Vừa / Cao + lý do bằng số</td></tr>
+        <tr><td><b>Phân bổ &amp; rủi ro</b> — lệch tải · quá hạn · thiếu estimate/assignee</td><td>Đề xuất xử lý từng rủi ro 🔴 + theo từng thành viên</td></tr>
+      </table>
+      <p style="color:var(--muted)">Khối <b>🤖 Phân tích AI</b> nằm trong dashboard và email báo cáo: mức độ (🔴/🟡) → khả năng/dự đoán + lý do bằng số → tác động → phương án đề xuất (ai làm, khi nào).</p>
+    </div>
+
+    <!-- ===================== FEATURES ===================== -->
+    <!-- ===================== INSTALL ===================== -->
+    <div class="page" id="install">
+      <div class="phead"><div class="pl">C · Cài đặt</div><h1><span class="em">⚙️</span>Cài đặt, cập nhật &amp; gỡ</h1></div>
+      <p class="lead">Một bộ cài cho <b>cả Claude CLI và Desktop</b>. Cài skill vào <code>~/.claude</code> + tự tạo project trong <code>Downloads/Knowledge-Base</code> (folder <code>Skill/</code> bên trong).</p>
+
+      <h2 class="sec">⚙️ Cài đặt</h2>
+      <div class="code"><div class="code-head"><span>macOS / Linux (bash)</span><button class="copy">Copy</button></div>
+<pre><code>bash &lt;(curl -fsSL https://raw.githubusercontent.com/isc-fkit/Kora-Framework/release/install.command)</code></pre></div>
+      <div class="code"><div class="code-head"><span>Windows (cmd / PowerShell)</span><button class="copy">Copy</button></div>
+<pre><code>curl -fsSL https://raw.githubusercontent.com/isc-fkit/Kora-Framework/release/install.bat -o "%TEMP%\kora-install.bat" &amp;&amp; "%TEMP%\kora-install.bat"</code></pre></div>
+      <div class="grid2">
+        <div class="os-card"><svg viewBox="0 0 384 512"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C61.4 141.9 0 184.4 0 270.2c0 25.4 4.6 51.6 13.9 78.5 12.4 35.4 57.2 122.2 103.9 120.8 24.4-.6 41.6-17.3 73.4-17.3 30.8 0 46.8 17.3 73.9 17.3 47.1-.7 87.6-79.6 99.4-115.1-63.2-29.8-59.7-87.3-59.7-89.7zM262.1 104.5c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg><h4>macOS / Linux</h4><p>Tải &amp; giải nén</p><a class="btn" href="install.command.zip" download="install.command.zip">⬇ install.command</a></div>
+        <div class="os-card"><svg viewBox="0 0 448 512"><path d="M0 93.7l183.6-25.3v177.4H0V93.7zm0 324.6l183.6 25.3V268.4H0v149.9zm203.8 28L448 480V268.4H203.8v177.6zm0-380.6v180.1H448V32L203.8 65.7z"/></svg><h4>Windows</h4><p>Tải install.bat</p><a class="btn" href="install.bat" download="install.bat">⬇ install.bat</a></div>
+      </div>
+      <div class="callout warn"><span>🔐</span><div><b>Cấp quyền PRIVACY khi cài:</b> truy cập thư mục project, chạy script local, và các Connector cần dùng (Atlassian / Gmail / Microsoft 365). Không cấp đủ → scan MCP / gửi mail / sync không chạy. macOS lần đầu bị chặn → <b>Privacy &amp; Security → Open Anyway</b>.</div></div>
+
+      <h2 class="sec">🔄 Cập nhật (update)</h2>
+      <p style="color:var(--muted)">Cập nhật chạy thẳng trên <b>Terminal / CLI</b> bằng bash — chỉ thay phần CORE, <b>GIỮ NGUYÊN tri thức</b> của bạn (docs/ + vault + config).</p>
+      <p style="color:var(--faint);font-size:13.3px;margin:12px 0 5px"><b>① Bản cài skill</b> (managed, <code>~/.claude</code>) — chạy lại đúng lệnh cài = cập nhật:</p>
+      <div class="code"><div class="code-head"><span>macOS / Linux (bash)</span><button class="copy">Copy</button></div>
+<pre><code>bash &lt;(curl -fsSL https://raw.githubusercontent.com/isc-fkit/Kora-Framework/release/install.command)</code></pre></div>
+      <div class="code"><div class="code-head"><span>Windows (cmd / PowerShell)</span><button class="copy">Copy</button></div>
+<pre><code>curl -fsSL https://raw.githubusercontent.com/isc-fkit/Kora-Framework/release/install.bat -o "%TEMP%\kora-install.bat" &amp;&amp; "%TEMP%\kora-install.bat"</code></pre></div>
+      <p style="color:var(--faint);font-size:13.3px;margin:14px 0 5px"><b>② Bản project folder</b> (zip / git) — chạy <b>trong thư mục Knowledge-Base</b> (giữ DATA, chỉ ghi đè CORE):</p>
+      <div class="code"><div class="code-head"><span>macOS / Linux</span><button class="copy">Copy</button></div>
+<pre><code>bash scripts/update.command</code></pre></div>
+      <div class="code"><div class="code-head"><span>Windows</span><button class="copy">Copy</button></div>
+<pre><code>scripts\update.bat</code></pre></div>
+      <div class="callout"><span>💡</span><div><b>Tùy chọn (skill):</b> trong Claude / Cowork gõ <code>/kora-update</code> — so <code>version.json</code> local với GitHub, hiện tóm tắt CHANGELOG rồi chạy đúng script bash ở trên. Xem thay đổi từng bản: tab <a data-go="release" style="cursor:pointer">Release Note (I)</a>.</div></div>
+
+      <h2 class="sec">🗑️ Gỡ cài đặt</h2>
+      <p style="color:var(--muted)">Gỡ chạy thẳng trên <b>CLI</b> bằng bash — chỉ xóa skill (<code>~/.claude/commands/kora-*.md</code> + <code>~/.claude/kora-framework</code> + folder <code>Skill/</code>). <b>Tri thức trong <code>Knowledge-Base</code> được giữ lại.</b></p>
+      <div class="code"><div class="code-head"><span>macOS / Linux (bash)</span><button class="copy">Copy</button></div>
+<pre><code>bash &lt;(curl -fsSL https://raw.githubusercontent.com/isc-fkit/Kora-Framework/release/uninstall.command)</code></pre></div>
+      <div class="code"><div class="code-head"><span>Windows (cmd / PowerShell)</span><button class="copy">Copy</button></div>
+<pre><code>curl -fsSL https://raw.githubusercontent.com/isc-fkit/Kora-Framework/release/uninstall.bat -o "%TEMP%\kora-uninstall.bat" &amp;&amp; "%TEMP%\kora-uninstall.bat"</code></pre></div>
+      <p style="color:var(--faint);font-size:13.3px;margin:10px 0 0">Script hỏi gõ <code>yes</code> để xác nhận, và nhắc xóa tay các dòng <code>export KORA_*</code> trong <code>~/.zshrc</code> nếu có. <b>Tùy chọn (skill):</b> trong Claude gõ <code>/kora-uninstall</code>.</p>
+    </div>
+
+    <!-- ===================== FEATURES ===================== -->
+    <div class="page" id="features">
+      <div class="phead"><div class="pl">D · Chức năng</div><h1><span class="em">🧩</span>Danh sách chức năng &amp; cách vận hành</h1></div>
+      <p class="lead">Sau khi cài (tab C), đây là <b>8 bước thực thi</b> theo thứ tự: <b>1 init → 2 connect → 3 scan → 4 schedule → 4b cảnh báo ticket → 5 report → 6 send-mail → 7 sync → 8 archive</b>.</p>
+
+      <h2 class="sec">Các bước thực thi (8 bước)</h2>
+      <div class="tl">
+        <div class="step"><div class="node">🚀</div><div class="body"><div class="t"><span class="num">1</span>Khởi tạo <code>/kora-init</code></div><p>Dựng project + vault + kéo domain/rule; hỏi domain / tên project.</p></div></div>
+        <div class="step"><div class="node">🔌</div><div class="body"><div class="t"><span class="num">2</span>Connect <code>/kora-connect</code></div><p>Kết nối nguồn (Jira / Confluence / GitHub / Microsoft 365…); MCP &amp; API tính riêng.</p></div></div>
+        <div class="step"><div class="node">🔎</div><div class="body"><div class="t"><span class="num">3</span>Scan <code>/kora-scan</code> · <code>/kora-import-files</code></div><p>Quét nguồn (cào hết field) → tổng hợp wiki liên kết; nạp PDF / DOCX / ảnh.</p></div></div>
+        <div class="step"><div class="node">⏰</div><div class="body"><div class="t"><span class="num">4</span>Schedule <code>/kora-schedule</code> <span class="pw">🔒 (Admin permission)</span></div><p>Lịch cấp HĐH (chạy cả khi đóng app): get → report → mail → (tùy chọn) sync; danh sách bật/tắt/xóa.</p></div></div>
+        <div class="step"><div class="node">🔔</div><div class="body"><div class="t"><span class="num">4b</span>Report ticket issue qua mail <code>/kora-alert-mail</code></div><p>Đi kèm Schedule: lịch nền lỗi → tự tạo ticket issue + gửi email cảnh báo; chỉnh người nhận / bật–tắt / nơi tạo ticket tập trung 1 nơi (OVERRIDE mọi lịch).</p></div></div>
+        <div class="step"><div class="node">📊</div><div class="body"><div class="t"><span class="num">5</span>Report <code>/kora-daily-report</code></div><p>Dashboard tiến độ (giờ công / OT, rủi ro, dự đoán) — phân tầng + lọc đa chiều.</p></div></div>
+        <div class="step"><div class="node">✉️</div><div class="body"><div class="t"><span class="num">6</span>Send mail <code>/kora-send-mail</code> <span class="pw">🔒 (Admin permission)</span></div><p>Chọn Jira → project → người nhận → gửi ngay / đặt lịch; email có banner header + phân tích AI.</p></div></div>
+        <div class="step"><div class="node">☁️</div><div class="body"><div class="t"><span class="num">7</span>Sync <code>/kora-sync</code> <span class="pw">🔒 (Admin permission)</span></div><p>Đẩy Knowledge Base lên Confluence / GitHub private — idempotent + versioning US ↔ Change Request.</p></div></div>
+        <div class="step"><div class="node">📦</div><div class="body"><div class="t"><span class="num">8</span>Archive <code>/kora-archive</code> · <code>/kora-export-*</code> <span class="pw">🔑 Archive</span></div><p>Đóng gói bàn giao phân quyền + mật khẩu; xuất DOCX / PDF; sao lưu Knowledge Base.</p></div></div>
+      </div>
+      <div class="callout warn"><span>🔒</span><div><b>Mật khẩu admin:</b> <b>🔒 (Admin permission)</b> = <code>KORA_OPS_PW</code> (gác <code>/kora-sync</code> · <code>/kora-send-mail</code> · bước sync trong <code>/kora-schedule</code> — không hỏi qua chat, không in ra). <b>🔑 Archive</b> = mật khẩu đóng gói (chỉ HOST). Export &amp; các bước khác <b>KHÔNG</b> cần.</div></div>
+      <div class="callout"><span>🔧</span><div><b>Lệnh bảo trì (ngoài 8 bước):</b> <code>/kora-evolve</code> (dọn dead-link · hợp nhất trùng · kiểm tra sức khỏe KB) · <code>/kora-update</code> · <code>/kora-uninstall</code> — xem tab <a data-go="install" style="cursor:pointer">Cài đặt (C)</a>.</div></div>
+
+      <h2 class="sec">1 · 🚀 Khởi tạo — <code>/kora-init</code></h2>
+      <p style="color:var(--muted)">Mở folder project → <code>/kora-init</code>: tự kéo domain phổ biến + rule, hỏi domain / tên project / vault. Gọn nhẹ.</p>
+
+      <h2 class="sec">2 · 🔌 Connect — <code>/kora-connect</code></h2>
+      <p style="color:var(--muted)">Vào đầu hỏi <b>[Kết nối mới] / [Xem nguồn đã kết nối]</b>. Kết nối mới → chọn MCP/API → nguồn hỗ trợ (đánh dấu đã kết nối). API và MCP tính riêng.</p>
+      <table>
+        <tr><th>Nguồn</th><th>MCP</th><th>API</th><th>Ghi chú</th></tr>
+        <tr><td><svg class="srcico" viewBox="0 0 24 24" fill="#2684FF"><path d="M11.571 11.513H0a5.218 5.218 0 0 0 5.232 5.215h2.13v2.057A5.215 5.215 0 0 0 12.575 24V12.518a1.005 1.005 0 0 0-1.005-1.005zm5.723-5.756H5.736a5.215 5.215 0 0 0 5.215 5.214h2.129v2.058a5.218 5.218 0 0 0 5.215 5.214V6.758a1.001 1.001 0 0 0-1-1.001zM23.013 0H11.455a5.215 5.215 0 0 0 5.215 5.215h2.129v2.057A5.215 5.215 0 0 0 24 12.483V1.005A1.001 1.001 0 0 0 23.013 0z"/></svg>Jira Cloud</td><td class="yes">✓</td><td class="yes">✓</td><td>MCP: Atlassian Rovo · API: OAuth 2.0 / token</td></tr>
+        <tr><td><svg class="srcico" viewBox="0 0 24 24" fill="#2684FF"><path d="M11.571 11.513H0a5.218 5.218 0 0 0 5.232 5.215h2.13v2.057A5.215 5.215 0 0 0 12.575 24V12.518a1.005 1.005 0 0 0-1.005-1.005zm5.723-5.756H5.736a5.215 5.215 0 0 0 5.215 5.214h2.129v2.058a5.218 5.218 0 0 0 5.215 5.214V6.758a1.001 1.001 0 0 0-1-1.001zM23.013 0H11.455a5.215 5.215 0 0 0 5.215 5.215h2.129v2.057A5.215 5.215 0 0 0 24 12.483V1.005A1.001 1.001 0 0 0 23.013 0z"/></svg>Jira Server</td><td class="no">—</td><td class="yes">✓</td><td>API token (PAT)</td></tr>
+        <tr><td><svg class="srcico" viewBox="0 0 24 24" fill="#1868DB"><path d="M.87 18.257c-.248.382-.53.875-.763 1.245a.764.764 0 0 0 .255 1.04l4.965 3.054a.764.764 0 0 0 1.058-.26c.199-.332.454-.763.733-1.221 1.967-3.247 3.945-2.853 7.508-1.146l4.957 2.337a.764.764 0 0 0 1.028-.382l2.364-5.346a.764.764 0 0 0-.382-1.003c-1.046-.49-3.123-1.469-4.994-2.372-6.748-3.265-12.477-3.053-16.728 4.06zM23.131 5.743c.249-.382.53-.875.764-1.245a.764.764 0 0 0-.255-1.04L18.675.404a.764.764 0 0 0-1.058.26c-.199.332-.454.763-.733 1.221-1.967 3.247-3.945 2.853-7.508 1.146L4.42.694a.764.764 0 0 0-1.028.382L1.028 6.422a.764.764 0 0 0 .382 1.003c1.046.49 3.123 1.469 4.994 2.372 6.748 3.264 12.477 3.053 16.728-4.054z"/></svg>Confluence</td><td class="yes">✓</td><td class="yes">✓</td><td>đẩy KB chung</td></tr>
+        <tr><td><svg class="srcico" viewBox="0 0 24 24" fill="#e8ebf2"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.5 11.5 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222 0 1.606-.014 2.898-.014 3.293 0 .322.216.694.825.576C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>GitHub</td><td class="yes">✓</td><td class="yes">✓</td><td>sync KB lên repo private</td></tr>
+        <tr><td><svg class="srcico" viewBox="0 0 24 24" fill="#FC6D26"><path d="m23.6 9.593-.033-.086L20.3.677a.851.851 0 0 0-.336-.405.875.875 0 0 0-1 .054.875.875 0 0 0-.29.448l-2.207 6.752H7.535L5.327.774a.857.857 0 0 0-.29-.448.875.875 0 0 0-1-.054.85.85 0 0 0-.336.405L.433 9.502.4 9.593a6.056 6.056 0 0 0 2.01 6.997l.01.009.03.022 4.969 3.722 2.458 1.86 1.497 1.131a1.008 1.008 0 0 0 1.22 0l1.497-1.131 2.458-1.86 5-3.744.012-.01a6.058 6.058 0 0 0 2.008-6.996z"/></svg>GitLab</td><td class="no">—</td><td class="yes">✓</td><td>OAuth 2.0 / PAT</td></tr>
+        <tr><td><span class="msq"><i style="background:#F25022"></i><i style="background:#7FBA00"></i><i style="background:#00A4EF"></i><i style="background:#FFB900"></i></span>SharePoint</td><td class="yes">✓</td><td class="no">—</td><td>MCP Microsoft 365</td></tr>
+        <tr><td><span class="msq"><i style="background:#F25022"></i><i style="background:#7FBA00"></i><i style="background:#00A4EF"></i><i style="background:#FFB900"></i></span>Outlook</td><td class="yes">✓</td><td class="no">—</td><td>MCP Microsoft 365 (gửi mail: cần admin / consent)</td></tr>
+        <tr><td><svg class="srcico" viewBox="0 0 24 24" fill="#EA4335"><path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/></svg>Gmail</td><td class="yes">✓</td><td class="no">—</td><td>MCP Gmail · gửi mail cần App Password (bật 2FA)</td></tr>
+      </table>
+      <div class="callout"><span>🏢</span><div><b>Connect HOSTING cần đảm bảo:</b> ① nguồn để SCAN · ② đích PUSH (Confluence + GitHub private) · ③ kênh MAIL (Gmail/Outlook/SMTP).</div></div>
+      <div class="twocol">
+        <div class="card"><b>📧 Gmail (SMTP)</b><p style="color:var(--muted);font-size:13.3px;margin:6px 0 0">Cần <b>App Password</b> — chỉ tạo được khi đã <b>bật xác thực 2 lớp (2FA)</b>.</p></div>
+        <div class="card"><b>📨 Outlook / M365</b><p style="color:var(--muted);font-size:13.3px;margin:6px 0 0">Cần <b>key admin</b> hoặc được <b>set consent</b> (admin consent).</p></div>
+      </div>
+      <div class="callout warn"><span>🔑</span><div><b>Lưu khóa (token):</b> mặc định vào <b>shell env</b> (<code>~/.zshrc</code>: <code>export KORA_&lt;SRC&gt;_TOKEN=…</code>), <b>KHÔNG rải <code>.env</code></b> trong project. Chỉ tạo <code>.env.local</code> ở 2 ca: <b>archive</b> (key read-only) và <b>lịch sync nền</b> (mỗi nguồn user chọn sync). Token không vào chat / git / config.</div></div>
+
+      <h2 class="sec">3 · 🔎 Scan — <code>/kora-scan</code></h2>
+      <p style="color:var(--muted)">Danh sách nguồn + <b>[✓ Quét tất cả]</b>; chọn nguồn → chọn project/folder (mọi cấp có <b>[Chọn tất cả]</b>). Sau quét → <b>tổng hợp wiki liên kết</b> mỗi project; tùy chọn đào sâu thành feature/BR/AC.</p>
+
+      <h2 class="sec">4 · ⏰ Schedule — <code>/kora-schedule</code></h2>
+      <p style="color:var(--muted)">Lịch cấp <b>Hệ điều hành</b> (chạy cả khi đóng app). Luồng: <b>get → 🔒 mật khẩu → report → mail → (tùy chọn) sync</b>. Có <b>danh sách lịch</b>: <b>bật / tắt (active/inactive) · xóa</b> + tạo mới. Task "đặt lịch" từ <code>/kora-send-mail</code> cũng hiện ở danh sách này. <b>Cảnh báo lỗi lịch</b> (ticket issue + email) chỉnh tập trung qua <code>/kora-alert-mail</code> — xem mục ngay dưới.</p>
+
+      <h2 class="sec">4b · 🔔 Cảnh báo sự cố &amp; report ticket qua mail — <code>/kora-alert-mail</code></h2>
+      <p style="color:var(--muted)">Đi kèm Schedule: khi một <b>lịch nền lỗi</b>, KORA không để lỗi trôi âm thầm mà <b>tự tạo ticket issue</b> + <b>gửi email cảnh báo</b> cho người phụ trách. <code>/kora-alert-mail</code> là nơi chỉnh <b>tập trung 1 chỗ</b> cho cơ chế này.</p>
+      <div class="flow">lịch nền LỖI  (get/scan · post · report · mail · sync)
+        │
+        ▼
+   🔔 orchestrator phát hiện sự cố  →  kích hoạt cảnh báo
+        │
+        ├─▶  🎫 Tạo TICKET ISSUE  (Confluence / Jira / tắt)
+        └─▶  ✉️ Gửi EMAIL cảnh báo  (tới người phụ trách)</div>
+      <div class="grid2">
+        <div class="card"><b>⚙️ Chỉnh được gì</b><ul style="margin:8px 0 0;padding-left:18px;color:var(--muted);font-size:13.2px;line-height:1.65">
+          <li><b>Người nhận</b> mail sự cố — thêm / bớt</li>
+          <li><b>Bật / tắt</b> gửi mail cảnh báo</li>
+          <li><b>Nơi tạo ticket</b>: Confluence · Jira · không tạo</li>
+        </ul></div>
+        <div class="card"><b>⭐ Vì sao tiện</b><ul style="margin:8px 0 0;padding-left:18px;color:var(--muted);font-size:13.2px;line-height:1.65">
+          <li>Sửa 1 lần → <b>OVERRIDE mọi lịch đang chạy</b></li>
+          <li>Orchestrator đọc cấu hình <b>lúc chạy</b> → <b>không phải tạo lại lịch</b></li>
+          <li>Chỉ sửa config → <b>KHÔNG cần mật khẩu vận hành</b></li>
+        </ul></div>
+      </div>
+      <div class="callout"><span>↔️</span><div><b>Khác <code>/kora-send-mail</code>:</b> <code>/kora-alert-mail</code> = mail <b>CẢNH BÁO SỰ CỐ</b> (tự động khi lịch lỗi) · <code>/kora-send-mail</code> = mail <b>BÁO CÁO TIẾN ĐỘ</b> (chủ động gửi report). Việc GỬI mail cảnh báo nằm trong lượt lịch nền — đã gác <code>KORA_OPS_PW</code>, nên skill này chỉ sửa cấu hình, <b>không cần nhập mật khẩu</b>.</div></div>
+
+      <h2 class="sec">5 · 📊 Report — <code>/kora-daily-report</code></h2>
+      <p style="color:var(--muted)">Dashboard tiến độ: <b>giờ công chuẩn vs đã log + OT</b>, rủi ro · dự đoán theo <b>chuẩn Cloud</b>; <b>phân tầng + lọc</b> theo project / thành viên / thời gian. Hiện <b>UI inline trong Cowork</b> + file HTML.</p>
+
+      <h2 class="sec">6 · ✉️ Send mail — <code>/kora-send-mail</code></h2>
+      <div class="imgframe"><img src="assets/banner-daily-report.png" alt="Banner báo cáo tiến độ" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><div class="ph" style="display:none">🖼️ <b>assets/banner-daily-report.png</b> — banner header email.</div></div>
+      <p style="color:var(--muted)">Luồng: chọn <b>nguồn Jira đã kết nối</b> → <b>project cần report</b> → <b>người nhận</b> → <b>[Gửi ngay] / [Đặt lịch]</b>. Email có <b>banner header</b> + phân tích AI (năng suất/OT, rủi ro, dự đoán). Provider Gmail/Outlook/SMTP. Cổng mật khẩu vận hành. <b>Đặt lịch</b> → task hiện ở danh sách <code>/kora-schedule</code> (bật/tắt/xóa).</p>
+
+      <h2 class="sec">7 · ☁️ Sync — <code>/kora-sync</code></h2>
+      <p style="color:var(--muted)">Đẩy Knowledge Base lên <b>Confluence / GitHub private</b> — idempotent, có <b>cổng mật khẩu vận hành</b>. Versioning <b>US ↔ Change Request</b>: giữ US cũ, đánh dấu superseded, link CR mới.</p>
+
+      <h2 class="sec">8 · 📦 Archive — <code>/kora-archive</code></h2>
+      <p style="color:var(--muted)">Đóng gói KB phân quyền (read-only / read-write) + mật khẩu (chỉ gác HOST tạo gói). HOST đẩy KB lên Cloud → USER import → connect MCP → <code>/kora-schedule</code> kéo về local. Project import luôn <b>hỏi để nắm tri thức</b>.</p>
+    </div>
+
+    <!-- ===================== PROMPTS ===================== -->
+    <div class="page" id="prompts">
+      <div class="phead"><div class="pl">E · Prompt &amp; Template</div><h1><span class="em">💬</span>Thư viện 20 Prompt Templates</h1></div>
+      <p class="lead">Mỗi prompt trình bày đầy đủ, <b>sẵn sàng copy-paste</b>. Thay phần <code>[brackets]</code> bằng nội dung thực tế trước khi gửi. Khi bạn yêu cầu phân tích, KORA tự chọn prompt theo <b>vai trò</b> và tự chèn <code>[domain]</code> theo cấu hình.</p>
+
+      <div class="secbig">Bản đồ vai trò → template</div>
+      <table>
+        <tr><th>Vai trò</th><th>Prompt mẫu</th><th>Doc template</th><th>Output chính</th></tr>
+        <tr><td><b>BA</b> — Business Analyst</td><td><code>role-ba.md</code></td><td>BRD, PRD</td><td>Actors, tính năng, user story, AC</td></tr>
+        <tr><td><b>PO</b> — Product Owner</td><td><code>role-po.md</code></td><td>BRD, Roadmap</td><td>Business value, KPI, ưu tiên MoSCoW</td></tr>
+        <tr><td><b>SA</b> — Solution Architect</td><td><code>role-sa.md</code></td><td>PRD (Part B), SDD</td><td>Kiến trúc, data model, API, NFR</td></tr>
+        <tr><td><b>QA</b> — Quality Assurance</td><td><code>role-qa.md</code></td><td>Test plan</td><td>AC, test scenario, edge case</td></tr>
+      </table>
+
+      <div class="callout"><span>📌</span><div><b>Cách dùng hiệu quả:</b> ① Paste Project Brief (Phụ lục) vào đầu hội thoại · ② Copy prompt, điền <code>[brackets]</code>, gửi · ③ Chưa đúng ý → iterate: "Tốt, nhưng hãy [yêu cầu chỉnh sửa]". <b>Quy ước ngôn ngữ:</b> instruction tiếng Việt · technical terms giữ EN (User Story, Given-When-Then, FR/NFR, Mermaid, MoSCoW) · output tiếng Việt · <code>[brackets]</code> giữ nguyên để biết chỗ cần điền.</div></div>
+
+      <div class="secbig">20 Prompt Templates — 9 nhóm</div>
+
+      <div class="subh"><span class="rn">I.</span> Phân tích yêu cầu</div>
+      <div class="pcard"><div class="phd"><span class="pchip">Prompt 01</span><b>Phân tích yêu cầu tổng quát</b></div>
+<pre>Bạn là Senior Business Analyst với 10 năm kinh nghiệm trong lĩnh vực [domain].
+Trả lời bằng tiếng Việt.
+
+Phân tích yêu cầu dưới đây và xác định:
+  - Actors: ai tương tác với hệ thống
+  - Tính năng chính: hệ thống phải làm gì
+  - Business goals: tại sao tính năng này quan trọng
+  - Assumptions: những gì đang được mặc định
+  - Thông tin còn thiếu: cần làm rõ trước khi viết User Story
+
+Trình bày kết quả dưới dạng danh sách có đánh số theo từng mục.
+
+Yêu cầu:
+[Dán nội dung yêu cầu vào đây]</pre>
+        <div class="pex"><div class="pexh">💡 Ví dụ thực tế — Module Đăng nhập SSO</div>
+<pre>Bạn là Senior BA 10 năm kinh nghiệm lĩnh vực enterprise. Trả lời tiếng Việt.
+Phân tích yêu cầu và xác định: Actors / Tính năng chính / Business goals /
+Assumptions / Thông tin còn thiếu.
+
+Yêu cầu:
+Hệ thống cần cho phép nhân viên đăng nhập bằng tài khoản công ty (SSO),
+không cần nhớ mật khẩu riêng. Hết session thì tự động redirect về trang login.</pre></div>
+      </div>
+      <div class="pcard"><div class="phd"><span class="pchip">Prompt 02</span><b>Sinh câu hỏi làm rõ yêu cầu mơ hồ</b></div>
+<pre>Bạn là Business Analyst. Trả lời bằng tiếng Việt.
+
+Yêu cầu dưới đây còn mơ hồ. Hãy sinh danh sách câu hỏi cần hỏi stakeholder
+trước khi bắt đầu viết User Story.
+
+Phân nhóm câu hỏi theo: Nghiệp vụ / Luồng người dùng / Dữ liệu / Kỹ thuật.
+Đánh dấu sao (*) 5 câu hỏi quan trọng nhất cần ưu tiên hỏi trước.
+
+Yêu cầu:
+[Dán nội dung yêu cầu vào đây]</pre>
+        <div class="pex"><div class="pexh">💡 Ví dụ thực tế — Chức năng Tìm kiếm Sản phẩm</div>
+<pre>Bạn là BA. Trả lời tiếng Việt.
+Yêu cầu sau mơ hồ. Sinh câu hỏi làm rõ, phân nhóm theo:
+Nghiệp vụ / Luồng người dùng / Dữ liệu / Kỹ thuật. Đánh dấu sao (*) 5 câu ưu tiên.
+
+Yêu cầu:
+Người dùng có thể tìm kiếm sản phẩm theo nhiều tiêu chí và lưu kết quả để dùng lại.</pre></div>
+      </div>
+      <div class="pcard"><div class="phd"><span class="pchip">Prompt 03</span><b>Breakdown tính năng thành Feature Tree</b></div>
+<pre>Bạn là Senior Business Analyst. Trả lời bằng tiếng Việt.
+
+Phân rã yêu cầu sản phẩm dưới đây thành features và sub-features.
+
+Trình bày theo cấu trúc:
+  Feature [F01]: [Tên tính năng]
+    - Sub-feature [F01.1]: [Mô tả ngắn]
+    - Sub-feature [F01.2]: [Mô tả ngắn]
+
+Kèm cột ưu tiên MoSCoW: Must Have / Should Have / Could Have / Won't Have.
+
+Yêu cầu sản phẩm:
+[Mô tả yêu cầu]</pre>
+      </div>
+
+      <div class="subh"><span class="rn">II.</span> User Stories</div>
+      <div class="pcard"><div class="phd"><span class="pchip">Prompt 04</span><b>Viết User Story từ tính năng</b></div>
+<pre>Bạn là Business Analyst. Trả lời bằng tiếng Việt.
+
+Chuyển đổi tính năng dưới đây thành các User Stories.
+
+Mỗi User Story theo format:
+  US-[ID]: [Tiêu đề ngắn]
+  As a [vai trò], I want to [hành động], so that [lợi ích].
+  Priority: High / Medium / Low
+  Story Points: [ước tính]
+
+Viết ít nhất 3 User Stories, bao phủ các vai trò và kịch bản khác nhau.
+Ghi rõ những gì OUT OF SCOPE nếu có trong mô tả.
+
+Tính năng:
+[Mô tả tính năng]</pre>
+        <div class="pex"><div class="pexh">💡 Ví dụ thực tế — Module Quản lý Hợp đồng</div>
+<pre>Bạn là BA. Trả lời tiếng Việt.
+Viết ít nhất 3 User Stories, format: US-[ID] / As a... I want... So that...
+Priority + Story Points. Ghi rõ OUT OF SCOPE nếu có.
+
+Tính năng:
+Quản lý vòng đời hợp đồng: tạo mới, gửi duyệt, ký số, lưu trữ.
+Có 3 vai trò: Nhân viên kinh doanh, Trưởng phòng, Giám đốc.
+Phase 1 chưa cần tích hợp chữ ký số với bên thứ ba.</pre></div>
+      </div>
+      <div class="pcard"><div class="phd"><span class="pchip">Prompt 05</span><b>Viết Acceptance Criteria (Given-When-Then)</b></div>
+<pre>Bạn là Business Analyst có mindset QA. Trả lời bằng tiếng Việt.
+
+Viết Acceptance Criteria cho User Story dưới đây.
+
+Dùng format Given-When-Then cho mỗi criterion. Bắt buộc bao gồm:
+  - Ít nhất 1 happy path (luồng thành công)
+  - Ít nhất 1 edge case (trường hợp biên)
+  - Ít nhất 1 negative case (luồng lỗi/từ chối)
+
+Với mỗi negative case, ghi rõ thông báo lỗi cụ thể hiển thị cho user.
+
+User Story:
+[Dán User Story vào đây]</pre>
+        <div class="pex"><div class="pexh">💡 Ví dụ thực tế — US: Upload File Hợp đồng</div>
+<pre>Bạn là BA có mindset QA. Trả lời tiếng Việt.
+Viết Acceptance Criteria (Given-When-Then).
+Bắt buộc: 1 happy path, 1 edge case, 1 negative case. Negative phải có thông báo lỗi cụ thể.
+
+User Story:
+As a Nhân viên kinh doanh, I want to upload file hợp đồng (PDF/DOCX, tối đa 10MB),
+So that Trưởng phòng có thể review trực tuyến không cần tải về.</pre></div>
+      </div>
+
+      <div class="subh"><span class="rn">III.</span> Functional Requirements</div>
+      <div class="pcard"><div class="phd"><span class="pchip">Prompt 06</span><b>Viết Functional Requirements (FR)</b></div>
+<pre>Bạn là Senior Business Analyst. Trả lời bằng tiếng Việt.
+
+Viết Functional Requirements (FR) cho tính năng dưới đây.
+
+Mỗi FR theo format:
+  FR-[ID]: [Tiêu đề ngắn]
+  Mô tả: [Hệ thống phải làm gì — dùng "Hệ thống phải..." hoặc "Cho phép..."]
+  Actor: [Ai thực hiện hành động này]
+  Pre-condition: [Điều kiện phải đúng trước khi thực hiện]
+  Post-condition: [Trạng thái sau khi hoàn thành]
+
+Tính năng:
+[Tên và mô tả tính năng]</pre>
+      </div>
+      <div class="pcard"><div class="phd"><span class="pchip">Prompt 07</span><b>Viết Non-Functional Requirements (NFR)</b></div>
+<pre>Bạn là System Analyst. Trả lời bằng tiếng Việt.
+
+Xác định Non-Functional Requirements (NFR) cho hệ thống dưới đây.
+
+Bao gồm các nhóm: Performance / Security / Scalability /
+  Availability / Usability / Maintainability.
+
+Mỗi NFR theo format:
+  NFR-[ID]: [Nhóm] – [Yêu cầu cụ thể, có con số đo lường]
+  Cách kiểm tra: [Làm thế nào để xác nhận yêu cầu này được đáp ứng]
+
+Hệ thống:
+[Mô tả hệ thống]</pre>
+      </div>
+
+      <div class="subh"><span class="rn">IV.</span> Validation Rules &amp; Error Messages</div>
+      <div class="pcard"><div class="phd"><span class="pchip">Prompt 08</span><b>Định nghĩa Validation Rules cho form</b></div>
+<pre>Bạn là Business Analyst. Trả lời bằng tiếng Việt.
+
+Định nghĩa validation rules cho form dưới đây.
+
+Với mỗi trường, trình bày theo bảng:
+  | Tên trường | Kiểu | Bắt buộc | Min | Max | Định dạng | Business Rule |
+
+Bổ sung thêm cross-field validation nếu có
+(ví dụ: Ngày kết thúc phải lớn hơn Ngày bắt đầu).
+
+Các trường của form:
+[Liệt kê tên và mục đích từng trường]</pre>
+        <div class="pex"><div class="pexh">💡 Ví dụ thực tế — Form Tạo Hồ Sơ Nhân Viên Mới</div>
+<pre>Bạn là BA. Trả lời tiếng Việt.
+Định nghĩa validation rules, trình bày dạng bảng:
+| Tên trường | Kiểu | Bắt buộc | Min | Max | Định dạng | Business Rule |
+Thêm cross-field validation nếu có.
+
+Các trường của form:
+- Họ và tên (text), Email công ty (text), Ngày sinh (date)
+- Phòng ban (dropdown), Ngày bắt đầu làm việc (date)
+- Lương cơ bản (number), Chức vụ (dropdown), Ghi chú (textarea, không bắt buộc)</pre></div>
+      </div>
+      <div class="pcard"><div class="phd"><span class="pchip">Prompt 09</span><b>Viết Error Messages thân thiện với người dùng</b></div>
+<pre>Bạn là Business Analyst có kiến thức về UX. Trả lời bằng tiếng Việt.
+
+Viết thông báo lỗi (error messages) thân thiện cho các validation rules sau.
+
+Nguyên tắc viết:
+  - Cụ thể, không chung chung (tránh: "Dữ liệu không hợp lệ")
+  - Hướng dẫn user cách sửa (ví dụ: "Vui lòng nhập email dạng name@company.com")
+  - Giọng văn tích cực, không đổ lỗi
+  - Ngắn gọn, tối đa 1-2 câu
+
+Validation rules:
+[Liệt kê các validation rules]</pre>
+      </div>
+
+      <div class="subh"><span class="rn">V.</span> User Flow / Process Flow</div>
+      <div class="pcard"><div class="phd"><span class="pchip">Prompt 10</span><b>Vẽ User Flow bằng Mermaid</b></div>
+<pre>Bạn là UX Designer. Trả lời bằng tiếng Việt.
+
+Vẽ user flow cho tính năng dưới đây bằng cú pháp Mermaid flowchart.
+
+Yêu cầu:
+  - Dùng flowchart TD (top-down)
+  - Bao gồm: Điểm bắt đầu → Các bước → Điểm quyết định → Kết thúc
+  - Hiển thị cả luồng thành công (happy path) và luồng lỗi (error path)
+  - Mỗi hình thoi quyết định phải có câu hỏi rõ ràng
+
+Sau Mermaid code, giải thích ngắn gọn từng bước bằng tiếng Việt.
+
+Tính năng:
+[Mô tả tính năng và các bước chính]</pre>
+        <div class="pex"><div class="pexh">💡 Ví dụ thực tế — Luồng Đăng Ký Tài Khoản Mới</div>
+<pre>Bạn là UX Designer. Trả lời tiếng Việt.
+Vẽ user flow bằng Mermaid flowchart TD. Bao gồm: start, các bước, quyết định,
+happy path và error path. Sau code, giải thích ngắn từng bước.
+
+Tính năng:
+Người dùng mới đăng ký: nhập email → xác thực OTP → tạo mật khẩu → hoàn tất.
+Email đã tồn tại thì redirect sang trang Login. OTP hiệu lực 5 phút.
+Nhập sai OTP 3 lần → khóa tài khoản 30 phút.</pre></div>
+      </div>
+      <div class="pcard"><div class="phd"><span class="pchip">Prompt 11</span><b>Vẽ Business Process Flow có swimlane</b></div>
+<pre>Bạn là Business Process Analyst. Trả lời bằng tiếng Việt.
+
+Vẽ business process flow cho quy trình dưới đây bằng cú pháp Mermaid.
+
+Dùng định dạng swimlane để phân tách theo vai trò:
+  - Mỗi swimlane = 1 vai trò hoặc phòng ban
+  - Thể hiện rõ điểm bàn giao giữa các vai trò (handoff)
+  - Đánh dấu bước phê duyệt bằng hình thoi
+
+Sau Mermaid code, liệt kê các rủi ro quy trình tiềm ẩn.
+
+Quy trình cần vẽ (bao gồm danh sách vai trò tham gia):
+[Mô tả quy trình]</pre>
+      </div>
+
+      <div class="subh"><span class="rn">VI.</span> Tài liệu BA</div>
+      <div class="pcard"><div class="phd"><span class="pchip">Prompt 12</span><b>Soạn thảo URD Document</b></div>
+<pre>Bạn là Senior Business Analyst. Trả lời bằng tiếng Việt.
+
+Soạn URD (User Requirement Document) cho tính năng dưới đây.
+
+Cấu trúc tài liệu:
+  1. Tổng quan &amp; Mục tiêu
+  2. Vai trò người dùng &amp; Phân quyền
+  3. Functional Requirements (dạng bảng, format FR-xxx)
+  4. Validation Rules (dạng bảng)
+  5. Xử lý lỗi &amp; Thông báo
+  6. User Flow (Mermaid diagram)
+  7. Acceptance Criteria (Given-When-Then)
+  8. Out of Scope (Phase 1)
+
+Tính năng:
+[Tên và mô tả tổng quan tính năng]</pre>
+      </div>
+      <div class="pcard"><div class="phd"><span class="pchip">Prompt 13</span><b>Soạn thảo PRD Document</b></div>
+<pre>Bạn là Product Manager. Trả lời bằng tiếng Việt.
+
+Viết Product Requirement Document (PRD) cho sản phẩm dưới đây.
+
+Cấu trúc tài liệu:
+  1. Tổng quan sản phẩm
+  2. Vấn đề cần giải quyết (Problem Statement)
+  3. User Personas (ít nhất 2 persona)
+  4. Danh sách tính năng theo độ ưu tiên MoSCoW
+  5. Success Metrics / KPIs
+  6. Ràng buộc &amp; Giả định (Constraints &amp; Assumptions)
+  7. Lộ trình triển khai (high-level phases)
+
+Sản phẩm:
+[Tên và mô tả sản phẩm]</pre>
+      </div>
+      <div class="pcard"><div class="phd"><span class="pchip">Prompt 14</span><b>Soạn thảo SRS Document</b></div>
+<pre>Bạn là System Analyst. Trả lời bằng tiếng Việt.
+Technical terms như endpoint, method, schema giữ nguyên tiếng Anh.
+
+Soạn Software Requirement Specification (SRS) cho hệ thống dưới đây.
+
+Cấu trúc tài liệu:
+  1. Tổng quan hệ thống
+  2. Functional Requirements (format FR-xxx)
+  3. Non-Functional Requirements (format NFR-xxx)
+  4. Kiến trúc tổng quan (Architecture Overview)
+  5. API Requirements (endpoint, method, request/response schema)
+  6. Data Dictionary (tên field, kiểu dữ liệu, mô tả)
+  7. Các điểm tích hợp với hệ thống ngoài
+
+Hệ thống:
+[Tên và mô tả hệ thống]</pre>
+      </div>
+
+      <div class="subh"><span class="rn">VII.</span> Hỗ trợ UX / UI</div>
+      <div class="pcard"><div class="phd"><span class="pchip">Prompt 15</span><b>Đặc tả màn hình (Screen Specification)</b></div>
+<pre>Bạn là Business Analyst. Trả lời bằng tiếng Việt.
+
+Viết đặc tả màn hình cho màn hình dưới đây.
+
+Với mỗi element trên màn hình, trình bày theo bảng:
+  | Element | Loại | Label | Placeholder | Validation | Hành động |
+
+Bổ sung thêm:
+  - Mục đích của màn hình
+  - Navigation: user đến màn hình này từ đâu, đi đâu sau đó
+  - Ghi chú responsive (desktop / tablet / mobile)
+
+Màn hình:
+[Tên và mục đích màn hình]
+
+Các thành phần trên màn hình:
+[Liệt kê các field, button, bảng dữ liệu... đã biết]</pre>
+        <div class="pex"><div class="pexh">💡 Ví dụ thực tế — Màn hình Danh sách &amp; Tìm kiếm Hợp đồng</div>
+<pre>Bạn là BA. Trả lời tiếng Việt.
+Viết đặc tả màn hình, bảng:
+| Element | Loại | Label | Placeholder | Validation | Hành động |
+Thêm: mục đích màn hình, navigation, ghi chú responsive.
+
+Màn hình: Danh sách hợp đồng có bộ lọc tìm kiếm
+Các thành phần: Search bar (tìm theo tên/mã hợp đồng), Filter: Trạng thái /
+Ngày tạo / Khách hàng (dropdown), Bảng kết quả phân trang 10 dòng/trang,
+Nút "Tạo hợp đồng mới", Nút "Export Excel".</pre></div>
+      </div>
+      <div class="pcard"><div class="phd"><span class="pchip">Prompt 16</span><b>Đề xuất cải thiện UX</b></div>
+<pre>Bạn là chuyên gia UX có kinh nghiệm với phần mềm doanh nghiệp.
+Trả lời bằng tiếng Việt.
+
+Đề xuất cải thiện UX cho màn hình / luồng dưới đây.
+
+Phân tích và đưa ra gợi ý cho từng khía cạnh:
+  - Cognitive load: màn hình có quá phức tạp không?
+  - Error prevention: làm thế nào giảm sai sót của user?
+  - Feedback &amp; visibility: user có biết chuyện gì đang xảy ra không?
+  - Consistency: có nhất quán với các màn hình khác không?
+  - Accessibility: có vấn đề gì với người dùng đặc biệt không?
+
+Với mỗi đề xuất, đánh giá: Độ ưu tiên (High/Med/Low) và Effort (Low/Med/High).
+
+Mô tả màn hình hiện tại:
+[Mô tả layout và hành vi hiện tại]</pre>
+      </div>
+
+      <div class="subh"><span class="rn">VIII.</span> Hỗ trợ Dev</div>
+      <div class="pcard"><div class="phd"><span class="pchip">Prompt 17</span><b>Định nghĩa API Requirements</b></div>
+<pre>Bạn là Backend Architect. Trả lời bằng tiếng Việt.
+Giữ nguyên tiếng Anh cho: endpoint, method, header, request/response schema.
+
+Định nghĩa API requirements cho tính năng dưới đây.
+
+Với mỗi API endpoint, xác định:
+  - Endpoint: [METHOD] /api/v1/[path]
+  - Mô tả: chức năng của API này
+  - Request: Headers / Path params / Query params / Body (JSON schema)
+  - Response: Thành công (200/201) / Các mã lỗi &amp; message
+  - Business rules: logic nghiệp vụ được enforce tại API này
+  - Cần xác thực (Authentication): Có / Không
+
+Tính năng:
+[Mô tả tính năng]</pre>
+      </div>
+      <div class="pcard"><div class="phd"><span class="pchip">Prompt 18</span><b>Đề xuất cấu trúc Database</b></div>
+<pre>Bạn là Database Engineer. Trả lời bằng tiếng Việt.
+Giữ nguyên tiếng Anh cho tên bảng, tên cột, kiểu dữ liệu.
+
+Đề xuất cấu trúc bảng database và quan hệ cho hệ thống dưới đây.
+
+Với mỗi bảng, trình bày:
+  Bảng: [table_name]
+  | Cột | Kiểu dữ liệu | Nullable | Mặc định | Mô tả nghiệp vụ |
+  Indexes: [các cột cần đánh index]
+  Quan hệ: [FK tham chiếu bảng nào]
+
+Kèm theo sơ đồ Entity-Relationship tóm tắt. Giải thích các quyết định thiết kế quan trọng.
+
+Hệ thống:
+[Mô tả hệ thống với các entity chính]</pre>
+      </div>
+
+      <div class="subh"><span class="rn">IX.</span> Hỗ trợ QA</div>
+      <div class="pcard"><div class="phd"><span class="pchip">Prompt 19</span><b>Sinh Test Cases từ Acceptance Criteria</b></div>
+<pre>Bạn là QA Engineer. Trả lời bằng tiếng Việt.
+
+Viết test cases cho tính năng dưới đây.
+
+Mỗi test case theo format:
+  TC-[ID] | [Tên test case]
+  Loại: Happy path / Edge case / Negative
+  Precondition: [Trạng thái ban đầu cần có]
+  Các bước thực hiện: [đánh số từng bước]
+  Kết quả mong đợi: [hành vi cụ thể của hệ thống]
+  Priority: High / Medium / Low
+
+Đảm bảo bao phủ:
+  - Ít nhất 3 happy path cases
+  - Ít nhất 2 edge cases (trường hợp biên)
+  - Ít nhất 2 negative cases (lỗi / từ chối)
+
+Tính năng:
+[Mô tả tính năng]
+
+Acceptance Criteria (từ User Story):
+[Dán các AC Given-When-Then vào đây]</pre>
+        <div class="pex"><div class="pexh">💡 Ví dụ thực tế — TC Upload File Hợp đồng</div>
+<pre>Bạn là QA Engineer. Trả lời tiếng Việt.
+Viết test cases: 3 happy path, 2 edge case, 2 negative.
+Format: TC-[ID] | Tên | Loại | Precondition | Bước | Kết quả mong đợi | Priority
+
+Tính năng: Upload file hợp đồng (PDF/DOCX, tối đa 10MB)
+Acceptance Criteria:
+  Given: Đã đăng nhập, đang ở màn hình tạo hợp đồng
+  When: Upload file PDF 5MB hợp lệ
+  Then: File lưu thành công, hiển thị tên file + preview thumbnail
+  When: Upload file .exe 2MB
+  Then: Báo lỗi "Chỉ hỗ trợ định dạng PDF, DOCX. Vui lòng chọn lại."</pre></div>
+      </div>
+      <div class="pcard"><div class="phd"><span class="pchip">Prompt 20</span><b>Xác định Edge Cases &amp; rủi ro kỹ thuật</b></div>
+<pre>Bạn là Senior Business Analyst có mindset QA. Trả lời bằng tiếng Việt.
+
+Xác định edge cases và các kịch bản lỗi tiềm ẩn cho tính năng dưới đây.
+
+Bao gồm các nhóm:
+  1. Boundary values: giá trị min/max của input
+  2. Concurrent users: nhiều người dùng cùng thao tác
+  3. Network/timeout: kết nối chậm hoặc mất kết nối giữa chừng
+  4. Xung đột phân quyền: user thực hiện hành động ngoài quyền
+  5. Data integrity: dữ liệu bị thiếu hoặc không nhất quán
+  6. Third-party failures: tích hợp với dịch vụ ngoài bị lỗi
+
+Với mỗi kịch bản, đề xuất:
+  - Mức độ rủi ro: High / Medium / Low
+  - Cách xử lý khuyến nghị
+
+Tính năng:
+[Mô tả tính năng]</pre>
+      </div>
+
+      <div class="callout ok"><span>🔗</span><div>Khi bạn mở Claude Desktop, tạo project và <b>import source HOST đã export</b>, KORA tự nạp <b>skill workflow + 20 prompt template</b> đi kèm và <b>luôn hỏi để nắm tri thức</b> trước khi phân tích.</div></div>
+    </div>
+
+    <!-- ===================== EXAMPLES ===================== -->
+    <div class="page" id="examples">
+      <div class="phead"><div class="pl">F · Ví dụ thực tế</div><h1><span class="em">🎯</span>Ví dụ thực tế theo use case</h1></div>
+      <p class="lead">Các ví dụ end-to-end mô phỏng tình huống thực tế. Mỗi ví dụ gồm <b>Input · Prompt gửi Claude · Output mong đợi</b> — KORA chạy đúng bằng các lệnh <code>/kora-*</code>.</p>
+
+      <div class="subh"><span class="rn">I.</span> Phân tích yêu cầu mơ hồ từ email khách hàng</div>
+      <p class="uctx">Tình huống: Khách hàng gửi email 3 dòng, BA cần clarify trước khi viết User Story.</p>
+      <table class="uc">
+        <tr><td class="k">📥 Input (Email KH)</td><td class="v">"Cần thêm chức năng báo cáo cho quản lý. Phải xuất được file và có biểu đồ. Dùng trên cả mobile."</td></tr>
+        <tr><td class="k">📤 Prompt (role-ba)</td><td class="v">Bạn là BA. Trả lời tiếng Việt. Yêu cầu sau còn mơ hồ. Sinh danh sách câu hỏi clarification, group theo: Business Rules / Data / UI / Technical. Đánh dấu top 5 câu hỏi quan trọng nhất.
+Yêu cầu: "Cần thêm chức năng báo cáo cho quản lý. Phải xuất được file và có biểu đồ. Dùng trên cả mobile."</td></tr>
+        <tr><td class="k">✅ Output mong đợi</td><td class="v">[Business Rules] Quản lý nào được xem báo cáo? Có phân quyền theo phòng ban không?
+[Data] Báo cáo tổng hợp dữ liệu từ module nào? Khoảng thời gian mặc định là gì?
+[UI] ★ Biểu đồ loại nào? (Bar / Line / Pie?) Có thể drill-down không?
+[Technical] Xuất file format nào? (Excel / PDF / CSV?) Realtime hay scheduled?</td></tr>
+      </table>
+
+      <div class="subh"><span class="rn">II.</span> Viết User Story từ cuộc họp stakeholder</div>
+      <p class="uctx">Tình huống: BA vừa họp xong, có meeting notes thô, cần chuyển thành User Story chuẩn.</p>
+      <table class="uc">
+        <tr><td class="k">📋 Meeting notes thô</td><td class="v">- KH muốn sales team xem dashboard doanh số realtime
+- Có thể filter theo vùng, theo tháng — Export Excel gửi sếp hàng tuần
+- Không cần drill-down chi tiết từng deal trong phase 1</td></tr>
+        <tr><td class="k">📤 Prompt (role-ba)</td><td class="v">Bạn là BA. Trả lời tiếng Việt. Dựa trên meeting notes sau, viết User Stories theo format chuẩn (As a... I want... So that...) với Acceptance Criteria Given-When-Then. Ghi rõ những gì OUT OF SCOPE dựa trên ghi chú "Không cần trong phase 1".</td></tr>
+        <tr><td class="k">✅ Output mong đợi</td><td class="v">US-01: Xem Dashboard Doanh Số Realtime
+As a Sales Manager, I want to view real-time sales dashboard, so that I can monitor team performance without manual reports.
+AC: Given logged in as Sales Manager | When open Dashboard | Then see today's revenue, # deals, region breakdown, updated &lt; 5 min.
+OUT OF SCOPE (Phase 1): Drill-down chi tiết từng deal.</td></tr>
+      </table>
+
+      <div class="subh"><span class="rn">III.</span> Pipeline KORA — phân tích Feature từ file tài liệu (DTQC)</div>
+      <p class="uctx">Tình huống: BA có sẵn file DTQC/đặc tả từ khách hàng, cần phân tích &amp; viết tài liệu đầy đủ — KORA chạy pipeline thật từ đầu đến cuối:</p>
+      <table>
+        <tr><th>Bước</th><th>Lệnh thực tế (KORA)</th><th>Kết quả mong đợi</th></tr>
+        <tr><td>1</td><td>Kéo <code>DTQC-QLHopDong.docx</code> vào chat → <code>/kora-import-files</code></td><td>File nạp vào <code>inbox/</code> (chuẩn hoá normalize)</td></tr>
+        <tr><td>2</td><td><code>/kora-scan</code> → tổng hợp + reindex</td><td>Wiki liên kết + <code>.kb/index.json</code> ("Indexed N notes")</td></tr>
+        <tr><td>3</td><td>Hỏi vai trò = BA + domain → nạp <code>role-ba.md</code> (Prompt 02)</td><td>10–15 câu hỏi clarification theo từng chức năng</td></tr>
+        <tr><td>4</td><td>Phân tích yêu cầu — workflow 03 (Prompt 01/03)</td><td>User Roles · Features · Missing info · <code>[CẦN XÁC NHẬN]</code></td></tr>
+        <tr><td>5</td><td>Ghi US + AC, ✋ Approval Gate (Prompt 04/05)</td><td><code>docs/03-features/F-xxx/source/UserStory_HopDong_v1.0.md</code></td></tr>
+        <tr><td>6</td><td>Sinh Mermaid flow phê duyệt (Prompt 11)</td><td>Flowchart swimlanes theo roles</td></tr>
+        <tr><td>7</td><td>Rà soát chất lượng → <code>.kb/health-report.md</code></td><td>Review report: lỗi · thiếu AC · đề xuất bổ sung</td></tr>
+        <tr><td>8</td><td>Prompt <code>role-qa.md</code> (Prompt 19) + <code>/kora-export-docs</code></td><td>Test Cases + BRD/PRD DOCX/PDF theo doc template</td></tr>
+      </table>
+
+      <div class="subh"><span class="rn">IV.</span> GAP Analysis — As-Is vs To-Be</div>
+      <p class="uctx">Tình huống: Khách hàng đang dùng Excel, muốn chuyển sang hệ thống mới.</p>
+      <table class="uc">
+        <tr><td class="k">📤 Prompt</td><td class="v">Bạn là Business Process Analyst. Trả lời tiếng Việt.
+As-Is: quản lý hợp đồng bằng Excel (lưu SharePoint), phê duyệt qua email (không audit trail), không nhắc khi hợp đồng sắp hết hạn.
+To-Be: hệ thống web tập trung, workflow phê duyệt có audit trail + SLA, tự động nhắc 30/15/7 ngày trước khi hết hạn.
+Phân tích GAP: liệt kê thay đổi theo Impact (High/Medium/Low) + đề xuất migration path.</td></tr>
+        <tr><td class="k">✅ Output mong đợi</td><td class="v">GAP-01 [HIGH]: Không có audit trail → Build Approval Workflow + log toàn bộ hành động (3–4 sprint).
+GAP-02 [HIGH]: Data migration từ Excel/SharePoint → tool import + cleansing + validation (dễ underestimate: 2–3 sprint riêng).
+GAP-03 [MED]: User chưa quen web → training plan + FAQ + helpdesk (bỏ qua → adoption thấp).
+Migration Path: Phase 1 (import data) → Phase 2 (chạy song song 1 tháng) → Phase 3 (full cutover).</td></tr>
+      </table>
+
+      <div class="subh"><span class="rn">V.</span> Quality Gate — prompt tự Peer Review</div>
+      <p class="uctx">Tình huống: BA viết xong User Story, muốn Claude review trước khi gửi Tech Lead (bước B5 của quy trình).</p>
+      <div class="pcard"><div class="phd"><span class="pchip">Peer Review</span><b>Prompt Claude tự review tài liệu</b></div>
+<pre>Hãy review tài liệu User Story sau với vai trò một BA Senior khắt khe.
+
+Chỉ ra CỤ THỂ theo từng mục:
+  1. Điểm thiếu sót hoặc mơ hồ (ghi rõ US nào, dòng nào)
+  2. Mâu thuẫn logic nội tại (giữa AC với nhau hoặc với requirement)
+  3. Edge case bị bỏ sót (scenario chưa có AC)
+  4. Assumption chưa được validate với stakeholder
+  5. Điểm nào Dev/QA sẽ đặt câu hỏi khi đọc
+  6. Thuật ngữ không nhất quán với Glossary
+
+Đánh giá tổng thể: Sẵn sàng gửi Tech Lead? Yes / No / Cần chỉnh [X] điểm trước.
+
+Tài liệu cần review:
+[Paste toàn bộ User Story và AC]</pre></div>
+      <div class="callout"><span>📎</span><div>Tài liệu chuẩn đi kèm: <code>templates/docs/BRD-template.md</code>, <code>PRD-template.md</code> — ví dụ đã điền: <code>templates/examples/BRD-sample-giahan.md</code>, <code>PRD-sample-giahan.md</code>.</div></div>
+    </div>
+
+    <!-- ===================== GOOD VS BAD ===================== -->
+    <div class="page" id="good-vs-bad">
+      <div class="phead"><div class="pl">G · Output: Tốt vs Chưa tốt</div><h1><span class="em">✅</span>Output mẫu: Tốt vs Chưa tốt</h1></div>
+      <p class="lead">5 prompt quan trọng nhất, mỗi prompt có ví dụ output <b>chưa tốt</b> (và lý do tại sao) cạnh output <b>tốt</b> (và điểm cần có). Dùng để tự đánh giá output Claude của bạn.</p>
+
+      <h3 class="sub3">I · Acceptance Criteria <span class="pr">Prompt 05</span></h3>
+      <p class="gbsub">Đây là output thường gặp nhất khi dùng prompt sơ sài hoặc không chỉ định đủ context.</p>
+      <table class="cmp">
+        <tr><th class="bad">✗ Output chưa tốt</th><th class="good">✓ Output tốt</th></tr>
+        <tr>
+          <td class="bad">US: Người dùng đăng nhập bằng email và mật khẩu.
+
+AC-01: Given người dùng ở trang login
+       When nhập email và mật khẩu
+       Then đăng nhập thành công
+
+AC-02: Given người dùng ở trang login
+       When nhập sai mật khẩu
+       Then hiển thị lỗi</td>
+          <td class="good">US: As a Nhân viên, I want to login bằng email/mật khẩu,
+    so that tôi truy cập được hệ thống.
+
+AC-01 (Happy): Given ở trang login, email đã xác thực
+  When nhập đúng email + mật khẩu, click "Đăng nhập"
+  Then redirect về Dashboard, hiển thị tên user góc phải
+
+AC-02 (Negative): Given nhập sai mật khẩu
+  When click "Đăng nhập"
+  Then hiện "Sai email hoặc mật khẩu. Còn 2 lần thử."
+
+AC-03 (Edge): Given nhập sai 3 lần liên tiếp
+  When click lần thứ 3
+  Then khóa tài khoản 15 phút, hiện countdown timer</td>
+        </tr>
+        <tr class="note"><td class="bad">⚠ AC quá chung chung, không có số lần thử, không có edge case khóa tài khoản, không chỉ rõ thông báo lỗi cụ thể.</td><td class="good">✓ Đủ 3 loại (happy/negative/edge), thông báo lỗi cụ thể có số lần còn lại, business rule khóa tài khoản được capture.</td></tr>
+      </table>
+
+      <h3 class="sub3">II · User Story <span class="pr">Prompt 04</span></h3>
+      <p class="gbsub">Lỗi phổ biến: role quá chung chung, benefit không rõ giá trị kinh doanh.</p>
+      <table class="cmp">
+        <tr><th class="bad">✗ Output chưa tốt</th><th class="good">✓ Output tốt</th></tr>
+        <tr>
+          <td class="bad">US-01: Xem báo cáo
+As a người dùng,
+I want to xem báo cáo doanh số,
+So that tôi biết doanh số.
+
+Priority: Medium
+Story Points: 3</td>
+          <td class="good">US-01: Xem Dashboard Doanh Số Realtime
+As a Sales Manager,
+I want to view real-time sales dashboard
+  filtered by region and month,
+So that I can monitor team performance
+  without waiting for manual reports.
+
+Priority: High
+Story Points: 5
+OUT OF SCOPE: Drill-down chi tiết từng deal (Phase 2)</td>
+        </tr>
+        <tr class="note"><td class="bad">⚠ "Người dùng" không đủ cụ thể, "biết doanh số" không có giá trị kinh doanh, không có OUT OF SCOPE.</td><td class="good">✓ Role cụ thể (Sales Manager), benefit rõ giá trị (không cần chờ manual report), OUT OF SCOPE ghi rõ giới hạn Phase 1.</td></tr>
+      </table>
+
+      <h3 class="sub3">III · Validation Rules <span class="pr">Prompt 08</span></h3>
+      <p class="gbsub">Lỗi phổ biến: thiếu cross-field validation, không có business rule đặc thù.</p>
+      <table class="cmp">
+        <tr><th class="bad">✗ Output chưa tốt</th><th class="good">✓ Output tốt</th></tr>
+        <tr>
+          <td class="bad">Trường "Email":
+- Required: Yes
+- Format: email
+
+Trường "Ngày sinh":
+- Required: Yes
+- Format: date
+
+Trường "Ngày vào làm":
+- Required: Yes
+- Format: date</td>
+          <td class="good">Trường "Email":
+- Required: Yes
+- Format: regex email chuẩn RFC5322
+- Business Rule: phải là @company.com (email nội bộ)
+- Unique: không trùng với nhân viên khác
+
+Trường "Ngày sinh":
+- Required: Yes | Min: 18 tuổi tính từ hôm nay
+
+Trường "Ngày vào làm":
+- Required: Yes
+
+Cross-field: Ngày vào làm &gt;= Ngày sinh + 18 năm
+Cross-field: Ngày vào làm &lt;= hôm nay + 30 ngày (không tuyển trước &gt; 1 tháng)</td>
+        </tr>
+        <tr class="note"><td class="bad">⚠ Không có business rule (email phải nội bộ), không có cross-field validation, thiếu constraint tuổi tối thiểu.</td><td class="good">✓ Business rule domain-specific (email @company.com, unique), cross-field validation có logic nghiệp vụ thực tế.</td></tr>
+      </table>
+
+      <h3 class="sub3">IV · Test Cases <span class="pr">Prompt 19</span></h3>
+      <p class="gbsub">Lỗi phổ biến: expected result mơ hồ, thiếu negative case, precondition không đủ.</p>
+      <table class="cmp">
+        <tr><th class="bad">✗ Output chưa tốt</th><th class="good">✓ Output tốt</th></tr>
+        <tr>
+          <td class="bad">TC-01: Test đăng nhập
+Precondition: Có tài khoản
+Steps: 1. Mở trang login
+       2. Nhập thông tin
+       3. Click đăng nhập
+Expected: Đăng nhập thành công
+
+TC-02: Test đăng nhập sai
+Steps: Nhập sai mật khẩu
+Expected: Hiển thị lỗi</td>
+          <td class="good">TC-01 [Happy]: Đăng nhập hợp lệ
+Precondition: User nvana@company.com tồn tại,
+  chưa bị khóa, mật khẩu P@ssw0rd123
+Steps: 1. Truy cập /login
+  2. Nhập email: nvana@company.com
+  3. Nhập mật khẩu: P@ssw0rd123
+  4. Click "Đăng nhập"
+Expected: Redirect /dashboard, hiện "Xin chào Nguyễn Văn A"
+
+TC-05 [Negative]: Sai mật khẩu lần 3 → khóa
+Precondition: Đã nhập sai 2 lần trước đó
+Steps: Nhập sai mật khẩu lần 3
+Expected: Alert "Tài khoản bị khóa 15 phút.",
+  login button disabled, hiện countdown 15:00</td>
+        </tr>
+        <tr class="note"><td class="bad">⚠ Expected result mơ hồ ("thành công", "hiển thị lỗi"), precondition không đủ để reproduce, thiếu test khóa tài khoản.</td><td class="good">✓ Precondition đủ chi tiết để reproduce, expected result cụ thể (URL, text hiển thị), có test negative cho business rule quan trọng.</td></tr>
+      </table>
+
+      <h3 class="sub3">V · GAP Analysis</h3>
+      <p class="gbsub">Lỗi phổ biến: chỉ liệt kê tính năng mới, bỏ sót GAP về data migration và change management.</p>
+      <table class="cmp">
+        <tr><th class="bad">✗ Output chưa tốt</th><th class="good">✓ Output tốt</th></tr>
+        <tr>
+          <td class="bad">GAP-01: Chưa có workflow phê duyệt
+→ Cần xây dựng module Approval
+
+GAP-02: Chưa có auto-reminder
+→ Cần xây dựng notification service
+
+GAP-03: Chưa có audit trail
+→ Cần xây dựng logging module</td>
+          <td class="good">GAP-01 [HIGH]: Không có audit trail
+→ Xây dựng Approval Workflow + log toàn bộ hành động
+→ Cần: 3-4 sprint | Risk: pháp lý nếu thiếu
+
+GAP-02 [HIGH]: Data migration từ Excel/SharePoint
+→ Cần tool import + data cleansing + validation
+→ Thường bị underestimate: 2-3 sprint riêng
+
+GAP-03 [MED]: User chưa quen hệ thống mới
+→ Change management: training plan + FAQ + helpdesk
+→ Nếu bỏ qua: adoption rate thấp, dự án thất bại dù build xong
+
+Migration Path: Phase 1 (import data, parallel run 1 tháng)
+→ Phase 2 (cutover, Excel chỉ đọc) → Phase 3 (đóng Excel)</td>
+        </tr>
+        <tr class="note"><td class="bad">⚠ Chỉ liệt kê tính năng cần build, không có impact assessment, bỏ sót hoàn toàn data migration và change management.</td><td class="good">✓ Có Impact (H/M/L), estimate effort sơ bộ, có GAP về data migration và change management — 2 rủi ro dự án thực tế quan trọng nhất.</td></tr>
+      </table>
+    </div>
+
+    <!-- ===================== TROUBLESHOOTING ===================== -->
+    <div class="page" id="troubleshooting">
+      <div class="phead"><div class="pl">H · Troubleshooting</div><h1><span class="em">🔧</span>Khắc phục sự cố</h1></div>
+      <p class="lead">Triệu chứng → nguyên nhân gốc → cách fix ngay. <b>90% vấn đề đến từ thiếu context</b>, không phải Claude kém — thử thêm context domain / ví dụ cụ thể trước khi kết luận "Claude không làm được".</p>
+
+      <div class="secbig">I · Sự cố vận hành KORA</div>
+      <table>
+        <tr><th>Triệu chứng</th><th>Nguyên nhân &amp; cách xử lý</th></tr>
+        <tr><td>Gmail không gửi được</td><td>Chưa bật 2FA hoặc dùng mật khẩu thường thay vì <b>App Password</b>. → bật 2FA → tạo App Password → điền <code>tools/report-mailer/.env.local</code>.</td></tr>
+        <tr><td>Outlook bị chặn gửi</td><td>Thiếu <b>admin key / consent</b>. → xin admin consent, hoặc dùng SMTP.</td></tr>
+        <tr><td>macOS "không chạy được"</td><td>Gatekeeper. → <b>Privacy &amp; Security → Open Anyway</b> → mở lại. Hoặc dùng lệnh 1 dòng (curl|bash).</td></tr>
+        <tr><td>Lịch nền không sync</td><td>Thiếu <code>KORA_OPS_PW</code>. → đặt ở <code>~/.config/kora/ops-pw.env</code> (chmod 600).</td></tr>
+        <tr><td>Báo cáo "dữ liệu cũ"</td><td>Vault chưa làm mới. → quét lại nguồn (hoặc chạy lệnh terminal in trong báo cáo) rồi chạy lại.</td></tr>
+        <tr><td>Sai mật khẩu sync/mail</td><td>Nhập đúng <code>KORA_OPS_PW</code> (mật khẩu vận hành do chủ repo đặt) — khác mật khẩu archive.</td></tr>
+        <tr><td>Versioning không nhận CR</td><td>Vault quét bản cũ thiếu <code>link_type</code>. → quét lại nguồn cho đủ.</td></tr>
+      </table>
+
+      <div class="secbig">II · Prompt chưa ra đúng ý — triệu chứng → nguyên nhân → fix</div>
+      <table>
+        <tr><th>#</th><th>Triệu chứng</th><th>Nguyên nhân</th><th>Cách fix (+ ví dụ prompt)</th></tr>
+        <tr><td>01</td><td>Output toàn tiếng Anh dù context tiếng Việt</td><td>Không chỉ định ngôn ngữ output</td><td>Thêm "Trả lời bằng tiếng Việt." vào <b>dòng ĐẦU</b> prompt (không phải cuối).<br><code>"Bạn là Senior BA. Trả lời bằng tiếng Việt. Phân tích yêu cầu: […]"</code></td></tr>
+        <tr><td>02</td><td>User Story mờ nhạt, role toàn "người dùng"</td><td>Không cung cấp danh sách roles</td><td>"Hệ thống có [N] vai trò: [Role1], [Role2]… Mỗi US dùng đúng tên vai trò."<br><code>"…3 vai trò: Nhân viên KD, Trưởng phòng, Giám đốc. Không dùng 'người dùng' chung."</code></td></tr>
+        <tr><td>03</td><td>AC toàn happy path, thiếu negative/edge</td><td>Prompt chỉ yêu cầu "viết AC"</td><td>"Bắt buộc: 1 happy path + 1 edge case + 1 negative; negative ghi rõ thông báo lỗi cụ thể."</td></tr>
+        <tr><td>04</td><td>Claude tự thêm tính năng ngoài yêu cầu (hallucinate)</td><td>Không có chỉ thị giới hạn scope</td><td>"Chỉ dựa vào info tôi cung cấp. Không tự thêm tính năng. Thiếu thì hỏi lại, không suy diễn."</td></tr>
+        <tr><td>05</td><td>Test Cases quá đơn giản, thiếu precondition reproduce</td><td>Không paste AC làm input cho TC</td><td>Paste toàn bộ AC vào cùng prompt; thêm "Precondition đủ để QA khác reproduce mà không cần hỏi thêm."</td></tr>
+        <tr><td>06</td><td>Mermaid lỗi syntax, không render được</td><td>Node ID có ký tự đặc biệt / keyword Mermaid</td><td>"Node ID chỉ dùng chữ, số, gạch dưới (không dấu tiếng Việt trong ID). Giải thích từng node sau code."</td></tr>
+        <tr><td>07</td><td>FR quá chung ("Hệ thống phải cho phép…")</td><td>Thiếu business rule đặc thù domain</td><td>Paste domain context + rules.<br><code>"…hệ thống bảo hiểm. Rule: hợp đồng &gt; 1 tỷ cần GĐ ký; có điều khoản đặc biệt cần pháp chế duyệt."</code></td></tr>
+        <tr><td>08</td><td>Output quá dài, nhiều nội dung thừa</td><td>Không chỉ định độ dài / format</td><td>"Trả lời ngắn gọn, tối đa [N] mục. Không lời mở đầu / kết luận. Chỉ output theo format yêu cầu."</td></tr>
+        <tr><td>09</td><td>Claude hỏi clarification mãi, không ra output</td><td>Vòng lặp hỏi khi context chưa đủ rõ</td><td>Dứt khoát: "Với info đã cung cấp, đưa output tốt nhất có thể. Ghi rõ Assumption nếu cần — nhưng PHẢI có output."</td></tr>
+        <tr><td>10</td><td>Screen Spec thiếu business logic, chỉ tả UI</td><td>Thiếu workflow + business rule cho màn hình</td><td>"Màn hình này nằm trong workflow [X]. Sau khi user click [Y] thì [Z]. Business rule: [rule]."</td></tr>
+      </table>
+
+      <div class="secbig">III · Bảng quyết định nhanh — thêm gì vào prompt?</div>
+      <table>
+        <tr><th>Vấn đề bạn thấy</th><th>Thêm vào prompt</th></tr>
+        <tr><td>Output ngôn ngữ sai</td><td>"Trả lời bằng tiếng Việt." — đặt ở <b>dòng đầu</b></td></tr>
+        <tr><td>Role không cụ thể</td><td>"Hệ thống có [N] vai trò: [danh sách]. Không dùng 'người dùng' chung."</td></tr>
+        <tr><td>Thiếu edge / negative case</td><td>"Bắt buộc: 1 happy path + 1 edge case + 1 negative case."</td></tr>
+        <tr><td>Claude tự thêm tính năng</td><td>"Chỉ dựa vào info tôi cung cấp. Hỏi lại nếu thiếu, không suy diễn."</td></tr>
+        <tr><td>TC không đủ chi tiết</td><td>"Precondition phải đủ để reproduce không cần hỏi thêm."</td></tr>
+        <tr><td>Output quá dài</td><td>"Chỉ output format yêu cầu. Không intro/conclusion. Tối đa [N] mục."</td></tr>
+        <tr><td>Mermaid lỗi syntax</td><td>"Node ID chỉ dùng chữ, số, gạch dưới."</td></tr>
+        <tr><td>Thiếu business rule</td><td>"Business rules domain này: [r1], [r2]. FR phải capture được."</td></tr>
+        <tr><td>Claude hỏi mãi không ra output</td><td>"Với info trên, output tốt nhất có thể. Ghi Assumption nếu cần."</td></tr>
+        <tr><td>Screen Spec thiếu logic</td><td>"Màn hình trong workflow [X]. Business rule: [Y]."</td></tr>
+      </table>
+
+      <div class="callout warn"><span>🛑</span><div><b>Khi nào bỏ cuộc &amp; làm thủ công:</b> đã iterate <b>3 lần</b> vẫn chưa đạt · domain quá đặc thù (luật / y tế / tài chính phức tạp) mà bạn không đủ context kiểm tra output · tài liệu <b>đã approve</b> (không sửa bằng Claude khi chưa có approval mới). → KORA tự ghi vào <code>.kb/lessons.md</code>: "Claude chưa xử lý tốt task [X] trong context [Y]" để lần sau không lặp lỗi (tự học, CLAUDE.md §0.3).</div></div>
+    </div>
+
+    <!-- ===================== RELEASE ===================== -->
+    <div class="page" id="release">
+      <div class="phead"><div class="pl">I · Release Note</div><h1><span class="em">🆕</span>Lịch sử phiên bản</h1></div>
+      <p class="lead">Lịch sử bản <b>APP</b> (CORE: skills, workflows, tools…). Cập nhật: chạy lại lệnh cài (bash CLI, tab <a data-go="install" style="cursor:pointer">C</a>) — <b>tri thức của bạn được giữ nguyên</b> (DATA không bị đụng).</p>
+
+      <div class="callout ok"><span>🆕</span><div><b>Bản mới nhất (latest): <code>v2.3.0</code> — "Kora-1"</b> · phát hành 2026-06-21. Tổng <b>18 bản</b>; danh sách đầy đủ ở <a href="https://github.com/isc-fkit/Kora-Framework/blob/release/CHANGELOG.md">CHANGELOG.md</a>.</div></div>
+
+      <div class="card" style="border-color:var(--accent)">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
+          <b style="font-size:16px">v2.3.0 — "Kora-1" <span style="display:inline-block;margin-left:6px;padding:2px 9px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;font-size:10.5px;font-weight:800;vertical-align:2px">MỚI NHẤT</span></b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
+        </div>
+        <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
+          <li><b>Lịch HĐH chạy đúng NHIỀU MỐC GIỜ + THỨ 2–6</b> trên macOS/Linux/Windows (vá launchd chỉ chạy mốc đầu &amp; schtasks <code>1-5</code> hóa <code>MON,FRI</code>).</li>
+          <li><b>Đặt lịch thân thiện</b>: chọn mốc giờ + [Mỗi ngày]/[Thứ 2–6] — không cần gõ cron (<code>--times/--days</code>).</li>
+          <li><b>Cài HĐH lỗi → báo rõ + fallback Cowork</b> (lưu <code>enabled=false</code>, hết báo ✅ giả); soát cron rác.</li>
+          <li><b>Gửi mail báo cáo</b> [Gửi ngay]/[Đặt lịch] — lịch hiện trong <code>/kora-schedule</code>, sửa/xóa được.</li>
+          <li><b>Dọn dẹp &amp; bảo mật</b>: vá rò rỉ <code>.env</code> Windows archive, ngưng theo dõi config DATA, gỡ file tạm/test.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
+          <b style="font-size:16px">v2.2.0 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-19</span>
+        </div>
+        <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
+          <li><b>Knowledge Base đám mây chung (Confluence get &amp; post)</b> — <code>confluence-sync</code>: push/pull idempotent, OAuth 2.0 / token.</li>
+          <li><b>Lịch cấp Hệ điều hành</b> (launchd/cron/schtasks) chạy nền — scan → đẩy → report → mail; lỗi tự tạo ticket + email.</li>
+          <li><b>Archive bàn giao</b> có mật khẩu + phân quyền (read-only / read-write).</li>
+          <li><b>Connect mở rộng</b>: OAuth 2.0 API (GitHub/GitLab/Jira) + Gmail/Microsoft 365 (MCP); API vs MCP tính riêng.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
+          <b style="font-size:16px">v2.1.0 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-18</span>
+        </div>
+        <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
+          <li><b>Cài bằng installer</b> <code>.command</code>/<code>.bat</code> (+ <code>curl|bash</code>) vào <code>~/.claude</code>; chạy lại = cập nhật.</li>
+          <li><b>12 lệnh <code>/kora-*</code> đổi tên tiếng Anh</b>; <code>/kora-scan</code> gộp nguồn; thêm <code>/kora-connect</code> + <code>/kora-release</code> (tổng 14 lệnh).</li>
+          <li><b>Dashboard báo cáo + Phân tích AI</b> (workflow 14): phân loại rủi ro, dự đoán trượt sprint, lọc theo project/người.</li>
+          <li><b>Init tự dựng project</b> (skill nằm trong project) + <b>7 domain preset</b> (có Healthcare); tự liên kết chéo project.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
+          <b style="font-size:16px">v2.0.0 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-17</span>
+        </div>
+        <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
+          <li><b>Đổi thương hiệu → Kora-Framework</b> + dời repo <code>isc-fkit/Kora-Framework</code>.</li>
+          <li><b>Landing mới</b> dạng guide từng bước (nền tối + indigo, code-block có nút Copy).</li>
+          <li>Lệnh đổi sang tiền tố <code>/kora-*</code>; sao lưu / khôi phục UTF-8 an toàn cho tên tiếng Việt.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
+          <b style="font-size:16px">Model "Genesis-1" — v1.0.0 → v1.2.2</b><span style="color:var(--faint);font-size:12.5px">2026-06-13 → 17</span>
+        </div>
+        <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
+          <li><b>Khởi tạo framework</b> + báo cáo tiến độ local (<code>build_report.py</code>): metrics, sprint đang chạy, theo assignee, est/log/OT.</li>
+          <li><b>Báo cáo tự làm mới dữ liệu</b> (Jira Cloud qua MCP · self-host check-fresh) + lịch 8:00 tự pull→report.</li>
+          <li>Render Sprint / time-tracking khi quét Jira; gộp Effort field vào ước tính; installer tự gỡ quarantine (macOS/Windows).</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <b style="font-size:16px">🔜 Đang phát triển (sắp phát hành — chưa nằm trong v2.3.0)</b>
+        <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
+          <li><b>github-sync</b> — đẩy Knowledge Base lên GitHub private (git push, versioning US ↔ Change-Request).</li>
+          <li><b>Cổng mật khẩu vận hành</b> <code>KORA_OPS_PW</code> cho <code>/kora-sync</code> · <code>/kora-send-mail</code> · bước sync <code>/kora-schedule</code>.</li>
+          <li><b>Báo cáo</b>: giờ công chuẩn vs đã log + OT, phân tích theo chuẩn Cloud, lọc đa chiều.</li>
+          <li><b>Thư viện 20 prompt + đầu ra chuẩn tự động</b>; trang hướng dẫn đa-tab (design <code>ba-claude-guide</code>).</li>
+        </ul>
       </div>
     </div>
-  </section>
 
-  <!-- ================= TAB: HƯỚNG DẪN SỬ DỤNG ================= -->
-  <section class="panel-tab" id="tab-usage">
-    <h2 class="sec">Bắt đầu — tạo project</h2>
-    <div class="card">
-      Sau khi cài skill: trong Claude Cowork <b>mở (hoặc tạo) một folder trống</b> cho project → gõ
-      <code>/kora-init</code>. Nó <b>tự dựng project</b> (docs/ + vault + config) rồi hỏi <b>domain</b>,
-      <b>rule nghiệp vụ</b>, tên project và nơi lưu vault. Init gọn nhẹ — không hỏi token/lịch (việc đó
-      ở <code>/kora-scan</code>, <code>/kora-daily-report</code>, <code>/kora-schedule</code>).
+    <!-- ===================== APPENDIX ===================== -->
+    <div class="page" id="appendix">
+      <div class="phead"><div class="pl">J · Phụ lục</div><h1><span class="em">📚</span>Quy tắc đặt tên, template &amp; lệnh</h1></div>
+
+      <h2 class="sec">I · Các lệnh <code>/kora-*</code></h2>
+      <table>
+        <tr><th>Lệnh</th><th>Việc</th><th>Mật khẩu</th></tr>
+        <tr><td><code>/kora-init</code></td><td>Khởi tạo dự án</td><td>—</td></tr>
+        <tr><td><code>/kora-connect</code></td><td>Kết nối nguồn / xem đã kết nối</td><td>—</td></tr>
+        <tr><td><code>/kora-scan</code></td><td>Quét &amp; nạp tri thức + tổng hợp wiki</td><td>—</td></tr>
+        <tr><td><code>/kora-scan-jira-task</code></td><td>Quét 1 task/epic theo mã</td><td>—</td></tr>
+        <tr><td><code>/kora-import-files</code></td><td>Nạp PDF / DOCX / ảnh / zip</td><td>—</td></tr>
+        <tr><td><code>/kora-sync</code></td><td>Đẩy Knowledge Base lên Confluence / GitHub private</td><td>🔒 (Admin permission)</td></tr>
+        <tr><td><code>/kora-send-mail</code></td><td>Gửi báo cáo, ngay / đặt lịch</td><td>🔒 (Admin permission)</td></tr>
+        <tr><td><code>/kora-schedule</code></td><td>Lịch HĐH: get → report → mail → sync</td><td>🔒 (bước sync)</td></tr>
+        <tr><td><code>/kora-alert-mail</code></td><td>Mail cảnh báo sự cố (issue ticket) — override mọi lịch</td><td>—</td></tr>
+        <tr><td><code>/kora-daily-report</code></td><td>Báo cáo tiến độ (lọc, theo thời gian)</td><td>—</td></tr>
+        <tr><td><code>/kora-archive</code></td><td>Đóng gói Knowledge Base phân quyền + mật khẩu</td><td>🔑 Archive</td></tr>
+        <tr><td><code>/kora-export-docs</code></td><td>Xuất DOCX / PDF theo doc template</td><td>—</td></tr>
+        <tr><td><code>/kora-export-knowledge-base</code></td><td>Xuất toàn bộ Knowledge Base ra zip</td><td>—</td></tr>
+        <tr><td><code>/kora-evolve</code></td><td>Dọn / tiến hóa / kiểm tra sức khỏe Knowledge Base</td><td>—</td></tr>
+        <tr><td><code>/kora-update</code> · <code>/kora-uninstall</code></td><td>Cập nhật · Gỡ skill (bash CLI)</td><td>—</td></tr>
+      </table>
+
+      <h2 class="sec">II · Quy tắc đặt tên file (tài liệu xuất)</h2>
+      <p style="color:var(--muted)">Áp cho tài liệu <b>xuất ra cho người đọc</b> (qua <code>/kora-export-docs</code>) — bổ trợ cấu trúc source/vault nội bộ (xem Giới thiệu §IV).</p>
+      <table>
+        <tr><th>Loại tài liệu</th><th>Format</th><th>Ví dụ</th></tr>
+        <tr><td>User Story</td><td><code>UserStory_[Feature]_v[x.x].md</code></td><td><code>UserStory_DinhDanhKHDN_v1.0.md</code></td></tr>
+        <tr><td>BRD</td><td><code>BRD_v[x.x].md</code></td><td><code>BRD_v1.2.md</code></td></tr>
+        <tr><td>Flow</td><td><code>Flow_[Feature]_v[x.x].md</code></td><td><code>Flow_DinhDanhKHDN_v1.0.md</code></td></tr>
+        <tr><td>Test Case</td><td><code>TestCase_[Feature]_v[x.x].md</code></td><td><code>TestCase_DinhDanhKHDN_v1.0.md</code></td></tr>
+        <tr><td>Meeting Notes</td><td><code>MeetingNotes_[YYYYMMDD].md</code></td><td><code>MeetingNotes_20260311.md</code></td></tr>
+        <tr><td>Gap Analysis</td><td><code>Gap_Analysis_[Feature]_v[x.x].md</code></td><td><code>Gap_Analysis_KHDN_v1.0.md</code></td></tr>
+        <tr><td>Review</td><td><code>Review_[Document]_[YYYYMMDD].md</code></td><td><code>Review_UserStory_20260311.md</code></td></tr>
+      </table>
+      <div class="callout"><span>📐</span><div>Quy tắc: dùng <code>_</code> phân tách · luôn có version (<code>v1.0</code>) hoặc ngày (<code>YYYYMMDD</code>) · <b>không dùng khoảng trắng</b> trong tên file.</div></div>
+
+      <h2 class="sec">III · Template chuẩn — User Story &amp; Test Case</h2>
+      <div class="code"><div class="code-head"><span>User Story</span><button class="copy">Copy</button></div>
+<pre><code>US-[ID]: [Tên tính năng]
+As a [vai trò người dùng],
+I want to [hành động],
+So that [lợi ích / kết quả mong muốn].
+
+Acceptance Criteria:
+  Given [bối cảnh ban đầu]
+  When  [hành động xảy ra]
+  Then  [kết quả mong đợi]
+
+Priority: [High / Medium / Low]
+Story Point: [_]
+Notes: [Ghi chú thêm nếu có]</code></pre></div>
+      <div class="code"><div class="code-head"><span>Test Case</span><button class="copy">Copy</button></div>
+<pre><code>TC-[ID] | [Tên test case]
+Liên quan US: US-[ID]
+Loại test: Happy path / Edge case / Negative
+Precondition: [Điều kiện ban đầu]
+Bước thực hiện:
+  1. [Bước 1]
+  2. [Bước 2]
+Kết quả mong đợi: [Expected result]
+Kết quả thực tế: [Điền sau khi test]
+Trạng thái: Pass / Fail / Blocked</code></pre></div>
+
+      <h2 class="sec">IV · Assumptions &amp; Decisions Log · Stakeholder Map</h2>
+      <table>
+        <tr><th>#</th><th>Assumption / Decision</th><th>Người xác nhận</th><th>Ngày</th><th>Trạng thái</th></tr>
+        <tr><td>1</td><td>…</td><td>…</td><td>…</td><td>Confirmed / Pending / Rejected</td></tr>
+        <tr><td>2</td><td>…</td><td>…</td><td>…</td><td>…</td></tr>
+      </table>
+      <table>
+        <tr><th>Tên / Vai trò</th><th>Quyền hạn</th><th>Mối quan tâm chính</th><th>Cách tiếp cận</th></tr>
+        <tr><td>…</td><td>Quyết định / Tư vấn / Thực thi</td><td>…</td><td>…</td></tr>
+      </table>
+
+      <h2 class="sec">V · Project Brief (Claude.ai Projects Instructions)</h2>
+      <p style="color:var(--muted)">Paste vào <b>Project Instructions</b> 1 lần — dùng mãi. (Trong KORA, role prompt + domain rule được nạp tự động; bản này là phương án thủ công khi dùng Claude.ai thuần.)</p>
+      <div class="code"><div class="code-head"><span>Project Brief</span><button class="copy">Copy</button></div>
+<pre><code>Bạn là Business Analyst senior hỗ trợ tôi trong dự án [Tên dự án].
+
+== THÔNG TIN DỰ ÁN ==
+- Tên: [Tên dự án]
+- Ngành: [Domain]
+- Khách hàng: [Tên KH]
+- Mục tiêu: [Mục tiêu chính]
+- Giai đoạn: [Giai đoạn hiện tại]
+- Tech Stack: [Stack]
+- Users chính: [Đối tượng dùng hệ thống]
+
+== CONSTRAINT ==
+- [Ràng buộc 1]
+- [Ràng buộc 2]
+
+== GLOSSARY ==
+- [Term 1]: [Định nghĩa]
+- [Term 2]: [Định nghĩa]
+
+== QUY TẮC LÀM VIỆC ==
+- User Story format: As a... I want... So that...
+- Acceptance Criteria: Given-When-Then
+- Ngôn ngữ: Tiếng Việt, technical terms giữ tiếng Anh
+- Khi không chắc → hỏi lại, không tự đoán</code></pre></div>
+
+      <h2 class="sec">VI · Cấu hình &amp; cấu trúc</h2>
+      <p style="color:var(--muted)">Tất cả trong <code>config/factory-config.yaml</code> (DATA, gitignore) — mẫu <code>factory-config.example.yaml</code>. Mọi giá trị động (đường dẫn, domain, vault, lịch, target sync, người nhận mail, banner) — không hardcode. Mã nguồn: <a href="https://github.com/isc-fkit/Kora-Framework">github.com/isc-fkit/Kora-Framework</a>.</p>
+      <footer><b>FPT Telecom</b> · KORA AI — Kora-1 · <a href="https://github.com/isc-fkit/Kora-Framework">GitHub</a></footer>
     </div>
 
-    <h2 class="sec">12 lệnh <code>/kora-*</code></h2>
-    <table>
-      <tr><th>Lệnh</th><th>Việc</th></tr>
-      <tr><td><code>/kora-init</code></td><td>Khởi tạo / cài đặt dự án (domain, rule, project, vault)</td></tr>
-      <tr><td><code>/kora-connect</code></td><td>Kết nối nguồn: chọn MCP/API → nguồn hỗ trợ (Jira Server/Cloud · SharePoint/GitHub/Confluence qua MCP-OAuth)</td></tr>
-      <tr><td><code>/kora-scan</code></td><td>Quét &amp; nạp tri thức từ nguồn ĐÃ kết nối (hiện checklist nguồn) — cào cả comment</td></tr>
-      <tr><td><code>/kora-scan-jira-task</code></td><td>Quét 1 task/epic Jira theo mã, vd <code>/kora-scan-jira-task PROJ-102</code></td></tr>
-      <tr><td><code>/kora-import-files</code></td><td>Nạp tài liệu PDF / DOCX / ảnh / zip Obsidian</td></tr>
-      <tr><td><code>/kora-daily-report</code></td><td>Báo cáo tiến độ: chọn project, lọc thành viên, tự kéo dữ liệu theo thời gian</td></tr>
-      <tr><td><code>/kora-schedule</code></td><td>Đặt lịch tự đồng bộ / báo cáo; nơi cấu hình kết nối nguồn</td></tr>
-      <tr><td><code>/kora-design</code></td><td>Dựng prototype màn hình với Claude Design</td></tr>
-      <tr><td><code>/kora-export-docs</code></td><td>Xuất tài liệu ra DOCX / PDF</td></tr>
-      <tr><td><code>/kora-evolve</code></td><td>Dọn / tiến hóa / kiểm tra sức khỏe KB</td></tr>
-      <tr><td><code>/kora-export-knowledge-base</code></td><td>Xuất toàn bộ KB ra zip để sao lưu / chuyển máy / bàn giao</td></tr>
-      <tr><td><code>/kora-update</code></td><td>Cập nhật app/skill lên bản mới nhất</td></tr>
-      <tr><td><code>/kora-release</code></td><td>Tự động phát hành: đề xuất version + sinh CHANGELOG từ commit + push (maintainer)</td></tr>
-      <tr><td><code>/kora-uninstall</code></td><td>Gỡ skill Kora khỏi <code>~/.claude</code></td></tr>
-    </table>
-
-    <h2 class="sec">Báo cáo tiến độ</h2>
-    <div class="card">
-      <code>/kora-daily-report</code> sẽ hỏi <b>chọn project nào</b>, cho <b>lọc theo project &amp; theo thành viên</b> (assignee), hỏi <b>khoảng thời gian</b> rồi tự kéo dữ liệu kỳ đó từ nguồn → sinh dashboard (time-tracking / sprint / assignee) ngay trong Claude kèm file HTML.
-    </div>
-
-    <h2 class="sec">Kết nối nguồn &amp; điền API key</h2>
-    <div class="card">
-      Gõ <code>/kora-connect</code> → chọn <b>phương thức</b>, rồi chọn <b>nguồn</b> mà phương thức đó hỗ trợ:
-      <ul style="margin:8px 0 12px;padding-left:20px;color:var(--muted)">
-        <li><b>MCP</b> (OAuth) — bật Connector trong Claude App/Cowork: <b>Atlassian/Jira · SharePoint · GitHub · Confluence…</b> Không cần token tay.</li>
-        <li><b>API</b> — token: <b>Jira Server/self-host · Jira Cloud</b>; Kora <b>tự lưu</b> vào <code>~/.zshrc</code>.</li>
-      </ul>
-      Sau khi kết nối, <code>/kora-scan</code> hiện danh sách nguồn đã kết nối để chọn quét.
-      <b>Lấy token (chỉ khi dùng API):</b>
-      <ul style="margin:8px 0 12px;padding-left:20px;color:var(--muted)">
-        <li>Jira Server/DC: <i>Profile → Personal Access Tokens</i></li>
-        <li>Atlassian Cloud: <i>id.atlassian.com → API tokens</i></li>
-        <li>SharePoint: qua MCP connector (không cần token tay)</li>
-      </ul>
-      Tự điền vào <code>~/.zshrc</code> rồi <code>source ~/.zshrc</code> (hoặc mở terminal mới):
-      <div class="code">
-        <div class="code-head"><span>~/.zshrc</span><button class="copy">Copy</button></div>
-<pre><code>export KORA_JIRA_BASE_URL="https://jira.cong-ty.vn"
-export KORA_JIRA_TOKEN="dán-token-cua-ban"</code></pre>
-      </div>
-    </div>
-  </section>
-</main>
-
-<footer>
-  Kora-Framework · FPT ISC ·
-  <a href="https://github.com/isc-fkit/Kora-Framework">Mã nguồn</a> ·
-  <a href="https://github.com/isc-fkit/Kora-Framework/issues">Phản hồi</a>
-  <br>Tri thức của bạn hoàn toàn thuộc về bạn — lưu cục bộ trong vault của dự án.
-</footer>
+  </main>
+</div>
 
 <script>
-  function group(sel, cls, panelPrefix, attr){
-    document.querySelectorAll(sel).forEach(function(t){
-      t.addEventListener('click', function(){
-        t.parentElement.querySelectorAll(cls).forEach(function(x){x.classList.remove('active')});
-        var scope = (panelPrefix==='tab-') ? document : t.closest('.panel-tab');
-        scope.querySelectorAll(panelPrefix==='tab-' ? '.panel-tab' : '.subpanel').forEach(function(x){x.classList.remove('active')});
-        t.classList.add('active');
-        var el = document.getElementById(panelPrefix + t.getAttribute(attr));
-        if(el) el.classList.add('active');
-      });
-    });
+  var pages = Array.prototype.slice.call(document.querySelectorAll('.page'));
+  var links = Array.prototype.slice.call(document.querySelectorAll('[data-go]'));
+  function go(id){
+    if(!document.getElementById(id)) id = 'home';
+    pages.forEach(function(p){ p.classList.toggle('active', p.id===id); });
+    document.querySelectorAll('.nav a').forEach(function(a){ a.classList.toggle('active', a.getAttribute('data-go')===id); });
+    if(location.hash.slice(1)!==id) history.replaceState(null,'','#'+id);
+    window.scrollTo(0,0);
+    document.querySelector('.sidebar').classList.remove('open');
   }
-  group('.main-tabs .tab', '.tab', 'tab-', 'data-tab');
-  group('.sub-tabs .subtab', '.subtab', 'sub-', 'data-sub');
+  links.forEach(function(el){ el.addEventListener('click', function(){ go(el.getAttribute('data-go')); }); });
+  window.addEventListener('hashchange', function(){ go(location.hash.slice(1) || 'home'); });
+  // copy buttons
   document.querySelectorAll('.copy').forEach(function(b){
     b.addEventListener('click', function(){
-      var code = b.closest('.code').querySelector('code').innerText;
-      navigator.clipboard.writeText(code).then(function(){
-        var o=b.innerText; b.innerText='Copied!'; setTimeout(function(){b.innerText=o},1200);
-      });
+      var code = b.closest('.code').querySelector('pre code').innerText;
+      navigator.clipboard.writeText(code).then(function(){ b.textContent='✓ Đã copy'; setTimeout(function(){b.textContent='Copy';},1400); });
     });
   });
+  // sidebar collapse toggle (full ↔ minimal), persisted
+  var _layout = document.querySelector('.layout');
+  var _sbT = document.getElementById('sbToggle');
+  if(_sbT && _layout){
+    if(_layout.classList.contains('mini')){ _sbT.title='Mở rộng menu'; _sbT.setAttribute('aria-expanded','false'); }
+    _sbT.addEventListener('click', function(e){
+      e.stopPropagation();
+      var mini = _layout.classList.toggle('mini');
+      try{ localStorage.setItem('kora-sb', mini ? 'mini' : 'full'); }catch(_){}
+      _sbT.title = mini ? 'Mở rộng menu' : 'Thu gọn menu';
+      _sbT.setAttribute('aria-expanded', String(!mini));
+    });
+  }
+  go(location.hash.slice(1) || 'home');
 </script>
 </body>
 </html>

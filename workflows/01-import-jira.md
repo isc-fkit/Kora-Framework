@@ -230,7 +230,10 @@ Script tự tạo trong vault: notes Project/Epic/Story/Task/Bug/Sub-task có ba
    (đánh dấu `status: raw`).
 4. Chạy `python3 tools/kb-indexer/build_index.py --root .` (Windows: `py`) → index/graph/health phản ánh
    NGAY dữ liệu vault vừa quét, để auto-phân tích (Tầng A) có dữ liệu tra cứu, khỏi grep chay.
-5. Ghi changelog.
+5. **Cập nhật sổ kết nối:** nếu nguồn Jira này có entry trong `connections:`, cập nhật
+   `status: connected` + `last_checked: <ISO local>` cho đúng entry (`jira_*__api`/`__mcp`) để
+   `/kora-scan` và `/kora-schedule` thấy trạng thái mới.
+6. Ghi changelog.
 
 ## Guardrails riêng
 

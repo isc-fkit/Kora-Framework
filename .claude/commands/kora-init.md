@@ -11,8 +11,12 @@ Read and execute `workflows/00-setup.md` (in the current project, or `~/.claude/
   + the vault, copy `config/factory-config.example.yaml` → `config/factory-config.yaml` from
   `~/.claude/kora-framework/`, and write a tiny `CLAUDE.md` = `@~/.claude/kora-framework/CLAUDE.md`.
   CORE (workflows/tools/templates/presets) stays SHARED in `~/.claude/kora-framework/`. Then continue.
+- **AUTO-pull domain phổ biến + rule (Bước 0b, IM LẶNG — không hỏi):** mỗi lần init, tự làm mới
+  `config/domain-presets/` từ CORE `~/.claude/kora-framework/config/domain-presets/` (và thử kéo bản
+  mới nhất từ repo framework; offline → dùng bản bundle). `config/domain-rules.md` chỉ làm mới nếu
+  còn là template chưa chỉnh (user đã sửa thì giữ nguyên). Rồi mới tiếp các bước hỏi.
 - Run **step by step**; each step STOPS and asks the user (AskUserQuestion) before the next.
 - Never auto-pick defaults for the user; never run straight to the end.
-- **Init is lightweight:** Domain → Domain rule → Project name & language → Vault → (Design optional).
+- **Init is lightweight:** Domain → Domain rule → Project name & language → Vault.
   Do NOT ask about source connection, tokens, or scheduling here — those live in the
-  `kora-daily-report` / `kora-schedule` skills.
+  `kora-connect` / `kora-schedule` skills.
