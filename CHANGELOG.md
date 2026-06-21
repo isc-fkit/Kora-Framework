@@ -10,6 +10,19 @@
 
 ---
 
+## v2.7.0 "Kora-1" — 2026-06-21
+
+- **✉️ Email báo cáo chuyên nghiệp hơn:** LUÔN có **banner header** (mặc định ảnh GitHub `main/assets/banner-daily-report.png`
+  khi `banner_url` rỗng) → hết email "trơ". Giữ 3 card số liệu + progress bar + "⚠️ Lưu ý quan trọng" + block AI + **responsive**.
+- **📈 Dashboard thêm BIỂU ĐỒ + filter luôn hiện:** `build_report.py` thêm **donut trạng thái** + **bar theo người / theo dự án**
+  (SVG inline, mở offline được); **filter project/assignee/status/loại LUÔN hiển thị** (sticky đầu trang — trước đây filter
+  project ẩn khi chỉ 1 dự án); bảng **zebra + hover**.
+- **📧 Gmail App Password ƯU TIÊN TỰ ĐỘNG GỬI:** `/kora-send-mail` [Gửi ngay] mặc định **auto-send qua SMTP**
+  (`send_report.py`, Gmail dùng App Password) — KHÔNG tạo nháp thủ công. Chưa có app-password → hướng dẫn tạo rồi gửi thẳng.
+  **Tạo nháp (MCP) = FALLBACK**. Config `reports.email.method/provider` mặc định SMTP auto.
+
+> **Cập nhật:** thuần CORE — KHÔNG migration DATA. (Banner ~1.8MB — cân nhắc xuất bản nhẹ hơn nếu cần.)
+
 ## v2.6.0 "Kora-1" — 2026-06-21
 
 - **🆕 Skill `/kora-ops-password` — đặt mật khẩu admin 1 lần:** lưu `KORA_OPS_PW` vào `~/.config/kora/ops-pw.env`

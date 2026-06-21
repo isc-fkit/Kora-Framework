@@ -22,6 +22,7 @@ import calendar
 import glob
 import html
 import json
+import math
 import os
 import re
 import sys
@@ -321,6 +322,51 @@ def bar(p, color="teal"):
     return f'<div class="pr-bar"><span style="width:{min(p,100)}%;background:{PAL[color]}"></span></div>'
 
 
+def svg_donut(segments, size=132):
+    """Donut chart inline SVG (không phụ thuộc JS/CDN). segments=[(label,value,color)]."""
+    total = sum(v for _, v, _ in segments) or 1
+    r = size / 2 - 13
+    cx = cy = size / 2
+    circ = 2 * math.pi * r
+    off = 0.0
+    arcs = []
+    for _label, v, color in segments:
+        dash = circ * (v / total)
+        arcs.append(f'<circle cx="{cx}" cy="{cy}" r="{r:.1f}" fill="none" stroke="{color}" stroke-width="15" '
+                    f'stroke-dasharray="{dash:.2f} {circ - dash:.2f}" stroke-dashoffset="{-off:.2f}" '
+                    f'transform="rotate(-90 {cx} {cy})"/>')
+        off += dash
+    legend = "".join(
+        f'<div style="display:flex;align-items:center;gap:7px;font-size:12px;margin:3px 0;color:{PAL["mut"]}">'
+        f'<span style="width:11px;height:11px;border-radius:3px;background:{c};display:inline-block"></span>'
+        f'{esc(l)} <b style="color:{PAL["ink"]}">{v}</b></div>' for l, v, c in segments)
+    return (f'<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">'
+            f'<svg width="{size}" height="{size}" viewBox="0 0 {size} {size}">{"".join(arcs)}'
+            f'<text x="{cx}" y="{cy - 1}" text-anchor="middle" font-size="23" font-weight="800" fill="{PAL["ink"]}">{total}</text>'
+            f'<text x="{cx}" y="{cy + 15}" text-anchor="middle" font-size="10" fill="{PAL["mut"]}">issue</text></svg>'
+            f'<div>{legend}</div></div>')
+
+
+def svg_bars(rows, color, maxn=8, w=360):
+    """Bar chart ngang inline SVG. rows=[(label,value)] (đã sort giảm dần)."""
+    rows = [r for r in rows if r[1]][:maxn]
+    if not rows:
+        return f'<div style="color:{PAL["mut"]};font-size:12px">(chưa có dữ liệu)</div>'
+    mx = max(v for _, v in rows) or 1
+    lbl_w, gap = 110, 26
+    barmax = w - lbl_w - 40
+    parts = []
+    for i, (label, v) in enumerate(rows):
+        bw = barmax * v / mx
+        y = i * gap
+        parts.append(
+            f'<text x="0" y="{y + 14}" font-size="11.5" fill="{PAL["mut"]}">{esc(str(label))[:15]}</text>'
+            f'<rect x="{lbl_w}" y="{y + 3}" width="{bw:.1f}" height="15" rx="4" fill="{color}"/>'
+            f'<text x="{lbl_w + bw + 5:.0f}" y="{y + 15}" font-size="11" font-weight="700" fill="{PAL["ink"]}">{v}</text>')
+    h = len(rows) * gap + 4
+    return f'<svg width="{w}" height="{h}" viewBox="0 0 {w} {h}">{"".join(parts)}</svg>'
+
+
 def render_fragment(m, vault):
     t = m["time"]
     cards = "".join([
@@ -417,7 +463,7 @@ def render_fragment(m, vault):
     types = sorted(set(m.get("logged_by_type", {})) | set(m.get("by_type", {})))
     _opt = lambda v, lbl=None: f'<option value="{esc(v)}">{esc(lbl if lbl is not None else v)}</option>'
     proj_sel = (('<select id="kr-fp" onchange="krFilter()"><option value="">Tất cả dự án</option>'
-                 + "".join(_opt(p) for p in projects) + '</select>') if len(projects) > 1 else '')
+                 + "".join(_opt(p) for p in projects) + '</select>') if projects else '')
     type_sel = ('<select id="kr-ft" onchange="krFilter()"><option value="">Mọi loại</option>'
                 + "".join(_opt(tk, _type_label(tk)) for tk in types) + '</select>')
     filter_bar = (
@@ -475,13 +521,29 @@ def render_fragment(m, vault):
 .pr-warn{{background:rgba(244,123,32,.12);border-left:3px solid {PAL['orange']};border-radius:0 8px 8px 0;padding:8px 12px;margin-top:10px;font-size:12.5px;color:#f0ddc4}}
 .pr-stale{{background:rgba(255,95,122,.14);border-left:3px solid {PAL['red']};border-radius:0 8px 8px 0;padding:9px 13px;margin:8px 0;font-size:13px;color:#ffc9d3;font-weight:600}}
 .pr-grid2{{display:grid;grid-template-columns:1fr 1fr;gap:12px}}@media(max-width:680px){{.pr-grid2{{grid-template-columns:1fr}}}}
-.pr-filter{{display:flex;gap:8px;align-items:center;margin:10px 0 4px;flex-wrap:wrap;font-size:12.5px;color:{PAL['mut']}}}
+.pr-filter{{display:flex;gap:8px;align-items:center;margin:10px 0 4px;flex-wrap:wrap;font-size:12.5px;color:{PAL['mut']};position:sticky;top:0;z-index:5;background:{PAL['deep']};padding:8px 0}}
 .pr-filter select{{background:{PAL['card']};color:{PAL['ink']};border:1px solid {PAL['line']};border-radius:8px;padding:5px 9px;font-size:12.5px}}
+.pr-charts{{display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start}}
+.pr-t tbody tr:nth-child(even){{background:rgba(255,255,255,.025)}}
+.pr-t tbody tr:hover{{background:rgba(45,212,191,.09)}}
 .pr-ai{{border-left:3px solid {PAL['vio']};margin-top:12px}}
 </style>"""
     proj_section = f'<h2>Theo dự án</h2><div class="pr-card">{proj_html}</div>' if proj_html else ''
     _bp = [p for p in m.get('by_project', []) if p.get('project') not in (None, '', '—')]
     _scope = f"{len(_bp)} dự án" if len(_bp) > 1 else (esc(_bp[0]['project']) if _bp else '—')
+    # 📈 Biểu đồ (inline SVG — donut trạng thái + bar theo người/dự án)
+    bsg = m["by_status_group"]
+    donut = svg_donut([("Hoàn thành", bsg["done"], PAL["green"]),
+                       ("Đang làm", bsg["in_progress"], PAL["blue"]),
+                       ("Chưa làm", bsg["todo"], PAL["mut"])])
+    asg_bars = svg_bars([(a["assignee"], a["total"]) for a in m["by_assignee"]
+                         if a["assignee"] not in ("(chưa giao)", "—", "")], PAL["teal"])
+    charts_inner = (f'<div><div class="pr-mut" style="margin-bottom:6px">Trạng thái</div>{donut}</div>'
+                    f'<div><div class="pr-mut" style="margin-bottom:6px">Khối lượng theo người</div>{asg_bars}</div>')
+    if len(_bp) > 1:
+        charts_inner += ('<div><div class="pr-mut" style="margin-bottom:6px">Khối lượng theo dự án</div>'
+                         + svg_bars([(p["project"], p["total"]) for p in _bp], PAL["vio"]) + '</div>')
+    charts_html = f'<div class="pr-card pr-charts">{charts_inner}</div>'
     return f"""{style}<div class="pr">
 <h1>📊 Báo cáo tiến độ dự án</h1>
 <div class="pr-sub">{_scope} · Vault: {esc(os.path.basename(vault.rstrip('/')))} · cập nhật {esc(gen)} (giờ UTC) · {m['total']} issue</div>
@@ -491,6 +553,7 @@ def render_fragment(m, vault):
 <div class="pr-kpis">{cards}</div>
 {ai_anchor}
 <h2>Tiến độ tổng thể</h2><div class="pr-card">{stacked(m['by_status_group'])}</div>
+<h2>📈 Biểu đồ</h2>{charts_html}
 {proj_section}
 <h2>Sprint đang chạy</h2>{sprint_html}
 <h2>Theo người phụ trách (giờ công &amp; OT)</h2><div class="pr-card">{assignee_html}</div>
@@ -707,6 +770,8 @@ def main():
         bm = re.search(r'banner_url:\s*"([^"]*)"', open(cfg_path, encoding="utf-8").read())
         if bm:
             banner_url = bm.group(1).strip()
+    if not banner_url:  # mặc định → email LUÔN có banner (asset trên nhánh main)
+        banner_url = "https://raw.githubusercontent.com/isc-fkit/Kora-Framework/main/assets/banner-daily-report.png"
     fragment = render_fragment(m, vault)
 
     out = args.out or os.path.join(REPO_ROOT, "reports")

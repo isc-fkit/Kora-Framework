@@ -1,5 +1,5 @@
 ---
-description: Send a progress-report email to chosen recipients via Gmail/Outlook/SMTP — now or on a schedule. Scans the chosen Jira, builds the report, then sends. Password-gated (operations password); only this gated entry can send mail.
+description: Send a progress-report email to chosen recipients — now or on a schedule. PRIORITIZES automatic SMTP send (Gmail via App Password), not manual drafts. Scans the chosen Jira project for latest data, builds the report (banner + cards + charts), then sends. Password-gated (operations password); only this gated entry can send mail.
 ---
 
 The user invoked `/kora-send-mail` — gửi email báo cáo tiến độ. **CÓ CỔNG MẬT KHẨU vận hành
@@ -17,13 +17,20 @@ The user invoked `/kora-send-mail` — gửi email báo cáo tiến độ. **CÓ
    - **[Gửi ngay]:**
      a. **CỔNG MẬT KHẨU vận hành `KORA_OPS_PW`** → `python3 tools/archive-gate/verify_ops_password.py`
         (đọc env **HOẶC** `~/.config/kora/ops-pw.env` — đặt 1 lần bằng `/kora-ops-password`; **KHÔNG hỏi qua card, KHÔNG in**). Exit ≠ 0 → **DỪNG**.
-     b. **Provider:** AskUserQuestion **[Gmail] / [Outlook] / [SMTP]** (theo `connections:`).
+     b. **Kênh gửi — ƯU TIÊN TỰ ĐỘNG GỬI:** AskUserQuestion **[Gửi tự động (SMTP / Gmail App Password) — khuyến nghị]**
+        / **[Tạo nháp gửi tay (MCP)]**. Gmail **dùng App Password qua SMTP** = auto-send (KHÔNG phải draft). Mặc định auto.
      c. **QUÉT lấy DỮ LIỆU MỚI NHẤT của (các) project đã chọn (BẮT BUỘC, trước report):** `import_jira.py --since`
         (đặt `PROJECT_KEYS=<KEYS>`) hoặc MCP `searchJiraIssuesUsingJql` `project=<KEY> AND updated>="<since>"` →
         `import_jira.py --from-mcp` → reindex `build_index.py --root .` →
         `python3 tools/progress-report/build_report.py --projects "<KEYS>"` (report scope ĐÚNG project vừa quét).
-     d. **SMTP:** ✋ confirm → `python3 tools/report-mailer/send_report.py --to "<list>" --html-file reports/email-body-latest.html --no-attach-html --attach reports/progress-report-latest.html`
-        (body = email có **banner** + phân tầng dự án; dashboard đính kèm riêng). **Gmail/Outlook:** tạo **NHÁP** qua MCP → user gửi.
+     d. **GỬI TỰ ĐỘNG (mặc định, kể cả Gmail):** kiểm `tools/report-mailer/.env.local` có `SMTP_USER`+`SMTP_PASS`.
+        - **Chưa có** → hướng dẫn tạo **Gmail App Password** (bật 2FA → `myaccount.google.com/apppasswords`), điền
+          `tools/report-mailer/.env.local`: `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=587`, `SMTP_USER=<email>`,
+          `SMTP_PASS=<app password 16 ký tự>` (KHÔNG dùng mật khẩu Gmail thường) → `send_report.py --check`. Token chỉ ở `.env.local`.
+        - ✋ confirm → `python3 tools/report-mailer/send_report.py --to "<list>" --subject "<chủ đề>" --html-file
+          reports/email-body-latest.html --no-attach-html --attach reports/progress-report-latest.html` → **GỬI THẲNG**
+          (body = banner `cid` + phân tầng dự án; dashboard đính kèm). Báo "đã gửi tới <list>".
+        - **[Tạo nháp] = FALLBACK** (chỉ khi user chọn / không gửi SMTP được): tạo NHÁP Gmail/Outlook qua MCP → user bấm gửi.
    - **[Đặt lịch]:**
      a. **Provider** (lịch NỀN chỉ gửi **SMTP**).
      b. **Mốc giờ** — AskUserQuestion **multi-select** gợi ý `08:00 / 12:00 / 14:00 / 17:00` + ô **"Other"**

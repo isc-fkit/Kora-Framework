@@ -90,13 +90,13 @@ reports:                  # Báo cáo tiến độ (workflow 14) — sinh local 
   refresh_source: auto    # auto | mcp | token | none — cách làm mới trước khi report (Cloud=mcp, self-host=token)
   email:                  # Gửi báo cáo qua email (workflow 14 Bước 2.7 / lịch 08). Bí mật ở tools/report-mailer/.env.local
     enabled: false        # true để bật gửi mail sau khi sinh report
-    method: smtp          # smtp (full-auto, tools/report-mailer/send_report.py) | gmail_draft (tạo nháp Gmail connector, bấm Gửi tay)
-    provider: smtp        # smtp | gmail | outlook — kênh gửi cho /kora-send-mail & lịch (gmail/outlook = MCP draft+send; smtp = headless)
+    method: smtp          # ƯU TIÊN: smtp (TỰ ĐỘNG GỬI qua send_report.py — Gmail dùng App Password, smtp.gmail.com:587). gmail_draft (tạo nháp, bấm tay) = FALLBACK.
+    provider: smtp        # smtp (auto-send, gồm Gmail app-password) | gmail | outlook. Gmail app-password → để 'smtp' (auto), KHÔNG phải draft.
     to: []                # danh sách email nhận, vd ["a@x.com","b@y.com"]
     recipients: []        # danh bạ người nhận lưu sẵn để chọn nhanh trong /kora-send-mail & /kora-schedule
     cc: []
     subject: "[Kora] Báo cáo tiến độ {date}"   # {date} thay bằng ngày khi gửi
-    banner_url: "https://raw.githubusercontent.com/isc-fkit/Kora-Framework/release/assets/banner-daily-report.png"   # banner header email (ảnh PUBLIC: raw GitHub / Pages)
+    banner_url: "https://raw.githubusercontent.com/isc-fkit/Kora-Framework/main/assets/banner-daily-report.png"   # banner header email (ảnh PUBLIC: raw GitHub / Pages). Rỗng → build_report tự dùng URL main này.
     attach_html: true     # đính kèm file progress-report-latest.html (ngoài việc nhúng nội dung)
   # status_map (tùy chọn): map trạng thái Jira → nhóm done/in_progress/todo. Để trống = đoán theo từ khóa.
   # status_map:

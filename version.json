@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.6.0",
+  "version": "2.7.0",
   "codename": "Kora-1",
   "released": "2026-06-21",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.6.0: (1) Skill mới /kora-ops-password — đặt mật khẩu admin (KORA_OPS_PW) MỘT LẦN vào ~/.config/kora/ops-pw.env; verify_ops_password nay đọc file đó lúc chạy nên CÓ HIỆU LỰC NGAY (hết cảnh 'set env mà terminal đang chạy chưa nhận'). Thêm bước 1b 'Đặt mật khẩu admin (tùy chọn)' trên landing sau init. (2) /kora-daily-report nay chọn chi tiết: NGUỒN trước → rồi PROJECT trong nguồn; build_report thêm --projects để báo cáo đúng project. (3) daily-report + send-mail + lịch nền nay BUỘC quét nguồn/project lấy dữ liệu mới nhất TRƯỚC khi tạo report & gửi mail (orchestrator tự truyền --projects). Thuần CORE, không migration DATA."
+  "intro": "Kora-Framework v2.7.0 (email + dashboard pro hơn): (1) Email báo cáo LUÔN có banner header (mặc định ảnh GitHub main) — hết cảnh email trơ; responsive. (2) Dashboard thêm BIỂU ĐỒ (donut trạng thái + bar theo người/dự án, SVG inline mở offline), filter project/assignee/status LUÔN hiện (sticky), bảng zebra/hover. (3) Gmail App Password nay ƯU TIÊN TỰ ĐỘNG GỬI qua SMTP (không tạo nháp thủ công) — draft chỉ là fallback. Thuần CORE, không migration DATA."
 }

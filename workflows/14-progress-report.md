@@ -68,7 +68,8 @@ python3 tools/progress-report/build_report.py --projects "<KEYS đã chọn>"
 Tạo trong `reports/`:
 - `progress-data-<ngày>.json` — số liệu thô (nguồn cho UI inline).
 - `progress-report-<ngày>.html` + `progress-report-latest.html` — **dashboard standalone** (mở bằng
-  trình duyệt, chia sẻ được; phong cách tối glass; có filter tương tác + chỗ `#kr-ai`).
+  trình duyệt, chia sẻ được; phong cách tối glass; **biểu đồ SVG** (donut trạng thái + bar theo người/dự án),
+  **filter tương tác luôn hiện** (dự án · thành viên · trạng thái · loại), bảng zebra/hover + chỗ `#kr-ai`).
 - `email-body-<ngày>.html` + `email-body-latest.html` — **thân email tĩnh, responsive cho điện thoại**
   (email-safe, KHÔNG JS; có khối AI giữa `<!--KR-AI-START-->`/`<!--KR-AI-END-->` để điền ở Bước 1.5).
 
