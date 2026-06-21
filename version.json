@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.5.4",
+  "version": "2.5.5",
   "codename": "Kora-1",
   "released": "2026-06-21",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.5.4: (1) Sửa /kora-version + /kora-update KHÔNG nhận ra bản mới — trước đây đọc version.json theo branch-raw bị CDN GitHub cache (bỏ qua ?t=), nay đọc theo SHA commit (immutable, luôn tươi) như installer/updater. (2) Landing thêm hướng dẫn: nguồn MCP phải kết nối/authorize ở Claude web/Desktop (Settings → Connectors hoặc /mcp) TRƯỚC thì mới hiện & gọi được ở CLI. Thuần CORE + landing, không migration DATA."
+  "intro": "Kora-Framework v2.5.5 (vá /kora-connect): (1) check_connection.py nay đọc ĐÚNG config của PROJECT (thêm --config + mặc định theo thư mục hiện tại) — trước đây chạy từ CORE thì đọc nhầm config CORE nên không thấy connections của bạn (lỗi 'unrecognized arguments: --config'). (2) Kết nối MCP Microsoft 365 nay HỎI sub-service [SharePoint]/[Outlook] (Atlassian Rovo → Jira/Confluence), verify đúng tool từng dịch vụ, ghi entry riêng, và sau verify DẪN sang quét ngay (SharePoint: search thư mục → get data; Outlook: search email → get) thay vì dừng im. Thuần CORE, không migration DATA."
 }

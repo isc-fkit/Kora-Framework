@@ -13,8 +13,9 @@ The user invoked `/kora-scan` — scan & import knowledge.
      đổi sau bằng *"đổi domain"* / `/kora-init`). **KHÔNG hỏi từng bước domain/rule** — tất cả tự động.
    - Nếu ĐÃ có project → bỏ qua, sang bước 1.
 
-1. **Đọc nguồn ĐÃ KẾT NỐI:** chạy `python3 tools/connections/check_connection.py --list` (Windows: `py`)
-   để lấy danh sách từ `config/factory-config.yaml > connections`. **KHÔNG hiện đoạn giới thiệu "quét Jira".**
+1. **Đọc nguồn ĐÃ KẾT NỐI:** path tool tự resolve (bản cài ở CORE), đọc **PROJECT config** qua `--config`:
+   `T=tools; [ -e "$T/connections/check_connection.py" ] || T="$HOME/.claude/kora-framework/tools"; python3 "$T/connections/check_connection.py" --list --config "$PWD/config/factory-config.yaml"`
+   (Windows: `py`) để lấy danh sách từ `connections`. **KHÔNG hiện đoạn giới thiệu "quét Jira".**
    - **Chưa kết nối nguồn nào** (registry rỗng) → mời chạy **`/kora-connect`**.
    - **Có rồi** → hiện **checklist (multi-select)** với item đầu **[✓ Quét tất cả nguồn]** (lấy HẾT),
      rồi từng nguồn kèm trạng thái: `display_name + ✓ connected · checked <thời gian tương đối>`
@@ -28,7 +29,9 @@ The user invoked `/kora-scan` — scan & import knowledge.
      → cảnh báo có thể nạp trùng; nhắc chọn 1 (vault vẫn dedupe theo `jira_key` nhưng tốn công).
 2. **Kéo dữ liệu** từng nguồn đã chọn vào vault:
    - **Jira (API/MCP)** → `workflows/01-import-jira.md`; cào **HẾT field, kể cả custom field & comment**.
-   - **SharePoint (MCP)** → `sharepoint_search` / `sharepoint_folder_search`.
+   - **SharePoint (MCP)** → `sharepoint_folder_search` để **liệt kê THƯ MỤC / PATH** (mọi cấp có [Chọn tất cả])
+     → user chọn folder → `sharepoint_search` (+ fetch) **get nội dung** tài liệu về vault.
+   - **Outlook (MCP)** → `outlook_email_search` (+ `outlook_calendar_search`) → lấy email/lịch theo bộ lọc về vault.
    - **GitHub (MCP)** → MCP tool của GitHub (repo/issues/PR/wiki).
    - **Confluence (MCP)** → MCP tool của Confluence.
 3. **Tổng hợp NHẸ (tự động, ngay sau khi nạp):** `python3 tools/kb-synth/synthesize.py --root .` → dựng

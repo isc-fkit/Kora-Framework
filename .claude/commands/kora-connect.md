@@ -12,7 +12,7 @@ secret nằm (tên env var / đường dẫn `.env` / tên MCP connector).
 Chạy trước để biết hiện trạng — **đường dẫn tool TỰ RESOLVE** (bản cài để CORE ở `~/.claude/kora-framework/`),
 **KHÔNG tự viết Python parse YAML** (không có `pyyaml` — `check_connection.py` đã có parser riêng, chỉ stdlib):
 ```
-T=tools; [ -e "$T/connections/check_connection.py" ] || T="$HOME/.claude/kora-framework/tools"; python3 "$T/connections/check_connection.py" --list
+T=tools; [ -e "$T/connections/check_connection.py" ] || T="$HOME/.claude/kora-framework/tools"; python3 "$T/connections/check_connection.py" --list --config "$PWD/config/factory-config.yaml"
 ```
 (Windows: `py` thay `python3`.) Rồi hỏi:
 - **[Xem nguồn đã kết nối]** → liệt kê **TẤT CẢ** entry trong `connections:` kèm trạng thái
@@ -32,6 +32,10 @@ ESC hoặc [← Huỷ] = dừng, **KHÔNG ghi gì** vào `connections:`.
 - **MCP** (3 nguồn → 1 thẻ) → **[Atlassian Rovo (Jira + Confluence)]** / **[Gmail]** /
   **[Microsoft 365 (SharePoint + Outlook)]** — Connector đang có trong Claude App/Cowork (Settings →
   Connectors) **hoặc** gõ **`/mcp`** (Claude Code/Desktop) để kết nối server trước.
+  - ▸ **Connector GỘP nhiều dịch vụ → HỎI sub-service** (AskUserQuestion; mỗi dịch vụ = 1 nguồn RIÊNG để
+    verify/quét, đừng dừng ở "đã kết nối M365" rồi thôi): **Microsoft 365** → **[SharePoint] / [Outlook] /
+    [Cả hai]**; **Atlassian Rovo** → **[Jira] / [Confluence] / [Cả hai]**. (Gmail là 1 dịch vụ — không hỏi.)
+    Mỗi sub-service ghi entry riêng: `source_type` = `sharepoint`/`outlook`/`jira_cloud`/`confluence`, method `mcp`.
 - **API** (5 nguồn → **PHÂN TRANG 2 thẻ**; ưu tiên **OAuth 2.0**, PAT là fallback):
   - **Thẻ 1:** **[Jira Cloud]** / **[Jira Server / self-host]** / **[GitHub]** / **[Khác — xem thêm]**.
   - Chọn **[Khác — xem thêm]** → **Thẻ 2:** **[GitLab]** / **[SharePoint (Microsoft Graph — ĐẨY/ghi KB)]**.
@@ -51,7 +55,9 @@ ESC hoặc [← Huỷ] = dừng, **KHÔNG ghi gì** vào `connections:`.
 - **MCP** → **gọi `/mcp` TRƯỚC** (Claude Code / Claude Desktop): liệt kê MCP server, **kết nối + authorize**
   server của nguồn (Atlassian / Microsoft 365 / Gmail) — phải connected rồi tool MCP mới gọi được. Trên
   **Cowork (web)** thì bật/authorize ở **Settings → Connectors** (OAuth do app quản lý). Chỉ khi server đã
-  **connected** → **Verify** bằng cách gọi thử 1 MCP tool của nguồn (vd `atlassian` search). OK mới sang Bước 4.
+  **connected** → **Verify TỪNG sub-service đã chọn** bằng đúng MCP tool (gọi được + trả kết quả = connected):
+  **SharePoint → `sharepoint_folder_search`** (hoặc `sharepoint_search`) · **Outlook → `outlook_email_search`** ·
+  **Jira → search Jira** · **Confluence → search Confluence**. OK mới sang Bước 4.
 - **API** → ưu tiên **OAuth 2.0 Device Flow** (browser-OAuth chạy được từ CLI):
   1. Bắt đầu device flow với provider (GitHub `https://github.com/login/device/code`; GitLab/Jira **Cloud** tương đương). **Jira Server/DC KHÔNG có OAuth device-flow → dùng PAT (xem ▸ Jira bên dưới).**
   2. Hiện **verification URL + user code** cho user (KHÔNG phải secret) → user duyệt trên trình duyệt → poll token.
@@ -74,7 +80,7 @@ ESC hoặc [← Huỷ] = dừng, **KHÔNG ghi gì** vào `connections:`.
      trình duyệt) → yêu cầu **PAT/long-lived token** thay vì OAuth (xem cảnh báo headless ở `/kora-schedule`).
 
 ### Bước 4 — Verify rồi mới GHI (KHÔNG ghi nửa chừng)
-- **API:** chạy `python3 "$T/connections/check_connection.py" --check <id>` (`T` resolve như Bước 0) → đọc JSON kết quả.
+- **API:** chạy `python3 "$T/connections/check_connection.py" --check <id> --config "$PWD/config/factory-config.yaml"` (`T` resolve như Bước 0) → đọc JSON kết quả. *(tool đọc PROJECT config theo `--config`/cwd — KHÔNG phải CORE config.)*
 - **MCP:** tự gọi 1 MCP tool để verify.
 - **Chỉ khi verify THÀNH CÔNG** → ghi 1 entry đầy đủ vào `connections:` của `config/factory-config.yaml`
   (giữ id-uniqueness — trùng id thì replace-in-place), gồm: `id, method, source_type, display_name,
@@ -82,5 +88,7 @@ ESC hoặc [← Huỷ] = dừng, **KHÔNG ghi gì** vào `connections:`.
   verify {tool|probe}, status: connected, last_checked: <ISO local>, last_error: ""`.
   Verify thất bại → báo lỗi rõ (token sai/hết hạn, connector chưa bật), **KHÔNG ghi entry**.
 
-Kết thúc: báo nguồn đã kết nối + đề xuất bước kế (AskUserQuestion): **[A] /kora-scan nạp tri thức ·
-[B] Kết nối nguồn khác · [C] Đặt lịch đồng bộ · [D] Dừng**.
+Kết thúc — **KHÔNG dead-end** (verify xong phải dẫn user đi tiếp, đừng dừng im): báo (các) nguồn/sub-service đã
+kết nối, rồi đề xuất bước kế (AskUserQuestion, **item đầu = QUÉT NGAY**): **[A] Quét & lấy dữ liệu ngay
+(`/kora-scan`)** — SharePoint: *search thư mục (path) → chọn folder → get data về vault*; Outlook: *search email
+→ get*; Jira/Confluence: lấy issue/trang · **[B] Kết nối nguồn khác** · **[C] Đặt lịch đồng bộ** · **[D] Dừng**.

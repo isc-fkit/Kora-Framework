@@ -10,6 +10,21 @@
 
 ---
 
+## v2.5.5 "Kora-1" — 2026-06-21
+
+- **🐞 `/kora-connect` đọc nhầm config (lỗi `unrecognized arguments: --config`):** `check_connection.py` đặt
+  config theo vị trí TOOL → chạy từ CORE (`~/.claude/kora-framework/tools`) thì đọc **CORE config** (không có
+  `connections:` của user) thay vì **PROJECT config**. Nay thêm **`--config <path>`** + `resolve_config` mặc định
+  đọc `config/factory-config.yaml` của **thư mục hiện tại** (PROJECT), fallback CORE. `kora-connect.md` + `kora-scan.md`
+  truyền `--config "$PWD/config/factory-config.yaml"`.
+- **🐞 MCP Microsoft 365 verify xong "không làm gì":** connector GỘP nhiều dịch vụ nay **HỎI sub-service** —
+  Microsoft 365 → **[SharePoint] / [Outlook] / [Cả hai]** (Atlassian Rovo → Jira/Confluence). Verify **từng dịch vụ**
+  bằng đúng tool (`sharepoint_folder_search` / `outlook_email_search` / …), ghi **entry riêng** mỗi dịch vụ, và sau
+  verify **DẪN sang quét ngay** (SharePoint: search thư mục/path → get data về vault; Outlook: search email → get)
+  thay vì dừng im. `kora-scan.md` làm rõ nhánh SharePoint folder-path + thêm Outlook.
+
+> **Cập nhật:** thuần CORE (skill + tool) — KHÔNG migration DATA.
+
 ## v2.5.4 "Kora-1" — 2026-06-21
 
 - **🐞 Fix `/kora-version` + `/kora-update` không nhận ra bản mới:** cả hai đọc `version.json` qua **branch-raw**

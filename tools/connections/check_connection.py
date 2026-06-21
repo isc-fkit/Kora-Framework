@@ -30,8 +30,23 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parents[1]
-CONFIG = REPO_ROOT / "config" / "factory-config.yaml"
+CONFIG = REPO_ROOT / "config" / "factory-config.yaml"   # fallback bản dev (tool nằm trong repo)
 TIMEOUT = 30
+
+
+def resolve_config(arg: str = "") -> Path:
+    """Chọn factory-config.yaml ĐÚNG project. Tool có thể chạy từ CORE (~/.claude/kora-framework/tools)
+    cho 1 project ở thư mục khác → KHÔNG được đọc CORE config. Ưu tiên tồn-tại-đầu-tiên:
+    --config → cwd/config/factory-config.yaml (PROJECT — /kora-connect chạy ở thư mục project) → REPO_ROOT (dev)."""
+    cands = []
+    if arg:
+        cands.append(Path(arg).expanduser())
+    cands.append(Path.cwd() / "config" / "factory-config.yaml")
+    cands.append(CONFIG)
+    for p in cands:
+        if p.exists():
+            return p
+    return cands[0]   # không cái nào tồn tại → trả candidate đầu để thông báo hợp lý
 
 
 def now_iso() -> str:
@@ -190,9 +205,11 @@ def main():
     ap.add_argument("--list", action="store_true", help="In bảng các kết nối đã đăng ký.")
     ap.add_argument("--check", metavar="ID", help="Kiểm tra 1 kết nối theo id.")
     ap.add_argument("--json", action="store_true", help="In JSON thay vì bảng (cho --list).")
+    ap.add_argument("--config", default="", help="Đường dẫn factory-config.yaml (mặc định: config của "
+                    "thư mục hiện tại = PROJECT). Cần khi tool chạy từ CORE cho project ở nơi khác.")
     args = ap.parse_args()
 
-    conns = parse_connections(CONFIG)
+    conns = parse_connections(resolve_config(args.config))
 
     if args.list or (not args.check):
         if args.json:
