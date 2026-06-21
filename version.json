@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.8.8",
+  "version": "2.8.9",
   "codename": "Kora-1",
   "released": "2026-06-22",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.8.8 (sửa logic ngày-công + callout mở dashboard): (1) FIX tính sai năng suất — trước đây report lúc 8:00 ĐẦU NGÀY đã tính HÔM NAY là 1 ngày làm việc hoàn thành → đòi đủ 8h logtime → báo 'thiếu 8h' sai. Nay HÔM NAY chỉ tính vào 'ngày làm việc đã hoàn thành' KHI đã qua giờ tan làm (mặc định 17:00, đổi qua env KORA_WORKDAY_END_HOUR). Đầu ngày/đầu kỳ chưa đủ ngày hoàn thành thì KHÔNG flag thiếu/OT. Báo cáo ghi rõ 'hôm nay chưa tính'. (2) Thêm CALLOUT nổi bật (hộp cam) ngay dưới lời chào, nhắc mở FILE ĐÍNH KÈM xem dashboard tương tác chi tiết. Thuần CORE, không migration DATA."
+  "intro": "Kora-Framework v2.8.9 (chuẩn lại mốc tính ngày-công): HÔM NAY chỉ được tính vào 'ngày làm việc đã hoàn thành' SAU KHI HẾT NGÀY (24:00), không phải 17:00 — tức ngày chưa qua hết thì chưa kỳ vọng 8h logtime cho hôm nay. working_days_elapsed = số ngày làm việc đến HẾT HÔM QUA; report bất kỳ lúc nào trong ngày đều không báo 'thiếu 8h' oan cho hôm nay. Mặc định mốc = 24:00 (env KORA_WORKDAY_END_HOUR đổi được, vd 17 nếu muốn tính sau giờ tan làm). Thuần CORE, không migration DATA."
 }

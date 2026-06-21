@@ -10,6 +10,14 @@
 
 ---
 
+## v2.8.9 "Kora-1" — 2026-06-22
+
+- **🕛 Chuẩn lại mốc tính ngày-công: HÔM NAY chỉ tính SAU 24:00 (hết ngày), KHÔNG phải 17:00.** Ngày chưa qua hết thì
+  chưa kỳ vọng 8h logtime cho hôm nay → report **bất kỳ lúc nào trong ngày** (8:00, 12:00, 18:00…) đều KHÔNG báo
+  *"thiếu 8h"* oan cho hôm nay. `working_days_elapsed` = số ngày làm việc đến **HẾT HÔM QUA**. Mặc định mốc đổi từ 17 → **24**
+  (env `KORA_WORKDAY_END_HOUR` vẫn override được, vd đặt 17 nếu muốn tính sau giờ tan làm). Nhãn báo cáo: *"hôm nay CHƯA tính (chỉ tính sau khi HẾT NGÀY)"*.
+- Thuần **CORE**, KHÔNG migration DATA. Máy đã cài: gõ **"cập nhật phiên bản"**.
+
 ## v2.8.8 "Kora-1" — 2026-06-22
 
 - **🐞 FIX tính sai năng suất khi report ĐẦU NGÀY.** Trước đây capacity tính **HÔM NAY** là 1 ngày làm việc đã hoàn

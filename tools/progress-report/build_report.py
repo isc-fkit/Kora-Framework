@@ -293,9 +293,10 @@ def compute(issues, smap, today):
         _n = datetime.now(); ty, tmo, tday = _n.year, _n.month, _n.day
     days_in_month = calendar.monthrange(ty, tmo)[1]
     working_days = sum(1 for d in range(1, days_in_month + 1) if date(ty, tmo, d).weekday() < 5)
-    # Ngày làm việc ĐÃ HOÀN THÀNH (đầu tháng → hôm qua). HÔM NAY chỉ tính khi ĐÃ QUA GIỜ TAN LÀM (mặc định 17:00,
-    # đổi qua env KORA_WORKDAY_END_HOUR) — tránh report lúc 8:00 đầu ngày đã đòi đủ 8h logtime cho hôm nay (chưa làm việc).
-    end_hour = int(os.getenv("KORA_WORKDAY_END_HOUR") or 17)
+    # Ngày làm việc ĐÃ HOÀN THÀNH (đầu tháng → HẾT HÔM QUA). HÔM NAY chỉ tính SAU khi HẾT NGÀY (24:00) — ngày chưa
+    # xong thì CHƯA kỳ vọng 8h logtime cho hôm nay (tránh report lúc 8:00 báo "thiếu 8h" sai). Mặc định 24 = không tính
+    # hôm nay khi còn trong ngày; đổi mốc qua env KORA_WORKDAY_END_HOUR (vd 17 nếu muốn tính sau giờ tan làm).
+    end_hour = int(os.getenv("KORA_WORKDAY_END_HOUR") or 24)
     today_done = date(ty, tmo, tday).weekday() < 5 and datetime.now().hour >= end_hour
     last_complete = tday if today_done else tday - 1
     wd_elapsed = sum(1 for d in range(1, min(last_complete, days_in_month) + 1) if date(ty, tmo, d).weekday() < 5)
@@ -732,7 +733,7 @@ def render_email_body(m, vault, banner_url=""):
     cap_block = f'''<tr><td class="kpad" style="padding:8px 22px 2px">
       <div style="font-size:12px;color:{EPAL['mut']};text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px">Năng suất &amp; giờ công — tháng {esc(cap.get('month', ''))}</div>
       <div style="font-size:13.5px;color:{EPAL['ink']};line-height:1.75">
-        • Ngày làm việc: <b>{cap.get('working_days_elapsed', 0)} / {cap.get('working_days', 0)} ngày</b> đã <b>HOÀN THÀNH</b> trong tháng (T2–T6, 8h/ngày = 1 ngày công) — {'đã tính cả hôm nay (sau giờ tan làm).' if cap.get('today_counted') else f"<b>hôm nay CHƯA tính</b> (chưa qua {cap.get('workday_end_hour', 17)}h — tránh báo thiếu logtime sai lúc đầu ngày)."}<br>
+        • Ngày làm việc: <b>{cap.get('working_days_elapsed', 0)} / {cap.get('working_days', 0)} ngày</b> đã <b>HOÀN THÀNH</b> trong tháng (T2–T6, 8h/ngày = 1 ngày công) — {'đã tính cả hôm nay (ngày đã hết).' if cap.get('today_counted') else "<b>hôm nay CHƯA tính</b> (chỉ tính sau khi HẾT NGÀY — tránh báo thiếu logtime sai khi ngày chưa xong)."}<br>
         • Kỳ vọng <b>đến hôm nay</b>: <b>{hs(cap.get('team_expected_so_far_s', 0))}</b> ({cap.get('num_members', 0)} TV × {cap.get('working_days_elapsed', 0)} ngày × 8h) · mục tiêu cả tháng: <b>{hs(cap.get('team_std_seconds', 0))}</b>.<br>
         • Đã log: <b>{hs(cap.get('logged_seconds', 0))}</b> = <b>{cap.get('logged_working_days', 0)} ngày công</b> → đạt <b>{cap.get('pct_capacity', 0)}%</b> so với kỳ vọng đến hôm nay.<br>
         • {ot_txt}.
