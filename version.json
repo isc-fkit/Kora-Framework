@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.5.1",
+  "version": "2.5.2",
   "codename": "Kora-1",
   "released": "2026-06-21",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.5.1 (vá lỗi /kora-connect): (1) chọn phương thức API không còn lỗi 'Invalid tool parameters' — danh sách nguồn API nay PHÂN TRANG (≤4 option/thẻ: Jira Cloud/Jira Server/GitHub/[Khác] → GitLab/SharePoint); (2) chọn 'Jira Server / self-host' chạy ĐÚNG nhánh Server (PAT/Bearer, JIRA_AUTH_MODE=server, KHÔNG set JIRA_EMAIL) thay vì nhầm sang Cloud; (3) lệnh tool tự resolve sang ~/.claude/kora-framework/tools khi bản cài không có tools/ trong project, và cấm fallback parse YAML (không có pyyaml). Thuần CORE, không migration DATA."
+  "intro": "Kora-Framework v2.5.2: (1) Quét lại Jira → Obsidian nay IDEMPOTENT — mỗi issue chỉ 1 file; khi issue đổi tiêu đề (đổi slug) hoặc đổi loại (đổi thư mục), file CŨ cùng key được dọn → không còn file rác trùng. (2) /kora-connect nhánh MCP nay nhắc gọi /mcp TRƯỚC (Claude Code/Desktop) để kết nối + authorize MCP server, Cowork web thì Settings → Connectors, rồi mới verify. Thuần CORE, không migration DATA."
 }

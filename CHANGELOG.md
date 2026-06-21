@@ -10,6 +10,20 @@
 
 ---
 
+## v2.5.2 "Kora-1" — 2026-06-21
+
+- **🐞 Quét lại Jira → Obsidian IDEMPOTENT (hết file rác trùng):** `import_jira.py` ghi note theo
+  `{KEY}_{slug}.md` + thư mục theo loại; trước nay đổi **tiêu đề** (đổi slug) hoặc **đổi loại** (đổi thư mục)
+  → file cũ ở lại = trùng cho cùng 1 issue. Nay thêm `_purge_stale(base, key, keep)`: trước khi ghi, **xoá
+  mọi file `{KEY}_*.md` cũ cùng key** (mọi thư mục type) ≠ file đích → **mỗi issue đúng 1 file**. Dấu `_` +
+  `glob.escape` chống khớp nhầm key tiền tố (PROJ-1 vs PROJ-12); không đụng `_Index/_system`. (Issue XOÁ trên
+  Jira vẫn không tự mất — quét full định kỳ nếu cần.)
+- **`/kora-connect` nhánh MCP nhắc gọi `/mcp` TRƯỚC:** Bước 3 MCP nay hướng dẫn **`/mcp`** (Claude Code/Desktop)
+  để liệt kê + kết nối + authorize MCP server (Atlassian/Microsoft 365/Gmail) trước khi verify; **Cowork (web)**
+  thì Settings → Connectors. Bước 2 MCP ghi chú thêm `/mcp`.
+
+> **Cập nhật:** thuần CORE — KHÔNG migration DATA.
+
 ## v2.5.1 "Kora-1" — 2026-06-21
 
 - **🐞 Fix `/kora-connect` chọn [API] báo "Invalid tool parameters":** danh sách nguồn API có 5 mục (sau khi thêm

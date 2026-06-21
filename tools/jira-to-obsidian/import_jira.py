@@ -13,11 +13,16 @@ Dùng:
   python import_jira.py --since 2026-06-01       # chỉ quét issue tạo/sửa từ 2026-06-01 (merge vào vault)
   python import_jira.py --since                  # quét incremental từ lần chạy trước (tự đọc mốc)
 
+Re-scan IDEMPOTENT: mỗi issue chỉ 1 file (`{KEY}_{slug}.md`). Ghi đè theo path; nếu issue đổi tiêu đề
+(đổi slug) hoặc đổi loại (đổi thư mục) thì file CŨ cùng key được dọn (_purge_stale) → không nhân bản rác.
+(Issue bị XOÁ trên Jira vẫn không tự mất khỏi vault — định kỳ quét full nếu cần.)
+
 Bảo mật: chỉ dùng JIRA_PAT từ .env.local. Không in token ra log.
 """
 
 import argparse
 import base64
+import glob
 import json
 import os
 import re
@@ -573,6 +578,21 @@ def write(path, content):
         f.write(content)
 
 
+def _purge_stale(base, key, keep):
+    """Re-scan idempotent: xoá mọi note CŨ cùng issue key (đổi tiêu đề → đổi slug; đổi loại →
+    đổi thư mục type) ≠ file đích `keep`, để mỗi issue chỉ còn ĐÚNG 1 file (không nhân bản rác).
+    Dấu '_' trong '{key}_*' ngăn khớp nhầm key có cùng tiền tố (PROJ-1 vs PROJ-12)."""
+    k = glob.escape(key)
+    keep_abs = os.path.abspath(keep)
+    for pat in (os.path.join(base, "*", f"{k}_*.md"), os.path.join(base, f"{k}_*.md")):
+        for p in glob.glob(pat):
+            if os.path.abspath(p) != keep_abs:
+                try:
+                    os.remove(p)
+                except OSError:
+                    pass  # fallback an toàn (rule §1.9) — không fail cứng nếu không xoá được
+
+
 def fetch_all_comments(key):
     """Best-effort: lấy HẾT comment của 1 issue qua phân trang /issue/{key}/comment.
     Trả list comment đầy đủ; None nếu không lấy được (MCP/không token/lỗi) → giữ comment sẵn có."""
@@ -689,7 +709,9 @@ def write_issue(issue, pkey, fname_map, nodes, edges, registry):
     status = (issue["fields"].get("status") or {}).get("name", "")
     folder = TYPE_DIRS.get(itype, DIRS["raw"])  # mọi loại nhận diện được giữ đúng thư mục,
     # kể cả khi thiếu parent (đã đóng hay chưa vẫn quét — JQL không lọc status)
-    write(os.path.join(vault_base(pkey), folder, f"{fname_map[key]}.md"), issue_note(issue, pkey, fname_map))
+    target = os.path.join(vault_base(pkey), folder, f"{fname_map[key]}.md")
+    _purge_stale(vault_base(pkey), key, target)   # dọn file cũ cùng key (đổi tiêu đề/đổi loại) → 1 file/issue
+    write(target, issue_note(issue, pkey, fname_map))
 
     nodes.append({"id": key, "type": itype, "title": issue["fields"].get("summary", ""),
                   "status": status, "project": pkey,

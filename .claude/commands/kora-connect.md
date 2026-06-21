@@ -30,8 +30,8 @@ ESC hoặc [← Huỷ] = dừng, **KHÔNG ghi gì** vào `connections:`.
 > "Invalid tool parameters").
 
 - **MCP** (3 nguồn → 1 thẻ) → **[Atlassian Rovo (Jira + Confluence)]** / **[Gmail]** /
-  **[Microsoft 365 (SharePoint + Outlook)]** — chỉ những Connector đang có trong Claude App/Cowork
-  (Settings → Connectors).
+  **[Microsoft 365 (SharePoint + Outlook)]** — Connector đang có trong Claude App/Cowork (Settings →
+  Connectors) **hoặc** gõ **`/mcp`** (Claude Code/Desktop) để kết nối server trước.
 - **API** (5 nguồn → **PHÂN TRANG 2 thẻ**; ưu tiên **OAuth 2.0**, PAT là fallback):
   - **Thẻ 1:** **[Jira Cloud]** / **[Jira Server / self-host]** / **[GitHub]** / **[Khác — xem thêm]**.
   - Chọn **[Khác — xem thêm]** → **Thẻ 2:** **[GitLab]** / **[SharePoint (Microsoft Graph — ĐẨY/ghi KB)]**.
@@ -48,8 +48,10 @@ ESC hoặc [← Huỷ] = dừng, **KHÔNG ghi gì** vào `connections:`.
 > (vd `jira_cloud__api`, `jira_cloud__mcp`, `jira_server__api__companyvn`).
 
 ### Bước 3 — Kết nối
-- **MCP** → hướng dẫn user bật/authorize Connector trong **Claude App → Settings → Connectors** (OAuth do
-  app quản lý). **Verify** bằng cách gọi thử 1 MCP tool của nguồn (vd `atlassian` search). OK mới sang Bước 4.
+- **MCP** → **gọi `/mcp` TRƯỚC** (Claude Code / Claude Desktop): liệt kê MCP server, **kết nối + authorize**
+  server của nguồn (Atlassian / Microsoft 365 / Gmail) — phải connected rồi tool MCP mới gọi được. Trên
+  **Cowork (web)** thì bật/authorize ở **Settings → Connectors** (OAuth do app quản lý). Chỉ khi server đã
+  **connected** → **Verify** bằng cách gọi thử 1 MCP tool của nguồn (vd `atlassian` search). OK mới sang Bước 4.
 - **API** → ưu tiên **OAuth 2.0 Device Flow** (browser-OAuth chạy được từ CLI):
   1. Bắt đầu device flow với provider (GitHub `https://github.com/login/device/code`; GitLab/Jira **Cloud** tương đương). **Jira Server/DC KHÔNG có OAuth device-flow → dùng PAT (xem ▸ Jira bên dưới).**
   2. Hiện **verification URL + user code** cho user (KHÔNG phải secret) → user duyệt trên trình duyệt → poll token.
