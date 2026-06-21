@@ -10,6 +10,20 @@
 
 ---
 
+## v2.8.1 "Kora-1" — 2026-06-22
+
+- **🎨 Khối phân tích AI trong email = CARD MÀU theo mục (bỏ chip inline):** mỗi mục một card có viền + nền + tiêu đề
+  màu riêng, dễ quan sát — 🔴 Rủi ro cao (đỏ) · 🟡 Rủi ro vừa (vàng) · 🟢 Tích cực (xanh lá) · 👥 Theo thành viên (xanh
+  dương) · 📅 Dự đoán sprint (tím) · 🎯 Hành động (teal) · 📌 Tóm tắt (slate).
+- **📊 Bảng theo thành viên tô màu cột trạng thái:** `| Thành viên | Tổng | Done | In Review | In Progress | Ghi chú |`
+  với header cột Done=xanh lá · In Review=xanh dương · In Progress=cam · Test=tím · Chưa làm=xám (email-safe, render mọi client).
+- **🧠 Phân tích CHI TIẾT hơn:** prompt AI yêu cầu 7 mục cố định, mỗi rủi ro kèm **mã issue · người · tác động · đề xuất
+  từng bước**; bảng thành viên + dự đoán trượt theo NGÀY LÀM VIỆC; hành động ưu tiên đánh số.
+- **🔗 Renderer DÙNG CHUNG (build_report.py `--inject-ai`):** cả lịch nền (`orchestrator`) và gửi mail tay
+  (`/kora-send-mail`, WF14) đều ghi phân tích ra markdown rồi `build_report.py --inject-ai` render card → đồng nhất,
+  hết cảnh tự viết HTML tay. Sửa: `/kora-send-mail` [Gửi ngay] nay BẮT BUỘC chèn AI trước khi gửi.
+- Thuần **CORE**, KHÔNG migration DATA. Máy đã cài: gõ **"cập nhật phiên bản"**.
+
 ## v2.8.0 "Kora-1" — 2026-06-22
 
 - **🤖 Lịch nền TỰ ĐỘNG trọn vẹn (auto-bypass):** `orchestrator._ai_analysis` thêm `--dangerously-skip-permissions`

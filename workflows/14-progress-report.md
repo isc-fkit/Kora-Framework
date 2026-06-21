@@ -83,11 +83,17 @@ Tạo trong `reports/`:
 > by-assignee, status, risks). Claude TỰ tính & viết phần này — đây là **"phân tích AI trong dashboard"**.
 > KHÔNG bịa số: chỉ suy luận từ JSON; thiếu dữ liệu thì nói rõ.
 
-Sinh khối **🤖 Phân tích AI — CỰC KỲ CHI TIẾT**, ghi vào **3 nơi**: (a) in inline ở Bước 2; (b) container
-`<section id="kr-ai">` của `progress-report-<ngày>.html` (+ `-latest.html`); (c) **THAY toàn bộ** nội dung giữa
-`<!--KR-AI-START-->` và `<!--KR-AI-END-->` trong `email-body-<ngày>.html` (+ `email-body-latest.html`) bằng
-HTML email-safe (`<div>`/inline-style, KHÔNG `<script>`). Mỗi rủi ro nêu đủ: **mức độ (🔴/🟡) → khả năng/DỰ
-ĐOÁN + lý do bằng số liệu → tác động → PHƯƠNG ÁN ĐỀ XUẤT từng bước + ai làm + khi nào**. Gồm:
+Sinh khối **🤖 Phân tích AI — CỰC KỲ CHI TIẾT** dưới dạng **MARKDOWN**, rồi để TOOL render thành **CARD MÀU**
+(KHÔNG tự viết HTML/chip tay — tool lo màu sắc & bảng):
+1. **Ghi markdown** vào `reports/ai-analysis-latest.md`, MỖI MỤC mở đầu `## ` theo đúng thứ tự:
+   `## 🔴 Rủi ro cao (blocker)` · `## 🟡 Rủi ro vừa / Cần theo dõi` · `## 🟢 Điểm tích cực` ·
+   `## 👥 Phân tích theo thành viên` (KÈM BẢNG markdown `| Thành viên | Tổng | Done | Đang làm | Ghi chú |`) ·
+   `## 📅 Dự đoán sprint / timeline` · `## 🎯 Hành động ưu tiên` · `## 📌 Tóm tắt điều hành`.
+2. **Render + chèn vào email:** `python3 "$T/progress-report/build_report.py" --inject-ai reports/ai-analysis-latest.md`
+   → tool tự thay khối `<!--KR-AI-->` trong `email-body-latest.html` bằng **CARD MÀU theo mục** + **bảng tô màu cột
+   trạng thái** (Done=xanh lá · In Review=xanh dương · In Progress=cam · Test=tím · Chưa làm=xám). Mỗi mục một màu riêng dễ quan sát.
+3. (a) in inline ở Bước 2 + (b) container `<section id="kr-ai">` của dashboard: dùng **CÙNG nội dung markdown** đó.
+Mỗi rủi ro nêu đủ: **mức độ → khả năng/DỰ ĐOÁN + lý do bằng số liệu → tác động → PHƯƠNG ÁN ĐỀ XUẤT từng bước + ai làm + khi nào**. Nội dung mỗi mục:
 
 0. **Đối chiếu theo CHUẨN (Cloud / industry best-practice) — nền cho mọi cảnh báo:** so số liệu với mốc
    chuẩn rồi gọi tên "vượt / đạt / dưới chuẩn" kèm con số (đọc `capacity`, `logged_by_type`, `work_no_log`

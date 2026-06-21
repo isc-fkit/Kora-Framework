@@ -19,7 +19,6 @@ Token map:
     sharepoint:<site>  → sync_sharepoint.py --pull (scan) / --push (post) --site <site>
 """
 import argparse
-import html
 import json
 import os
 import re
@@ -455,50 +454,6 @@ def _incident_body(sid, errors, sources):
     return "\n".join(lines)
 
 
-def _md_to_html(md: str) -> str:
-    """Markdown đơn giản → HTML email-safe (heading / bullet / **bold** / chip rủi ro màu)."""
-    out, in_ul = [], False
-    chips = {"🔴": '<b style="color:#c0392b">🔴</b>', "🟡": '<b style="color:#b7791f">🟡</b>',
-             "🟢": '<b style="color:#1a9e63">🟢</b>'}
-    for raw in md.splitlines():
-        s = raw.strip()
-        if not s:
-            continue
-        esc = html.escape(s)
-        esc = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", esc)
-        for k, v in chips.items():
-            esc = esc.replace(k, v)
-        if s.startswith("#"):
-            if in_ul:
-                out.append("</ul>"); in_ul = False
-            out.append(f'<div style="font-weight:800;color:#0a4aa0;margin:9px 0 3px;font-size:13px">{esc.lstrip("# ")}</div>')
-        elif s[:2] in ("- ", "* ", "• ") or s.startswith("•"):
-            if not in_ul:
-                out.append('<ul style="margin:3px 0 6px;padding-left:18px">'); in_ul = True
-            out.append(f'<li style="margin:3px 0;font-size:12.5px;color:#33405a">{esc.lstrip("-*• ")}</li>')
-        else:
-            if in_ul:
-                out.append("</ul>"); in_ul = False
-            out.append(f'<div style="margin:4px 0;font-size:12.5px;color:#33405a">{esc}</div>')
-    if in_ul:
-        out.append("</ul>")
-    return "".join(out)
-
-
-def _inject_ai_email(ai_text: str):
-    """Thay khối <!--KR-AI-START-->…<!--KR-AI-END--> trong email-body-latest.html bằng phân tích AI (đã format)."""
-    email = REPO_ROOT / "reports" / "email-body-latest.html"
-    if not email.exists() or not ai_text.strip():
-        return
-    block = _md_to_html(ai_text)
-    txt = email.read_text(encoding="utf-8")
-    new = re.sub(r"<!--KR-AI-START-->.*?<!--KR-AI-END-->",
-                 lambda _m: "<!--KR-AI-START-->" + block + "<!--KR-AI-END-->",
-                 txt, count=1, flags=re.DOTALL)
-    email.write_text(new, encoding="utf-8")
-    log("  (AI analysis: đã CHÈN vào email body)")
-
-
 def _ai_analysis(cfg, log_dir):
     mode = (cfg.get("scheduler.ai_risk_analysis.mode") or "auto").lower()
     if mode == "off":
@@ -514,24 +469,39 @@ def _ai_analysis(cfg, log_dir):
     if not data.exists():
         return
     prompt = (
-        "Bạn là trợ lý phân tích tiến độ dự án. Đọc JSON tiến độ dưới đây và viết phân tích NGẮN GỌN (tiếng Việt) "
-        "cho quản lý, THEO CẤU TRÚC markdown:\n"
-        "## Rủi ro (mỗi mục mở đầu 🔴 cao / 🟡 vừa / 🟢 thấp + lý do BẰNG SỐ)\n"
-        "## Dự đoán (nguy cơ trượt timeline / sprint — theo NGÀY LÀM VIỆC)\n"
-        "## Hướng giải quyết (cụ thể theo người / bước)\n"
-        "## Tổng kết (1–2 câu điều hành)\n"
-        "QUY ƯỚC: 8h = 1 ngày công; bỏ Thứ 7/CN; so với 'expected_so_far' (số NGÀY LÀM VIỆC ĐÃ trôi qua) — "
-        "log đủ 8h/ngày là ĐÚNG TIẾN ĐỘ, KHÔNG phải OT; duedate tính ĐẾN HẾT NGÀY (start 15 / due 16 = 1 ngày, không trượt).\n\n"
-        + data.read_text(encoding='utf-8')[:7000])
+        "Bạn là trợ lý phân tích tiến độ dự án. Đọc JSON tiến độ ở cuối và viết phân tích CHI TIẾT (tiếng Việt) "
+        "cho quản lý, dùng markdown — MỖI MỤC bắt đầu bằng '## ' theo ĐÚNG thứ tự sau:\n"
+        "## 🔴 Rủi ro cao (blocker)\n"
+        "   - <mã issue> — <vấn đề> (<assignee>): <tác động> → <đề xuất xử lý>\n"
+        "## 🟡 Rủi ro vừa / Cần theo dõi\n"
+        "   - tương tự nhưng mức nhẹ hơn\n"
+        "## 🟢 Điểm tích cực\n"
+        "   - thành tựu, velocity tốt, hạng mục đã sạch lỗi (kèm SỐ)\n"
+        "## 👥 Phân tích theo thành viên\n"
+        "   Một BẢNG markdown: | Thành viên | Tổng | Done | Đang làm | Ghi chú |\n"
+        "   rồi 1–2 dòng nêu ai quá tải / đa nhiệm, ai còn dư công, gợi ý cân bằng.\n"
+        "## 📅 Dự đoán sprint / timeline\n"
+        "   - nguy cơ trượt (theo NGÀY LÀM VIỆC), lý do BẰNG SỐ, mốc tới hạn cụ thể\n"
+        "## 🎯 Hành động ưu tiên\n"
+        "   1. việc cần làm ngay (ai · khi nào)\n"
+        "## 📌 Tóm tắt điều hành\n"
+        "   2–3 câu cho lãnh đạo.\n\n"
+        "QUY ƯỚC: 8h = 1 ngày công; bỏ Thứ 7/CN; so với 'expected_so_far' (số NGÀY LÀM VIỆC ĐÃ trôi qua) — log đủ "
+        "8h/ngày là ĐÚNG TIẾN ĐỘ, KHÔNG phải OT; duedate tính ĐẾN HẾT NGÀY (start 15 / due 16 = 1 ngày). Trích số "
+        "liệu CỤ THỂ (mã issue, tên người, số giờ/ngày) từ JSON — TUYỆT ĐỐI không nói chung chung.\n\n"
+        + data.read_text(encoding='utf-8')[:9000])
     # Bypass quyền → headless/cron KHÔNG kẹt prompt (bật/tắt qua config; mặc định bật).
     skip = (cfg.get("scheduler.ai_risk_analysis.skip_permissions") or "true").strip().lower() != "false"
     cmd = [claude, "-p", prompt] + (["--dangerously-skip-permissions"] if skip else [])
     try:
-        p = subprocess.run(cmd, capture_output=True, text=True, timeout=240)
+        p = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
         if p.returncode == 0 and p.stdout.strip():
+            md_file = REPO_ROOT / "reports" / "ai-analysis-latest.md"
+            md_file.write_text(p.stdout, encoding="utf-8")
             (log_dir / f"ai-analysis-{today()}.md").write_text(p.stdout, encoding="utf-8")
-            _inject_ai_email(p.stdout)          # ← CHÈN vào email TRƯỚC khi gửi (bug cũ: thiếu bước này)
-            log("  (AI analysis: đã ghi)")
+            # render CARD MÀU + chèn vào email — DÙNG renderer build_report (thống nhất path nền & tương tác)
+            run_tool(REPO_ROOT / "tools" / "progress-report" / "build_report.py", ["--inject-ai", str(md_file)])
+            log("  (AI analysis: đã ghi + chèn card màu vào email)")
         else:
             log(f"  (AI analysis: claude rc={p.returncode} — email giữ placeholder)")
     except Exception as e:  # noqa: BLE001

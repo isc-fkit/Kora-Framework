@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.8.0",
+  "version": "2.8.1",
   "codename": "Kora-1",
   "released": "2026-06-22",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.8.0 (lịch nền TỰ ĐỘNG trọn vẹn + mail thông minh hơn): (1) Lịch nền AUTO-BYPASS — phân tích AI chạy headless KHÔNG kẹt prompt quyền (--dangerously-skip-permissions) + tự CHÈN phân tích AI (rủi ro/dự đoán/hướng giải quyết, chip 🔴🟡🟢) vào email rồi tự gửi (sửa bug email lịch thiếu phần AI). (2) Báo cáo FULL-SCAN project (status + comment MỚI NHẤT, GHI ĐÈ local — hết cảnh task đã Done trên server mà local còn cũ, không nhân bản). (3) /kora-connect thêm Gmail SMTP App Password = TỰ ĐỘNG GỬI (khác Gmail MCP chỉ tạo nháp). (4) Logic ngày-công: tính theo NGÀY LÀM VIỆC đã trôi qua (bỏ T7/CN), 8h log = 1 ngày công (hết 'OT nhầm'/'thiếu nhiều'); duedate tính TRONG NGÀY (start 15/due 16 = 1 ngày, không trượt). (5) Email chống DARK MODE (chữ không biến mất trên Gmail/điện thoại) + BIỂU ĐỒ trong mail (thanh trạng thái + bar theo người/dự án, render mọi client). Thuần CORE, không migration DATA."
+  "intro": "Kora-Framework v2.8.1 (phân tích AI trong email ĐẸP & CHI TIẾT hơn): khối '🤖 Phân tích & khuyến nghị' nay là CÁC CARD MÀU riêng biệt theo mục (🔴 Rủi ro cao · 🟡 Rủi ro vừa · 🟢 Tích cực · 👥 Bảng theo thành viên tô màu trạng thái · 📅 Dự đoán sprint · 🎯 Hành động ưu tiên · 📌 Tóm tắt điều hành) thay cho chip inline — dễ quan sát hơn nhiều. Phân tích sâu hơn: từng rủi ro kèm mã issue/người/đề xuất; bảng thành viên (Done/In Review/In Progress) tô màu cột (Done xanh lá · In Review xanh dương · In Progress cam). Renderer dùng CHUNG cho lịch nền + gửi mail tay (build_report.py --inject-ai). Thuần CORE, không migration DATA."
 }

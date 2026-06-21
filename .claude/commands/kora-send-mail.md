@@ -24,6 +24,11 @@ The user invoked `/kora-send-mail` — gửi email báo cáo tiến độ. **CÓ
         status + comment hiện tại; `_purge_stale` ghi đè, **không nhân bản**) **hoặc** MCP `searchJiraIssuesUsingJql`
         `project in (<KEYS>)` → `import_jira.py --from-mcp` → reindex `build_index.py --root .` →
         `python3 "$T/progress-report/build_report.py" --projects "<KEYS>"` (report scope ĐÚNG project vừa quét).
+     c2. **PHÂN TÍCH AI + chèn CARD MÀU vào email (BẮT BUỘC trước khi gửi):** viết phân tích theo
+        `workflows/14-progress-report.md` Bước 1.5 → ghi `reports/ai-analysis-latest.md` (markdown 7 mục: 🔴 rủi ro cao ·
+        🟡 vừa · 🟢 tích cực · 👥 BẢNG theo thành viên · 📅 dự đoán · 🎯 hành động · 📌 tóm tắt) → `python3
+        "$T/progress-report/build_report.py" --inject-ai reports/ai-analysis-latest.md` (tool render **card màu theo mục +
+        bảng tô màu trạng thái** vào `email-body-latest.html`). **KHÔNG gửi** khi khối AI còn trống/placeholder.
      d. **GỬI TỰ ĐỘNG (mặc định, kể cả Gmail):** kiểm `tools/report-mailer/.env.local` có `SMTP_USER`+`SMTP_PASS`.
         - **Chưa có** → hướng dẫn tạo **Gmail App Password** (bật 2FA → `myaccount.google.com/apppasswords`), điền
           `tools/report-mailer/.env.local`: `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=587`, `SMTP_USER=<email>`,

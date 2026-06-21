@@ -814,13 +814,193 @@ def render_email_body(m, vault, banner_url=""):
 </table></td></tr></table>"""
 
 
+# ─────────────────────── Phân tích AI → CARD MÀU + BẢNG (email-safe) ───────────────────────
+# Mỗi mục phân tích = 1 CARD có màu riêng (viền + nền nhạt + tiêu đề đậm) thay cho chip inline → dễ quan sát.
+_AI_THEMES = {
+    "red":    {"bd": "#d23b3b", "bg": "#fdeceb", "hd": "#a52217", "ic": "🔴"},
+    "amber":  {"bd": "#e0900a", "bg": "#fff6e3", "hd": "#945c00", "ic": "🟡"},
+    "green":  {"bd": "#1fa463", "bg": "#e8f8f0", "hd": "#137045", "ic": "🟢"},
+    "blue":   {"bd": "#2f6fe0", "bg": "#eaf1fd", "hd": "#1b4aa0", "ic": "👥"},
+    "violet": {"bd": "#7c4dd6", "bg": "#f1ebfb", "hd": "#5a32a3", "ic": "📅"},
+    "teal":   {"bd": "#0ea5b5", "bg": "#e4f6f8", "hd": "#0a6f7a", "ic": "🎯"},
+    "slate":  {"bd": "#5a6b86", "bg": "#eef2f7", "hd": "#33405a", "ic": "📌"},
+}
+
+
+def _ai_theme(title):
+    t = title.lower()
+    if "🔴" in title:
+        return "red"
+    if "🟡" in title:
+        return "amber"
+    if "🟢" in title:
+        return "green"
+    pairs = [
+        ("red", ("rủi ro cao", "nghiêm trọng", "blocker", "critical", "khẩn", "sự cố")),
+        ("amber", ("rủi ro vừa", "rủi ro trung", "cảnh báo", "warning", "theo dõi", "lưu ý")),
+        ("green", ("tích cực", "điểm sáng", "thuận lợi", "positive", "tốt", "đạt")),
+        ("blue", ("thành viên", "nhân sự", "workload", "phân bổ", "tải", "theo người")),
+        ("violet", ("dự đoán", "sprint", "timeline", "forecast", "dự báo")),
+        ("teal", ("hành động", "đề xuất", "khuyến nghị", "action", "ưu tiên", "next step")),
+        ("slate", ("tóm tắt", "điều hành", "tổng kết", "summary", "kết luận")),
+    ]
+    for theme, kws in pairs:
+        if any(k in t for k in kws):
+            return theme
+    return "slate"
+
+
+def _status_tint(text):
+    t = (text or "").lower()
+    if any(k in t for k in ("done", "hoàn thành", "resolve", "closed", "xong")):
+        return "#1fa463"
+    if "review" in t:
+        return "#2f6fe0"
+    if any(k in t for k in ("progress", "đang làm", "doing", "wip")):
+        return "#e0900a"
+    if "test" in t:
+        return "#7c4dd6"
+    if any(k in t for k in ("todo", "to do", "chưa", "backlog", "open", "mở")):
+        return "#8a96a8"
+    return ""
+
+
+def _ai_inline(s):
+    s = esc(s)
+    s = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", s)
+    return s
+
+
+def _render_md_table(rows, theme):
+    cells = [[c.strip() for c in r.strip().strip("|").split("|")] for r in rows]
+    cells = [c for c in cells if "".join(c).replace("-", "").replace(":", "").strip()]  # bỏ dòng phân cách |---|
+    if not cells:
+        return ""
+    head, body = cells[0], cells[1:]
+    th = "".join(
+        f'<th style="padding:6px 9px;text-align:left;font-size:11.5px;font-weight:800;color:#ffffff;'
+        f'background:{_status_tint(h) or _AI_THEMES[theme]["bd"]};border:1px solid #ffffff">{_ai_inline(h)}</th>'
+        for h in head)
+    trs = ""
+    for ri, row in enumerate(body):
+        bg = "#ffffff" if ri % 2 == 0 else "#f4f7fb"
+        tds = "".join(
+            f'<td style="padding:5px 9px;font-size:12px;color:{EPAL["ink"]};background-color:{bg};'
+            f'border:1px solid #e3e9f1">{_ai_inline(c)}</td>' for c in row)
+        trs += f"<tr>{tds}</tr>"
+    return (f'<table role="presentation" width="100%" cellpadding="0" cellspacing="0" '
+            f'style="border-collapse:collapse;margin:7px 0">'
+            f'<thead><tr>{th}</tr></thead><tbody>{trs}</tbody></table>')
+
+
+def _ai_body(lines, theme):
+    out, ul, tbl = [], [], []
+
+    def flush_ul():
+        if ul:
+            out.append('<ul style="margin:4px 0 5px;padding-left:18px">' + "".join(ul) + "</ul>")
+            ul.clear()
+
+    def flush_tbl():
+        if tbl:
+            flush_ul()
+            out.append(_render_md_table(list(tbl), theme))
+            tbl.clear()
+
+    for ln in lines:
+        s = ln.strip()
+        if not s:
+            continue
+        if s.startswith("|"):
+            flush_ul()
+            tbl.append(s)
+            continue
+        flush_tbl()
+        if s.startswith("###"):
+            flush_ul()
+            out.append(f'<div style="font-weight:700;color:{EPAL["ink"]};font-size:12.5px;margin:8px 0 2px">'
+                       f'{_ai_inline(s.lstrip("# "))}</div>')
+        elif s[:2] in ("- ", "* ") or s.startswith("•") or re.match(r"^\d+[.)]\s", s):
+            txt = re.sub(r"^(\d+[.)]|[-*•])\s*", "", s)
+            ul.append(f'<li style="margin:3px 0;font-size:12.5px;color:#33405a;line-height:1.55">{_ai_inline(txt)}</li>')
+        else:
+            flush_ul()
+            out.append(f'<div style="margin:4px 0;font-size:12.5px;color:#33405a;line-height:1.55">{_ai_inline(s)}</div>')
+    flush_tbl()
+    flush_ul()
+    return "".join(out)
+
+
+def _ai_card(title, body_html, theme):
+    th = _AI_THEMES[theme]
+    disp = re.sub(r"^[🔴🟡🟢👥📅🎯📌•\-\s]+", "", title).strip() or title
+    return (f'<div style="border-left:4px solid {th["bd"]};background-color:{th["bg"]};border-radius:8px;'
+            f'padding:11px 14px;margin:10px 0">'
+            f'<div style="font-weight:800;color:{th["hd"]};font-size:13.5px;margin-bottom:5px">{th["ic"]} {esc(disp)}</div>'
+            f'{body_html or ""}</div>')
+
+
+def render_ai_cards(md):
+    """Markdown phân tích AI → CHUỖI card màu theo mục + bảng (email-safe). Thay cho chip inline."""
+    md = (md or "").strip()
+    if not md:
+        return '<div style="color:#7a8aa3;font-size:12.5px">Chưa có phân tích AI cho kỳ này.</div>'
+    cards, intro, cur_title, cur_lines = [], [], None, []
+
+    def flush():
+        nonlocal cur_title, cur_lines
+        if cur_title is not None:
+            theme = _ai_theme(cur_title)
+            cards.append(_ai_card(cur_title, _ai_body(cur_lines, theme), theme))
+        cur_title, cur_lines = None, []
+
+    for ln in md.splitlines():
+        s = ln.strip()
+        is_hdr = bool(re.match(r"^#{1,2}\s", s)) or \
+            (s.startswith("**") and s.endswith("**") and 3 < len(s) < 56 and s.count("**") == 2)
+        if is_hdr:
+            flush()
+            cur_title = re.sub(r"^#+\s*", "", s).strip().strip("*").strip()
+            cur_lines = []
+        elif cur_title is None:
+            if s:
+                intro.append(s)
+        else:
+            cur_lines.append(ln)
+    flush()
+    intro_html = "".join(
+        f'<div style="margin:4px 0;font-size:12.5px;color:#33405a;line-height:1.55">{_ai_inline(x)}</div>'
+        for x in intro)
+    return intro_html + "".join(cards)
+
+
+def inject_ai_into_email(out_dir, md_path):
+    """Đọc file markdown AI → render card màu → thay khối <!--KR-AI--> trong email-body-latest.html."""
+    email = os.path.join(out_dir, "email-body-latest.html")
+    if not os.path.exists(email):
+        die(f"Không thấy {email} — hãy chạy build_report (sinh email) trước khi --inject-ai.")
+    md = open(md_path, encoding="utf-8").read() if os.path.exists(md_path) else md_path
+    block = render_ai_cards(md)
+    txt = open(email, encoding="utf-8").read()
+    txt = re.sub(r"<!--KR-AI-START-->.*?<!--KR-AI-END-->",
+                 lambda _m: "<!--KR-AI-START-->" + block + "<!--KR-AI-END-->", txt, count=1, flags=re.DOTALL)
+    open(email, "w", encoding="utf-8").write(txt)
+    print(f"Đã chèn phân tích AI (card màu) vào {email}")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--vault", help="Đường dẫn vault (mặc định đọc config/factory-config.yaml)")
     ap.add_argument("--out", help="Thư mục xuất (mặc định reports/)")
     ap.add_argument("--projects", default="", help="Lọc báo cáo theo project key, cách nhau phẩy "
                     "(vd PROJ1,PROJ2). Rỗng = tất cả project trong vault.")
+    ap.add_argument("--inject-ai", dest="inject_ai", help="Chèn file markdown phân tích AI (CARD MÀU) vào "
+                    "email-body-latest.html (trong --out) rồi thoát. KHÔNG build lại report.")
     args = ap.parse_args()
+
+    if args.inject_ai:  # chỉ chèn phân tích AI vào email đã build → thoát
+        inject_ai_into_email(args.out or os.path.join(REPO_ROOT, "reports"), args.inject_ai)
+        return
 
     vault = args.vault
     smap = None
