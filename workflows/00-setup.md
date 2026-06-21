@@ -78,33 +78,37 @@ biến (KHÔNG hỏi phần này — rule "tự chạy" chỉ áp cho bước co
 
 Xong → tiếp **Bước 1**.
 
-## Bước 1 — Chào + chọn Domain
+## Bước 1 — Chào + chọn Domain (CHỌN NHIỀU hoặc TẤT CẢ)
 
 Hỏi user:
 
-> "Sản phẩm của bạn thuộc lĩnh vực nào? Domain quyết định các rule phân tích
-> (thuật ngữ, ràng buộc pháp lý, mức độ thận trọng)."
+> "Sản phẩm của bạn thuộc (những) lĩnh vực nào? Có thể chọn **nhiều domain** — rule sẽ GỘP từ tất cả
+> domain đã chọn (thuật ngữ, ràng buộc pháp lý, mức độ thận trọng)."
 
-**→ Dùng AskUserQuestion — liệt kê ĐỘNG:** đọc TẤT CẢ `*.md` trong `config/domain-presets/` (mỗi thẻ =
-tên + 1 dòng mô tả lấy từ tiêu đề preset). Hiện có **7 preset phổ biến** (installer tự kéo về):
+**→ Dùng AskUserQuestion với `multiSelect: true` — liệt kê ĐỘNG:** đọc TẤT CẢ `*.md` trong
+`config/domain-presets/` (mỗi thẻ = tên + 1 dòng mô tả lấy từ tiêu đề preset). Hiện có **15 preset phổ
+biến** (installer tự kéo về): Healthcare / Y tế · Fintech · Banking / Ngân hàng · Insurance / Bảo hiểm ·
+E-commerce · Retail / Bán hàng · Manufacturing / Sản xuất–Điện tử · Logistics / Chuỗi cung ứng ·
+Telecom / Viễn thông · Education / Giáo dục · Government / Khu vực công · HR / Nhân sự · SaaS / Phần mềm
+B2B · Real-estate / Bất động sản · Generic / Khác.
 
-- **Healthcare / Y tế** (`healthcare.md`) · **Fintech** (`fintech.md`) · **E-commerce** (`ecommerce.md`)
-- **Retail / Bán hàng** (`retail.md`) · **Manufacturing / Sản xuất–Điện tử** (`manufacturing.md`)
-- **Education / Giáo dục** (`education.md`) · **Generic / Khác** (`generic.md`)
+**Cách hỏi (vượt giới hạn 4 option của AskUserQuestion):**
+- **Thẻ 1 (multiSelect):** 2 domain phổ biến/hợp ngữ cảnh + **[Tất cả domain]** + **[Khác — xem thêm]**.
+- Chọn **[Khác — xem thêm]** → **lượt kế (multiSelect)** liệt kê phần còn lại (chia nhiều lượt nếu cần);
+  **GỘP** mọi lựa chọn qua các lượt (loại trùng).
+- Chọn **[Tất cả domain]** = chọn HẾT mọi preset.
+- Sản phẩm rõ lĩnh vực → ưu tiên đúng domain. (Thêm preset mới vào `config/domain-presets/` tự xuất hiện.)
 
-AskUserQuestion tối đa 4 thẻ → nhóm MẶC ĐỊNH: **Healthcare / Y tế · Retail / Bán hàng · Manufacturing /
-Sản xuất–Điện tử · [Khác — xem thêm]** (Healthcare/Y tế **LUÔN có**). Chọn "Khác" → lượt kế liệt kê
-phần còn lại: **Fintech · E-commerce · Education / Giáo dục · Generic**. Sản phẩm rõ lĩnh vực thì ưu
-tiên preset đúng. (Thêm preset mới vào `config/domain-presets/` là tự xuất hiện ở "Khác".)
-
-Hành động sau khi chọn:
-- Copy preset đã chọn → `config/domain-rules.md`.
-- Ghi `domain:` vào `config/factory-config.yaml`.
+Hành động sau khi chọn (≥1 domain):
+- **GỘP nguyên văn TẤT CẢ preset đã chọn → `config/domain-rules.md`** theo cơ chế ở **§Gộp rule đa-domain**
+  (cuối workflow): header liệt kê domain + mỗi preset 1 mục `## <Tên domain>`.
+- Ghi `domain.preset` = **chuỗi nối phẩy** các slug đã chọn (vd `healthcare, telecom`) + `description` ngắn,
+  vào `config/factory-config.yaml`.
 → Sang **Bước 2 — Domain rule** (việc chỉnh rule TÁCH thành một bước riêng).
 
 ## Bước 2 — Domain rule (bước RIÊNG)
 
-Sau khi Bước 1 đã copy preset → `config/domain-rules.md`:
+Sau khi Bước 1 đã GỘP (các) preset đã chọn → `config/domain-rules.md` (rule có thể thuộc NHIỀU domain):
 
 - **→ dùng AskUserQuestion** (ca LAI; **KHÔNG mở đầu bằng câu nhập tự do**):
   *"Bạn muốn chỉnh rule domain không?"* → **[Giữ nguyên preset (khuyến nghị)]** / **[Thêm/bớt rule]**.
@@ -224,9 +228,34 @@ Hành động:
 
 ## Mục B — Đổi domain / rule (trigger: "đổi domain", "sửa rule")
 
-1. Đọc `config/domain-rules.md` hiện tại, tóm tắt cho user.
-2. Hỏi: đổi sang preset khác hay sửa từng rule?
+1. Đọc `config/domain-rules.md` hiện tại + `domain.preset` (chuỗi nối phẩy), tóm tắt cho user.
+2. Hỏi: **đổi TẬP domain** hay **sửa từng rule**?
+   - **Đổi tập domain** → AskUserQuestion `multiSelect: true` (giống Bước 1, có **[Tất cả domain]** +
+     **[Khác — xem thêm]**); **GỘP lại** `config/domain-rules.md` theo **§Gộp rule đa-domain** + ghi lại
+     `domain.preset` nối phẩy.
+   - **Sửa từng rule** → cập nhật trực tiếp `config/domain-rules.md`.
 3. Mọi thay đổi: hiển thị diff dạng dễ hiểu → user confirm → ghi file.
-4. Cập nhật `factory-config.yaml` + changelog.
+4. Cập nhật `factory-config.yaml` + changelog; reindex `python3 tools/kb-indexer/build_index.py --root .`.
 5. Nhắc user: rule mới chỉ áp dụng cho phân tích từ giờ; tài liệu cũ không tự sửa lại
    (có thể yêu cầu "rà soát lại KB theo rule mới").
+
+---
+
+## §Gộp rule đa-domain — cách dựng `config/domain-rules.md` từ NHIỀU preset
+
+Khi user chọn ≥1 domain (Bước 1 hoặc Mục B), **regenerate idempotent** `config/domain-rules.md`:
+
+1. **Header** liệt kê các domain đã chọn + ghi chú gộp:
+   ```markdown
+   # Domain Rules — <project>
+   > Domain đã chọn: Healthcare / Y tế, Telecom / Viễn thông, …
+   > Áp dụng ĐỒNG THỜI rule của TẤT CẢ domain dưới đây. Xung đột → nguyên tắc bất biến (CLAUDE.md §1) thắng.
+   ```
+2. **Với mỗi preset đã chọn** (theo thứ tự liệt kê), chèn 1 mục:
+   ```markdown
+   ## <Tên domain (lấy từ tiêu đề preset, bỏ "Domain Preset — ")>
+   <nguyên văn nội dung preset, GIỮ các mục ### 1..6>
+   ```
+3. Nối tất cả → ghi đè `config/domain-rules.md`. (Không dedup ngữ nghĩa — giữ nguyên văn để truy vết;
+   user muốn tinh chỉnh thì dùng Bước 2 / "sửa rule".)
+4. Ghi `domain.preset` = slug nối phẩy (vd `healthcare, telecom`); `domain.description` = tên các domain.

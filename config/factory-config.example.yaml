@@ -9,9 +9,12 @@ project_name: TODO
 language: vi              # ngôn ngữ tài liệu
 
 domain:
-  preset: TODO            # healthcare | fintech | ecommerce | generic
-  description: TODO
-  rules_file: config/domain-rules.md
+  # CHỌN NHIỀU domain được — preset = chuỗi NỐI PHẨY (rule sẽ GỘP từ tất cả).
+  preset: TODO            # vd "healthcare, telecom" — các slug: healthcare | fintech | banking | insurance |
+                          # ecommerce | retail | manufacturing | logistics | telecom | education | government |
+                          # hr | saas | real-estate | generic
+  description: TODO       # tên các domain đã chọn (để hiển thị)
+  rules_file: config/domain-rules.md   # file rule GỘP từ các preset đã chọn (xem workflows/00-setup.md §Gộp rule đa-domain)
 
 knowledge_base:
   vault_path: Project_Name_Brain

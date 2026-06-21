@@ -6,7 +6,7 @@
 
 **Kết nối đa nguồn → Tổng hợp tri thức → Đồng bộ Cloud KB chung → Tự động báo cáo & cảnh báo**
 
-[![Version](https://img.shields.io/badge/version-2.4.0-2f7bff)](./version.json)
+[![Version](https://img.shields.io/badge/version-2.5.0-2f7bff)](./version.json)
 [![Codename](https://img.shields.io/badge/codename-Kora--1-5b9bff)](./CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-444)](#-cài-đặt)
 [![Claude](https://img.shields.io/badge/runs%20in-Claude%20CLI%20%2B%20Desktop-7c5cff)](https://claude.ai/code)
@@ -93,7 +93,7 @@ Chạy lại cùng lệnh = **cập nhật**. Gỡ: `/kora-uninstall` (hoặc `u
 setup → init → connect → scan → schedule → mail → archive
 ```
 
-1. **`/kora-init`** — chọn domain (tự kéo preset + rule), tên project, vault.
+1. **`/kora-init`** — chọn domain (một / nhiều / tất cả → rule GỘP), tên project, vault.
 2. **`/kora-connect`** — kết nối nguồn (MCP/API); xem nguồn đã kết nối.
 3. **`/kora-scan`** — quét & tổng hợp (scan-all hoặc chọn project).
 4. **`/kora-sync`** — đẩy KB lên Confluence / GitHub private (có cổng mật khẩu).

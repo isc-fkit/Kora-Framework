@@ -257,7 +257,7 @@
     <div class="brand" data-go="home" title="Trang chủ">
       <span class="brandmark" aria-hidden="true">K</span>
       <span class="org">FPT TELECOM</span>
-      <div class="fw">KORA AI<span>v2.4.0 · Kora-1</span></div>
+      <div class="fw">KORA AI<span>v2.5.0 · Kora-1</span></div>
     </div>
     <nav class="nav">
       <div class="grp">Tổng quan</div>
@@ -284,7 +284,7 @@
     <!-- ===================== HOME ===================== -->
     <div class="page" id="home">
       <header class="hero">
-        <span class="badge">FPT Telecom · KORA AI · v2.4.0 · &ldquo;Kora-1&rdquo;</span>
+        <span class="badge">FPT Telecom · KORA AI · v2.5.0 · &ldquo;Kora-1&rdquo;</span>
         <h1>KORA AI — Sơ đồ nguyên lý hoạt động</h1>
         <p class="sub">Trợ lý tri thức tự lớn lên cùng dự án: hợp nhất tri thức phân tán, nối tri thức local của nhân viên với <b>Knowledge Base</b> chung (trên Cloud), và tự động hóa đồng bộ — báo cáo — cảnh báo.</p>
         <div class="pipe">
@@ -617,7 +617,7 @@
 
       <h2 class="sec">Các bước thực thi (8 bước)</h2>
       <div class="tl">
-        <div class="step"><div class="node">🚀</div><div class="body"><div class="t"><span class="num">1</span>Khởi tạo <code>/kora-init</code></div><p>Dựng project + vault + kéo domain/rule; hỏi domain / tên project.</p></div></div>
+        <div class="step"><div class="node">🚀</div><div class="body"><div class="t"><span class="num">1</span>Khởi tạo <code>/kora-init</code></div><p>Dựng project + vault + kéo domain/rule; chọn <b>một / nhiều / tất cả domain</b> (rule GỘP) + tên project.</p></div></div>
         <div class="step"><div class="node">🔌</div><div class="body"><div class="t"><span class="num">2</span>Connect <code>/kora-connect</code></div><p>Kết nối nguồn (Jira / Confluence / GitHub / Microsoft 365…); MCP &amp; API tính riêng.</p></div></div>
         <div class="step"><div class="node">🔎</div><div class="body"><div class="t"><span class="num">3</span>Scan <code>/kora-scan</code> · <code>/kora-import-files</code></div><p>Quét nguồn (cào hết field) → tổng hợp wiki liên kết; nạp PDF / DOCX / ảnh.</p></div></div>
         <div class="step"><div class="node">⏰</div><div class="body"><div class="t"><span class="num">4</span>Schedule <code>/kora-schedule</code> <span class="pw">🔒 (Admin permission)</span></div><p>Lịch HĐH chạy LOCAL (cả khi đóng app, gọi API/mail được): scan KHÔNG gác · report/mail/sync cần mật khẩu. Nhiều mốc giờ + Thứ 2–6; quản lý HĐH &amp; Cowork — bật/tắt/sửa/xóa.</p></div></div>
@@ -632,7 +632,7 @@
       <div class="callout"><span>🔧</span><div><b>Lệnh bảo trì (ngoài 8 bước):</b> <code>/kora-version</code> (xem bản đang cài) · <code>/kora-evolve</code> (dọn dead-link · hợp nhất trùng · kiểm tra sức khỏe KB) · <code>/kora-update</code> · <code>/kora-uninstall</code> — xem tab <a data-go="install" style="cursor:pointer">Cài đặt (C)</a>.</div></div>
 
       <h2 class="sec">1 · 🚀 Khởi tạo — <code>/kora-init</code></h2>
-      <p style="color:var(--muted)">Mở folder project → <code>/kora-init</code>: tự kéo domain phổ biến + rule, hỏi domain / tên project / vault. Gọn nhẹ.</p>
+      <p style="color:var(--muted)">Mở folder project → <code>/kora-init</code>: tự kéo domain phổ biến + rule, chọn <b>một / nhiều / tất cả domain</b> (rule GỘP từ các domain đã chọn) / tên project / vault. Gọn nhẹ.</p>
 
       <h2 class="sec">2 · 🔌 Connect — <code>/kora-connect</code></h2>
       <p style="color:var(--muted)">Vào đầu hỏi <b>[Kết nối mới] / [Xem nguồn đã kết nối]</b>. Kết nối mới → chọn MCP/API → nguồn hỗ trợ (đánh dấu đã kết nối). API và MCP tính riêng.</p>
@@ -1552,11 +1552,22 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
       <div class="phead"><div class="pl">I · Release Note</div><h1><span class="em">🆕</span>Lịch sử phiên bản</h1></div>
       <p class="lead">Lịch sử bản <b>APP</b> (CORE: skills, workflows, tools…). Cập nhật: chạy lại lệnh cài (bash CLI, tab <a data-go="install" style="cursor:pointer">C</a>) — <b>tri thức của bạn được giữ nguyên</b> (DATA không bị đụng).</p>
 
-      <div class="callout ok"><span>🆕</span><div><b>Bản mới nhất (latest): <code>v2.4.0</code> — "Kora-1"</b> · phát hành 2026-06-21. Tổng <b>23 bản</b>; danh sách đầy đủ ở <a href="https://github.com/isc-fkit/Kora-Framework/blob/release/CHANGELOG.md">CHANGELOG.md</a>.</div></div>
+      <div class="callout ok"><span>🆕</span><div><b>Bản mới nhất (latest): <code>v2.5.0</code> — "Kora-1"</b> · phát hành 2026-06-21. Tổng <b>24 bản</b>; danh sách đầy đủ ở <a href="https://github.com/isc-fkit/Kora-Framework/blob/release/CHANGELOG.md">CHANGELOG.md</a>.</div></div>
 
       <div class="card" style="border-color:var(--accent)">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.4.0 — "Kora-1" <span style="display:inline-block;margin-left:6px;padding:2px 9px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;font-size:10.5px;font-weight:800;vertical-align:2px">MỚI NHẤT</span></b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
+          <b style="font-size:16px">v2.5.0 — "Kora-1" <span style="display:inline-block;margin-left:6px;padding:2px 9px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;font-size:10.5px;font-weight:800;vertical-align:2px">MỚI NHẤT</span></b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
+        </div>
+        <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
+          <li><b>🆕 <code>/kora-init</code> chọn NHIỀU / TẤT CẢ domain</b> (trước chỉ 1) — rule <b>GỘP</b> từ tất cả domain đã chọn (mỗi domain 1 mục trong <code>domain-rules.md</code>).</li>
+          <li><b>Thêm 8 preset domain</b>: Telecom, Banking, Insurance, Logistics, Government, HR, SaaS, Real-estate → <b>tổng 15</b>.</li>
+          <li>Bước <b>"đổi domain"</b> cũng đa-chọn → gộp lại; <code>domain.preset</code> thành chuỗi nối phẩy.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
+          <b style="font-size:16px">v2.4.0 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>🆕 SharePoint thành đích/nguồn KB</b> — tool mới <code>tools/sharepoint-sync</code> (Microsoft Graph); <code>/kora-sync</code> đẩy KB lên SharePoint (idempotent) cạnh Confluence/GitHub.</li>

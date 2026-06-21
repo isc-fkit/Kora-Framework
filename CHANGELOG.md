@@ -10,6 +10,20 @@
 
 ---
 
+## v2.5.0 "Kora-1" — 2026-06-21
+
+- **🆕 `/kora-init` chọn NHIỀU / TẤT CẢ domain** (trước chỉ chọn 1). Bước 1 dùng AskUserQuestion `multiSelect`
+  (có **[Tất cả domain]** + **[Khác — xem thêm]** để vượt giới hạn 4 option, gộp lựa chọn qua nhiều lượt).
+- **Rule GỘP từ tất cả domain đã chọn** → `config/domain-rules.md` (header liệt kê domain + mỗi preset 1 mục
+  `## <Tên domain>` nguyên văn). Cơ chế ở `workflows/00-setup.md` **§Gộp rule đa-domain**. `domain.preset` nay là
+  **chuỗi nối phẩy** (vd `healthcare, telecom`) — parser config scalar-safe.
+- **Thêm 8 preset domain** (`config/domain-presets/`): Telecom, Banking, Insurance, Logistics, Government, HR, SaaS,
+  Real-estate → **tổng 15** (tự xuất hiện ở danh sách động).
+- **Bước "đổi domain / rule"** (`workflows/00-setup.md` Mục B) cũng đa-chọn → gộp lại + reindex.
+- Đồng bộ wording `kora-init` + README + landing ("một / nhiều / tất cả domain").
+
+> **Cập nhật:** thuần CORE — KHÔNG migration DATA (config cũ 1 domain vẫn chạy; `domain.preset` đọc như chuỗi).
+
 ## v2.4.0 "Kora-1" — 2026-06-21
 
 - **🆕 SharePoint thành ĐÍCH/NGUỒN KB** — tool mới `tools/sharepoint-sync/sync_sharepoint.py` (Microsoft Graph,

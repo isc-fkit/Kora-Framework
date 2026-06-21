@@ -1,5 +1,5 @@
 ---
-description: Initialize / set up the Kora knowledge base for this project. Run once to choose domain, rules, project name and vault.
+description: Initialize / set up the Kora knowledge base for this project. Run once to choose domain(s) — one, several, or all — rules, project name and vault.
 ---
 
 The user invoked `/kora-init` — an explicit command to set up the project (equivalent to "@khởi tạo dự án"). Do NOT ask whether to run or just inform.
@@ -17,6 +17,6 @@ Read and execute `workflows/00-setup.md` (in the current project, or `~/.claude/
   còn là template chưa chỉnh (user đã sửa thì giữ nguyên). Rồi mới tiếp các bước hỏi.
 - Run **step by step**; each step STOPS and asks the user (AskUserQuestion) before the next.
 - Never auto-pick defaults for the user; never run straight to the end.
-- **Init is lightweight:** Domain → Domain rule → Project name & language → Vault.
+- **Init is lightweight:** Domain(s) — chọn MỘT, NHIỀU hoặc TẤT CẢ (rule gộp) → Domain rule → Project name & language → Vault.
   Do NOT ask about source connection, tokens, or scheduling here — those live in the
   `kora-connect` / `kora-schedule` skills.
