@@ -15,9 +15,15 @@
 ## Bước 1 — So phiên bản
 
 1. Đọc `version.json` ở gốc repo → version + codename hiện tại.
-2. Lấy bản mới nhất trên GitHub (WebFetch):
-   `https://raw.githubusercontent.com/isc-fkit/Kora-Framework/release/version.json`
-   — offline/không lấy được → báo "chưa kiểm tra được bản mới, thử lại khi có mạng", DỪNG.
+2. Lấy bản mới nhất trên GitHub — **fetch theo SHA commit** (raw.githubusercontent **BỎ QUA** query
+   cache-bust → cache CDN theo path; phải đọc theo SHA immutable mới TƯƠI. Dùng Bash, KHÔNG WebFetch branch-raw):
+   ```
+   SHA=$(curl -fsSL -H 'Accept: application/vnd.github.sha' "https://api.github.com/repos/isc-fkit/Kora-Framework/commits/release" 2>/dev/null)
+   echo "$SHA" | grep -qiE '^[0-9a-f]{40}$' \
+     && curl -fsSL "https://raw.githubusercontent.com/isc-fkit/Kora-Framework/$SHA/version.json" \
+     || curl -fsSL "https://raw.githubusercontent.com/isc-fkit/Kora-Framework/release/version.json?t=$(date +%s)"
+   ```
+   — offline/không lấy được → báo "chưa kiểm tra được bản mới, thử lại khi có mạng", DỪNG. **Giữ `$SHA`** cho Bước 2.
 3. So `version`:
    - Bằng nhau → "Bạn đang ở bản mới nhất: Kora-1 vX.Y.Z." DỪNG.
    - GitHub mới hơn → sang Bước 2.
@@ -29,9 +35,9 @@
     TIÊN** (nguyên văn, dạng trích dẫn) để user biết bản mới có gì đáng chú ý.
   - `force: true` → mở đầu bằng **"🔴 Bản cập nhật quan trọng/ưu tiên"**, lời lẽ mạnh hơn (nên
     cập nhật sớm). `force` vắng/false → thông báo bình thường.
-- Lấy "có gì mới" từ GitHub CHANGELOG:
-  `https://raw.githubusercontent.com/isc-fkit/Kora-Framework/release/CHANGELOG.md`
-  → tóm tắt tiếng Việt: từ vX → vY có gì mới.
+- Lấy "có gì mới" từ GitHub CHANGELOG — **cùng `$SHA` ở Bước 1** cho tươi (tránh cache CDN):
+  `curl -fsSL "https://raw.githubusercontent.com/isc-fkit/Kora-Framework/$SHA/CHANGELOG.md"`
+  (fallback `/release/CHANGELOG.md?t=$(date +%s)` nếu thiếu `$SHA`) → tóm tắt tiếng Việt: từ vX → vY có gì mới.
 - Nhấn mạnh: **tri thức của bạn (vault, `.kb`, config, docs) GIỮ NGUYÊN** — chỉ thay phần chương trình.
 - **Nêu rõ cách nâng cấp** (1 dòng): "Gõ **'đồng ý'** để tôi cập nhật ngay; hoặc tự chạy
   `scripts/update.command`."

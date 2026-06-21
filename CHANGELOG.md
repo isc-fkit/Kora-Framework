@@ -10,6 +10,18 @@
 
 ---
 
+## v2.5.4 "Kora-1" — 2026-06-21
+
+- **🐞 Fix `/kora-version` + `/kora-update` không nhận ra bản mới:** cả hai đọc `version.json` qua **branch-raw**
+  (`raw.githubusercontent.com/<repo>/release/version.json`) — **CDN GitHub (Fastly) cache theo path, BỎ QUA query
+  `?t=`** → đọc trúng bản CŨ → báo "đang ở bản mới nhất" dù đã có bản cao hơn. Nay đọc theo **SHA commit**
+  (`api.github.com/.../commits/release` → `raw/<SHA>/version.json`, immutable — luôn tươi) như installer/updater
+  v2.3.4; fallback branch-raw nếu API rate-limit. `workflows/10-update.md` đọc CHANGELOG cùng `$SHA`.
+- **Landing:** mục Connect thêm callout — nguồn **MCP** phải **kết nối/authorize ở Claude web/Desktop** (Settings →
+  Connectors hoặc `/mcp`) **TRƯỚC** thì mới **hiện & gọi được ở CLI** (`/kora-connect`, scan); API/token thì kết nối thẳng CLI.
+
+> **Cập nhật:** CORE + landing — KHÔNG migration DATA. (Bản ≤2.5.2 vẫn cần re-install 1 lần theo ghi chú v2.5.3.)
+
 ## v2.5.3 "Kora-1" — 2026-06-21  ⚠️ QUAN TRỌNG (force)
 
 - **🐞 Sửa BUG cập nhật — updater không refresh skill ở `~/.claude/commands/`:** `scripts/update.command`

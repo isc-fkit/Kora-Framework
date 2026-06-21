@@ -257,7 +257,7 @@
     <div class="brand" data-go="home" title="Trang chủ">
       <span class="brandmark" aria-hidden="true">K</span>
       <span class="org">FPT TELECOM</span>
-      <div class="fw">KORA AI<span>v2.5.3 · Kora-1</span></div>
+      <div class="fw">KORA AI<span>v2.5.4 · Kora-1</span></div>
     </div>
     <nav class="nav">
       <div class="grp">Tổng quan</div>
@@ -284,7 +284,7 @@
     <!-- ===================== HOME ===================== -->
     <div class="page" id="home">
       <header class="hero">
-        <span class="badge">FPT Telecom · KORA AI · v2.5.3 · &ldquo;Kora-1&rdquo;</span>
+        <span class="badge">FPT Telecom · KORA AI · v2.5.4 · &ldquo;Kora-1&rdquo;</span>
         <h1>KORA AI — Sơ đồ nguyên lý hoạt động</h1>
         <p class="sub">Trợ lý tri thức tự lớn lên cùng dự án: hợp nhất tri thức phân tán, nối tri thức local của nhân viên với <b>Knowledge Base</b> chung (trên Cloud), và tự động hóa đồng bộ — báo cáo — cảnh báo.</p>
         <div class="pipe">
@@ -647,6 +647,7 @@
         <tr><td><span class="msq"><i style="background:#F25022"></i><i style="background:#7FBA00"></i><i style="background:#00A4EF"></i><i style="background:#FFB900"></i></span>Outlook</td><td class="yes">✓</td><td class="no">—</td><td>MCP Microsoft 365 (gửi mail: cần admin / consent)</td></tr>
         <tr><td><svg class="srcico" viewBox="0 0 24 24" fill="#EA4335"><path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/></svg>Gmail</td><td class="yes">✓</td><td class="no">—</td><td>MCP Gmail · gửi mail cần App Password (bật 2FA)</td></tr>
       </table>
+      <div class="callout"><span>🔌</span><div><b>Nguồn MCP phải KẾT NỐI ở Claude web/Desktop TRƯỚC mới hiện ở CLI:</b> MCP do <b>app Claude</b> quản lý OAuth — connector (Atlassian / Microsoft 365 / Gmail) phải được <b>bật + authorize</b> trong <b>Claude web/Desktop → Settings → Connectors</b> (hoặc gõ <code>/mcp</code> trong Claude Code/Desktop). Chỉ khi server <b>connected</b> thì nguồn MCP đó mới <b>xuất hiện &amp; gọi được ở CLI</b> (<code>/kora-connect</code>, scan). Chưa kết nối ở app → CLI không thấy. (Nguồn <b>API</b>/token thì kết nối thẳng ở CLI, không cần bước này.)</div></div>
       <div class="callout"><span>🏢</span><div><b>Connect HOSTING cần đảm bảo:</b> ① nguồn để SCAN · ② đích PUSH (Confluence / GitHub private / SharePoint) · ③ kênh MAIL (Gmail/Outlook/SMTP).</div></div>
       <div class="twocol">
         <div class="card"><b>📧 Gmail (SMTP)</b><p style="color:var(--muted);font-size:13.3px;margin:6px 0 0">Cần <b>App Password</b> — chỉ tạo được khi đã <b>bật xác thực 2 lớp (2FA)</b>.</p></div>
@@ -1552,11 +1553,21 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
       <div class="phead"><div class="pl">I · Release Note</div><h1><span class="em">🆕</span>Lịch sử phiên bản</h1></div>
       <p class="lead">Lịch sử bản <b>APP</b> (CORE: skills, workflows, tools…). Cập nhật: chạy lại lệnh cài (bash CLI, tab <a data-go="install" style="cursor:pointer">C</a>) — <b>tri thức của bạn được giữ nguyên</b> (DATA không bị đụng).</p>
 
-      <div class="callout ok"><span>🆕</span><div><b>Bản mới nhất (latest): <code>v2.5.3</code> — "Kora-1"</b> · phát hành 2026-06-21. Tổng <b>27 bản</b>; danh sách đầy đủ ở <a href="https://github.com/isc-fkit/Kora-Framework/blob/release/CHANGELOG.md">CHANGELOG.md</a>.</div></div>
+      <div class="callout ok"><span>🆕</span><div><b>Bản mới nhất (latest): <code>v2.5.4</code> — "Kora-1"</b> · phát hành 2026-06-21. Tổng <b>28 bản</b>; danh sách đầy đủ ở <a href="https://github.com/isc-fkit/Kora-Framework/blob/release/CHANGELOG.md">CHANGELOG.md</a>.</div></div>
 
       <div class="card" style="border-color:var(--accent)">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.5.3 — "Kora-1" <span style="display:inline-block;margin-left:6px;padding:2px 9px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;font-size:10.5px;font-weight:800;vertical-align:2px">MỚI NHẤT</span></b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
+          <b style="font-size:16px">v2.5.4 — "Kora-1" <span style="display:inline-block;margin-left:6px;padding:2px 9px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;font-size:10.5px;font-weight:800;vertical-align:2px">MỚI NHẤT</span></b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
+        </div>
+        <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
+          <li><b>🐞 <code>/kora-version</code> + <code>/kora-update</code> nhận bản mới đúng</b>: đọc <code>version.json</code> theo SHA commit (immutable) thay vì branch-raw bị CDN cache.</li>
+          <li><b>Connect</b>: nguồn MCP phải kết nối/authorize ở Claude web/Desktop (Settings → Connectors / <code>/mcp</code>) trước mới hiện ở CLI.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
+          <b style="font-size:16px">v2.5.3 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>🐞 Sửa BUG cập nhật</b>: trước đây "cập nhật" chỉ đổi CORE mà không refresh skill ở <code>~/.claude/commands/</code> → fix skill không tới user. Nay updater tự refresh skill.</li>

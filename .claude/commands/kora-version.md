@@ -12,8 +12,15 @@ The user invoked `/kora-version` — chỉ **hiển thị phiên bản đang cà
 
 2. **So với bản mới nhất trên GitHub** (read-only, best-effort — offline thì BỎ QUA, vẫn hiện bản local):
    - Lấy repo từ `version.json > repo` (mặc định `isc-fkit/Kora-Framework`), nhánh `release`.
-   - `curl -fsSL "https://raw.githubusercontent.com/<repo>/release/version.json?t=$(date +%s)"` (kèm `?t=` để
-     né cache CDN). Đọc `version` của bản mới nhất.
+   - **Fetch theo SHA commit** (raw.githubusercontent **BỎ QUA** `?t=` → cache CDN theo path; phải đọc theo
+     SHA immutable mới luôn tươi — như installer/updater v2.3.4):
+     ```
+     SHA=$(curl -fsSL -H 'Accept: application/vnd.github.sha' "https://api.github.com/repos/<repo>/commits/release" 2>/dev/null)
+     echo "$SHA" | grep -qiE '^[0-9a-f]{40}$' \
+       && curl -fsSL "https://raw.githubusercontent.com/<repo>/$SHA/version.json" \
+       || curl -fsSL "https://raw.githubusercontent.com/<repo>/release/version.json?t=$(date +%s)"   # fallback nếu API rate-limit
+     ```
+     Đọc `version` của bản mới nhất.
    - So sánh **semantic** (x.y.z): **bằng** → "đang ở bản mới nhất ✅"; **local thấp hơn** → "có bản mới
      **vX.Y.Z** — gõ `/kora-update` để cập nhật (giữ nguyên tri thức)"; **local cao hơn** → "bản local mới hơn
      (bản dev/chưa phát hành)".
