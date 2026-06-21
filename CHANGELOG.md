@@ -10,6 +10,17 @@
 
 ---
 
+## v2.8.8 "Kora-1" — 2026-06-22
+
+- **🐞 FIX tính sai năng suất khi report ĐẦU NGÀY.** Trước đây capacity tính **HÔM NAY** là 1 ngày làm việc đã hoàn
+  thành ngay từ 0:00 → report lúc **8:00** (chưa ai làm việc) đã đòi đủ **8h logtime** cho hôm nay → báo *"thiếu 8h"* SAI.
+  Nay HÔM NAY **chỉ tính** vào "ngày làm việc đã HOÀN THÀNH" **khi đã qua giờ tan làm** (mặc định **17:00**, đổi qua
+  env `KORA_WORKDAY_END_HOUR`). Trước giờ đó → kỳ vọng = số ngày **đã hết** × 8h (không gồm hôm nay) → hết báo thiếu oan.
+  Đầu kỳ chưa hết ngày làm việc nào → KHÔNG flag thiếu/OT. Báo cáo ghi rõ *"hôm nay CHƯA tính (chưa qua 17h)"*.
+- **📎 CALLOUT nổi bật mở dashboard:** thêm hộp **cam** ngay dưới lời chào — "Mở FILE ĐÍNH KÈM để xem DASHBOARD CHI
+  TIẾT" (lọc project/người, biểu đồ, drill-down). Làm rõ email là bản tóm tắt, chi tiết ở file đính kèm.
+- Thuần **CORE**, KHÔNG migration DATA. Máy đã cài: gõ **"cập nhật phiên bản"**.
+
 ## v2.8.7 "Kora-1" — 2026-06-22
 
 - **🎯 Giới hạn PHẠM VI báo cáo cho DỰ ÁN LỚN (không lấy hết).** `/kora-daily-report` & `/kora-send-mail` nay hỏi

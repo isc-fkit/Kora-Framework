@@ -293,30 +293,36 @@ def compute(issues, smap, today):
         _n = datetime.now(); ty, tmo, tday = _n.year, _n.month, _n.day
     days_in_month = calendar.monthrange(ty, tmo)[1]
     working_days = sum(1 for d in range(1, days_in_month + 1) if date(ty, tmo, d).weekday() < 5)
-    # Ngày làm việc ĐÃ TRÔI QUA (đầu tháng → hôm nay) = mốc "đúng tiến độ" (KHÔNG so với cả tháng → 8h/ngày ≈ 100%).
-    wd_elapsed = sum(1 for d in range(1, min(tday, days_in_month) + 1) if date(ty, tmo, d).weekday() < 5) or 1
+    # Ngày làm việc ĐÃ HOÀN THÀNH (đầu tháng → hôm qua). HÔM NAY chỉ tính khi ĐÃ QUA GIỜ TAN LÀM (mặc định 17:00,
+    # đổi qua env KORA_WORKDAY_END_HOUR) — tránh report lúc 8:00 đầu ngày đã đòi đủ 8h logtime cho hôm nay (chưa làm việc).
+    end_hour = int(os.getenv("KORA_WORKDAY_END_HOUR") or 17)
+    today_done = date(ty, tmo, tday).weekday() < 5 and datetime.now().hour >= end_hour
+    last_complete = tday if today_done else tday - 1
+    wd_elapsed = sum(1 for d in range(1, min(last_complete, days_in_month) + 1) if date(ty, tmo, d).weekday() < 5)
     std_person = working_days * 8 * 3600           # mục tiêu THÁNG / người (giây)
-    expect_person = wd_elapsed * 8 * 3600          # KỲ VỌNG ĐẾN HÔM NAY / người = 8h × ngày làm việc đã trôi qua
+    expect_person = wd_elapsed * 8 * 3600          # KỲ VỌNG đến mốc HOÀN THÀNH gần nhất (0 = đầu kỳ, chưa hết ngày nào)
     for a in by_assignee:
         sp = a["time"]["spent_s"]
         a["std_seconds"] = std_person
         a["expected_so_far_s"] = expect_person
         a["logged_working_days"] = round(sp / (8 * 3600), 1)
-        a["ot_seconds"] = max(0, sp - expect_person)       # log VƯỢT kỳ vọng đến hôm nay = OT (đủ 8h/ngày ⇒ KHÔNG OT)
-        a["under_seconds"] = max(0, expect_person - sp)    # thiếu so với kỳ vọng đến hôm nay
-        a["pct_capacity"] = pct(sp, expect_person)         # % theo tiến độ NGÀY-CÔNG đã trôi qua
+        # expect=0 (đầu kỳ / hôm nay chưa hết giờ) → KHÔNG flag thiếu/OT (tránh "thiếu 8h" sai lúc 8:00).
+        a["ot_seconds"] = max(0, sp - expect_person) if expect_person else 0
+        a["under_seconds"] = max(0, expect_person - sp) if expect_person else 0
+        a["pct_capacity"] = pct(sp, expect_person) if expect_person else 0
     members = [a for a in by_assignee if a["assignee"] not in ("(chưa giao)", "—", "")]
     team_std = len(members) * std_person
     team_expect = len(members) * expect_person
     capacity = {
         "month": f"{tmo:02d}/{ty}", "working_days": working_days, "working_days_elapsed": wd_elapsed,
+        "today_counted": today_done, "workday_end_hour": end_hour,
         "std_hours_person": working_days * 8, "std_seconds_person": std_person,
         "expected_so_far_person_s": expect_person, "team_expected_so_far_s": team_expect,
         "num_members": len(members), "team_std_seconds": team_std,
         "logged_seconds": tsum["spent_s"], "logged_working_days": round(tsum["spent_s"] / (8 * 3600), 1),
-        "ot_seconds": max(0, tsum["spent_s"] - team_expect),
-        "under_seconds": max(0, team_expect - tsum["spent_s"]),
-        "pct_capacity": pct(tsum["spent_s"], team_expect),
+        "ot_seconds": max(0, tsum["spent_s"] - team_expect) if team_expect else 0,
+        "under_seconds": max(0, team_expect - tsum["spent_s"]) if team_expect else 0,
+        "pct_capacity": pct(tsum["spent_s"], team_expect) if team_expect else 0,
     }
 
     # ── Logtime theo LOẠI — chỉ Task/Sub-task/Bug thực sự log; Epic/Story/Request thường KHÔNG log ──
@@ -726,7 +732,7 @@ def render_email_body(m, vault, banner_url=""):
     cap_block = f'''<tr><td class="kpad" style="padding:8px 22px 2px">
       <div style="font-size:12px;color:{EPAL['mut']};text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px">Năng suất &amp; giờ công — tháng {esc(cap.get('month', ''))}</div>
       <div style="font-size:13.5px;color:{EPAL['ink']};line-height:1.75">
-        • Ngày làm việc: <b>{cap.get('working_days_elapsed', 0)} / {cap.get('working_days', 0)} ngày</b> đã trôi qua trong tháng (T2–T6, 8h/ngày = 1 ngày công).<br>
+        • Ngày làm việc: <b>{cap.get('working_days_elapsed', 0)} / {cap.get('working_days', 0)} ngày</b> đã <b>HOÀN THÀNH</b> trong tháng (T2–T6, 8h/ngày = 1 ngày công) — {'đã tính cả hôm nay (sau giờ tan làm).' if cap.get('today_counted') else f"<b>hôm nay CHƯA tính</b> (chưa qua {cap.get('workday_end_hour', 17)}h — tránh báo thiếu logtime sai lúc đầu ngày)."}<br>
         • Kỳ vọng <b>đến hôm nay</b>: <b>{hs(cap.get('team_expected_so_far_s', 0))}</b> ({cap.get('num_members', 0)} TV × {cap.get('working_days_elapsed', 0)} ngày × 8h) · mục tiêu cả tháng: <b>{hs(cap.get('team_std_seconds', 0))}</b>.<br>
         • Đã log: <b>{hs(cap.get('logged_seconds', 0))}</b> = <b>{cap.get('logged_working_days', 0)} ngày công</b> → đạt <b>{cap.get('pct_capacity', 0)}%</b> so với kỳ vọng đến hôm nay.<br>
         • {ot_txt}.
@@ -848,6 +854,13 @@ def render_email_body(m, vault, banner_url=""):
   <tr><td class="kpad" style="padding:10px 22px 0">
     <div style="font-size:15px;color:{EPAL['ink']};font-weight:700;font-style:italic">Kính gửi Anh/Chị,</div>
     <div style="font-size:13.5px;color:#33405a;line-height:1.7;margin-top:6px">Trợ lý <b>KORA AI</b> – FPT Telecom xin cập nhật <b>tiến độ dự án</b> ({scope}) tới <b>{esc(gen)}</b> (UTC) như sau:</div></td></tr>
+  <tr><td class="kpad" style="padding:12px 22px 2px">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#fff3e0" style="background-color:#fff3e0;border:1.5px solid #ffb74d;border-left:5px solid #f57c00;border-radius:10px">
+      <tr><td style="padding:12px 15px">
+        <div style="font-size:13.5px;color:#9a3b00;font-weight:800;line-height:1.5">📎 Mở FILE ĐÍNH KÈM để xem DASHBOARD CHI TIẾT</div>
+        <div style="font-size:12.5px;color:#8a4b00;line-height:1.6;margin-top:3px">Email này là bản TÓM TẮT. Nhấn mở <b>file HTML đính kèm</b> để xem <b>dashboard tương tác</b>: lọc theo <b>project / người phụ trách</b>, biểu đồ & drill-down từng issue · sprint.</div>
+      </td></tr>
+    </table></td></tr>
   <tr><td class="kpad" style="padding:14px 17px 2px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
     {_ecard("Tổng số issue", m['total'], "issue")}{_ecard("Đã hoàn thành", g['done'], "issue")}{_ecard("Còn lại", m['total'] - g['done'], "issue", True)}
   </tr></table></td></tr>

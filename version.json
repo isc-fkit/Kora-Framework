@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.8.7",
+  "version": "2.8.8",
   "codename": "Kora-1",
   "released": "2026-06-22",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.8.7 (giới hạn PHẠM VI báo cáo cho dự án lớn — không lấy hết): /kora-daily-report & /kora-send-mail nay hỏi phạm vi: [Sprint đang chạy] / [N ngày gần đây — mặc định 30] / [Toàn bộ]. build_report thêm --scope sprint|recent|all + --recent-days N; scope=sprint chỉ lấy issue trong sprint active (fallback N ngày nếu không có sprint), recent lấy issue updated trong N ngày → dự án lớn chỉ scan/report phần cần (bound JQL 'updated >= -Nd', nhẹ hẳn). Đặt lịch lưu report.scope/recent_days vào schedules.json; lịch nền tự áp mỗi lần chạy. Báo cáo hiện nhãn phạm vi trên header. Thuần CORE, không migration DATA."
+  "intro": "Kora-Framework v2.8.8 (sửa logic ngày-công + callout mở dashboard): (1) FIX tính sai năng suất — trước đây report lúc 8:00 ĐẦU NGÀY đã tính HÔM NAY là 1 ngày làm việc hoàn thành → đòi đủ 8h logtime → báo 'thiếu 8h' sai. Nay HÔM NAY chỉ tính vào 'ngày làm việc đã hoàn thành' KHI đã qua giờ tan làm (mặc định 17:00, đổi qua env KORA_WORKDAY_END_HOUR). Đầu ngày/đầu kỳ chưa đủ ngày hoàn thành thì KHÔNG flag thiếu/OT. Báo cáo ghi rõ 'hôm nay chưa tính'. (2) Thêm CALLOUT nổi bật (hộp cam) ngay dưới lời chào, nhắc mở FILE ĐÍNH KÈM xem dashboard tương tác chi tiết. Thuần CORE, không migration DATA."
 }
