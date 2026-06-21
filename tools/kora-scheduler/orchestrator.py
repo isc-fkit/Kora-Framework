@@ -354,7 +354,10 @@ def main():
         # Report SCOPE đúng project của lịch (đã được SCAN ở bước 1 → dữ liệu mới nhất).
         report = None
         if gate_ok and not is_user_pkg and not args.dry_run:
-            rep_projs = [p for p in ((sch.get("report") or {}).get("projects") or []) if p]
+            rep_cfg = sch.get("report") or {}
+            rep_projs = [p for p in (rep_cfg.get("projects") or []) if p]
+            scope = (rep_cfg.get("scope") or "all").lower()
+            rdays = int(rep_cfg.get("recent_days") or 30)
             # FULL-scan (status/comment MỚI NHẤT, GHI ĐÈ) project báo cáo từ MỌI nguồn Jira API trong scan_list
             # (đa nguồn / đa domain) — mỗi nguồn CHỈ quét project NÓ CÓ (list-projects ∩ rep_projs) để tránh JQL lỗi
             # vì key lạ. (Nguồn MCP KHÔNG có trong scan_list → nền không kéo được; cần kết nối Jira đó qua API.)
@@ -375,14 +378,19 @@ def main():
                     want = [k for k in rep_projs if k in here] if here else rep_projs  # list-projects lỗi → thử tất cả
                     if not want:
                         continue
-                    log(f"FULL-scan report projects {want} từ jira:{nm} (status/comment mới nhất)")
-                    rc_s, o_s, e_s = run_tool(JIRA_DIR / "import_jira.py",
-                                              ["--jql", f"project in ({','.join(want)})"],
+                    # Dự án lớn: scope != all → bound fetch theo 'updated >= -Nd' (nhẹ); all → full.
+                    jql = f"project in ({','.join(want)})"
+                    if scope != "all":
+                        jql += f" AND updated >= -{rdays}d"
+                    log(f"Scan report projects {want} từ jira:{nm} (scope={scope}, {rdays}d nếu giới hạn)")
+                    rc_s, o_s, e_s = run_tool(JIRA_DIR / "import_jira.py", ["--jql", jql],
                                               extra_env={"JIRA_ENV_FILE": ef}, cwd=JIRA_DIR)
                     if rc_s != 0:
                         run_errors.append({"step": "report-scan", "source": nm, "reason": (e_s or o_s)[:200]})
                 run_tool(REPO_ROOT / "tools" / "kb-indexer" / "build_index.py", ["--root", "."])
-            rep_args = ["--projects", ",".join(rep_projs)] if rep_projs else []
+            rep_args = (["--projects", ",".join(rep_projs)] if rep_projs else [])
+            if scope != "all":
+                rep_args += ["--scope", scope, "--recent-days", str(rdays)]
             rc, out, err = run_tool(REPO_ROOT / "tools" / "progress-report" / "build_report.py", rep_args)
             if rc != 0:
                 run_errors.append({"step": "report", "reason": (err or out)[:300]})

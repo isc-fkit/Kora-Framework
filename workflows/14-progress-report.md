@@ -72,8 +72,11 @@ Chạy (Claude tự chạy trong sandbox; user chạy tay thì OS-dynamic — Wi
 bằng `--projects` (báo cáo CHỈ gồm project đó; rỗng = tất cả) — dữ liệu đã được làm mới ở Bước 0.5:
 
 ```bash
-python3 tools/progress-report/build_report.py --projects "<KEYS đã chọn>"
+python3 tools/progress-report/build_report.py --projects "<KEYS đã chọn>" [--scope sprint|recent|all] [--recent-days 30]
 ```
+> 📊 **Phạm vi (dự án lớn):** `--scope sprint` (chỉ sprint đang chạy, fallback N ngày) · `--scope recent --recent-days N`
+> (issue `updated` trong N ngày) · bỏ qua = toàn bộ. Báo cáo hiện **nhãn phạm vi** trên chip header. Scan tương ứng nên
+> bound `... AND updated >= -Nd` cho nhẹ.
 
 Tạo trong `reports/`:
 - `progress-data-<ngày>.json` — số liệu thô (nguồn cho UI inline).

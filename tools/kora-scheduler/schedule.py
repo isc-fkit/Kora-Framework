@@ -419,7 +419,9 @@ def cmd_register(args):
     entry = {
         "id": sid, "cron": args.cron, "freq_human": args.freq_human or args.cron,
         "scan_list": split_list(args.scan), "post_list": split_list(args.post),
-        "report": {"enabled": rp is not None, "projects": split_list(rp), "members": []},
+        "report": {"enabled": rp is not None, "projects": split_list(rp), "members": [],
+                   "scope": getattr(args, "report_scope", None) or "all",
+                   "recent_days": int(getattr(args, "report_recent_days", None) or 30)},
         "email": {"enabled": bool(args.email),
                   "provider": getattr(args, "mail_provider", None) or "smtp",
                   "to": split_list(args.email)},
@@ -518,9 +520,16 @@ def cmd_edit(args):
         entry["scan_list"] = split_list(args.scan)
     if args.post is not None:
         entry["post_list"] = split_list(args.post)
-    if args.report_projects is not None:
-        entry["report"] = {"enabled": True, "projects": split_list(args.report_projects),
-                           "members": entry.get("report", {}).get("members", [])}
+    if (args.report_projects is not None or getattr(args, "report_scope", None) is not None
+            or getattr(args, "report_recent_days", None) is not None):
+        r = entry.get("report", {"enabled": True, "projects": [], "members": [], "scope": "all", "recent_days": 30})
+        if args.report_projects is not None:
+            r["projects"] = split_list(args.report_projects); r["enabled"] = True
+        if getattr(args, "report_scope", None) is not None:
+            r["scope"] = args.report_scope
+        if getattr(args, "report_recent_days", None) is not None:
+            r["recent_days"] = int(args.report_recent_days)
+        entry["report"] = r
     if args.email is not None or args.mail_provider is not None:
         em = entry.get("email", {"enabled": False, "provider": "smtp", "to": []})
         if args.email is not None:
@@ -542,6 +551,8 @@ def cmd_edit(args):
             email=",".join(entry.get("email", {}).get("to", [])),
             mail_provider=entry.get("email", {}).get("provider", "smtp"),
             report_projects=",".join(entry.get("report", {}).get("projects", [])),
+            report_scope=entry.get("report", {}).get("scope", "all"),
+            report_recent_days=entry.get("report", {}).get("recent_days", 30),
             sync_targets=",".join(entry.get("sync", {}).get("targets", [])), os=args.os))
     else:
         print(f"✅ Đã cập nhật '{args.id}' (scan/post/email đọc lúc chạy — không cài lại OS).")
@@ -605,6 +616,10 @@ def main():
         p.add_argument("--mail-provider", dest="mail_provider", help="smtp|gmail|outlook")
         p.add_argument("--report-projects", dest="report_projects",
                        help="Project keys cho report, cách nhau dấu phẩy (rỗng = tất cả)")
+        p.add_argument("--report-scope", dest="report_scope", choices=["all", "sprint", "recent"],
+                       help="Phạm vi báo cáo (dự án lớn): sprint | recent | all (mặc định all)")
+        p.add_argument("--report-recent-days", dest="report_recent_days", type=int,
+                       help="Số ngày N cho scope recent / fallback sprint (mặc định 30)")
         p.add_argument("--sync-targets", dest="sync_targets",
                        help="confluence,github,sharepoint — bật bước SYNC (có cổng mật khẩu) trong lịch")
         p.add_argument("--os", default="auto", help="auto|macos|linux|windows")

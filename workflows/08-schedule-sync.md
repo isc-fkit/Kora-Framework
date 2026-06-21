@@ -41,8 +41,10 @@
      > nguồn Jira API trong scan-list** (mỗi nguồn chỉ quét project nó có) → scan-list **PHẢI gồm (các) nguồn Jira chứa
      > project báo cáo** (kể cả nhiều domain). **Nguồn chỉ-MCP** (vd Atlassian Rovo) **không quét nền được** → muốn
      > report nền có dữ liệu Jira đó thì **kết nối Jira đó qua API** (token) và thêm vào scan-list.
+   > 📊 **PHẠM VI báo cáo (dự án lớn):** hỏi **[Sprint đang chạy] / [N ngày — mặc định 30] / [Toàn bộ]** →
+   > `--report-scope sprint|recent|all` + `--report-recent-days <N>`. Lịch nền tự bound scan `updated >= -Nd` + lọc report.
 3. ✋ **Confirm** → `python3 tools/kora-scheduler/schedule.py register --id <slug> --times "08:00,14:00" --days mon-fri
-   --scan <scan-list> --post <post-list> [--email <list>]` (Windows: `py` / `scripts\schedule.bat`).
+   --scan <scan-list> --post <post-list> [--report-projects "<KEYS>" --report-scope <scope> --report-recent-days <N>] [--email <list>]` (Windows: `py` / `scripts\schedule.bat`).
    (Power-user: thay `--times/--days` bằng `--cron "<expr>"`. Cài HĐH lỗi → in `⚠️ CHƯA cài được vào HĐH`,
    lưu `enabled=false`; mời `enable` lại hoặc dùng cơ chế **Cowork** ở Mục 0 làm fallback.)
 4. Báo user: lịch chạy lúc nào, ghi ở `schedules.json`, sửa scan/post/email KHÔNG cần tạo lại

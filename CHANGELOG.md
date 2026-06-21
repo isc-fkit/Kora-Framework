@@ -10,6 +10,18 @@
 
 ---
 
+## v2.8.7 "Kora-1" — 2026-06-22
+
+- **🎯 Giới hạn PHẠM VI báo cáo cho DỰ ÁN LỚN (không lấy hết).** `/kora-daily-report` & `/kora-send-mail` nay hỏi
+  **[Sprint đang chạy] / [N ngày gần đây — mặc định 30] / [Toàn bộ]**. `build_report.py` thêm **`--scope sprint|recent|all`
+  + `--recent-days N`**: `sprint` = chỉ issue trong **sprint đang chạy** (fallback N ngày nếu không có sprint active);
+  `recent` = issue `updated` trong N ngày; `all` = toàn bộ (mặc định). Báo cáo hiện **nhãn phạm vi** trên chip header.
+- **⚡ Scan NHẸ theo phạm vi:** scope≠all → mỗi `--jql` bound `... AND updated >= -Nd` (chỉ kéo phần cần — dự án ngàn
+  issue không pull hết). Áp cả nhánh API (`import_jira`) lẫn MCP (`searchJiraIssuesUsingJql`).
+- **📅 Lịch nền nhớ phạm vi:** `schedule.py register --report-scope/--report-recent-days` → lưu `report.scope`/`recent_days`
+  vào `schedules.json`; `orchestrator` tự bound scan + truyền `--scope` cho build_report mỗi lượt. (kora-schedule/WF08 hỏi & lưu.)
+- Thuần **CORE**, KHÔNG migration DATA. Máy đã cài: gõ **"cập nhật phiên bản"**.
+
 ## v2.8.6 "Kora-1" — 2026-06-22
 
 - **🖼️ Banner email HẾT bị Outlook chặn (nhúng CID inline + nhẹ).** Banner header nay **embed inline** (`cid:kora-banner`)

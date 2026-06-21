@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.8.6",
+  "version": "2.8.7",
   "codename": "Kora-1",
   "released": "2026-06-22",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.8.6 (banner email hết bị Outlook chặn + báo cáo đầy đủ ngay trong thân email): (1) Banner header nay NHÚNG CID INLINE bền bỉ — Outlook/Gmail hiện ngay không cần 'trust sender' để load ảnh remote; ảnh tối ưu 1.8MB → 547KB (tránh bị Exchange strip); send_report resolve banner path bền (--banner/KORA_BANNER/assets) + log rõ; skill + lịch nền truyền --banner. (2) Thân email = BÁO CÁO ĐẦY ĐỦ: thêm bảng 'Theo người phụ trách' (Done/Đang làm/Đã log/% năng suất, tô màu cột) + Sprint đang chạy → đọc trọn vẹn ngay trong email, không cần mở file; vẫn kèm dashboard tương tác (filter) cho ai cần. Thuần CORE, không migration DATA."
+  "intro": "Kora-Framework v2.8.7 (giới hạn PHẠM VI báo cáo cho dự án lớn — không lấy hết): /kora-daily-report & /kora-send-mail nay hỏi phạm vi: [Sprint đang chạy] / [N ngày gần đây — mặc định 30] / [Toàn bộ]. build_report thêm --scope sprint|recent|all + --recent-days N; scope=sprint chỉ lấy issue trong sprint active (fallback N ngày nếu không có sprint), recent lấy issue updated trong N ngày → dự án lớn chỉ scan/report phần cần (bound JQL 'updated >= -Nd', nhẹ hẳn). Đặt lịch lưu report.scope/recent_days vào schedules.json; lịch nền tự áp mỗi lần chạy. Báo cáo hiện nhãn phạm vi trên header. Thuần CORE, không migration DATA."
 }

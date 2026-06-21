@@ -6,7 +6,7 @@
 
 **Kết nối đa nguồn → Tổng hợp tri thức → Đồng bộ Cloud KB chung → Tự động báo cáo & cảnh báo**
 
-[![Version](https://img.shields.io/badge/version-2.8.6-2f7bff)](./version.json)
+[![Version](https://img.shields.io/badge/version-2.8.7-2f7bff)](./version.json)
 [![Codename](https://img.shields.io/badge/codename-Kora--1-5b9bff)](./CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-444)](#-cài-đặt)
 [![Claude](https://img.shields.io/badge/runs%20in-Claude%20CLI%20%2B%20Desktop-7c5cff)](https://claude.ai/code)

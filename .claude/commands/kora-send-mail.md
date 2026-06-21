@@ -11,6 +11,8 @@ The user invoked `/kora-send-mail` — gửi email báo cáo tiến độ. **CÓ
    **multi-select** (kèm `method` API/MCP + `base_url` để phân biệt domain) — chọn **1 HOẶC NHIỀU** Jira. (Chưa có → `/kora-connect`.)
 2. **Chọn project trong (mỗi) Jira đó — THEO `method`:** API → `import_jira.py --list-projects` (env nguồn đó); MCP
    (`atlassian`/`jira_cloud`) → `getVisibleJiraProjects` → AskUserQuestion **multi-select project** (+ **[Chọn tất cả]**).
+2b. **Chọn PHẠM VI báo cáo (dự án LỚN — không lấy hết):** AskUserQuestion **[Sprint đang chạy] / [N ngày gần đây —
+   mặc định 30] / [Toàn bộ]** → `SCOPE` (sprint/recent/all), `NDAYS`. SCOPE≠all → scan thêm `AND updated >= -<NDAYS>d` + build_report `--scope`.
 3. **Chọn người nhận (mail gửi đến):** danh bạ `reports.email.to` (multi-select) + **[+ Thêm mới]**
    (ô "Other" → gõ địa chỉ → **lưu vào `reports.email.to`**). Đây là nguồn người nhận DUY NHẤT mà lịch/task đọc.
 4. **Gửi ngay hay đặt lịch:** AskUserQuestion **[Gửi ngay] / [Đặt lịch]**.
@@ -25,7 +27,8 @@ The user invoked `/kora-send-mail` — gửi email báo cáo tiến độ. **CÓ
           (KHÔNG `--since`; `_purge_stale` ghi đè, không nhân bản).
         - **mcp** (`atlassian`/`jira_cloud`): MCP `searchJiraIssuesUsingJql` `project in (<KEYS>)` `fields:["*all"]` →
           `import_jira.py --from-mcp <file> --names <names>` (KHÔNG import_jira API). Chọn MCP thì **bắt buộc** đi nhánh MCP.
-        Quét hết → reindex `build_index.py --root .` → `python3 "$T/progress-report/build_report.py" --projects "<UNION KEYS>"`.
+        (SCOPE≠all → mỗi `--jql` thêm `AND updated >= -<NDAYS>d` để nhẹ.) Quét hết → reindex `build_index.py --root .` →
+        `python3 "$T/progress-report/build_report.py" --projects "<UNION KEYS>" <--scope <SCOPE> --recent-days <NDAYS> nếu ≠all>`.
      c2. **PHÂN TÍCH AI + chèn CARD MÀU vào email (BẮT BUỘC trước khi gửi):** viết phân tích theo
         `workflows/14-progress-report.md` Bước 1.5 → ghi `reports/ai-analysis-latest.md` (markdown 7 mục: 🔴 rủi ro cao ·
         🟡 vừa · 🟢 tích cực · 👥 BẢNG theo thành viên · 📅 dự đoán · 🎯 hành động · 📌 tóm tắt) → `python3
@@ -52,9 +55,10 @@ The user invoked `/kora-send-mail` — gửi email báo cáo tiến độ. **CÓ
      b. **Mốc giờ** — AskUserQuestion **multi-select** gợi ý `08:00 / 12:00 / 14:00 / 17:00` + ô **"Other"**
         (HH:MM tùy chỉnh). Cho chọn **NHIỀU mốc** (các mốc phải cùng số phút; khác phút → tạo lịch riêng).
      c. **Tần suất** — AskUserQuestion **[Mỗi ngày] / [Thứ 2–6] / [Ngày tùy chọn]**.
-     d. ✋ confirm (đọc lại "gửi lúc nào, cho ai") → đăng ký bằng **`--times/--days`** (KORA tự dựng cron):
+     d. ✋ confirm (đọc lại "gửi lúc nào, cho ai, PHẠM VI nào") → đăng ký bằng **`--times/--days`** (KORA tự dựng cron):
         `python3 tools/kora-scheduler/schedule.py register --id <slug> --times "08:00,14:00" --days mon-fri
-        --scan <jira-id> --report-projects "<KEYS>" --mail-provider smtp --email "<list>"` (`post_list` rỗng).
+        --scan <jira-id> --report-projects "<KEYS>" --report-scope <SCOPE> --report-recent-days <NDAYS>
+        --mail-provider smtp --email "<list>"` (`post_list` rỗng). Lịch nền tự áp phạm vi này mỗi lần chạy.
         (`--days`: `every` = mỗi ngày · `mon-fri` = thứ 2–6 · hoặc csv `mon,wed,fri`. Power-user vẫn dùng được `--cron`.)
      e. → **Task xuất hiện trong danh sách `/kora-schedule`** — quản lý tại đó: **Bật/Tắt (active/inactive)**
         (`schedule.py enable|disable --id <slug>`) hoặc **Xóa** (`remove`). Nếu in `⚠️CHƯA-CÀI-HĐH` →

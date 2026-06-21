@@ -26,7 +26,7 @@ import math
 import os
 import re
 import sys
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -205,6 +205,28 @@ def _status_breakdown(items, smap):
     for i in items:
         g[issue_group(i, smap)] += 1
     return g
+
+
+def apply_scope(issues, scope, recent_days):
+    """Giới hạn PHẠM VI báo cáo (dự án lớn không lấy hết) — trả (issues_lọc, nhãn).
+    sprint = chỉ issue trong SPRINT ĐANG CHẠY (fallback N ngày gần đây nếu không có sprint active);
+    recent = issue có 'updated' trong N ngày; all/rỗng = toàn bộ. KHÔNG trả rỗng khi vault có data."""
+    if scope in ("all", "", None):
+        return issues, "Toàn bộ"
+    cutoff = (date.today() - timedelta(days=max(1, int(recent_days or 30)))).isoformat()
+    recent = [i for i in issues if str(i.get("updated") or "")[:10] >= cutoff]
+    if scope == "sprint":
+        sp = [i for i in issues if (i.get("sprint_state") or "").lower() == "active"]
+        if sp:
+            return sp, "Sprint đang chạy"
+        if recent:
+            return recent, f"{recent_days} ngày gần đây (không có sprint active)"
+        return issues, "Toàn bộ (không có sprint active / hoạt động gần đây)"
+    if scope == "recent":
+        if recent:
+            return recent, f"{recent_days} ngày gần đây"
+        return issues, f"Toàn bộ (không có hoạt động trong {recent_days} ngày)"
+    return issues, "Toàn bộ"
 
 
 def compute(issues, smap, today):
@@ -565,6 +587,9 @@ def render_fragment(m, vault):
     proj_section = f'<h2>Theo dự án</h2><div class="pr-card">{proj_html}</div>' if proj_html else ''
     _bp = [p for p in m.get('by_project', []) if p.get('project') not in (None, '', '—')]
     _scope = f"{len(_bp)} dự án" if len(_bp) > 1 else (esc(_bp[0]['project']) if _bp else '—')
+    _msl = m.get("scope_label", "")
+    if _msl and not _msl.startswith("Toàn bộ"):
+        _scope = f"{_scope} · {esc(_msl)}"
     # 📈 Biểu đồ (inline SVG — donut trạng thái + bar theo người/dự án)
     bsg = m["by_status_group"]
     donut = svg_donut([("Hoàn thành", bsg["done"], PAL["green"]),
@@ -678,6 +703,9 @@ def render_email_body(m, vault, banner_url=""):
     # Phạm vi báo cáo = theo DỰ ÁN (lọc node rỗng 1 lần → dùng cho cả scope + tiering, nhất quán).
     bp = [p for p in m.get("by_project", []) if p.get("project") not in (None, "", "—")]
     scope = f"{len(bp)} dự án" if len(bp) > 1 else (esc(bp[0]["project"]) if bp else "—")
+    _sl = m.get("scope_label", "")
+    if _sl and not _sl.startswith("Toàn bộ"):
+        scope = f"{scope} · {esc(_sl)}"
     banner_row = (f'<tr><td style="padding:0;line-height:0"><img src="{banner_url}" '
                   f'alt="Cập nhật tiến độ dự án mỗi ngày" width="600" style="display:block;width:100%;'
                   f'max-width:600px;height:auto;border:0"></td></tr>') if banner_url else ""
@@ -1039,6 +1067,11 @@ def main():
                     "(vd PROJ1,PROJ2). Rỗng = tất cả project trong vault.")
     ap.add_argument("--inject-ai", dest="inject_ai", help="Chèn file markdown phân tích AI (CARD MÀU) vào "
                     "email-body-latest.html (trong --out) rồi thoát. KHÔNG build lại report.")
+    ap.add_argument("--scope", default="all", choices=["all", "sprint", "recent"],
+                    help="Phạm vi báo cáo (dự án lớn): sprint = sprint đang chạy (fallback N ngày) · "
+                         "recent = updated trong N ngày · all = toàn bộ (mặc định).")
+    ap.add_argument("--recent-days", dest="recent_days", type=int, default=30,
+                    help="Số ngày N cho --scope recent / fallback của sprint (mặc định 30).")
     args = ap.parse_args()
 
     if args.inject_ai:  # chỉ chèn phân tích AI vào email đã build → thoát
@@ -1073,8 +1106,13 @@ def main():
     if not issues:
         die(f"Vault chưa có note Jira nào (source: jira) tại {vault}. Hãy 'quét jira' trước.")
 
+    issues, scope_label = apply_scope(issues, args.scope, args.recent_days)
+    if args.scope != "all":
+        print(f"ℹ️  Phạm vi báo cáo: {scope_label} ({len(issues)} issue).")
+
     today = datetime.now().strftime("%Y-%m-%d")
     m = compute(issues, smap, today)
+    m["scope_label"] = scope_label
     stale_after = 1
     if os.path.exists(cfg_path):
         sm = re.search(r"stale_after_days:\s*(\d+)", open(cfg_path, encoding="utf-8").read())
