@@ -26,7 +26,7 @@ Chỉ thư viện chuẩn Python 3 + lệnh `git`.
 |---|---|
 | `--check` | Kiểm tra token + truy cập repo (không ghi). |
 | `--push [--dry-run]` | Đẩy KB → repo (idempotent: không đổi thì không commit). `--force` chép lại tất cả. |
-| `--pull` | Kéo file `.md` từ repo → `<vault>/GitHub/`. |
+| `--pull` | Kéo `.md` từ repo → `<vault>/GitHub/<owner>-<name>/` thành **document chuẩn wiki**: thêm frontmatter metadata (`source: github`, `github_repo/branch/path/url/commit`, `title`, `imported_at`) + dòng **link nguồn** đầu bài, và dựng lại trang hub `_GitHub-Index.md` (idempotent; file xoá trên repo cũng biến mất). |
 | `--source vault\|docs\|both` · `--scope <glob>` · `--subdir <path>` · `--repo owner/name` · `--branch <b>` | Ghi đè cấu hình. |
 
 ## Bảo mật

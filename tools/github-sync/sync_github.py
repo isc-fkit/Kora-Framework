@@ -26,9 +26,11 @@ import base64
 import hashlib
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
+import urllib.parse
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -269,24 +271,123 @@ def _save_map_from_files(cfg, g, cmap, files, wt, token):
     save_map(cfg, g, cmap)
 
 
+# ───────── chuyển file GitHub → document chuẩn wiki (frontmatter + link nguồn) ─────────
+_FM_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n", re.DOTALL)
+_H1_RE = re.compile(r"^#\s+(.+)$", re.MULTILINE)
+
+
+def _parse_fm(text: str):
+    """Tách frontmatter YAML đầu file → (dict, body). Không có thì ({}, text)."""
+    m = _FM_RE.match(text)
+    if not m:
+        return {}, text
+    fm = {}
+    for line in m.group(1).splitlines():
+        if ":" in line and not line.lstrip().startswith("-"):
+            k, _, v = line.partition(":")
+            fm[k.strip()] = v.strip().strip('"').strip("'")
+    return fm, text[m.end():]
+
+
+def _yaml_val(v) -> str:
+    s = str(v)
+    if s == "" or s != s.strip() or any(c in s for c in ':#"\''):
+        return '"' + s.replace('"', '\\"') + '"'
+    return s
+
+
+def _emit_fm(meta: dict) -> str:
+    return "---\n" + "".join(f"{k}: {_yaml_val(v)}\n" for k, v in meta.items()) + "---\n"
+
+
+def _first_h1(body: str) -> str:
+    m = _H1_RE.search(body)
+    return m.group(1).strip() if m else ""
+
+
+def _build_github_index(dest_root: Path):
+    """Dựng lại trang hub _GitHub-Index.md từ MỌI document GitHub đã kéo (idempotent)."""
+    if not dest_root.exists():
+        return
+    groups = {}
+    for p in sorted(dest_root.rglob("*.md")):
+        if p.name.startswith("_"):
+            continue
+        fm, _ = _parse_fm(p.read_text(encoding="utf-8", errors="replace"))
+        if fm.get("source") != "github":
+            continue
+        repo = fm.get("github_repo", "?")
+        rel = p.relative_to(dest_root).as_posix()
+        groups.setdefault(repo, []).append(
+            (fm.get("title") or p.stem, rel, fm.get("github_url", "")))
+    out = [_emit_fm({"title": "GitHub — Index", "source": "github",
+                     "type": "index", "generated": "true", "imported_at": cs.now_iso()}),
+           "# GitHub — Index tri thức", "",
+           "> Trang điều hướng TỰ SINH từ tài liệu kéo về từ GitHub (mỗi lần `--pull`). "
+           "Chỉnh tay sẽ bị ghi đè.", ""]
+    total = 0
+    for repo in sorted(groups):
+        items = sorted(groups[repo])
+        out.append(f"## {repo}  ({len(items)})")
+        out.append("")
+        for title, rel, url in items:
+            src_link = f" · [↗ nguồn]({url})" if url else ""
+            out.append(f"- [{title}]({rel}){src_link}")
+        out.append("")
+        total += len(items)
+    out.append("---")
+    out.append(f"*Tổng {total} tài liệu GitHub.*")
+    (dest_root / "_GitHub-Index.md").write_text("\n".join(out) + "\n", encoding="utf-8")
+
+
 def cmd_pull(cfg, g, token, dry_run=False):
     if not token:
         die("Chưa có token để pull.")
     wt = ensure_worktree(cfg, g, token)
+    _rc, sha, _ = run_git(["rev-parse", "HEAD"], cwd=wt, token=token, check=False)
+    commit = sha.strip()[:40]
     src = wt / g["subdir"] if g["subdir"] else wt
-    dest = cs.vault_dir(cfg) / "GitHub"
+    dest_root = cs.vault_dir(cfg) / "GitHub"
+    repo_dir = dest_root / g["slug"]               # namespace theo repo: tránh trùng đường dẫn giữa các repo
+    base, repo, branch = g["base_url"], g["repo"], g["branch"]
+    md = [p for p in sorted(src.rglob("*.md")) if ".git" not in p.parts]
+
+    if dry_run:
+        for p in md:
+            print(f"  [dry] pull+enrich: {p.relative_to(src)}")
+        print(f"  [dry] {len(md)} file → {repo_dir} (+ frontmatter, link nguồn, _GitHub-Index.md)")
+        return 0
+
+    if repo_dir.exists():
+        shutil.rmtree(repo_dir, ignore_errors=True)   # đồng bộ: file xoá trên repo cũng biến mất
     n = 0
-    for p in sorted(src.rglob("*.md")):
-        if ".git" in p.parts:
-            continue
+    for p in md:
         rel = p.relative_to(src)
-        if dry_run:
-            print(f"  [dry] pull: {rel}"); n += 1; continue
-        out = dest / rel
+        gh_path = ((g["subdir"] + "/") if g["subdir"] else "") + rel.as_posix()
+        gh_url = f"{base}/{repo}/blob/{branch}/{urllib.parse.quote(gh_path)}"
+        ofm, body = _parse_fm(p.read_text(encoding="utf-8", errors="replace"))
+        title = ofm.get("title") or _first_h1(body) or p.stem
+        meta = {
+            "source": "github",
+            "github_repo": repo,
+            "github_branch": branch,
+            "github_path": gh_path,
+            "github_url": gh_url,
+            "github_commit": commit,
+            "title": title,
+            "type": ofm.get("type") or "reference",
+            "imported_at": cs.now_iso(),
+        }
+        for k, v in ofm.items():                    # giữ key gốc của repo (không đè key của ta)
+            if k not in meta:
+                meta[k] = v
+        link = f"> 📎 Nguồn GitHub: [{repo}/{gh_path}]({gh_url})\n\n"
+        out = repo_dir / rel
         out.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(p, out)
+        out.write_text(_emit_fm(meta) + "\n" + link + body.lstrip("\n"), encoding="utf-8")
         n += 1
-    print(f"✅ Pull xong: {n} file → {dest}")
+    _build_github_index(dest_root)
+    print(f"✅ Pull xong: {n} file (đã thêm frontmatter + link nguồn) → {repo_dir}; cập nhật _GitHub-Index.md")
     return 0
 
 

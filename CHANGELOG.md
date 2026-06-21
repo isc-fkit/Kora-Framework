@@ -24,6 +24,10 @@
   `tools/connections/check_connection.py` probe SharePoint qua `sync_sharepoint.py --check`.
 - **Lịch nền (`/kora-schedule` + `orchestrator.py`) thêm nguồn KÉO `github:<owner/repo>`** (máy USER tự kéo KB host từ
   GitHub private — `sync_github.py --pull` đã có sẵn, nay nối vào SCAN) **và `sharepoint:<site>`**; sync-target thêm `sharepoint`.
+- **`sync_github.py --pull` nay CHUYỂN HÓA dữ liệu GitHub thành document chuẩn wiki** (không còn copy thô): mỗi `.md` được thêm
+  **frontmatter metadata** (`source: github`, `github_repo/branch/path/url/commit`, `title`, `imported_at`, giữ key gốc của repo) +
+  **dòng link nguồn** (blob URL) đầu bài, lưu theo namespace `<vault>/GitHub/<owner>-<name>/<cây repo>`, và dựng lại trang hub
+  **`_GitHub-Index.md`** liên kết tất cả (idempotent — file xoá trên repo cũng biến mất). Indexer tự nhặt vào KB.
 - **Landing/README:** mô tả tính năng SharePoint (bảng nguồn, bước 7 Sync, sơ đồ) + **callout rủi ro** (app Azure AD /
   admin consent / verify ở máy thật vì sandbox chặn API); thêm **note dùng skill `/kora-*` trong Cowork** (folder `Skill/`
   → kéo vào / Customize → Custom Skills) ở README + landing.
