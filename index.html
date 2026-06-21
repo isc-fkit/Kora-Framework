@@ -257,7 +257,7 @@
     <div class="brand" data-go="home" title="Trang chủ">
       <span class="brandmark" aria-hidden="true">K</span>
       <span class="org">FPT TELECOM</span>
-      <div class="fw">KORA AI<span>v2.8.2 · Kora-1</span></div>
+      <div class="fw">KORA AI<span>v2.8.3 · Kora-1</span></div>
     </div>
     <nav class="nav">
       <div class="grp">Tổng quan</div>
@@ -284,7 +284,7 @@
     <!-- ===================== HOME ===================== -->
     <div class="page" id="home">
       <header class="hero">
-        <span class="badge">FPT Telecom · KORA AI · v2.8.2 · &ldquo;Kora-1&rdquo;</span>
+        <span class="badge">FPT Telecom · KORA AI · v2.8.3 · &ldquo;Kora-1&rdquo;</span>
         <h1>KORA AI — Sơ đồ nguyên lý hoạt động</h1>
         <p class="sub">Trợ lý tri thức tự lớn lên cùng dự án: hợp nhất tri thức phân tán, nối tri thức local của nhân viên với <b>Knowledge Base</b> chung (trên Cloud), và tự động hóa đồng bộ — báo cáo — cảnh báo.</p>
         <div class="pipe">
@@ -1490,6 +1490,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
       <table>
         <tr><th>Triệu chứng</th><th>Nguyên nhân &amp; cách xử lý</th></tr>
         <tr><td>Gmail không gửi được</td><td>Chưa bật 2FA hoặc dùng mật khẩu thường thay vì <b>App Password</b>. → bật 2FA → tạo App Password → điền <code>tools/report-mailer/.env.local</code>.</td></tr>
+        <tr><td>Đã điền <code>.env.local</code> nhưng vẫn báo "thiếu SMTP_USER/SMTP_PASS"</td><td>Script CORE (bản cài ở <code>~/.claude/kora-framework/…</code>) đọc nhầm <code>.env.local</code> cạnh nó, không phải file trong project. → các skill nay truyền <b><code>KORA_MAILER_ENV="$PWD/tools/report-mailer/.env.local"</code></b>; <code>--check</code> in <code>ℹ️ Đọc cấu hình mail từ: …</code> để xác nhận đúng file. KHÔNG cần <code>source</code> (script đọc trực tiếp).</td></tr>
         <tr><td>Outlook bị chặn gửi</td><td>Thiếu <b>admin key / consent</b>. → xin admin consent, hoặc dùng SMTP.</td></tr>
         <tr><td>macOS "không chạy được"</td><td>Gatekeeper. → <b>Privacy &amp; Security → Open Anyway</b> → mở lại. Hoặc dùng lệnh 1 dòng (curl|bash).</td></tr>
         <tr><td>Lịch nền không sync</td><td>Thiếu <code>KORA_OPS_PW</code>. → đặt ở <code>~/.config/kora/ops-pw.env</code> (chmod 600).</td></tr>
@@ -1555,11 +1556,22 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
       <div class="phead"><div class="pl">I · Release Note</div><h1><span class="em">🆕</span>Lịch sử phiên bản</h1></div>
       <p class="lead">Lịch sử bản <b>APP</b> (CORE: skills, workflows, tools…). Cập nhật: chạy lại lệnh cài (bash CLI, tab <a data-go="install" style="cursor:pointer">C</a>) — <b>tri thức của bạn được giữ nguyên</b> (DATA không bị đụng).</p>
 
-      <div class="callout ok"><span>🆕</span><div><b>Bản mới nhất (latest): <code>v2.8.2</code> — "Kora-1"</b> · phát hành 2026-06-22. Tổng <b>34 bản</b>; danh sách đầy đủ ở <a href="https://github.com/isc-fkit/Kora-Framework/blob/release/CHANGELOG.md">CHANGELOG.md</a>.</div></div>
+      <div class="callout ok"><span>🆕</span><div><b>Bản mới nhất (latest): <code>v2.8.3</code> — "Kora-1"</b> · phát hành 2026-06-22. Tổng <b>35 bản</b>; danh sách đầy đủ ở <a href="https://github.com/isc-fkit/Kora-Framework/blob/release/CHANGELOG.md">CHANGELOG.md</a>.</div></div>
 
       <div class="card" style="border-color:var(--accent)">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.8.2 — "Kora-1" <span style="display:inline-block;margin-left:6px;padding:2px 9px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;font-size:10.5px;font-weight:800;vertical-align:2px">MỚI NHẤT</span></b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
+          <b style="font-size:16px">v2.8.3 — "Kora-1" <span style="display:inline-block;margin-left:6px;padding:2px 9px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;font-size:10.5px;font-weight:800;vertical-align:2px">MỚI NHẤT</span></b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
+        </div>
+        <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
+          <li><b>🐞 FIX gửi mail báo "thiếu SMTP_USER/SMTP_PASS" dù đã điền <code>.env.local</code></b>: script CORE (bản cài) đọc nhầm file cạnh nó, không phải file trong project.</li>
+          <li><b>✅ Truyền path qua biến <code>KORA_MAILER_ENV</code></b> (skill + lịch nền tự đặt <code>"$PWD/tools/report-mailer/.env.local"</code>) + cờ <code>--env</code>.</li>
+          <li><b>🔎 <code>--check</code> in rõ "Đọc cấu hình mail từ: …"</b> + phân biệt lỗi không-thấy-file / placeholder-chưa-thay / thiếu-key. KHÔNG cần <code>source</code>.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
+          <b style="font-size:16px">v2.8.2 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>✉️ Tên người gửi tuỳ biến</b> (<code>MAIL_FROM_NAME</code>, mặc định "Kora AI Daily Report") → người nhận thấy <b>"Kora AI Daily Report &lt;tài khoản&gt;"</b> thay vì email trơ.</li>

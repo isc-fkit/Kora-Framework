@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.8.2",
+  "version": "2.8.3",
   "codename": "Kora-1",
   "released": "2026-06-22",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.8.2 (người gửi mail tuỳ biến + bỏ auto email cá nhân): (1) Tên người gửi HIỂN THỊ nay cấu hình được qua MAIL_FROM_NAME (mặc định 'Kora AI Daily Report') — người nhận thấy 'Kora AI Daily Report <tài-khoản-gửi>' thay vì email trơ. (2) /kora-connect Gmail SMTP KHÔNG còn tự điền email cá nhân/đăng nhập của bạn — luôn HỎI tài khoản gửi CHUYÊN DỤNG (vd ftel.medicare@gmail.com). (3) .env.local.example dùng tài khoản gửi chuyên dụng + thêm MAIL_FROM_NAME. Thuần CORE, không migration DATA."
+  "intro": "Kora-Framework v2.8.3 (FIX: gửi mail báo 'thiếu SMTP_USER/SMTP_PASS' dù đã điền .env.local): script CORE (bản cài ở ~/.claude/kora-framework/...) trước đây chỉ đọc .env.local CẠNH chính nó, không thấy file bạn điền trong project. Nay send_report.py nhận đường dẫn .env.local qua biến môi trường KORA_MAILER_ENV (skill + lịch nền tự truyền KORA_MAILER_ENV=\"$PWD/tools/report-mailer/.env.local\"); thêm cờ --env; và IN rõ 'Đọc cấu hình mail từ: <file>' khi --check, phân biệt lỗi không-có-file / placeholder-chưa-thay / thiếu-key. KHÔNG cần 'source'. Thuần CORE, không migration DATA."
 }

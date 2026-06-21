@@ -10,6 +10,19 @@
 
 ---
 
+## v2.8.3 "Kora-1" — 2026-06-22
+
+- **🐞 FIX: gửi mail báo "thiếu SMTP_USER/SMTP_PASS" dù đã điền `.env.local`.** Root cause: `send_report.py` chỉ đọc
+  `.env.local` **cạnh chính nó** (`HERE/.env.local`); bản CÀI chạy script ở `~/.claude/kora-framework/tools/report-mailer/`
+  nên không thấy file user điền trong **project** → mismatch đường dẫn (KHÔNG phải lỗi "source").
+- **✅ Cách fix — truyền path qua BIẾN MÔI TRƯỜNG `KORA_MAILER_ENV`** (giống pattern `JIRA_ENV_FILE`):
+  `send_report.py` resolve `.env.local` theo `--env` → `KORA_MAILER_ENV` → `HERE/.env.local`. Skill (`/kora-send-mail`,
+  `/kora-daily-report`, `/kora-connect` verify, `/kora-schedule`, `/kora-alert-mail`, WF08/WF14) + `orchestrator` (lịch nền)
+  tự đặt `KORA_MAILER_ENV="$PWD/tools/report-mailer/.env.local"`.
+- **🔎 `--check` minh bạch hơn:** in `ℹ️ Đọc cấu hình mail từ: <file>` và phân biệt lỗi *không thấy file* / *placeholder
+  `PASTE_…` chưa thay* / *thiếu SMTP_USER|SMTP_PASS*. Thông báo nhắc rõ **KHÔNG cần `source`** (đọc file trực tiếp).
+- Thuần **CORE**, KHÔNG migration DATA. Máy đã cài: gõ **"cập nhật phiên bản"**.
+
 ## v2.8.2 "Kora-1" — 2026-06-22
 
 - **✉️ Tên người gửi HIỂN THỊ tuỳ biến (`MAIL_FROM_NAME`):** mặc định **"Kora AI Daily Report"** → người nhận thấy

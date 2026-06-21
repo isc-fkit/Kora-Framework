@@ -29,14 +29,19 @@ The user invoked `/kora-send-mail` — gửi email báo cáo tiến độ. **CÓ
         🟡 vừa · 🟢 tích cực · 👥 BẢNG theo thành viên · 📅 dự đoán · 🎯 hành động · 📌 tóm tắt) → `python3
         "$T/progress-report/build_report.py" --inject-ai reports/ai-analysis-latest.md` (tool render **card màu theo mục +
         bảng tô màu trạng thái** vào `email-body-latest.html`). **KHÔNG gửi** khi khối AI còn trống/placeholder.
-     d. **GỬI TỰ ĐỘNG (mặc định, kể cả Gmail):** kiểm `tools/report-mailer/.env.local` có `SMTP_USER`+`SMTP_PASS`.
+     d. **GỬI TỰ ĐỘNG (mặc định, kể cả Gmail).** ⚙️ **MỌI lệnh `send_report.py` đặt biến**
+        `KORA_MAILER_ENV="$PWD/tools/report-mailer/.env.local"` ở ĐẦU (trỏ đúng file trong project — script CORE ở
+        `~/.claude/kora-framework/...` không tự thấy). Kiểm file đó có `SMTP_USER`+`SMTP_PASS`:
         - **Chưa có** → hỏi **tài khoản gửi CHUYÊN DỤNG** (vd `ftel.medicare@gmail.com` — **KHÔNG tự điền email cá nhân
-          của user**) → tạo **Gmail App Password** (bật 2FA → `myaccount.google.com/apppasswords`), điền
-          `tools/report-mailer/.env.local`: `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=587`, `SMTP_USER=<tài khoản gửi>`,
-          `SMTP_PASS=<app password 16 ký tự>`, `MAIL_FROM=<tài khoản gửi>`, `MAIL_FROM_NAME=Kora AI Daily Report`
-          (tên hiển thị, đổi tự do) → `send_report.py --check`. Token chỉ ở `.env.local`. Người nhận thấy *Kora AI Daily Report &lt;…&gt;*.
-        - ✋ confirm → `python3 tools/report-mailer/send_report.py --to "<list>" --subject "<chủ đề>" --html-file
-          reports/email-body-latest.html --no-attach-html --attach reports/progress-report-latest.html` → **GỬI THẲNG**
+          của user**) → tạo **Gmail App Password** (bật 2FA → `myaccount.google.com/apppasswords`), `mkdir -p
+          tools/report-mailer` rồi điền `tools/report-mailer/.env.local`: `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=587`,
+          `SMTP_USER=<tài khoản gửi>`, `SMTP_PASS=<app password 16 ký tự>`, `MAIL_FROM=<tài khoản gửi>`,
+          `MAIL_FROM_NAME=Kora AI Daily Report` (tên hiển thị, đổi tự do) → verify
+          `KORA_MAILER_ENV="$PWD/tools/report-mailer/.env.local" python3 "$T/report-mailer/send_report.py" --check`
+          (tool in `ℹ️ Đọc cấu hình mail từ: …`; điền xong chạy lại là được, **KHÔNG cần `source`**). Token chỉ ở `.env.local`.
+          Người nhận thấy *Kora AI Daily Report &lt;…&gt;*.
+        - ✋ confirm → `KORA_MAILER_ENV="$PWD/tools/report-mailer/.env.local" python3 "$T/report-mailer/send_report.py" --to "<list>"
+          --subject "<chủ đề>" --html-file reports/email-body-latest.html --no-attach-html --attach reports/progress-report-latest.html` → **GỬI THẲNG**
           (body = banner `cid` + phân tầng dự án; dashboard đính kèm). Báo "đã gửi tới <list>".
         - **[Tạo nháp] = FALLBACK** (chỉ khi user chọn / không gửi SMTP được): tạo NHÁP Gmail/Outlook qua MCP → user bấm gửi.
    - **[Đặt lịch]:**

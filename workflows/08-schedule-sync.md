@@ -134,7 +134,7 @@ bật/tắt/sửa giờ/sửa prompt qua `update_scheduled_task`; xóa hẳn = s
 2. **Hỏi tự động gửi email?** (AskUserQuestion: "Tự động gửi báo cáo qua email mỗi lần chạy?" → [Có] / [Không]).
    - **Không** → đặt `reports.email.enabled: false`, sang bước 3.
    - **Có** →
-     a. **Cổng MẬT KHẨU (bắt buộc):** chạy `python3 tools/report-mailer/send_report.py --check` (Windows `py`).
+     a. **Cổng MẬT KHẨU (bắt buộc):** chạy `KORA_MAILER_ENV="$PWD/tools/report-mailer/.env.local" python3 tools/report-mailer/send_report.py --check` (Windows `py`).
         `--check` chỉ thử đăng nhập SMTP, KHÔNG gửi.
         - ❌ Lỗi (chưa cấu hình / app password sai) → **CHƯA bật được auto-gửi**. Hướng dẫn user: copy
           `tools/report-mailer/.env.local.example` → `.env.local`, tạo Google App Password
@@ -155,7 +155,7 @@ bật/tắt/sửa giờ/sửa prompt qua `update_scheduled_task`; xóa hẳn = s
    > Báo cho user: tiến độ tóm tắt + đường dẫn report. **Nếu KHÔNG làm mới được** (phiên nền thiếu
    > MCP / Jira nội bộ không tới): vẫn sinh report (dữ liệu CŨ, có banner) + hướng dẫn cập nhật.
    > **ĐỌC `reports.email` TỪ config lúc chạy (nguồn DUY NHẤT):** nếu `enabled:true` → gửi tới
-   > `reports.email.to`. method `smtp`: `python3 tools/report-mailer/send_report.py --to '<reports.email.to nối phẩy>' --subject '<subject, {date}=hôm nay>' --html-file reports/progress-report-latest.html`;
+   > `reports.email.to`. method `smtp`: `KORA_MAILER_ENV="$PWD/tools/report-mailer/.env.local" python3 tools/report-mailer/send_report.py --to '<reports.email.to nối phẩy>' --subject '<subject, {date}=hôm nay>' --html-file reports/progress-report-latest.html` (lịch NỀN do orchestrator tự đặt biến này);
    > method `gmail_draft`: tạo nháp qua Gmail connector. Thiếu creds → báo user, KHÔNG fail im."
 4. Ghi `reports.scheduled` (cron + task_id) vào config. Báo user: cách đổi/huỷ lịch + **cách sửa danh sách nhận** (mục dưới).
 

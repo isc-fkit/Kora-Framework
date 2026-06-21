@@ -38,6 +38,7 @@ CONFL_DIR = REPO_ROOT / "tools" / "confluence-sync"
 GITHUB_DIR = REPO_ROOT / "tools" / "github-sync"
 SHAREPOINT_DIR = REPO_ROOT / "tools" / "sharepoint-sync"
 MAILER = REPO_ROOT / "tools" / "report-mailer" / "send_report.py"
+MAILER_ENV = REPO_ROOT / "tools" / "report-mailer" / ".env.local"   # truyền qua KORA_MAILER_ENV
 PY = sys.executable or "python3"
 
 
@@ -246,7 +247,8 @@ def send_error_email(cfg, schedule, subject, body):
     if not recips or not MAILER.exists():
         log("  (không gửi được error email: thiếu người nhận hoặc mailer)")
         return
-    run_tool(MAILER, ["--to", ",".join(recips), "--subject", subject, "--body", body])
+    run_tool(MAILER, ["--to", ",".join(recips), "--subject", subject, "--body", body],
+             extra_env={"KORA_MAILER_ENV": str(MAILER_ENV)})
 
 
 # ──────────────────────────────── pipeline ─────────────────────────────────
@@ -385,7 +387,8 @@ def main():
                     rc2, o2, e2 = run_tool(MAILER, ["--to", ",".join(recips), "--subject", subj,
                                                     "--html-file", "reports/email-body-latest.html",
                                                     "--no-attach-html",
-                                                    "--attach", "reports/progress-report-latest.html"])
+                                                    "--attach", "reports/progress-report-latest.html"],
+                                           extra_env={"KORA_MAILER_ENV": str(MAILER_ENV)})
                     if rc2 != 0:
                         run_errors.append({"step": "email", "reason": (e2 or o2)[:300]})
 

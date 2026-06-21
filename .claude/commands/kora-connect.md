@@ -89,18 +89,21 @@ ESC hoặc [← Huỷ] = dừng, **KHÔNG ghi gì** vào `connections:`.
         nhân / email đăng nhập của user**; nếu chưa rõ, dùng AskUserQuestion (gợi ý + ô "Other"). Tài khoản này bật
         **xác minh 2 bước** → tạo **App Password** (16 ký tự) tại *myaccount.google.com → Security → App passwords*.
         (App Password KHÔNG ra chat / KHÔNG vào card.)
-     2. Điền file **`tools/report-mailer/.env.local`** (copy từ `.env.local.example`; đã gitignore) — đây là
-        NGOẠI LỆ `.env` hợp lệ (kênh gửi mail nền): `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=587`,
-        `SMTP_SECURITY=starttls`, `SMTP_USER=<tài khoản gửi>`, `SMTP_PASS=<App Password>`, `MAIL_FROM=<tài khoản gửi>`,
-        **`MAIL_FROM_NAME=Kora AI Daily Report`** (tên hiển thị — đổi tự do; người nhận thấy *Kora AI Daily Report
-        &lt;tài khoản gửi&gt;*). KHÔNG nhồi email cá nhân làm mặc định.
-        Present file kèm đường dẫn folder tuyệt đối + cách mở (Finder `Cmd+Shift+G` / Explorer; file ẩn).
+     2. Tạo & điền file ở **ĐÚNG đường dẫn cố định** `"$PWD/tools/report-mailer/.env.local"` (chạy
+        `mkdir -p tools/report-mailer` trong project nếu chưa có; copy từ `.env.local.example`; đã gitignore) — NGOẠI LỆ
+        `.env` hợp lệ: `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=587`, `SMTP_SECURITY=starttls`, `SMTP_USER=<tài khoản gửi>`,
+        `SMTP_PASS=<App Password>`, `MAIL_FROM=<tài khoản gửi>`, **`MAIL_FROM_NAME=Kora AI Daily Report`** (tên hiển thị —
+        đổi tự do; người nhận thấy *Kora AI Daily Report &lt;tài khoản gửi&gt;*). KHÔNG nhồi email cá nhân làm mặc định.
+        Present file kèm **đường dẫn tuyệt đối** + cách mở (Finder `Cmd+Shift+G` / Explorer; file ẩn). **Lưu ý:** điền xong
+        chạy lại verify là được — **KHÔNG cần `source`** (script đọc file trực tiếp qua biến `KORA_MAILER_ENV`).
      3. `source_type = gmail_smtp`, method = `smtp`, `creds.kind = dotenv` (trỏ `tools/report-mailer/.env.local`).
 
 ### Bước 4 — Verify rồi mới GHI (KHÔNG ghi nửa chừng)
 - **API:** chạy `python3 "$T/connections/check_connection.py" --check <id> --config "$PWD/config/factory-config.yaml"` (`T` resolve như Bước 0) → đọc JSON kết quả. *(tool đọc PROJECT config theo `--config`/cwd — KHÔNG phải CORE config.)*
-- **Gmail SMTP:** verify bằng `python3 "$T/report-mailer/send_report.py" --check` (kết nối SMTP + đăng nhập App
-  Password, KHÔNG gửi mail thật). Exit 0 = OK → ghi entry `gmail_smtp__smtp`. Lỗi auth → nhắc kiểm tra 2FA/App Password.
+- **Gmail SMTP:** verify bằng `KORA_MAILER_ENV="$PWD/tools/report-mailer/.env.local" python3 "$T/report-mailer/send_report.py" --check`
+  (biến `KORA_MAILER_ENV` trỏ ĐÚNG file vừa điền — vì script CORE nằm ở `~/.claude/kora-framework/...` sẽ không tự thấy
+  file trong project). Tool in `ℹ️ Đọc cấu hình mail từ: …` để xác nhận. Exit 0 = OK → ghi entry `gmail_smtp__smtp`. Lỗi
+  auth → nhắc kiểm tra 2FA/App Password; báo "thiếu/không thấy file" → kiểm tra đúng đường dẫn `.env.local`.
 - **MCP:** tự gọi 1 MCP tool để verify.
 - **Chỉ khi verify THÀNH CÔNG** → ghi 1 entry đầy đủ vào `connections:` của `config/factory-config.yaml`
   (giữ id-uniqueness — trùng id thì replace-in-place), gồm: `id, method, source_type, display_name,

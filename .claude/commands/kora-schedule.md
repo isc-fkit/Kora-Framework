@@ -78,7 +78,7 @@ Với MỖI task → AskUserQuestion quản lý **theo loại engine**:
 - **Người nhận** → AskUserQuestion: **[Thêm]** (ô "Other" nhập email mới) / **[Bớt]** (chọn email đang có) — lặp tới
   khi hài lòng → ghi `reports.email.to` (nối phẩy). ✋ Đọc lại danh sách cuối (gửi mail = ra ngoài).
 - **Bật/tắt auto gửi** → đổi `reports.email.enabled` (bật `true` cần `to` KHÔNG rỗng; lần ĐẦU bật → chạy
-  `python3 tools/report-mailer/send_report.py --check` qua **cổng mật khẩu** trước khi `enabled: true`).
+  `KORA_MAILER_ENV="$PWD/tools/report-mailer/.env.local" python3 tools/report-mailer/send_report.py --check` qua **cổng mật khẩu** trước khi `enabled: true`).
 - **Tiêu đề** → sửa `reports.email.subject` (`{date}` = ngày chạy).
 - `to` rỗng **hoặc** `enabled:false` → lịch **BỎ QUA gửi** (báo "chưa cấu hình người nhận", không fail).
 

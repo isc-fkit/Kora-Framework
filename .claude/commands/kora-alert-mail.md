@@ -40,7 +40,7 @@ AskUserQuestion **[Confluence]** / **[Jira]** / **[Không tạo ticket]**:
 - **Không** → ghi `ticket_issue.enabled: false`.
 
 ### Bước 6 — Gửi thử kiểm tra SMTP (tùy chọn)
-`python3 tools/report-mailer/send_report.py --check` (Windows `py`) — chỉ thử đăng nhập SMTP, **KHÔNG gửi**.
+`KORA_MAILER_ENV="$PWD/tools/report-mailer/.env.local" python3 tools/report-mailer/send_report.py --check` (Windows `py`) — chỉ thử đăng nhập SMTP, **KHÔNG gửi**.
 Lỗi → nhắc cấu hình `tools/report-mailer/.env.local` (copy `.env.local.example`, điền `SMTP_USER` + Google App
 Password). **Bí mật CHỈ ở `.env.local`** — KHÔNG hỏi/nhập password qua chat/card.
 

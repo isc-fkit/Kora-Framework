@@ -48,6 +48,17 @@ def load_env(path: Path) -> dict:
     return env
 
 
+def resolve_env_path(cli_env=None) -> Path:
+    """Tìm file .env.local theo THỨ TỰ ưu tiên (deterministic, không đoán cwd):
+    1) --env <path>  2) biến môi trường KORA_MAILER_ENV  3) .env.local CẠNH script (HERE).
+    Skill/orchestrator truyền KORA_MAILER_ENV trỏ tới file thật trong project → bản CÀI (script ở
+    ~/.claude/kora-framework/...) vẫn đọc đúng file user điền."""
+    for cand in (cli_env, os.getenv("KORA_MAILER_ENV")):
+        if cand and cand.strip():
+            return Path(cand.strip()).expanduser()
+    return HERE / ".env.local"
+
+
 def die(msg: str, code: int = 1):
     print(f"❌ {msg}", file=sys.stderr)
     sys.exit(code)
@@ -70,9 +81,12 @@ def main():
     ap.add_argument("--banner", help="Ảnh banner nhúng inline (cid:kora-banner). Mặc định assets/banner-daily-report.png.")
     ap.add_argument("--test", action="store_true", help="Gửi email test nhỏ (không cần report).")
     ap.add_argument("--check", action="store_true", help="Chỉ kiểm tra cấu hình + đăng nhập SMTP (KHÔNG gửi).")
+    ap.add_argument("--env", help="Đường dẫn .env.local (ưu tiên cao nhất; mặc định đọc KORA_MAILER_ENV rồi .env.local cạnh script).")
     args = ap.parse_args()
 
-    env = load_env(HERE / ".env.local")
+    env_path = resolve_env_path(args.env)
+    env = load_env(env_path)
+    file_exists = env_path.exists()
 
     def cfg(key, default=None):
         return os.getenv(key) or env.get(key) or default
@@ -81,17 +95,26 @@ def main():
     port = int(cfg("SMTP_PORT", "587"))
     security = (cfg("SMTP_SECURITY", "starttls") or "starttls").lower()
     user = cfg("SMTP_USER")
-    pw = cfg("SMTP_PASS")
+    raw_pw = cfg("SMTP_PASS")
+    placeholder = bool(raw_pw and raw_pw.strip().startswith("PASTE_"))
+    pw = None if placeholder else raw_pw   # placeholder chưa thay → coi như chưa cấu hình
     mail_from = cfg("MAIL_FROM") or user
     from_name = cfg("MAIL_FROM_NAME") or DEFAULT_FROM_NAME   # tên hiển thị → "Tên <email>"
 
-    if pw and pw.strip().startswith("PASTE_"):
-        pw = None  # placeholder chưa thay → coi như chưa cấu hình
+    def _missing_msg():
+        if not file_exists:
+            return (f"Không thấy file cấu hình mail: {env_path}\n"
+                    f"   → Tạo file đó (copy từ .env.local.example) rồi điền SMTP_USER/SMTP_PASS, HOẶC trỏ "
+                    f"biến KORA_MAILER_ENV / cờ --env tới đúng .env.local của bạn.")
+        if placeholder:
+            return (f"SMTP_PASS vẫn là placeholder 'PASTE_…' trong {env_path} — dán App Password (16 ký tự) THẬT vào.")
+        return (f"Thiếu SMTP_USER/SMTP_PASS trong {env_path} (tạo Google App Password rồi điền). "
+                f"Script đọc TRỰC TIẾP file này — KHÔNG cần 'source'.")
 
     if args.check:
+        print(f"ℹ️  Đọc cấu hình mail từ: {env_path}")
         if not user or not pw:
-            die("Chưa cấu hình gửi mail: thiếu SMTP_USER/SMTP_PASS trong "
-                "tools/report-mailer/.env.local (tạo Google App Password rồi điền).")
+            die(_missing_msg())
         try:
             if security == "ssl":
                 with smtplib.SMTP_SSL(host, port, context=ssl.create_default_context(), timeout=30) as s:
@@ -106,13 +129,12 @@ def main():
             die("Đăng nhập SMTP THẤT BẠI — App Password sai hoặc không thuộc SMTP_USER. Sửa lại .env.local.")
         except Exception as e:  # noqa: BLE001
             die(f"Không kết nối được SMTP: {e}")
-        print(f"✅ Cấu hình gửi mail OK — đăng nhập thành công: {user} @ {host}:{port}")
+        print(f"✅ Cấu hình gửi mail OK — đăng nhập thành công: {user} @ {host}:{port} · "
+              f"gửi dạng \"{from_name} <{mail_from}>\"")
         return
 
     if not user or not pw:
-        die("Thiếu SMTP_USER / SMTP_PASS. Hãy tạo tools/report-mailer/.env.local "
-            "(copy từ .env.local.example). Gmail: dùng App Password — bật 2FA rồi tạo tại "
-            "https://myaccount.google.com/apppasswords (KHÔNG dùng mật khẩu Gmail thường).")
+        die(_missing_msg())
 
     to = split_addrs(args.to)
     cc = split_addrs(args.cc)
