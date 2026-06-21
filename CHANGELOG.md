@@ -10,6 +10,17 @@
 
 ---
 
+## v2.8.2 "Kora-1" — 2026-06-22
+
+- **✉️ Tên người gửi HIỂN THỊ tuỳ biến (`MAIL_FROM_NAME`):** mặc định **"Kora AI Daily Report"** → người nhận thấy
+  **`Kora AI Daily Report <tài-khoản-gửi>`** thay vì email trơ. Trước đây tên cố định trong code (`FROM_NAME`), nay
+  đọc từ `.env.local` (`send_report.py`: `cfg("MAIL_FROM_NAME") or DEFAULT_FROM_NAME`).
+- **🙅 Bỏ AUTO-điền email cá nhân ở `/kora-connect` Gmail SMTP:** skill nay **HỎI tài khoản gửi CHUYÊN DỤNG**
+  (vd `ftel.medicare@gmail.com`) — **TUYỆT ĐỐI không** tự nhồi email cá nhân / email đăng nhập của user vào `.env.local`.
+- **🧩 `.env.local.example` chuẩn hơn:** tài khoản gửi chuyên dụng + `SMTP_USER`=`MAIL_FROM`=`<tài khoản gửi>` +
+  `MAIL_FROM_NAME=Kora AI Daily Report`. `/kora-send-mail` lần đầu cũng hỏi tài khoản chuyên dụng + ghi `MAIL_FROM_NAME`.
+- Thuần **CORE**, KHÔNG migration DATA. Máy đã cài: gõ **"cập nhật phiên bản"**.
+
 ## v2.8.1 "Kora-1" — 2026-06-22
 
 - **🎨 Khối phân tích AI trong email = CARD MÀU theo mục (bỏ chip inline):** mỗi mục một card có viền + nền + tiêu đề

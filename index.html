@@ -257,7 +257,7 @@
     <div class="brand" data-go="home" title="Trang chủ">
       <span class="brandmark" aria-hidden="true">K</span>
       <span class="org">FPT TELECOM</span>
-      <div class="fw">KORA AI<span>v2.8.1 · Kora-1</span></div>
+      <div class="fw">KORA AI<span>v2.8.2 · Kora-1</span></div>
     </div>
     <nav class="nav">
       <div class="grp">Tổng quan</div>
@@ -284,7 +284,7 @@
     <!-- ===================== HOME ===================== -->
     <div class="page" id="home">
       <header class="hero">
-        <span class="badge">FPT Telecom · KORA AI · v2.8.1 · &ldquo;Kora-1&rdquo;</span>
+        <span class="badge">FPT Telecom · KORA AI · v2.8.2 · &ldquo;Kora-1&rdquo;</span>
         <h1>KORA AI — Sơ đồ nguyên lý hoạt động</h1>
         <p class="sub">Trợ lý tri thức tự lớn lên cùng dự án: hợp nhất tri thức phân tán, nối tri thức local của nhân viên với <b>Knowledge Base</b> chung (trên Cloud), và tự động hóa đồng bộ — báo cáo — cảnh báo.</p>
         <div class="pipe">
@@ -651,7 +651,7 @@
       <div class="callout"><span>🔌</span><div><b>Nguồn MCP phải KẾT NỐI ở Claude web/Desktop TRƯỚC mới hiện ở CLI:</b> MCP do <b>app Claude</b> quản lý OAuth — connector (Atlassian / Microsoft 365 / Gmail) phải được <b>bật + authorize</b> trong <b>Claude web/Desktop → Settings → Connectors</b> (hoặc gõ <code>/mcp</code> trong Claude Code/Desktop). Chỉ khi server <b>connected</b> thì nguồn MCP đó mới <b>xuất hiện &amp; gọi được ở CLI</b> (<code>/kora-connect</code>, scan). Chưa kết nối ở app → CLI không thấy. (Nguồn <b>API</b>/token thì kết nối thẳng ở CLI, không cần bước này.)</div></div>
       <div class="callout"><span>🏢</span><div><b>Connect HOSTING cần đảm bảo:</b> ① nguồn để SCAN · ② đích PUSH (Confluence / GitHub private / SharePoint) · ③ kênh MAIL (Gmail/Outlook/SMTP).</div></div>
       <div class="twocol">
-        <div class="card"><b>📧 Gmail (SMTP — tự động gửi)</b><p style="color:var(--muted);font-size:13.3px;margin:6px 0 0">Connect qua <b>API → Gmail SMTP</b>: cần <b>App Password</b> (chỉ tạo được khi đã <b>bật 2FA</b>) → điền <code>tools/report-mailer/.env.local</code> → verify <code>send_report.py --check</code>. <b>TỰ ĐỘNG GỬI</b> (khác Gmail MCP = chỉ tạo nháp).</p></div>
+        <div class="card"><b>📧 Gmail (SMTP — tự động gửi)</b><p style="color:var(--muted);font-size:13.3px;margin:6px 0 0">Connect qua <b>API → Gmail SMTP</b>: dùng <b>tài khoản gửi chuyên dụng</b> (KHÔNG phải email cá nhân) + <b>App Password</b> (đã <b>bật 2FA</b>) → điền <code>tools/report-mailer/.env.local</code> → verify <code>send_report.py --check</code>. Người nhận thấy <b>“Kora AI Daily Report &lt;tài khoản&gt;”</b> (đổi qua <code>MAIL_FROM_NAME</code>). <b>TỰ ĐỘNG GỬI</b> (khác Gmail MCP = chỉ tạo nháp).</p></div>
         <div class="card"><b>📨 Outlook / M365</b><p style="color:var(--muted);font-size:13.3px;margin:6px 0 0">Cần <b>key admin</b> hoặc được <b>set consent</b> (admin consent).</p></div>
       </div>
       <div class="callout warn"><span>🔑</span><div><b>Lưu khóa (token):</b> mặc định vào <b>shell env</b> (<code>~/.zshrc</code>: <code>export KORA_&lt;SRC&gt;_TOKEN=…</code>), <b>KHÔNG rải <code>.env</code></b> trong project. Chỉ tạo <code>.env.local</code> ở 2 ca: <b>archive</b> (key read-only) và <b>lịch sync nền</b> (mỗi nguồn user chọn sync). Token không vào chat / git / config.</div></div>
@@ -1555,11 +1555,22 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
       <div class="phead"><div class="pl">I · Release Note</div><h1><span class="em">🆕</span>Lịch sử phiên bản</h1></div>
       <p class="lead">Lịch sử bản <b>APP</b> (CORE: skills, workflows, tools…). Cập nhật: chạy lại lệnh cài (bash CLI, tab <a data-go="install" style="cursor:pointer">C</a>) — <b>tri thức của bạn được giữ nguyên</b> (DATA không bị đụng).</p>
 
-      <div class="callout ok"><span>🆕</span><div><b>Bản mới nhất (latest): <code>v2.8.1</code> — "Kora-1"</b> · phát hành 2026-06-22. Tổng <b>33 bản</b>; danh sách đầy đủ ở <a href="https://github.com/isc-fkit/Kora-Framework/blob/release/CHANGELOG.md">CHANGELOG.md</a>.</div></div>
+      <div class="callout ok"><span>🆕</span><div><b>Bản mới nhất (latest): <code>v2.8.2</code> — "Kora-1"</b> · phát hành 2026-06-22. Tổng <b>34 bản</b>; danh sách đầy đủ ở <a href="https://github.com/isc-fkit/Kora-Framework/blob/release/CHANGELOG.md">CHANGELOG.md</a>.</div></div>
 
       <div class="card" style="border-color:var(--accent)">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.8.1 — "Kora-1" <span style="display:inline-block;margin-left:6px;padding:2px 9px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;font-size:10.5px;font-weight:800;vertical-align:2px">MỚI NHẤT</span></b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
+          <b style="font-size:16px">v2.8.2 — "Kora-1" <span style="display:inline-block;margin-left:6px;padding:2px 9px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;font-size:10.5px;font-weight:800;vertical-align:2px">MỚI NHẤT</span></b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
+        </div>
+        <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
+          <li><b>✉️ Tên người gửi tuỳ biến</b> (<code>MAIL_FROM_NAME</code>, mặc định "Kora AI Daily Report") → người nhận thấy <b>"Kora AI Daily Report &lt;tài khoản&gt;"</b> thay vì email trơ.</li>
+          <li><b>🙅 Bỏ auto-điền email cá nhân</b>: <code>/kora-connect</code> Gmail SMTP nay HỎI <b>tài khoản gửi chuyên dụng</b> (vd ftel.medicare@gmail.com), không nhồi email đăng nhập của bạn.</li>
+          <li><b>🧩 <code>.env.local.example</code> chuẩn hơn</b>: tài khoản chuyên dụng + <code>MAIL_FROM_NAME</code>.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
+          <b style="font-size:16px">v2.8.1 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>🎨 Phân tích AI trong email = CARD MÀU theo mục</b> (bỏ chip): 🔴 rủi ro cao · 🟡 vừa · 🟢 tích cực · 👥 thành viên · 📅 dự đoán · 🎯 hành động · 📌 tóm tắt — mỗi mục một màu, dễ quan sát.</li>

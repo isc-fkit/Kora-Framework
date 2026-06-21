@@ -31,8 +31,8 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 
-# Tên người gửi hiển thị — CỐ ĐỊNH, không cho cấu hình (force).
-FROM_NAME = "Kora AI Daily Report"
+# Tên người gửi hiển thị mặc định — CẤU HÌNH được qua MAIL_FROM_NAME trong .env.local.
+DEFAULT_FROM_NAME = "Kora AI Daily Report"
 
 
 def load_env(path: Path) -> dict:
@@ -83,6 +83,7 @@ def main():
     user = cfg("SMTP_USER")
     pw = cfg("SMTP_PASS")
     mail_from = cfg("MAIL_FROM") or user
+    from_name = cfg("MAIL_FROM_NAME") or DEFAULT_FROM_NAME   # tên hiển thị → "Tên <email>"
 
     if pw and pw.strip().startswith("PASTE_"):
         pw = None  # placeholder chưa thay → coi như chưa cấu hình
@@ -160,7 +161,7 @@ def main():
             banner_cid_path = bpth
 
     msg = EmailMessage()
-    msg["From"] = formataddr((FROM_NAME, mail_from))
+    msg["From"] = formataddr((from_name, mail_from))
     msg["To"] = ", ".join(to)
     if cc:
         msg["Cc"] = ", ".join(cc)

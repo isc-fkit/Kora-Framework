@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.8.1",
+  "version": "2.8.2",
   "codename": "Kora-1",
   "released": "2026-06-22",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.8.1 (phân tích AI trong email ĐẸP & CHI TIẾT hơn): khối '🤖 Phân tích & khuyến nghị' nay là CÁC CARD MÀU riêng biệt theo mục (🔴 Rủi ro cao · 🟡 Rủi ro vừa · 🟢 Tích cực · 👥 Bảng theo thành viên tô màu trạng thái · 📅 Dự đoán sprint · 🎯 Hành động ưu tiên · 📌 Tóm tắt điều hành) thay cho chip inline — dễ quan sát hơn nhiều. Phân tích sâu hơn: từng rủi ro kèm mã issue/người/đề xuất; bảng thành viên (Done/In Review/In Progress) tô màu cột (Done xanh lá · In Review xanh dương · In Progress cam). Renderer dùng CHUNG cho lịch nền + gửi mail tay (build_report.py --inject-ai). Thuần CORE, không migration DATA."
+  "intro": "Kora-Framework v2.8.2 (người gửi mail tuỳ biến + bỏ auto email cá nhân): (1) Tên người gửi HIỂN THỊ nay cấu hình được qua MAIL_FROM_NAME (mặc định 'Kora AI Daily Report') — người nhận thấy 'Kora AI Daily Report <tài-khoản-gửi>' thay vì email trơ. (2) /kora-connect Gmail SMTP KHÔNG còn tự điền email cá nhân/đăng nhập của bạn — luôn HỎI tài khoản gửi CHUYÊN DỤNG (vd ftel.medicare@gmail.com). (3) .env.local.example dùng tài khoản gửi chuyên dụng + thêm MAIL_FROM_NAME. Thuần CORE, không migration DATA."
 }

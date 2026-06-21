@@ -85,11 +85,15 @@ ESC hoặc [← Huỷ] = dừng, **KHÔNG ghi gì** vào `connections:`.
      trình duyệt) → yêu cầu **PAT/long-lived token** thay vì OAuth (xem cảnh báo headless ở `/kora-schedule`).
   ▸ **Gmail SMTP (App Password — TỰ ĐỘNG GỬI):** KHÔNG OAuth, KHÔNG MCP — gửi trực tiếp qua SMTP để báo cáo/lịch
      nền **tự bắn mail** (không cần tạo nháp tay).
-     1. User bật **xác minh 2 bước** ở Google Account → tạo **App Password** (16 ký tự) tại
-        *myaccount.google.com → Security → App passwords*. (App Password KHÔNG ra chat / KHÔNG vào card.)
+     1. **HỎI tài khoản gửi CHUYÊN DỤNG** (vd `ftel.medicare@gmail.com`) — **TUYỆT ĐỐI KHÔNG tự điền email cá
+        nhân / email đăng nhập của user**; nếu chưa rõ, dùng AskUserQuestion (gợi ý + ô "Other"). Tài khoản này bật
+        **xác minh 2 bước** → tạo **App Password** (16 ký tự) tại *myaccount.google.com → Security → App passwords*.
+        (App Password KHÔNG ra chat / KHÔNG vào card.)
      2. Điền file **`tools/report-mailer/.env.local`** (copy từ `.env.local.example`; đã gitignore) — đây là
         NGOẠI LỆ `.env` hợp lệ (kênh gửi mail nền): `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=587`,
-        `SMTP_SECURITY=starttls`, `SMTP_USER=<email>`, `SMTP_PASS=<App Password>`, `MAIL_FROM=<email>`.
+        `SMTP_SECURITY=starttls`, `SMTP_USER=<tài khoản gửi>`, `SMTP_PASS=<App Password>`, `MAIL_FROM=<tài khoản gửi>`,
+        **`MAIL_FROM_NAME=Kora AI Daily Report`** (tên hiển thị — đổi tự do; người nhận thấy *Kora AI Daily Report
+        &lt;tài khoản gửi&gt;*). KHÔNG nhồi email cá nhân làm mặc định.
         Present file kèm đường dẫn folder tuyệt đối + cách mở (Finder `Cmd+Shift+G` / Explorer; file ẩn).
      3. `source_type = gmail_smtp`, method = `smtp`, `creds.kind = dotenv` (trỏ `tools/report-mailer/.env.local`).
 

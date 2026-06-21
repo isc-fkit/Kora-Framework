@@ -30,9 +30,11 @@ The user invoked `/kora-send-mail` — gửi email báo cáo tiến độ. **CÓ
         "$T/progress-report/build_report.py" --inject-ai reports/ai-analysis-latest.md` (tool render **card màu theo mục +
         bảng tô màu trạng thái** vào `email-body-latest.html`). **KHÔNG gửi** khi khối AI còn trống/placeholder.
      d. **GỬI TỰ ĐỘNG (mặc định, kể cả Gmail):** kiểm `tools/report-mailer/.env.local` có `SMTP_USER`+`SMTP_PASS`.
-        - **Chưa có** → hướng dẫn tạo **Gmail App Password** (bật 2FA → `myaccount.google.com/apppasswords`), điền
-          `tools/report-mailer/.env.local`: `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=587`, `SMTP_USER=<email>`,
-          `SMTP_PASS=<app password 16 ký tự>` (KHÔNG dùng mật khẩu Gmail thường) → `send_report.py --check`. Token chỉ ở `.env.local`.
+        - **Chưa có** → hỏi **tài khoản gửi CHUYÊN DỤNG** (vd `ftel.medicare@gmail.com` — **KHÔNG tự điền email cá nhân
+          của user**) → tạo **Gmail App Password** (bật 2FA → `myaccount.google.com/apppasswords`), điền
+          `tools/report-mailer/.env.local`: `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=587`, `SMTP_USER=<tài khoản gửi>`,
+          `SMTP_PASS=<app password 16 ký tự>`, `MAIL_FROM=<tài khoản gửi>`, `MAIL_FROM_NAME=Kora AI Daily Report`
+          (tên hiển thị, đổi tự do) → `send_report.py --check`. Token chỉ ở `.env.local`. Người nhận thấy *Kora AI Daily Report &lt;…&gt;*.
         - ✋ confirm → `python3 tools/report-mailer/send_report.py --to "<list>" --subject "<chủ đề>" --html-file
           reports/email-body-latest.html --no-attach-html --attach reports/progress-report-latest.html` → **GỬI THẲNG**
           (body = banner `cid` + phân tầng dự án; dashboard đính kèm). Báo "đã gửi tới <list>".
