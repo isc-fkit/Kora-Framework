@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.8.4",
+  "version": "2.8.5",
   "codename": "Kora-1",
   "released": "2026-06-22",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.8.4 (FIX: báo cáo Jira quét ĐA NGUỒN + ĐA DOMAIN — trước chỉ thấy Jira API): khi bạn connect nhiều Jira (API self-host + Atlassian Rovo/Cloud MCP, kể cả nhiều domain cùng loại), /kora-daily-report và /kora-send-mail nay cho CHỌN NHIỀU NGUỒN và quét MỖI nguồn bằng route riêng — nguồn 'method: api' chạy import_jira với base_url/cred của chính nó; nguồn 'method: mcp' (gồm source_type 'atlassian' của Rovo) chạy MCP getVisibleJiraProjects + searchJiraIssuesUsingJql → import_jira --from-mcp. Hết cảnh chọn nguồn MCP nhưng vẫn quét nhầm self-host → lỗi 'Không có note Jira cho project'. Thông báo lỗi đó nay gợi ý chọn đúng nguồn & quét. check_connection --list thêm cột SOURCE_TYPE + BASE_URL. Thuần CORE, không migration DATA."
+  "intro": "Kora-Framework v2.8.5 (lịch nền report/mail PULL dữ liệu server từ MỌI nguồn Jira TRƯỚC khi build): trước đây orchestrator full-scan project báo cáo chỉ từ nguồn Jira ĐẦU TIÊN (break) — với đa nguồn/đa domain (v2.8.4) các nguồn còn lại không được làm mới đầy đủ. Nay full-scan project báo cáo từ TẤT CẢ nguồn Jira API trong scan-list (mỗi nguồn chỉ quét project nó có qua list-projects ∩ report.projects → tránh JQL lỗi vì key lạ), best-effort (lỗi 1 nguồn không chặn nguồn khác). Nguồn chỉ-MCP không quét nền được → cần kết nối Jira đó qua API + thêm vào scan-list (đã ghi rõ ở /kora-schedule + WF08). Thuần CORE, không migration DATA."
 }

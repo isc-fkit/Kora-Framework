@@ -37,6 +37,10 @@
    - **Tần suất** → AskUserQuestion **[Mỗi ngày] / [Thứ 2–6] / [Ngày tùy chọn]** → `--days every|mon-fri|<csv>`.
    - **scan-list** (id nguồn trong `connections:`, vd `jira:local,confluence:KB`) · **post-list** (đích đẩy,
      vd `confluence:KB`) · (HOST) bật email báo cáo? (qua cổng mật khẩu `send_report.py --check`).
+     > ⚠️ **Report/mail nền PULL dữ liệu server TRƯỚC khi build:** orchestrator FULL-scan project báo cáo từ **MỌI
+     > nguồn Jira API trong scan-list** (mỗi nguồn chỉ quét project nó có) → scan-list **PHẢI gồm (các) nguồn Jira chứa
+     > project báo cáo** (kể cả nhiều domain). **Nguồn chỉ-MCP** (vd Atlassian Rovo) **không quét nền được** → muốn
+     > report nền có dữ liệu Jira đó thì **kết nối Jira đó qua API** (token) và thêm vào scan-list.
 3. ✋ **Confirm** → `python3 tools/kora-scheduler/schedule.py register --id <slug> --times "08:00,14:00" --days mon-fri
    --scan <scan-list> --post <post-list> [--email <list>]` (Windows: `py` / `scripts\schedule.bat`).
    (Power-user: thay `--times/--days` bằng `--cron "<expr>"`. Cài HĐH lỗi → in `⚠️ CHƯA cài được vào HĐH`,

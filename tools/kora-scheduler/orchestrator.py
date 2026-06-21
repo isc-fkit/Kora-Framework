@@ -354,16 +354,32 @@ def main():
         report = None
         if gate_ok and not is_user_pkg and not args.dry_run:
             rep_projs = [p for p in ((sch.get("report") or {}).get("projects") or []) if p]
-            # FULL-scan project báo cáo (status/comment MỚI NHẤT — KHÔNG --since, GHI ĐÈ local, dedup) trước khi build.
+            # FULL-scan (status/comment MỚI NHẤT, GHI ĐÈ) project báo cáo từ MỌI nguồn Jira API trong scan_list
+            # (đa nguồn / đa domain) — mỗi nguồn CHỈ quét project NÓ CÓ (list-projects ∩ rep_projs) để tránh JQL lỗi
+            # vì key lạ. (Nguồn MCP KHÔNG có trong scan_list → nền không kéo được; cần kết nối Jira đó qua API.)
             if rep_projs:
                 for tok in sch.get("scan_list", []):
-                    if tok.partition(":")[0] == "jira":
-                        nm = tok.partition(":")[2]
-                        ef = ".env.local" if nm in ("", "local", "default") else f".env.{nm}"
-                        log(f"FULL-scan report projects {rep_projs} (latest status/comment)")
-                        run_tool(JIRA_DIR / "import_jira.py", ["--jql", f"project in ({','.join(rep_projs)})"],
-                                 extra_env={"JIRA_ENV_FILE": ef}, cwd=JIRA_DIR)
-                        break
+                    if tok.partition(":")[0] != "jira":
+                        continue
+                    nm = tok.partition(":")[2]
+                    ef = ".env.local" if nm in ("", "local", "default") else f".env.{nm}"
+                    rc_lp, out_lp, _ = run_tool(JIRA_DIR / "import_jira.py", ["--list-projects"],
+                                                extra_env={"JIRA_ENV_FILE": ef}, cwd=JIRA_DIR)
+                    here = set()
+                    if rc_lp == 0:
+                        try:
+                            here = {p.get("key") for p in json.loads(out_lp or "[]") if isinstance(p, dict)}
+                        except Exception:  # noqa: BLE001
+                            here = set()
+                    want = [k for k in rep_projs if k in here] if here else rep_projs  # list-projects lỗi → thử tất cả
+                    if not want:
+                        continue
+                    log(f"FULL-scan report projects {want} từ jira:{nm} (status/comment mới nhất)")
+                    rc_s, o_s, e_s = run_tool(JIRA_DIR / "import_jira.py",
+                                              ["--jql", f"project in ({','.join(want)})"],
+                                              extra_env={"JIRA_ENV_FILE": ef}, cwd=JIRA_DIR)
+                    if rc_s != 0:
+                        run_errors.append({"step": "report-scan", "source": nm, "reason": (e_s or o_s)[:200]})
                 run_tool(REPO_ROOT / "tools" / "kb-indexer" / "build_index.py", ["--root", "."])
             rep_args = ["--projects", ",".join(rep_projs)] if rep_projs else []
             rc, out, err = run_tool(REPO_ROOT / "tools" / "progress-report" / "build_report.py", rep_args)

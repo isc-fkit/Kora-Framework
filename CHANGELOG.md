@@ -10,6 +10,17 @@
 
 ---
 
+## v2.8.5 "Kora-1" — 2026-06-22
+
+- **🔄 Lịch nền (report/mail) PULL dữ liệu server từ MỌI nguồn Jira TRƯỚC khi build.** Trước đây orchestrator full-scan
+  project báo cáo chỉ từ nguồn Jira **ĐẦU TIÊN** (`break`) — với đa nguồn/đa domain (v2.8.4) các nguồn còn lại không
+  được làm mới đầy đủ. Nay **loop TẤT CẢ nguồn Jira API** trong scan-list: mỗi nguồn `import_jira --list-projects` →
+  giao với `report.projects` → chỉ `--jql "project in (<giao>)"` (tránh JQL lỗi vì key lạ), **best-effort** (lỗi 1
+  nguồn ghi ticket, không chặn nguồn khác) → reindex → build_report trên union.
+- **📌 Caveat MCP nền:** nguồn **chỉ-MCP** (vd Atlassian Rovo) **không quét nền được** (launchd/cron không có MCP). Muốn
+  report nền có dữ liệu Jira đó → **kết nối Jira đó qua API** (token) + thêm vào scan-list. Ghi rõ ở `/kora-schedule` + WF08.
+- Thuần **CORE**, KHÔNG migration DATA. Máy đã cài: gõ **"cập nhật phiên bản"**.
+
 ## v2.8.4 "Kora-1" — 2026-06-22
 
 - **🐞 FIX: báo cáo Jira chỉ quét được Jira API dù đã connect cả Jira MCP.** Root cause: (1) Jira qua **Atlassian Rovo**
