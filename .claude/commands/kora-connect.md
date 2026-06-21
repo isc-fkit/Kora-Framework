@@ -1,5 +1,5 @@
 ---
-description: Connect a knowledge source OR view already-connected sources. Entry asks [Connect new] vs [View connected]; new → choose MCP or API → pick a source that method supports (Jira/GitHub/GitLab via API OAuth 2.0; Atlassian, Gmail, Microsoft 365 via MCP), marking sources already connected. API and MCP count separately.
+description: Connect a knowledge source OR view already-connected sources. Entry asks [Connect new] vs [View connected]; new → choose MCP or API → pick a source that method supports (Jira/GitHub/GitLab/SharePoint via API OAuth 2.0; Gmail SMTP via App Password for auto-send; Atlassian, Gmail draft, Microsoft 365 via MCP), marking sources already connected. API and MCP count separately.
 ---
 
 The user invoked `/kora-connect` — set up a connection to a knowledge source, recorded in the
@@ -29,19 +29,24 @@ ESC hoặc [← Huỷ] = dừng, **KHÔNG ghi gì** vào `connections:`.
 > **[Khác — xem thêm]** → lượt kế liệt kê phần còn lại. **KHÔNG** nhồi >4 option vào 1 thẻ (sẽ lỗi
 > "Invalid tool parameters").
 
-- **MCP** (3 nguồn → 1 thẻ) → **[Atlassian Rovo (Jira + Confluence)]** / **[Gmail]** /
+- **MCP** (3 nguồn → 1 thẻ) → **[Atlassian Rovo (Jira + Confluence)]** / **[Gmail — tạo NHÁP/draft]** /
   **[Microsoft 365 (SharePoint + Outlook)]** — Connector đang có trong Claude App/Cowork (Settings →
   Connectors) **hoặc** gõ **`/mcp`** (Claude Code/Desktop) để kết nối server trước.
+  > ✉️ **Gmail MCP = tạo NHÁP (draft) gửi tay.** Muốn **TỰ ĐỘNG GỬI** (lịch nền/báo cáo) → chọn **API → Gmail
+  >   SMTP (App Password)** bên dưới. Mail tự động ưu tiên SMTP, MCP draft chỉ là fallback.
   - ▸ **Connector GỘP nhiều dịch vụ → HỎI sub-service** (AskUserQuestion; mỗi dịch vụ = 1 nguồn RIÊNG để
     verify/quét, đừng dừng ở "đã kết nối M365" rồi thôi): **Microsoft 365** → **[SharePoint] / [Outlook] /
     [Cả hai]**; **Atlassian Rovo** → **[Jira] / [Confluence] / [Cả hai]**. (Gmail là 1 dịch vụ — không hỏi.)
     Mỗi sub-service ghi entry riêng: `source_type` = `sharepoint`/`outlook`/`jira_cloud`/`confluence`, method `mcp`.
-- **API** (5 nguồn → **PHÂN TRANG 2 thẻ**; ưu tiên **OAuth 2.0**, PAT là fallback):
+- **API** (6 nguồn → **PHÂN TRANG 2 thẻ**; ưu tiên **OAuth 2.0**, PAT là fallback):
   - **Thẻ 1:** **[Jira Cloud]** / **[Jira Server / self-host]** / **[GitHub]** / **[Khác — xem thêm]**.
-  - Chọn **[Khác — xem thêm]** → **Thẻ 2:** **[GitLab]** / **[SharePoint (Microsoft Graph — ĐẨY/ghi KB)]**.
+  - Chọn **[Khác — xem thêm]** → **Thẻ 2:** **[GitLab]** / **[SharePoint (Microsoft Graph — ĐẨY/ghi KB)]** /
+    **[Gmail SMTP (App Password — TỰ ĐỘNG GỬI mail)]**.
   > SharePoint API khác MCP Microsoft 365 (chỉ đọc): API Graph để **GHI** KB. Auth: app-only
   > client-credentials (cần admin consent `Sites.ReadWrite.All`, chạy nền) **hoặc** device-flow
   > (`sync_sharepoint.py --login`, tương tác). source_type = `sharepoint`, method = `api`.
+  > **Gmail SMTP** = kênh GỬI mail tự động (báo cáo/lịch nền). source_type = `gmail_smtp`, method = `smtp`
+  >   (không OAuth — dùng **App Password** + 2FA). Khác Gmail MCP (chỉ tạo nháp). Xem ▸ Gmail SMTP ở Bước 3.
 
 > 🔖 **Đánh dấu đã kết nối:** đối chiếu với `--list` — nguồn nào ĐÃ có entry `<source_type>__<method>`
 > (đúng phương thức đang chọn) thì gắn badge **"✓ đã kết nối"** trên thẻ đó (chọn lại = kiểm tra/cập nhật,
@@ -78,9 +83,20 @@ ESC hoặc [← Huỷ] = dừng, **KHÔNG ghi gì** vào `connections:`.
        không đọc được shell tương tác. Ngoài 2 ca này → luôn dùng shell env.
   4. **Fallback PAT:** nếu user từ chối OAuth, hoặc nguồn sẽ dùng cho **lịch chạy nền** (cron không mở được
      trình duyệt) → yêu cầu **PAT/long-lived token** thay vì OAuth (xem cảnh báo headless ở `/kora-schedule`).
+  ▸ **Gmail SMTP (App Password — TỰ ĐỘNG GỬI):** KHÔNG OAuth, KHÔNG MCP — gửi trực tiếp qua SMTP để báo cáo/lịch
+     nền **tự bắn mail** (không cần tạo nháp tay).
+     1. User bật **xác minh 2 bước** ở Google Account → tạo **App Password** (16 ký tự) tại
+        *myaccount.google.com → Security → App passwords*. (App Password KHÔNG ra chat / KHÔNG vào card.)
+     2. Điền file **`tools/report-mailer/.env.local`** (copy từ `.env.local.example`; đã gitignore) — đây là
+        NGOẠI LỆ `.env` hợp lệ (kênh gửi mail nền): `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=587`,
+        `SMTP_SECURITY=starttls`, `SMTP_USER=<email>`, `SMTP_PASS=<App Password>`, `MAIL_FROM=<email>`.
+        Present file kèm đường dẫn folder tuyệt đối + cách mở (Finder `Cmd+Shift+G` / Explorer; file ẩn).
+     3. `source_type = gmail_smtp`, method = `smtp`, `creds.kind = dotenv` (trỏ `tools/report-mailer/.env.local`).
 
 ### Bước 4 — Verify rồi mới GHI (KHÔNG ghi nửa chừng)
 - **API:** chạy `python3 "$T/connections/check_connection.py" --check <id> --config "$PWD/config/factory-config.yaml"` (`T` resolve như Bước 0) → đọc JSON kết quả. *(tool đọc PROJECT config theo `--config`/cwd — KHÔNG phải CORE config.)*
+- **Gmail SMTP:** verify bằng `python3 "$T/report-mailer/send_report.py" --check` (kết nối SMTP + đăng nhập App
+  Password, KHÔNG gửi mail thật). Exit 0 = OK → ghi entry `gmail_smtp__smtp`. Lỗi auth → nhắc kiểm tra 2FA/App Password.
 - **MCP:** tự gọi 1 MCP tool để verify.
 - **Chỉ khi verify THÀNH CÔNG** → ghi 1 entry đầy đủ vào `connections:` của `config/factory-config.yaml`
   (giữ id-uniqueness — trùng id thì replace-in-place), gồm: `id, method, source_type, display_name,

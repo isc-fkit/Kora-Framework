@@ -18,9 +18,10 @@ The user invoked `/kora-daily-report` — build a progress report.
    Chưa kết nối → mời `/kora-connect`.
 3. **Chọn PROJECT TRONG nguồn đó** — Jira: `python3 "$T/jira-to-obsidian/import_jira.py" --list-projects` (JSON
    `[{key,name}]`) → **multi-select + [Tất cả]**. (SharePoint MCP: chọn folder/path qua `sharepoint_folder_search`.)
-4. **QUÉT LẤY DỮ LIỆU MỚI NHẤT (BẮT BUỘC) cho project đã chọn** — theo `workflows/14-progress-report.md` Bước 0.5:
-   Jira Cloud → MCP `searchJiraIssuesUsingJql` `project=<KEY> AND updated>="<since>"` → `import_jira.py --from-mcp`;
-   self-host → `import_jira.py --since` (PROJECT_KEYS=<KEYS>). Rồi reindex `build_index.py --root .`. **Report luôn trên data vừa kéo.**
+4. **FULL-SCAN LẤY DỮ LIỆU MỚI NHẤT (BẮT BUỘC, GHI ĐÈ — tránh local cũ) cho project đã chọn** — WF14 Bước 0.5:
+   `import_jira.py --jql "project in (<KEYS>)"` (FULL, **KHÔNG `--since`** → HẾT status + comment hiện tại; ghi đè, không
+   nhân bản) **hoặc** Jira Cloud MCP `searchJiraIssuesUsingJql` `project in (<KEYS>)` → `import_jira.py --from-mcp`. Rồi
+   reindex `build_index.py --root .`. **Report luôn trên data vừa kéo** (task đã Done/đổi trạng thái trên server sẽ đúng).
 5. (Tùy chọn) **filter member** (assignee / team) — multi-select. Hỏi **khoảng thời gian**.
 6. Build dashboard **scope đúng project**: `python3 "$T/progress-report/build_report.py" --projects "<KEYS>"`
    (time-tracking / active sprint / assignee + **by-project bar**) per `workflows/14-progress-report.md` — inline Cowork UI + HTML.

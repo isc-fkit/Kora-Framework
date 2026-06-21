@@ -19,8 +19,10 @@ Token map:
     sharepoint:<site>  → sync_sharepoint.py --pull (scan) / --push (post) --site <site>
 """
 import argparse
+import html
 import json
 import os
+import re
 import subprocess
 import sys
 import urllib.request
@@ -351,6 +353,17 @@ def main():
         report = None
         if gate_ok and not is_user_pkg and not args.dry_run:
             rep_projs = [p for p in ((sch.get("report") or {}).get("projects") or []) if p]
+            # FULL-scan project báo cáo (status/comment MỚI NHẤT — KHÔNG --since, GHI ĐÈ local, dedup) trước khi build.
+            if rep_projs:
+                for tok in sch.get("scan_list", []):
+                    if tok.partition(":")[0] == "jira":
+                        nm = tok.partition(":")[2]
+                        ef = ".env.local" if nm in ("", "local", "default") else f".env.{nm}"
+                        log(f"FULL-scan report projects {rep_projs} (latest status/comment)")
+                        run_tool(JIRA_DIR / "import_jira.py", ["--jql", f"project in ({','.join(rep_projs)})"],
+                                 extra_env={"JIRA_ENV_FILE": ef}, cwd=JIRA_DIR)
+                        break
+                run_tool(REPO_ROOT / "tools" / "kb-indexer" / "build_index.py", ["--root", "."])
             rep_args = ["--projects", ",".join(rep_projs)] if rep_projs else []
             rc, out, err = run_tool(REPO_ROOT / "tools" / "progress-report" / "build_report.py", rep_args)
             if rc != 0:
@@ -442,6 +455,50 @@ def _incident_body(sid, errors, sources):
     return "\n".join(lines)
 
 
+def _md_to_html(md: str) -> str:
+    """Markdown đơn giản → HTML email-safe (heading / bullet / **bold** / chip rủi ro màu)."""
+    out, in_ul = [], False
+    chips = {"🔴": '<b style="color:#c0392b">🔴</b>', "🟡": '<b style="color:#b7791f">🟡</b>',
+             "🟢": '<b style="color:#1a9e63">🟢</b>'}
+    for raw in md.splitlines():
+        s = raw.strip()
+        if not s:
+            continue
+        esc = html.escape(s)
+        esc = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", esc)
+        for k, v in chips.items():
+            esc = esc.replace(k, v)
+        if s.startswith("#"):
+            if in_ul:
+                out.append("</ul>"); in_ul = False
+            out.append(f'<div style="font-weight:800;color:#0a4aa0;margin:9px 0 3px;font-size:13px">{esc.lstrip("# ")}</div>')
+        elif s[:2] in ("- ", "* ", "• ") or s.startswith("•"):
+            if not in_ul:
+                out.append('<ul style="margin:3px 0 6px;padding-left:18px">'); in_ul = True
+            out.append(f'<li style="margin:3px 0;font-size:12.5px;color:#33405a">{esc.lstrip("-*• ")}</li>')
+        else:
+            if in_ul:
+                out.append("</ul>"); in_ul = False
+            out.append(f'<div style="margin:4px 0;font-size:12.5px;color:#33405a">{esc}</div>')
+    if in_ul:
+        out.append("</ul>")
+    return "".join(out)
+
+
+def _inject_ai_email(ai_text: str):
+    """Thay khối <!--KR-AI-START-->…<!--KR-AI-END--> trong email-body-latest.html bằng phân tích AI (đã format)."""
+    email = REPO_ROOT / "reports" / "email-body-latest.html"
+    if not email.exists() or not ai_text.strip():
+        return
+    block = _md_to_html(ai_text)
+    txt = email.read_text(encoding="utf-8")
+    new = re.sub(r"<!--KR-AI-START-->.*?<!--KR-AI-END-->",
+                 lambda _m: "<!--KR-AI-START-->" + block + "<!--KR-AI-END-->",
+                 txt, count=1, flags=re.DOTALL)
+    email.write_text(new, encoding="utf-8")
+    log("  (AI analysis: đã CHÈN vào email body)")
+
+
 def _ai_analysis(cfg, log_dir):
     mode = (cfg.get("scheduler.ai_risk_analysis.mode") or "auto").lower()
     if mode == "off":
@@ -456,13 +513,27 @@ def _ai_analysis(cfg, log_dir):
     data = REPO_ROOT / "reports" / f"progress-data-{today()}.json"
     if not data.exists():
         return
-    prompt = ("Đọc dữ liệu tiến độ JSON sau và viết 5-8 dòng phân tích RỦI RO + đề xuất "
-              "(tiếng Việt, ngắn gọn) cho quản lý:\n" + data.read_text(encoding='utf-8')[:6000])
+    prompt = (
+        "Bạn là trợ lý phân tích tiến độ dự án. Đọc JSON tiến độ dưới đây và viết phân tích NGẮN GỌN (tiếng Việt) "
+        "cho quản lý, THEO CẤU TRÚC markdown:\n"
+        "## Rủi ro (mỗi mục mở đầu 🔴 cao / 🟡 vừa / 🟢 thấp + lý do BẰNG SỐ)\n"
+        "## Dự đoán (nguy cơ trượt timeline / sprint — theo NGÀY LÀM VIỆC)\n"
+        "## Hướng giải quyết (cụ thể theo người / bước)\n"
+        "## Tổng kết (1–2 câu điều hành)\n"
+        "QUY ƯỚC: 8h = 1 ngày công; bỏ Thứ 7/CN; so với 'expected_so_far' (số NGÀY LÀM VIỆC ĐÃ trôi qua) — "
+        "log đủ 8h/ngày là ĐÚNG TIẾN ĐỘ, KHÔNG phải OT; duedate tính ĐẾN HẾT NGÀY (start 15 / due 16 = 1 ngày, không trượt).\n\n"
+        + data.read_text(encoding='utf-8')[:7000])
+    # Bypass quyền → headless/cron KHÔNG kẹt prompt (bật/tắt qua config; mặc định bật).
+    skip = (cfg.get("scheduler.ai_risk_analysis.skip_permissions") or "true").strip().lower() != "false"
+    cmd = [claude, "-p", prompt] + (["--dangerously-skip-permissions"] if skip else [])
     try:
-        p = subprocess.run([claude, "-p", prompt], capture_output=True, text=True, timeout=180)
+        p = subprocess.run(cmd, capture_output=True, text=True, timeout=240)
         if p.returncode == 0 and p.stdout.strip():
             (log_dir / f"ai-analysis-{today()}.md").write_text(p.stdout, encoding="utf-8")
+            _inject_ai_email(p.stdout)          # ← CHÈN vào email TRƯỚC khi gửi (bug cũ: thiếu bước này)
             log("  (AI analysis: đã ghi)")
+        else:
+            log(f"  (AI analysis: claude rc={p.returncode} — email giữ placeholder)")
     except Exception as e:  # noqa: BLE001
         log(f"  (AI analysis bỏ qua: {e})")
 

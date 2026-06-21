@@ -47,6 +47,10 @@ Kiểm tra độ mới: `python3 tools/jira-to-obsidian/import_jira.py --check-f
 4. Nạp vào vault (tái dùng toàn bộ logic ghi note): `python3 tools/jira-to-obsidian/import_jira.py
    --from-mcp <file> --names reports/_mcp-names.json --since` (cờ `--since` để bật idempotent-per-day).
 5. Reindex: `python3 tools/kb-indexer/build_index.py --root .`.
+> 🔄 **Chắc chắn MỚI NHẤT (status + comment) → FULL-scan project báo cáo, GHI ĐÈ:** thay vì `--since` (có thể bỏ
+> sót comment-only / task đã Done trên server), quét FULL `python3 tools/jira-to-obsidian/import_jira.py --jql
+> "project in (<KEYS>)"` (KHÔNG `--since`). `_purge_stale` đảm bảo **1 file/issue, ghi đè, không nhân bản** — local
+> luôn khớp server. (Lịch nền cũng làm bước này trước khi build — xem orchestrator.)
 > Phiên scheduled nền **thiếu MCP** → coi như không kéo được → xử như nhánh "cũ" của B (báo cũ + nhắc mở Cowork gõ "báo cáo tiến độ").
 
 **B) Jira self-host (token, MCP/nền KHÔNG tới host nội bộ):** KHÔNG tự kéo.

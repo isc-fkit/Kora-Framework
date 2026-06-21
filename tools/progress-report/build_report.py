@@ -54,6 +54,33 @@ def pct(a, b):
     return round(100 * a / b) if b else 0
 
 
+def working_days_between(d1, d2):
+    """Số NGÀY LÀM VIỆC (T2–6) từ d1 đến d2 INCLUSIVE (date hoặc 'YYYY-MM-DD').
+    start=15, due=16 → 1 (làm TRONG ngày, không phải 2 ngày). Cùng ngày → 1 (nếu là ngày làm việc)."""
+    def _d(x):
+        if isinstance(x, date):
+            return x
+        try:
+            return date(int(str(x)[:4]), int(str(x)[5:7]), int(str(x)[8:10]))
+        except Exception:  # noqa: BLE001
+            return None
+    a, b = _d(d1), _d(d2)
+    if not a or not b:
+        return 0
+    if b < a:
+        a, b = b, a
+    # 'start 15 / due 16' = 1 ngày làm việc → đếm [a, b) (không gồm mốc cuối), tối thiểu 1 nếu a là ngày làm việc.
+    n = 0
+    cur = a
+    while cur < b:
+        if cur.weekday() < 5:
+            n += 1
+        cur = cur.fromordinal(cur.toordinal() + 1)
+    if n == 0 and a.weekday() < 5:   # cùng ngày / cùng 1 ngày làm việc
+        n = 1
+    return n
+
+
 def human_seconds(s):
     try:
         s = int(s)
@@ -237,30 +264,37 @@ def compute(issues, smap, today):
                            "pct_done": pct(g["done"], len(items)), "time": _time_sum(items)})
     by_project.sort(key=lambda x: -x["total"])
 
-    # ── Năng lực giờ công (giờ chuẩn) + thời gian OT — THÁNG hiện tại: 5 ngày/tuần × 8 giờ/ngày ──
+    # ── Năng lực giờ công — THÁNG (5 ngày/tuần × 8h/ngày), so với SỐ NGÀY LÀM VIỆC ĐÃ TRÔI QUA (công bằng) ──
     try:
-        ty, tmo = int(today[:4]), int(today[5:7])
+        ty, tmo, tday = int(today[:4]), int(today[5:7]), int(today[8:10])
     except Exception:  # noqa: BLE001
-        ty, tmo = datetime.now().year, datetime.now().month
-    working_days = sum(1 for d in range(1, calendar.monthrange(ty, tmo)[1] + 1)
-                       if date(ty, tmo, d).weekday() < 5)
-    std_person = working_days * 8 * 3600          # giờ công chuẩn / người (giây)
+        _n = datetime.now(); ty, tmo, tday = _n.year, _n.month, _n.day
+    days_in_month = calendar.monthrange(ty, tmo)[1]
+    working_days = sum(1 for d in range(1, days_in_month + 1) if date(ty, tmo, d).weekday() < 5)
+    # Ngày làm việc ĐÃ TRÔI QUA (đầu tháng → hôm nay) = mốc "đúng tiến độ" (KHÔNG so với cả tháng → 8h/ngày ≈ 100%).
+    wd_elapsed = sum(1 for d in range(1, min(tday, days_in_month) + 1) if date(ty, tmo, d).weekday() < 5) or 1
+    std_person = working_days * 8 * 3600           # mục tiêu THÁNG / người (giây)
+    expect_person = wd_elapsed * 8 * 3600          # KỲ VỌNG ĐẾN HÔM NAY / người = 8h × ngày làm việc đã trôi qua
     for a in by_assignee:
         sp = a["time"]["spent_s"]
         a["std_seconds"] = std_person
-        a["ot_seconds"] = max(0, sp - std_person)        # log vượt chuẩn = OT
-        a["under_seconds"] = max(0, std_person - sp)      # log thiếu so với chuẩn
-        a["pct_capacity"] = pct(sp, std_person)
+        a["expected_so_far_s"] = expect_person
+        a["logged_working_days"] = round(sp / (8 * 3600), 1)
+        a["ot_seconds"] = max(0, sp - expect_person)       # log VƯỢT kỳ vọng đến hôm nay = OT (đủ 8h/ngày ⇒ KHÔNG OT)
+        a["under_seconds"] = max(0, expect_person - sp)    # thiếu so với kỳ vọng đến hôm nay
+        a["pct_capacity"] = pct(sp, expect_person)         # % theo tiến độ NGÀY-CÔNG đã trôi qua
     members = [a for a in by_assignee if a["assignee"] not in ("(chưa giao)", "—", "")]
     team_std = len(members) * std_person
+    team_expect = len(members) * expect_person
     capacity = {
-        "month": f"{tmo:02d}/{ty}", "working_days": working_days,
+        "month": f"{tmo:02d}/{ty}", "working_days": working_days, "working_days_elapsed": wd_elapsed,
         "std_hours_person": working_days * 8, "std_seconds_person": std_person,
+        "expected_so_far_person_s": expect_person, "team_expected_so_far_s": team_expect,
         "num_members": len(members), "team_std_seconds": team_std,
-        "logged_seconds": tsum["spent_s"],
-        "ot_seconds": max(0, tsum["spent_s"] - team_std),
-        "under_seconds": max(0, team_std - tsum["spent_s"]),
-        "pct_capacity": pct(tsum["spent_s"], team_std),
+        "logged_seconds": tsum["spent_s"], "logged_working_days": round(tsum["spent_s"] / (8 * 3600), 1),
+        "ot_seconds": max(0, tsum["spent_s"] - team_expect),
+        "under_seconds": max(0, team_expect - tsum["spent_s"]),
+        "pct_capacity": pct(tsum["spent_s"], team_expect),
     }
 
     # ── Logtime theo LOẠI — chỉ Task/Sub-task/Bug thực sự log; Epic/Story/Request thường KHÔNG log ──
@@ -376,11 +410,11 @@ def render_fragment(m, vault):
         kpi("Đã log", human_seconds(t["spent_s"]), f'{t["pct_logged"]}% ước tính', "teal"),
         kpi("Còn lại", human_seconds(t["remaining_s"]), color="orange"),
         kpi("Sprint đang chạy", len(m["active_sprints"]), color="vio"),
-        kpi("Giờ công chuẩn (nhóm)", human_seconds(m["capacity"]["team_std_seconds"]),
-            f'{m["capacity"]["working_days"]} ngày làm việc · {m["capacity"]["num_members"]} thành viên', "blue"),
-        kpi("Thời gian OT" if m["capacity"]["ot_seconds"] else "Thiếu so với chuẩn",
+        kpi("Kỳ vọng đến hôm nay", human_seconds(m["capacity"]["team_expected_so_far_s"]),
+            f'{m["capacity"]["working_days_elapsed"]}/{m["capacity"]["working_days"]} ngày làm việc · {m["capacity"]["num_members"]} TV · mục tiêu tháng {human_seconds(m["capacity"]["team_std_seconds"])}', "blue"),
+        kpi("Vượt kỳ vọng (OT)" if m["capacity"]["ot_seconds"] else "Thiếu so với kỳ vọng",
             human_seconds(m["capacity"]["ot_seconds"] or m["capacity"]["under_seconds"]),
-            f'Đạt {m["capacity"]["pct_capacity"]}% giờ chuẩn',
+            f'Đạt {m["capacity"]["pct_capacity"]}% kỳ vọng đến hôm nay',
             "red" if m["capacity"]["ot_seconds"] else "orange"),
     ])
 
@@ -589,6 +623,34 @@ def _ecard(label, value, unit="", highlight=False):
             f'<div style="font-size:11.5px;color:{EPAL["mut"]}">{esc(unit)}</div></div></td>')
 
 
+def _estack(grp):
+    """Thanh trạng thái xếp tầng — EMAIL-SAFE (table + bgcolor, render mọi client)."""
+    tot = max(grp["todo"] + grp["in_progress"] + grp["done"], 1)
+    segs = ""
+    for n, c in (("done", EPAL["green"]), ("in_progress", EPAL["blue2"]), ("todo", "#aab6c8")):
+        if grp[n]:
+            w = max(1, round(100 * grp[n] / tot))
+            segs += f'<td width="{w}%" bgcolor="{c}" style="height:18px;font-size:0;line-height:18px">&nbsp;</td>'
+    return (f'<table role="presentation" width="100%" cellpadding="0" cellspacing="0" '
+            f'style="border-radius:8px;overflow:hidden"><tr>{segs}</tr></table>'
+            f'<div style="font-size:12px;color:{EPAL["mut"]};margin-top:6px">'
+            f'<span style="color:{EPAL["green"]}">■</span> Done {grp["done"]} &nbsp;&nbsp;'
+            f'<span style="color:{EPAL["blue2"]}">■</span> Đang làm {grp["in_progress"]} &nbsp;&nbsp;'
+            f'<span style="color:#7a8aa3">■</span> Chưa làm {grp["todo"]}</div>')
+
+
+def _ebar(label, value, maxv, color, suffix=""):
+    """1 dòng bar ngang — EMAIL-SAFE (table + bgcolor width %)."""
+    w = max(2, round(100 * value / (maxv or 1)))
+    return (f'<tr><td width="36%" style="padding:3px 8px 3px 0;font-size:12px;color:{EPAL["ink"]};white-space:nowrap">'
+            f'{esc(str(label))[:22]}</td>'
+            f'<td style="padding:3px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>'
+            f'<td width="{w}%" bgcolor="{color}" style="height:13px;border-radius:4px;font-size:0;line-height:13px">&nbsp;</td>'
+            f'<td bgcolor="#eef1f6" style="height:13px;font-size:0;line-height:13px">&nbsp;</td></tr></table></td>'
+            f'<td width="46" align="right" style="padding:3px 0 3px 8px;font-size:12px;font-weight:700;color:{EPAL["ink"]}">'
+            f'{value}{esc(suffix)}</td></tr>')
+
+
 _TYPE_LABELS = {"epic": "Epic", "story": "User Story", "user_story": "User Story",
                 "task": "Task", "sub-task": "Sub-task", "subtask": "Sub-task",
                 "bug": "Bug", "request": "Request", "issue": "Issue"}
@@ -623,9 +685,9 @@ def render_email_body(m, vault, banner_url=""):
     cap = m.get("capacity", {})
     hs = human_seconds
     if cap.get("ot_seconds"):
-        ot_txt = f'<span style="color:{EPAL["red"]}"><b>Thời gian OT (vượt giờ chuẩn): +{hs(cap["ot_seconds"])}</b></span>'
+        ot_txt = f'<span style="color:{EPAL["red"]}"><b>Vượt kỳ vọng đến hôm nay (OT): +{hs(cap["ot_seconds"])}</b></span>'
     else:
-        ot_txt = f'<span style="color:{EPAL["amber"]}">Còn thiếu so với giờ chuẩn: {hs(cap.get("under_seconds", 0))}</span>'
+        ot_txt = f'<span style="color:{EPAL["amber"]}">Còn thiếu so với kỳ vọng đến hôm nay: {hs(cap.get("under_seconds", 0))}</span>'
     lbt = m.get("logged_by_type", {})
     log_rows = "".join(
         f'<tr><td style="padding:3px 0;font-size:13px;color:{EPAL["ink"]}">{esc(_type_label(k))}</td>'
@@ -636,9 +698,9 @@ def render_email_body(m, vault, banner_url=""):
     cap_block = f'''<tr><td class="kpad" style="padding:8px 22px 2px">
       <div style="font-size:12px;color:{EPAL['mut']};text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px">Năng suất &amp; giờ công — tháng {esc(cap.get('month', ''))}</div>
       <div style="font-size:13.5px;color:{EPAL['ink']};line-height:1.75">
-        • Số ngày làm việc trong tháng: <b>{cap.get('working_days', 0)} ngày</b> (5 ngày mỗi tuần × 8 giờ mỗi ngày).<br>
-        • Giờ công chuẩn mỗi thành viên: <b>{cap.get('std_hours_person', 0)} giờ</b> · cả nhóm ({cap.get('num_members', 0)} thành viên): <b>{hs(cap.get('team_std_seconds', 0))}</b>.<br>
-        • Tổng thời gian đã log: <b>{hs(cap.get('logged_seconds', 0))}</b> → đạt <b>{cap.get('pct_capacity', 0)}%</b> giờ công chuẩn của cả nhóm.<br>
+        • Ngày làm việc: <b>{cap.get('working_days_elapsed', 0)} / {cap.get('working_days', 0)} ngày</b> đã trôi qua trong tháng (T2–T6, 8h/ngày = 1 ngày công).<br>
+        • Kỳ vọng <b>đến hôm nay</b>: <b>{hs(cap.get('team_expected_so_far_s', 0))}</b> ({cap.get('num_members', 0)} TV × {cap.get('working_days_elapsed', 0)} ngày × 8h) · mục tiêu cả tháng: <b>{hs(cap.get('team_std_seconds', 0))}</b>.<br>
+        • Đã log: <b>{hs(cap.get('logged_seconds', 0))}</b> = <b>{cap.get('logged_working_days', 0)} ngày công</b> → đạt <b>{cap.get('pct_capacity', 0)}%</b> so với kỳ vọng đến hôm nay.<br>
         • {ot_txt}.
       </div>
       <div style="background:#fff8ec;border:1px solid #ffe2b0;border-radius:10px;padding:11px 13px;margin-top:10px;font-size:12.5px;color:#7a5b16">
@@ -680,10 +742,37 @@ def render_email_body(m, vault, banner_url=""):
         </tr>{prows}
       </table>
       <div style="font-size:11.5px;color:{EPAL['mut']};margin-top:6px">Lọc &amp; drill-down chi tiết từng dự án có trong dashboard đính kèm.</div></td></tr>'''
+    # 📊 Biểu đồ EMAIL-SAFE (table + bgcolor) — render mọi client, không SVG/JS
+    asg = [a for a in m["by_assignee"] if a["assignee"] not in ("(chưa giao)", "—", "")][:6]
+    asg_max = max((a["total"] for a in asg), default=1)
+    asg_rows = "".join(_ebar(a["assignee"], a["total"], asg_max, EPAL["blue2"]) for a in asg) or \
+        f'<tr><td style="font-size:12px;color:{EPAL["mut"]}">(chưa giao việc)</td></tr>'
+    proj_chart = ""
+    if len(bp) > 1:
+        pmax = max((p["total"] for p in bp), default=1)
+        prows = "".join(_ebar(p["project"], p["total"], pmax, EPAL["vio"])
+                        for p in sorted(bp, key=lambda z: -z["total"])[:6])
+        proj_chart = (f'<div style="font-size:11.5px;color:{EPAL["mut"]};text-transform:uppercase;letter-spacing:.04em;margin:14px 0 4px">Khối lượng theo dự án</div>'
+                      f'<table role="presentation" width="100%" cellpadding="0" cellspacing="0">{prows}</table>')
+    charts_block = (f'<tr><td class="kpad kcard" bgcolor="{EPAL["card"]}" style="padding:8px 22px 4px;background-color:{EPAL["card"]}">'
+                    f'<div style="font-size:11.5px;color:{EPAL["mut"]};text-transform:uppercase;letter-spacing:.04em;margin:4px 0 8px">📊 Phân bố trạng thái</div>'
+                    f'{_estack(g)}'
+                    f'<div style="font-size:11.5px;color:{EPAL["mut"]};text-transform:uppercase;letter-spacing:.04em;margin:14px 0 4px">Khối lượng theo người</div>'
+                    f'<table role="presentation" width="100%" cellpadding="0" cellspacing="0">{asg_rows}</table>'
+                    f'{proj_chart}</td></tr>')
     return f"""<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="utf-8">
-<style>@media only screen and (max-width:600px){{.kc{{display:block!important;width:100%!important;box-sizing:border-box}}.kpad{{padding:16px!important}}}}</style>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:{EPAL['bg']};padding:16px 8px;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif">
-<tr><td align="center"><table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:{EPAL['card']};border-radius:14px;overflow:hidden">
+<meta name="color-scheme" content="light only"><meta name="supported-color-schemes" content="light only">
+<style>
+:root{{color-scheme:light only;supported-color-schemes:light only}}
+@media only screen and (max-width:600px){{.kc{{display:block!important;width:100%!important;box-sizing:border-box}}.kpad{{padding:16px!important}}}}
+@media (prefers-color-scheme:dark){{
+  .kbody,.kbody td,.kbody div,.kbody span,.kbody b,.kbody li,.kbody strong{{color:{EPAL['ink']}!important}}
+  .kcard{{background:#ffffff!important;background-color:#ffffff!important}}
+  .kfoot,.kfoot div{{color:#ffffff!important}}
+}}
+</style>
+<table role="presentation" class="kbody" width="100%" cellpadding="0" cellspacing="0" bgcolor="{EPAL['bg']}" style="background:{EPAL['bg']};background-color:{EPAL['bg']};padding:16px 8px;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif">
+<tr><td align="center"><table role="presentation" class="kcard" width="600" cellpadding="0" cellspacing="0" bgcolor="#ffffff" style="max-width:600px;width:100%;background:#ffffff;background-color:#ffffff;border-radius:14px;overflow:hidden">
   {banner_row}
   <tr><td class="kpad" style="padding:18px 22px 2px">
     <span style="display:inline-block;background:{EPAL['cream']};border:1px solid {EPAL['creambd']};color:#b45309;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:6px 13px;border-radius:999px">⏱️ Cập nhật tiến độ · {scope}</span></td></tr>
@@ -700,6 +789,7 @@ def render_email_body(m, vault, banner_url=""):
       <td style="font-size:12.5px;color:{EPAL['mut']}">Tiến độ hoàn thành</td>
       <td style="font-size:12.5px;text-align:right;color:#39465c"><b style="color:{EPAL['green']}">{m['pct_done']}%</b> · còn lại {m['total'] - g['done']} issue · <span style="color:{EPAL['amber']}">đang làm {g['in_progress']}</span></td>
     </tr></table></td></tr>
+  {charts_block}
   {proj_block}
   {cap_block}
   <tr><td class="kpad" style="padding:12px 22px 4px">
@@ -718,7 +808,7 @@ def render_email_body(m, vault, banner_url=""):
   <tr><td class="kpad" style="padding:8px 22px 16px">
     <div style="font-size:13px;color:#33405a;line-height:1.7">Để xem chi tiết từng issue / sprint / thành viên (có bộ lọc), vui lòng mở <b>Dashboard đính kèm</b>. Mọi thông tin cần hỗ trợ, vui lòng liên hệ đầu mối bên dưới.</div>
     <div style="font-size:13.5px;color:{EPAL['ink']};font-weight:700;margin-top:10px">Trân trọng!</div></td></tr>
-  <tr><td style="background:linear-gradient(135deg,#0b2a5e,#15428f);padding:16px 22px;text-align:center">
+  <tr><td class="kfoot" bgcolor="#0b2a5e" style="background:linear-gradient(135deg,#0b2a5e,#15428f);background-color:#0b2a5e;padding:16px 22px;text-align:center">
     <div style="color:#ffffff;font-size:13px;font-weight:700">KORA AI · Trợ lý tiến độ dự án — FPT Telecom</div>
     <div style="color:#a9c2ee;font-size:11.5px;margin-top:4px">Báo cáo tạo tự động mỗi ngày · Dữ liệu cập nhật {esc(gen)} (UTC)</div></td></tr>
 </table></td></tr></table>"""

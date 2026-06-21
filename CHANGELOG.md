@@ -10,6 +10,30 @@
 
 ---
 
+## v2.8.0 "Kora-1" — 2026-06-22
+
+- **🤖 Lịch nền TỰ ĐỘNG trọn vẹn (auto-bypass):** `orchestrator._ai_analysis` thêm `--dangerously-skip-permissions`
+  cho `claude -p` → headless/cron **KHÔNG kẹt prompt quyền** (tắt được qua `scheduler.ai_risk_analysis.skip_permissions`).
+  Prompt AI nay theo **cấu trúc**: Rủi ro (🔴/🟡/🟢 + số) · Dự đoán trượt timeline · Hướng giải quyết · Tổng kết.
+- **✉️ SỬA BUG: phân tích AI nay được CHÈN vào email:** trước đây AI ghi ra `ai-analysis-*.md` nhưng **không** nhét vào
+  khối `<!--KR-AI-START/END-->` → mail lịch thiếu phần AI. Thêm `_inject_ai_email()` (markdown→HTML, chip rủi ro màu)
+  chạy **trước khi gửi** (cả lịch nền).
+- **🔄 Báo cáo FULL-SCAN — status + comment MỚI NHẤT, GHI ĐÈ:** WF14 / `/kora-daily-report` / `/kora-send-mail` + lịch nền
+  quét FULL `import_jira.py --jql "project in (<KEYS>)"` (KHÔNG `--since`, tránh sót comment-only) → `_purge_stale` + ghi
+  đè (mode `w`) ⇒ **1 file/issue, không nhân bản**, task đã Done/đổi trạng thái trên server luôn đúng ở local.
+- **📧 Gmail SMTP (App Password) trong `/kora-connect`:** thêm kênh **TỰ ĐỘNG GỬI** (`source_type: gmail_smtp`, method `smtp`)
+  → điền `tools/report-mailer/.env.local` → verify `send_report.py --check`. Phân biệt rõ **Gmail MCP = nháp/draft** vs
+  **Gmail SMTP = auto-send** (mail tự động ưu tiên SMTP).
+- **📅 Logic NGÀY-CÔNG chuẩn hơn:** capacity so log với **số NGÀY LÀM VIỆC ĐÃ TRÔI QUA** (T2–6, bỏ cuối tuần) thay vì cả
+  tháng → log đủ **8h/ngày = 100%**, hết "OT nhầm"/"thiếu nhiều"; phơi `working_days_elapsed`, `expected_so_far`,
+  `logged_working_days`. Thêm helper `working_days_between` → **duedate TRONG NGÀY** (start 15 / due 16 = **1 ngày** làm việc,
+  không tính trượt). Prompt AI nhận quy ước này.
+- **🌗 Email chống DARK MODE:** `<meta color-scheme: light only>` + `bgcolor`/màu chữ **tường minh** mọi container +
+  `@media prefers-color-scheme:dark` ép nền trắng/chữ đậm → **chữ không biến mất** trên Gmail/Chrome/điện thoại nền tối.
+- **📊 BIỂU ĐỒ trong email (email-safe):** thanh **trạng thái xếp tầng** + **bar theo người / theo dự án** dựng bằng
+  **table + `bgcolor`** (KHÔNG SVG/JS) → render đúng trên mọi mail client. Khối AI nổi bật giữa email.
+- Thuần **CORE**, KHÔNG migration DATA. Máy đã cài: gõ **"cập nhật phiên bản"**.
+
 ## v2.7.0 "Kora-1" — 2026-06-21
 
 - **✉️ Email báo cáo chuyên nghiệp hơn:** LUÔN có **banner header** (mặc định ảnh GitHub `main/assets/banner-daily-report.png`

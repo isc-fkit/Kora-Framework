@@ -19,10 +19,11 @@ The user invoked `/kora-send-mail` — gửi email báo cáo tiến độ. **CÓ
         (đọc env **HOẶC** `~/.config/kora/ops-pw.env` — đặt 1 lần bằng `/kora-ops-password`; **KHÔNG hỏi qua card, KHÔNG in**). Exit ≠ 0 → **DỪNG**.
      b. **Kênh gửi — ƯU TIÊN TỰ ĐỘNG GỬI:** AskUserQuestion **[Gửi tự động (SMTP / Gmail App Password) — khuyến nghị]**
         / **[Tạo nháp gửi tay (MCP)]**. Gmail **dùng App Password qua SMTP** = auto-send (KHÔNG phải draft). Mặc định auto.
-     c. **QUÉT lấy DỮ LIỆU MỚI NHẤT của (các) project đã chọn (BẮT BUỘC, trước report):** `import_jira.py --since`
-        (đặt `PROJECT_KEYS=<KEYS>`) hoặc MCP `searchJiraIssuesUsingJql` `project=<KEY> AND updated>="<since>"` →
-        `import_jira.py --from-mcp` → reindex `build_index.py --root .` →
-        `python3 tools/progress-report/build_report.py --projects "<KEYS>"` (report scope ĐÚNG project vừa quét).
+     c. **FULL-SCAN lấy DỮ LIỆU MỚI NHẤT của (các) project đã chọn (BẮT BUỘC, GHI ĐÈ local — tránh trạng thái/comment cũ):**
+        `python3 "$T/jira-to-obsidian/import_jira.py" --jql "project in (<KEYS>)"` (FULL, **KHÔNG `--since`** → kéo HẾT
+        status + comment hiện tại; `_purge_stale` ghi đè, **không nhân bản**) **hoặc** MCP `searchJiraIssuesUsingJql`
+        `project in (<KEYS>)` → `import_jira.py --from-mcp` → reindex `build_index.py --root .` →
+        `python3 "$T/progress-report/build_report.py" --projects "<KEYS>"` (report scope ĐÚNG project vừa quét).
      d. **GỬI TỰ ĐỘNG (mặc định, kể cả Gmail):** kiểm `tools/report-mailer/.env.local` có `SMTP_USER`+`SMTP_PASS`.
         - **Chưa có** → hướng dẫn tạo **Gmail App Password** (bật 2FA → `myaccount.google.com/apppasswords`), điền
           `tools/report-mailer/.env.local`: `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=587`, `SMTP_USER=<email>`,

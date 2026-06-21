@@ -14,7 +14,9 @@ lịch Cowork (`mcp__scheduled-tasks__*`, service giữ ở RAM + registry trên
 > có **scan / report / mail / sync** → **BẮT BUỘC chọn [Máy — HĐH]**. Cowork chỉ hợp việc nhẹ (tóm tắt, nhắc nhở).
 - **[Máy — chạy cả khi ĐÓNG app] (khuyến nghị, BẮT BUỘC cho API/mail)** → lịch cấp HĐH (launchd/cron/schtasks)
   qua `tools/kora-scheduler/schedule.py`. Job là `orchestrator.py` Python thuần, chạy LOCAL ngoài sandbox
-  (scan → đẩy Confluence → report → mail → lỗi thì tạo ticket). Chạy đúng giờ kể cả khi app đóng.
+  (scan → đẩy Confluence → **FULL-scan project báo cáo (status/comment mới nhất, ghi đè)** → report → **AI phân tích
+  TỰ ĐỘNG bypass quyền** `--dangerously-skip-permissions` rồi **CHÈN vào email** → mail → lỗi thì tạo ticket). Chạy
+  đúng giờ kể cả khi app đóng — **không kẹt prompt, không cần người bấm** (bypass tắt qua `scheduler.ai_risk_analysis.skip_permissions`).
   - 🔑 **Một-lần cho lịch nền CÓ report/mail/sync:** vì launchd/cron không có shell env, đặt mật khẩu
     vận hành vào **`~/.config/kora/ops-pw.env`** (Windows: `%USERPROFILE%\.kora\ops-pw.env`), nội dung
     `KORA_OPS_PW=<mật khẩu vận hành>`, rồi `chmod 600`. `orchestrator.py` TỰ nạp lúc chạy → cổng mới qua được.
