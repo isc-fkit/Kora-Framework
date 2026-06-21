@@ -184,6 +184,14 @@ Mục tiêu: user KHÔNG cần thuộc lệnh nào — chỉ nói bằng lời t
    - Lệnh **chỉ mục** `python3 tools/kb-indexer/build_index.py` do **Claude chạy trong sandbox**
      (luôn có `python3`); CHỈ khi hướng dẫn USER chạy tay (sandbox bị chặn) mới đổi sang Windows `py`.
    - Sinh lệnh đúng OS ngay từ đầu, đừng để user gặp "command not found".
+13. **Đường dẫn TOOL — bản CÀI vs bản DEV (chống "No such file"):** CORE (`tools/`, `workflows/`,
+   `templates/`) có thể nằm **trong project** (bản dev/maintainer) HOẶC ở **`~/.claude/kora-framework/`**
+   (bản cài qua installer — project chỉ chứa DATA). Khi chạy `python3 tools/<...>`: nếu `tools/<...>`
+   KHÔNG có trong project → dùng `~/.claude/kora-framework/tools/<...>`. Mẫu 1 dòng (đặt biến rồi gọi):
+   `T=tools; [ -e "$T/<sub>/<file>.py" ] || T="$HOME/.claude/kora-framework/tools"; python3 "$T/<sub>/<file>.py" …`
+   (Windows: `py`, và `%USERPROFILE%\.claude\kora-framework\tools`). **TUYỆT ĐỐI KHÔNG** tự viết Python
+   parse YAML/JSON config thay tool (môi trường KHÔNG có `pyyaml`) — các tool Kora chỉ dùng **thư viện
+   chuẩn** và đã có parser riêng; luôn gọi tool, đừng improvise.
 
 ---
 

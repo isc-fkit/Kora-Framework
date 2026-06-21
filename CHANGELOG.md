@@ -10,6 +10,20 @@
 
 ---
 
+## v2.5.1 "Kora-1" — 2026-06-21
+
+- **🐞 Fix `/kora-connect` chọn [API] báo "Invalid tool parameters":** danh sách nguồn API có 5 mục (sau khi thêm
+  SharePoint ở v2.4.0) vượt **giới hạn 4 option** của AskUserQuestion. Nay **PHÂN TRANG** (Thẻ 1: Jira Cloud /
+  Jira Server / GitHub / [Khác — xem thêm] → Thẻ 2: GitLab / SharePoint) + ghi chú "tối đa 4 option/thẻ".
+- **🐞 Fix chọn "Jira Server / self-host" lại chạy Jira Cloud:** Bước 3/4 nay tách rõ — **Server** dùng PAT/Bearer,
+  `JIRA_AUTH_MODE=server`, **KHÔNG set `JIRA_EMAIL`**, URL self-host (không atlassian.net); **Cloud** mới dùng
+  email/OAuth + atlassian.net. (Khớp `import_jira._is_cloud()` — có EMAIL hoặc atlassian.net mới là Cloud.)
+- **🐞 Fix tool không tìm thấy ở BẢN CÀI + fallback YAML lỗi:** thêm rule CORE (`CLAUDE.md` §1.13) — gọi
+  `tools/<...>` tự **resolve sang `~/.claude/kora-framework/tools/`** khi project không có; **cấm** tự viết Python
+  parse YAML (không có `pyyaml`). `kora-connect.md` Bước 0/4 dùng snippet resolve cho `check_connection.py`.
+
+> **Cập nhật:** thuần CORE (chỉ sửa skill/CLAUDE.md) — KHÔNG migration DATA.
+
 ## v2.5.0 "Kora-1" — 2026-06-21
 
 - **🆕 `/kora-init` chọn NHIỀU / TẤT CẢ domain** (trước chỉ chọn 1). Bước 1 dùng AskUserQuestion `multiSelect`
