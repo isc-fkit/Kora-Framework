@@ -665,6 +665,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--vault", help="Đường dẫn vault (mặc định đọc config/factory-config.yaml)")
     ap.add_argument("--out", help="Thư mục xuất (mặc định reports/)")
+    ap.add_argument("--projects", default="", help="Lọc báo cáo theo project key, cách nhau phẩy "
+                    "(vd PROJ1,PROJ2). Rỗng = tất cả project trong vault.")
     args = ap.parse_args()
 
     vault = args.vault
@@ -684,6 +686,11 @@ def main():
         die(f"Vault không tồn tại: {vault}")
 
     issues = load_issues(vault)
+    if args.projects:
+        keys = {k.strip() for k in args.projects.split(",") if k.strip()}
+        issues = [i for i in issues if (i.get("project") or "") in keys]
+        if not issues:
+            die(f"Không có note Jira cho project {sorted(keys)} trong vault {vault}. Hãy quét project đó trước.")
     if not issues:
         die(f"Vault chưa có note Jira nào (source: jira) tại {vault}. Hãy 'quét jira' trước.")
 

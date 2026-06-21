@@ -16,9 +16,12 @@ The user invoked `/kora-send-mail` — gửi email báo cáo tiến độ. **CÓ
 4. **Gửi ngay hay đặt lịch:** AskUserQuestion **[Gửi ngay] / [Đặt lịch]**.
    - **[Gửi ngay]:**
      a. **CỔNG MẬT KHẨU vận hành `KORA_OPS_PW`** → `python3 tools/archive-gate/verify_ops_password.py`
-        (env — **KHÔNG hỏi qua card, KHÔNG in**). Exit ≠ 0 → **DỪNG**.
+        (đọc env **HOẶC** `~/.config/kora/ops-pw.env` — đặt 1 lần bằng `/kora-ops-password`; **KHÔNG hỏi qua card, KHÔNG in**). Exit ≠ 0 → **DỪNG**.
      b. **Provider:** AskUserQuestion **[Gmail] / [Outlook] / [SMTP]** (theo `connections:`).
-     c. Quét Jira đã chọn (`import_jira.py --since` hoặc MCP) → `python3 tools/progress-report/build_report.py`.
+     c. **QUÉT lấy DỮ LIỆU MỚI NHẤT của (các) project đã chọn (BẮT BUỘC, trước report):** `import_jira.py --since`
+        (đặt `PROJECT_KEYS=<KEYS>`) hoặc MCP `searchJiraIssuesUsingJql` `project=<KEY> AND updated>="<since>"` →
+        `import_jira.py --from-mcp` → reindex `build_index.py --root .` →
+        `python3 tools/progress-report/build_report.py --projects "<KEYS>"` (report scope ĐÚNG project vừa quét).
      d. **SMTP:** ✋ confirm → `python3 tools/report-mailer/send_report.py --to "<list>" --html-file reports/email-body-latest.html --no-attach-html --attach reports/progress-report-latest.html`
         (body = email có **banner** + phân tầng dự án; dashboard đính kèm riêng). **Gmail/Outlook:** tạo **NHÁP** qua MCP → user gửi.
    - **[Đặt lịch]:**

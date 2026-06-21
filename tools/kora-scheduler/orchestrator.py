@@ -346,10 +346,13 @@ def main():
             else:
                 run_errors.append({"step": "post", "target": tok, "reason": f"loại đích không hỗ trợ: {kind}"})
 
-        # 4) REPORT + MAIL — chỉ HOST (gói user không có) và CHỈ khi qua cổng
+        # 4) REPORT + MAIL — chỉ HOST (gói user không có) và CHỈ khi qua cổng.
+        # Report SCOPE đúng project của lịch (đã được SCAN ở bước 1 → dữ liệu mới nhất).
         report = None
         if gate_ok and not is_user_pkg and not args.dry_run:
-            rc, out, err = run_tool(REPO_ROOT / "tools" / "progress-report" / "build_report.py", [])
+            rep_projs = [p for p in ((sch.get("report") or {}).get("projects") or []) if p]
+            rep_args = ["--projects", ",".join(rep_projs)] if rep_projs else []
+            rc, out, err = run_tool(REPO_ROOT / "tools" / "progress-report" / "build_report.py", rep_args)
             if rc != 0:
                 run_errors.append({"step": "report", "reason": (err or out)[:300]})
             else:

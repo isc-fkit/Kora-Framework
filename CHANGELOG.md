@@ -10,6 +10,23 @@
 
 ---
 
+## v2.6.0 "Kora-1" — 2026-06-21
+
+- **🆕 Skill `/kora-ops-password` — đặt mật khẩu admin 1 lần:** lưu `KORA_OPS_PW` vào `~/.config/kora/ops-pw.env`
+  (chmod 600; mật khẩu nhập qua terminal/file, **KHÔNG qua chat/card**). Mở cổng cho `/kora-sync`, `/kora-send-mail`,
+  `/kora-daily-report` và lịch nền — không phải export lại mỗi phiên.
+- **🐞 Tối ưu "env chưa nhận ngay":** `verify_ops_password.py` nay đọc **env HOẶC file** `~/.config/kora/ops-pw.env`
+  (+ `~/.kora/...`) lúc chạy → đặt mật khẩu là **CÓ HIỆU LỰC NGAY** trong session đang chạy, không cần `source ~/.zshrc`.
+  Cùng nguồn sự thật với scheduler nền.
+- **Landing:** thêm bước **1b · Đặt mật khẩu admin (tùy chọn)** giữa init và connect; README + bảng lệnh cập nhật.
+- **🆕 `/kora-daily-report` chọn chi tiết NGUỒN → PROJECT:** chọn nguồn từ `connections:` trước, rồi project trong
+  nguồn đó (Jira `--list-projects`, multi-select). `build_report.py` thêm **`--projects KEY1,KEY2`** → báo cáo scope đúng project.
+- **🐞 BUỘC scan-first trước report/mail:** `/kora-daily-report` + `/kora-send-mail` + **lịch nền** nay quét nguồn của
+  project đã chọn (lấy data MỚI NHẤT) → reindex → rồi mới build report (scope `--projects`) → gửi mail. `orchestrator.py`
+  tự truyền `--projects` từ `report.projects`; WF08 Mục B yêu cầu `--scan` chứa nguồn của report-projects.
+
+> **Cập nhật:** thuần CORE — KHÔNG migration DATA.
+
 ## v2.5.5 "Kora-1" — 2026-06-21
 
 - **🐞 `/kora-connect` đọc nhầm config (lỗi `unrecognized arguments: --config`):** `check_connection.py` đặt

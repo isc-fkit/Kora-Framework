@@ -58,10 +58,11 @@ Kiểm tra độ mới: `python3 tools/jira-to-obsidian/import_jira.py --check-f
 
 ## Bước 1 — Sinh số liệu + dashboard
 
-Chạy (Claude tự chạy trong sandbox; user chạy tay thì OS-dynamic — Windows `py`):
+Chạy (Claude tự chạy trong sandbox; user chạy tay thì OS-dynamic — Windows `py`). **Scope đúng project đã chọn**
+bằng `--projects` (báo cáo CHỈ gồm project đó; rỗng = tất cả) — dữ liệu đã được làm mới ở Bước 0.5:
 
 ```bash
-python3 tools/progress-report/build_report.py
+python3 tools/progress-report/build_report.py --projects "<KEYS đã chọn>"
 ```
 
 Tạo trong `reports/`:

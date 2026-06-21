@@ -118,7 +118,9 @@ Báo user: lịch đã đặt, chạy lúc nào, đồng bộ kiểu gì, đổi
 > danh sách `/kora-schedule`, SỬA và XÓA được** (đúng yêu cầu quản lý), đăng ký qua **Mục A-HĐH** với
 > `--report-projects` + `--email` (chạy cả khi đóng app, cùng `schedules.json`, cùng cổng `KORA_OPS_PW`):
 > `schedule.py register --id <slug> --times "08:00" --days mon-fri --scan <jira-id> --report-projects "<KEYS>"
-> --mail-provider smtp --email "<list>"`. Đây là cùng đường mà `/kora-send-mail` → [Đặt lịch] dùng. Hỗ trợ
+> --mail-provider smtp --email "<list>"`. ⚠️ **`--scan <jira-id>` BẮT BUỘC là nguồn chứa `<KEYS>`** → mỗi lượt lịch
+> SCAN nguồn đó (lấy data mới nhất) → reindex → report **scope đúng `<KEYS>`** (orchestrator tự truyền `--projects`) → mail.
+> Đây là cùng đường mà `/kora-send-mail` → [Đặt lịch] dùng. Hỗ trợ
 > **nhiều mốc giờ** + **[Mỗi ngày]/[Thứ 2–6]**; bật/tắt/sửa/xóa bằng `schedule.py enable|disable|edit|remove`.
 
 **Cách thay thế (chỉ khi app mở) — Cowork scheduled task qua `/schedule`:** chạy trọn chu trình mỗi ngày —

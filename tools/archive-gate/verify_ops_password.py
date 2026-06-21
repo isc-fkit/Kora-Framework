@@ -36,13 +36,37 @@ base.LOCAL_FALLBACKS = [
 ]
 
 
+def _read_pw_file() -> str:
+    """Đọc KORA_OPS_PW từ file (cùng nơi scheduler dùng) → set file là CÓ HIỆU LỰC NGAY trong
+    session đang chạy, KHÔNG cần `source ~/.zshrc` / mở terminal mới."""
+    for p in (Path.home() / ".config" / "kora" / "ops-pw.env",
+              Path.home() / ".kora" / "ops-pw.env"):   # Windows: %USERPROFILE%\.kora\ops-pw.env
+        try:
+            if not p.exists():
+                continue
+            for line in p.read_text(encoding="utf-8").splitlines():
+                s = line.strip()
+                if s.startswith("#"):
+                    continue
+                if s.startswith("export "):
+                    s = s[7:].strip()
+                if s.startswith("KORA_OPS_PW="):
+                    return s.split("=", 1)[1].strip().strip('"').strip("'")
+        except OSError:
+            continue
+    return ""
+
+
 def read_password() -> str:
-    pw = os.getenv("KORA_OPS_PW")
+    pw = os.getenv("KORA_OPS_PW")          # 1) env var (ưu tiên cao nhất)
     if pw:
         return pw.strip()
-    if not sys.stdin.isatty():
+    pw = _read_pw_file()                    # 2) file ~/.config/kora/ops-pw.env (tức thời, không cần source)
+    if pw:
+        return pw
+    if not sys.stdin.isatty():             # 3) stdin (pipe)
         return sys.stdin.readline().strip()
-    try:
+    try:                                    # 4) hỏi tương tác (TTY)
         import getpass
         return getpass.getpass("Mật khẩu vận hành (sync/mail): ").strip()
     except Exception:  # noqa: BLE001

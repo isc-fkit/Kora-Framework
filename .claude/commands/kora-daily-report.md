@@ -8,27 +8,22 @@ The user invoked `/kora-daily-report` — build a progress report.
 > → đây là máy NGƯỜI DÙNG, KHÔNG có báo cáo/gửi mail (chỉ HOST mới có). Báo nhẹ: *"Báo cáo & gửi mail
 > chỉ chạy ở máy HOST. Máy này chỉ đồng bộ KB chung (get & post)."* rồi DỪNG, KHÔNG sinh report.
 
-**Project selection (AskUserQuestion):**
-1. If any project was scanned before → first offer **[Pick from already-scanned projects]** /
-   **[Add a new project]**.
-   - **Pick from already-scanned** → show the already-imported projects as a **multi-select
-     checklist** (read the list from the vault / `config/factory-config.yaml`); the user ticks
-     one or more.
-   - **Add a new project** → ask the new project key/name; if not yet imported, scan it first
-     (`/kora-scan`).
-2. Always allow choosing **multiple projects** (AskUserQuestion with `multiSelect: true`).
-
-**Then:**
-- Offer **filters by project and by member** (assignee / team) — multi-select.
-- 🔒 **CỔNG MẬT KHẨU vận hành (`KORA_OPS_PW`)** — báo cáo kéo dữ liệu live từ nguồn nên PHẢI qua cổng:
-  `python3 tools/archive-gate/verify_ops_password.py` (đọc env `KORA_OPS_PW` — **KHÔNG hỏi qua card, KHÔNG in**;
-  Windows `py`). Exit ≠ 0 → **DỪNG**, KHÔNG kéo dữ liệu, KHÔNG sinh report. (Cùng cổng với `/kora-sync`,
-  `/kora-send-mail`, lịch nền — KHÁC mật khẩu archive. `/kora-export*` không dùng cổng này.)
-- Ask the **time range**, then pull data for that period from the configured sources
-  (Jira via API/MCP, SharePoint via MCP).
-- If no connection configured yet → ask **MCP / API / All** here (not at init).
-- Build the dashboard (time-tracking / active sprint / assignee + **by-project bar**) per
-  `workflows/14-progress-report.md` — inline Cowork UI + an HTML file.
+**Chọn NGUỒN → PROJECT (chi tiết, AskUserQuestion).** Resolve path tool (bản cài ở CORE):
+`T=tools; [ -e "$T/connections/check_connection.py" ] || T="$HOME/.claude/kora-framework/tools"`.
+1. 🔒 **CỔNG MẬT KHẨU vận hành (`KORA_OPS_PW`)** TRƯỚC — báo cáo kéo dữ liệu live nên PHẢI qua cổng:
+   `python3 "$T/archive-gate/verify_ops_password.py"` (đọc env **HOẶC** `~/.config/kora/ops-pw.env` — đặt 1 lần bằng
+   `/kora-ops-password`; **KHÔNG hỏi qua card, KHÔNG in**). Exit ≠ 0 → **DỪNG**, không kéo, không sinh report.
+2. **Chọn NGUỒN** từ `connections:` (không đoán mò): `python3 "$T/connections/check_connection.py" --list
+   --config "$PWD/config/factory-config.yaml"` → AskUserQuestion chọn 1 nguồn (vd `jira_cloud__mcp`, `jira_server__api`).
+   Chưa kết nối → mời `/kora-connect`.
+3. **Chọn PROJECT TRONG nguồn đó** — Jira: `python3 "$T/jira-to-obsidian/import_jira.py" --list-projects` (JSON
+   `[{key,name}]`) → **multi-select + [Tất cả]**. (SharePoint MCP: chọn folder/path qua `sharepoint_folder_search`.)
+4. **QUÉT LẤY DỮ LIỆU MỚI NHẤT (BẮT BUỘC) cho project đã chọn** — theo `workflows/14-progress-report.md` Bước 0.5:
+   Jira Cloud → MCP `searchJiraIssuesUsingJql` `project=<KEY> AND updated>="<since>"` → `import_jira.py --from-mcp`;
+   self-host → `import_jira.py --since` (PROJECT_KEYS=<KEYS>). Rồi reindex `build_index.py --root .`. **Report luôn trên data vừa kéo.**
+5. (Tùy chọn) **filter member** (assignee / team) — multi-select. Hỏi **khoảng thời gian**.
+6. Build dashboard **scope đúng project**: `python3 "$T/progress-report/build_report.py" --projects "<KEYS>"`
+   (time-tracking / active sprint / assignee + **by-project bar**) per `workflows/14-progress-report.md` — inline Cowork UI + HTML.
 - The dashboard MUST include an **🤖 AI analysis** block (workflow 14 — Bước 1.5): issue health
   classification (🟢/🟡/🔴), **timeline-slip prediction per active sprint** (with reasoning),
   per-member recommendations, risk-resolution suggestions, and a 1–2 sentence executive summary —
