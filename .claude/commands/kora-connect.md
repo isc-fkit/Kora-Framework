@@ -23,7 +23,10 @@ ESC hoặc [← Huỷ] = dừng, **KHÔNG ghi gì** vào `connections:`.
 - **MCP** → **[Atlassian Rovo (Jira + Confluence)]** / **[Gmail]** / **[Microsoft 365 (SharePoint + Outlook)]**
   — chỉ những Connector đang có trong Claude App/Cowork (Settings → Connectors).
 - **API** (ưu tiên **OAuth 2.0**, PAT là fallback) → **[Jira Server / self-host]** / **[Jira Cloud]** /
-  **[GitHub]** / **[GitLab]**.
+  **[GitHub]** / **[GitLab]** / **[SharePoint (Microsoft Graph — ĐẨY/ghi KB)]**.
+  > SharePoint API khác MCP Microsoft 365 (chỉ đọc): API Graph để **GHI** KB. Auth: app-only
+  > client-credentials (cần admin consent `Sites.ReadWrite.All`, chạy nền) **hoặc** device-flow
+  > (`sync_sharepoint.py --login`, tương tác). source_type = `sharepoint`, method = `api`.
 
 > 🔖 **Đánh dấu đã kết nối:** đối chiếu với `--list` — nguồn nào ĐÃ có entry `<source_type>__<method>`
 > (đúng phương thức đang chọn) thì gắn badge **"✓ đã kết nối"** trên thẻ đó (chọn lại = kiểm tra/cập nhật,

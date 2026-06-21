@@ -6,7 +6,7 @@
 
 **Kết nối đa nguồn → Tổng hợp tri thức → Đồng bộ Cloud KB chung → Tự động báo cáo & cảnh báo**
 
-[![Version](https://img.shields.io/badge/version-2.3.4-2f7bff)](./version.json)
+[![Version](https://img.shields.io/badge/version-2.4.0-2f7bff)](./version.json)
 [![Codename](https://img.shields.io/badge/codename-Kora--1-5b9bff)](./CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-444)](#-cài-đặt)
 [![Claude](https://img.shields.io/badge/runs%20in-Claude%20CLI%20%2B%20Desktop-7c5cff)](https://claude.ai/code)
@@ -102,6 +102,11 @@ setup → init → connect → scan → schedule → mail → archive
 7. **`/kora-archive`** — đóng gói bàn giao có phân quyền.
 
 ## 📚 Các lệnh /kora-*
+
+> 👥 **Dùng trong Cowork (Claude Desktop/Web):** bộ cài tạo sẵn folder **`Skill/`** trong thư mục
+> project. Để bật các lệnh `/kora-*`: **kéo các file skill trong `Skill/` vào Cowork** rồi bảo Claude
+> *"cài skill này"*, **hoặc** vào **Customize → Custom Skills** để thêm skill tùy chỉnh. (Bản CLI:
+> installer đã đặt sẵn ở `~/.claude/commands/`, bỏ qua bước này.)
 
 | Lệnh | Việc | Gác mật khẩu |
 |---|---|:--:|

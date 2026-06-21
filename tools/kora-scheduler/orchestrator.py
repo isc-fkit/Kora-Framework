@@ -15,6 +15,8 @@ Token map:
   scan_list / post_list dùng token "type:name":
     jira:<name>        → import_jira.py --since với JIRA_ENV_FILE=.env.<name> (name=local → .env.local)
     confluence:<space> → sync_confluence.py --pull (scan) / --push (post) --space <space>
+    github:<owner/repo>→ sync_github.py --pull (scan; KÉO KB host về local) [--repo nếu có owner/repo]
+    sharepoint:<site>  → sync_sharepoint.py --pull (scan) / --push (post) --site <site>
 """
 import argparse
 import json
@@ -32,6 +34,8 @@ CONFIG = REPO_ROOT / "config" / "factory-config.yaml"
 REGISTRY = HERE / "schedules.json"
 JIRA_DIR = REPO_ROOT / "tools" / "jira-to-obsidian"
 CONFL_DIR = REPO_ROOT / "tools" / "confluence-sync"
+GITHUB_DIR = REPO_ROOT / "tools" / "github-sync"
+SHAREPOINT_DIR = REPO_ROOT / "tools" / "sharepoint-sync"
 MAILER = REPO_ROOT / "tools" / "report-mailer" / "send_report.py"
 PY = sys.executable or "python3"
 
@@ -301,6 +305,14 @@ def main():
             elif kind == "confluence":
                 rc, out, err = run_tool(CONFL_DIR / "sync_confluence.py",
                                         ["--pull"] + (["--space", name] if name else []))
+            elif kind == "github":
+                # Kéo KB host từ repo GitHub private về local (vd máy USER pull KB chung).
+                # token "github:owner/repo" → --repo; "github:" → dùng repo trong config + .env.local.
+                rc, out, err = run_tool(GITHUB_DIR / "sync_github.py",
+                                        ["--pull"] + (["--repo", name] if name and "/" in name else []))
+            elif kind == "sharepoint":
+                rc, out, err = run_tool(SHAREPOINT_DIR / "sync_sharepoint.py",
+                                        ["--pull"] + (["--site", name] if name else []))
             else:
                 rc, out, err = 1, "", f"loại nguồn không hỗ trợ: {kind}"
             if rc not in (0, 2):
@@ -322,6 +334,12 @@ def main():
             if kind == "confluence":
                 rc, out, err = run_tool(CONFL_DIR / "sync_confluence.py",
                                         ["--push"] + (["--space", name] if name else []))
+                posted.append({"target": tok, "result": out.strip()[-200:] or err[-200:]})
+                if rc not in (0,):
+                    run_errors.append({"step": "post", "target": tok, "reason": (err or out)[:300]})
+            elif kind == "sharepoint":
+                rc, out, err = run_tool(SHAREPOINT_DIR / "sync_sharepoint.py",
+                                        ["--push"] + (["--site", name] if name else []))
                 posted.append({"target": tok, "result": out.strip()[-200:] or err[-200:]})
                 if rc not in (0,):
                     run_errors.append({"step": "post", "target": tok, "reason": (err or out)[:300]})
@@ -370,10 +388,15 @@ def main():
                     if rc not in (0,):
                         run_errors.append({"step": "sync", "target": "confluence", "reason": (err or out)[:300]})
                 if "github" in targets:
-                    rc, out, err = run_tool(REPO_ROOT / "tools" / "github-sync" / "sync_github.py", ["--push"])
+                    rc, out, err = run_tool(GITHUB_DIR / "sync_github.py", ["--push"])
                     posted.append({"target": "sync:github", "result": (out.strip()[-150:] or err[-150:])})
                     if rc not in (0,):
                         run_errors.append({"step": "sync", "target": "github", "reason": (err or out)[:300]})
+                if "sharepoint" in targets:
+                    rc, out, err = run_tool(SHAREPOINT_DIR / "sync_sharepoint.py", ["--push"])
+                    posted.append({"target": "sync:sharepoint", "result": (out.strip()[-150:] or err[-150:])})
+                    if rc not in (0,):
+                        run_errors.append({"step": "sync", "target": "sharepoint", "reason": (err or out)[:300]})
 
         # 5) TICKET + ERROR EMAIL nếu có lỗi
         ticket = {"created": False, "url": None}

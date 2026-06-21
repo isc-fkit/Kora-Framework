@@ -21,6 +21,7 @@ import base64
 import json
 import os
 import re
+import subprocess
 import sys
 import urllib.request
 import urllib.error
@@ -140,6 +141,17 @@ def resolve_token(entry: dict):
 def probe_api(entry: dict):
     st = entry.get("source_type", "")
     base = (entry.get("base_url") or "").rstrip("/")
+    if st == "sharepoint":
+        # Token Graph lấy động (client-credentials / device-flow) → ủy quyền cho tool --check.
+        tool = REPO_ROOT / "tools" / "sharepoint-sync" / "sync_sharepoint.py"
+        if not tool.exists():
+            return "error", "Thiếu tools/sharepoint-sync (chưa cài tool SharePoint)."
+        try:
+            p = subprocess.run([sys.executable, str(tool), "--check"],
+                               capture_output=True, text=True, timeout=60)
+        except Exception as e:  # noqa: BLE001
+            return "error", str(e)[:200]
+        return ("connected", "") if p.returncode == 0 else ("error", (p.stderr or p.stdout).strip()[-200:])
     probe = entry.get("probe") or {
         "jira_server": "/rest/api/2/myself", "jira_cloud": "/rest/api/2/myself",
         "github": "/user", "gitlab": "/user", "confluence": "/rest/api/user/current",

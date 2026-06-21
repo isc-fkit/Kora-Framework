@@ -25,8 +25,9 @@ python3 tools/kora-scheduler/schedule.py edit   --id daily --scan jira:local   #
 python3 tools/kora-scheduler/schedule.py remove --id daily
 ```
 Hoặc dùng wrapper `scripts/schedule.command` (macOS/Linux) / `scripts/schedule.bat` (Windows).
-Registry: `tools/kora-scheduler/schedules.json` (gitignore, máy-cục-bộ). Token `scan/post` = `type:name`
-(`jira:<env>`, `confluence:<space>`). Lệnh sinh artifact OS đúng theo `--os auto|macos|linux|windows`.
+Registry: `tools/kora-scheduler/schedules.json` (gitignore, máy-cục-bộ). Token `scan/post` = `type:name`:
+`jira:<env>`, `confluence:<space>`, `github:<owner/repo>` (scan = KÉO KB host về local), `sharepoint:<site>`.
+`--sync-targets confluence,github,sharepoint`. Lệnh sinh artifact OS đúng theo `--os auto|macos|linux|windows`.
 
 > ⚠️ Tạo lịch = đăng ký tiến trình nền chạy đúng giờ → **luôn confirm trước** (Approval Gate).
 > Cron không có PATH → orchestrator dùng python tuyệt đối + neo path theo vị trí script.

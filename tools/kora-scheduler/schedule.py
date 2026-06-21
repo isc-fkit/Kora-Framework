@@ -606,7 +606,7 @@ def main():
         p.add_argument("--report-projects", dest="report_projects",
                        help="Project keys cho report, cách nhau dấu phẩy (rỗng = tất cả)")
         p.add_argument("--sync-targets", dest="sync_targets",
-                       help="confluence,github — bật bước SYNC (có cổng mật khẩu) trong lịch")
+                       help="confluence,github,sharepoint — bật bước SYNC (có cổng mật khẩu) trong lịch")
         p.add_argument("--os", default="auto", help="auto|macos|linux|windows")
 
     pr = sub.add_parser("register"); add_common(pr); pr.set_defaults(func=cmd_register)

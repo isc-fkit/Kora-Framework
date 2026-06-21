@@ -27,7 +27,7 @@
 | "quét task <KEY>" / "quét epic <KEY>" (vd `quét task PROJ-102`) | Confirm → chạy `workflows/01b-import-jira-single.md` |
 | "kết nối nguồn", "connect", "thêm Jira/GitHub/GitLab/Confluence/SharePoint" | Confirm → `/kora-connect`: chọn **MCP/API** → nguồn (API ưu tiên **OAuth 2.0**; API vs MCP tính RIÊNG) → verify → ghi `connections:`. |
 | "đẩy lên Confluence", "đồng bộ KB chung", "post tri thức", "sync cloud KB" | Confirm → `tools/confluence-sync/sync_confluence.py --push` (headless) / MCP Atlassian (tương tác); `--pull` để kéo về. `permission: read_only` → chỉ pull. |
-| "đồng bộ KB", "sync tri thức", "đẩy KB lên GitHub/Confluence", "sync lên repo" | Confirm → `/kora-sync` (`workflows/16-sync.md`): chọn target [Confluence / GitHub / Cả hai] → **CỔNG MẬT KHẨU `KORA_OPS_PW`** → `tools/kb-sync/version_mark.py` (US↔Change-Request) → `--dry-run` → đẩy **idempotent** (không nhân bản, chỉ mới/đổi). KHÔNG áp cho export. |
+| "đồng bộ KB", "sync tri thức", "đẩy KB lên GitHub/Confluence/SharePoint", "sync lên repo" | Confirm → `/kora-sync` (`workflows/16-sync.md`): chọn target [Confluence / GitHub / SharePoint] (multi-select) → **CỔNG MẬT KHẨU `KORA_OPS_PW`** → `tools/kb-sync/version_mark.py` (US↔Change-Request) → `--dry-run` → đẩy **idempotent** (không nhân bản, chỉ mới/đổi). SharePoint qua Microsoft Graph (app Azure AD; admin consent `Sites.ReadWrite.All` để chạy nền). KHÔNG áp cho export. |
 | "gửi mail báo cáo", "email tiến độ cho team", "gửi report qua mail" | Confirm → `/kora-send-mail`: chọn **nguồn Jira đã kết nối → project → người nhận → [Gửi ngay / Đặt lịch]**. Gửi ngay qua **cổng `KORA_OPS_PW`** → quét Jira → report → gửi (banner + AI). Đặt lịch → task vào danh sách `/kora-schedule` (bật/tắt/xóa). |
 | "đặt lịch quét jira", "tự động đồng bộ", "lên lịch sync", "đặt lịch đẩy Confluence" | Confirm → `workflows/08-schedule-sync.md` / `/kora-schedule`: **liệt kê & quản lý** lịch hiện có (**bật/tắt active-inactive · xóa · sửa**) + tạo mới. Lịch khi chạy: **get/scan (KHÔNG gác) → reindex → cổng `KORA_OPS_PW` → post → report → mail → (tùy chọn) sync** — cổng sai/thiếu thì VẪN get/scan, chỉ bỏ post/report/mail/sync. **Bước 1.5 của `/kora-schedule` hỏi mật khẩu để phân luồng: không có → chỉ tạo lịch SCAN; có → đầy đủ report/mail/ticket** (✋ confirm trước khi tạo). |
 | "báo cáo tiến độ", "report tiến độ", "tiến độ dự án", "sinh báo cáo" | Confirm → **CỔNG MẬT KHẨU `KORA_OPS_PW`** (báo cáo kéo dữ liệu live; sai → DỪNG) → chạy `workflows/14-progress-report.md`: **tự LÀM MỚI dữ liệu trước** (Cloud `*.atlassian.net` → kéo qua MCP nạp vault; self-host → kiểm tra độ mới, nếu CŨ thì báo + nhắc lệnh terminal) → sinh dashboard (time/sprint active/assignee) → **UI inline Cowork** + file HTML. |
@@ -213,7 +213,8 @@ Claude phải đọc `config/domain-rules.md` trước mỗi phiên phân tích 
 | `docs/03-features/F-xxx/` | Mỗi feature một folder: source/ (cho Claude) + export/ (cho người đọc) |
 | `Project_Name_Brain/` | Obsidian vault — "bộ não" tri thức (notes + backlink). Setup đổi tên theo project: `<TênProject>_Brain`; luôn đọc vị trí thật từ `config > vault_path` |
 | `tools/confluence-sync/` | Tool đẩy/kéo KB ↔ Confluence chung (get & post, REST + OAuth) |
-| `tools/github-sync/` | Tool đẩy KB → repo GitHub riêng tư (git push qua PAT, idempotent, token ở `.env.local`) |
+| `tools/github-sync/` | Tool đẩy/kéo KB ↔ repo GitHub riêng tư (git push/pull qua PAT, idempotent, token ở `.env.local`) |
+| `tools/sharepoint-sync/` | Tool đẩy/kéo KB ↔ SharePoint document library (Microsoft Graph; auth client-credentials/device-flow; idempotent map+etag) |
 | `tools/kb-synth/` | Tổng hợp NHẸ: dựng trang `_wiki/<Project>-Wiki.md` liên kết cho mỗi project (sau scan) |
 | `tools/kb-sync/` | `version_mark.py` — đánh dấu US cũ ↔ Change-Request trước khi /kora-sync đẩy |
 | `tools/archive-gate/` | Cổng mật khẩu: `verify_password.py` (archive) + `verify_ops_password.py` (sync/mail/lịch-sync, env `KORA_OPS_PW`) |
@@ -287,10 +288,11 @@ User nêu vấn đề (ngôn ngữ tự nhiên)
   tự chặn), CHỈ đồng bộ KB chung (get & post; read-only thì 1 chiều get). Máy HOST (không marker) đầy đủ.
   Quyền push là **CAPABILITY** (có/không key write trong `tools/confluence-sync/.env.local`), không phải cờ.
 - **Bàn giao → đồng bộ tự động (host đẩy KB lên cloud, user kéo về local).** HOST `/kora-sync` đẩy KB lên
-  **GitHub private** và/hoặc **Confluence chung** (cổng `KORA_OPS_PW`), rồi `/kora-archive` ship gói USER
+  **GitHub private**, **Confluence chung** và/hoặc **SharePoint** (cổng `KORA_OPS_PW`), rồi `/kora-archive` ship gói USER
   (key READ + `.kora-user`). USER (máy base sạch): mở **Claude Desktop** → tạo project → **import source
-  host export** → connect **MCP** tới GitHub-private/Confluence của host → mở **/kora-schedule** (hoặc lịch
-  Cowork) tạo lịch **kéo (pull) đồng bộ** → đúng giờ tự kéo tri thức mới về **local knowledge**.
+  host export** → mở **/kora-schedule** tạo lịch nền **kéo (pull) đồng bộ** với nguồn `confluence:<space>` /
+  **`github:<owner/repo>`** / **`sharepoint:<site>`** → đúng giờ tự kéo tri thức mới về **local knowledge**.
+  (Lịch nền pull GitHub/SharePoint là tiến trình HĐH; sandbox Cowork chặn API nên không chạy nền trong app.)
 - **Mật khẩu ARCHIVE chỉ gác HOST tạo gói** (`verify_password.py` trong `archive-kb.command`) — **KHÔNG**
   hỏi lại khi user cài/import (`import-kb.command` không gọi cổng). Mật khẩu VẬN HÀNH (`KORA_OPS_PW`,
   `verify_ops_password.py`) mới gác sync/mail/**báo cáo** + **bước post/report/mail/sync của lịch nền** (scan/get KHÔNG gác) — khác hẳn mật khẩu archive.

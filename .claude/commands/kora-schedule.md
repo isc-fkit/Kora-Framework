@@ -88,6 +88,8 @@ Với MỖI task → AskUserQuestion quản lý **theo loại engine**:
 
 #### Bước 3A — LUỒNG SCAN-ONLY (không có/sai mật khẩu)
 1. **Nguồn để GET** — chọn scan-list từ `connections:` (multi-select, **[Chọn tất cả]**), giống `/kora-scan`.
+   Token: `jira:<env>`, `confluence:<space>`, **`github:<owner/repo>`** (KÉO KB host về local — vd máy USER pull
+   KB chung từ GitHub private), **`sharepoint:<site>`**. SCAN không cần mật khẩu.
 2. **Tiền kiểm CONNECTION** (mục §C dưới) + **Thời gian/tần suất** (mục §T dưới).
 3. ✋ Confirm → `schedule.py register --id <slug> --times "08:00" --days mon-fri --scan a,b`
    (KHÔNG `--report-projects/--email/--sync-targets`). Lịch này mỗi lượt chỉ kéo tri thức mới về + reindex.
@@ -104,9 +106,9 @@ Với MỖI task → AskUserQuestion quản lý **theo loại engine**:
    - **Nơi tạo ticket** → `scheduler.ticket_issue.target` = **[Confluence] / [Jira] / [Không]** (+ space/jira_project nếu cần).
    - ⚙️ Đây là **cấu hình CHUNG** (đọc lúc chạy) → áp cho **MỌI lịch** và **được ship sẵn trong archive/export**
      (xem `/kora-alert-mail` + `workflows/15-archive.md`): gói **USER** khi lỗi sẽ tự gửi mail ticket cho **người phụ trách** này.
-6. **Tiền kiểm CONNECTION** (§C) + **(tùy chọn) Sync** — đẩy KB lên target (`--sync-targets confluence,github`), có cổng.
+6. **Tiền kiểm CONNECTION** (§C) + **(tùy chọn) Sync** — đẩy KB lên target (`--sync-targets confluence,github,sharepoint`), có cổng.
 7. ✋ Confirm → `schedule.py register --id <slug> --times "08:00,14:00" --days mon-fri --scan a,b
-   --report-projects KEY1,KEY2 --mail-provider smtp --email "x@y.com" [--sync-targets confluence,github]`.
+   --report-projects KEY1,KEY2 --mail-provider smtp --email "x@y.com" [--sync-targets confluence,github,sharepoint]`.
 
 #### §T — Thời gian + tần suất (THÂN THIỆN — KHÔNG bắt gõ cron)
 - **Mốc giờ** → AskUserQuestion **multi-select** `08:00 / 12:00 / 14:00 / 17:00` + ô **"Other"** (HH:MM). NHIỀU mốc

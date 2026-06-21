@@ -257,7 +257,7 @@
     <div class="brand" data-go="home" title="Trang chủ">
       <span class="brandmark" aria-hidden="true">K</span>
       <span class="org">FPT TELECOM</span>
-      <div class="fw">KORA AI<span>v2.3.4 · Kora-1</span></div>
+      <div class="fw">KORA AI<span>v2.4.0 · Kora-1</span></div>
     </div>
     <nav class="nav">
       <div class="grp">Tổng quan</div>
@@ -284,7 +284,7 @@
     <!-- ===================== HOME ===================== -->
     <div class="page" id="home">
       <header class="hero">
-        <span class="badge">FPT Telecom · KORA AI · v2.3.4 · &ldquo;Kora-1&rdquo;</span>
+        <span class="badge">FPT Telecom · KORA AI · v2.4.0 · &ldquo;Kora-1&rdquo;</span>
         <h1>KORA AI — Sơ đồ nguyên lý hoạt động</h1>
         <p class="sub">Trợ lý tri thức tự lớn lên cùng dự án: hợp nhất tri thức phân tán, nối tri thức local của nhân viên với <b>Knowledge Base</b> chung (trên Cloud), và tự động hóa đồng bộ — báo cáo — cảnh báo.</p>
         <div class="pipe">
@@ -383,7 +383,7 @@
       <div class="home-cards">
         <div class="hc" style="cursor:default"><span class="ic">🧩</span><div><b>Skill <code>/kora-*</code></b><p>17 lệnh điều khiển toàn bộ luồng (xem Phụ lục).</p></div></div>
         <div class="hc" style="cursor:default"><span class="ic">🔁</span><div><b>Workflows</b><p>Kịch bản step-by-step từng luồng (setup · scan · sync · report…).</p></div></div>
-        <div class="hc" style="cursor:default"><span class="ic">🛠️</span><div><b>Tools (Python thuần)</b><p>Quét Jira · tổng hợp wiki · sync Confluence/GitHub · scheduler · report · mailer · cổng mật khẩu.</p></div></div>
+        <div class="hc" style="cursor:default"><span class="ic">🛠️</span><div><b>Tools (Python thuần)</b><p>Quét Jira · tổng hợp wiki · sync Confluence/GitHub/SharePoint · scheduler · report · mailer · cổng mật khẩu.</p></div></div>
         <div class="hc" style="cursor:default"><span class="ic">💬</span><div><b>Templates</b><p>Prompt theo vai trò (BA/PO/SA/QA) + doc template (BRD/PRD) — động theo domain.</p></div></div>
         <div class="hc" style="cursor:default"><span class="ic">🔌</span><div><b>Nguồn (Connect)</b><p>Jira · Confluence · Gmail · SharePoint · Outlook · GitHub · GitLab — qua MCP / API.</p></div></div>
         <div class="hc" style="cursor:default"><span class="ic">📚</span><div><b>Knowledge Base</b><p>Source <code>docs/</code> + vault Obsidian local <code>*_Brain/</code> (note + backlink).</p></div></div>
@@ -449,7 +449,7 @@
       <div class="phead"><div class="pl">B · Quy trình</div><h1><span class="em">🔁</span>Quy trình BA &amp; cách KORA tự thực thi</h1></div>
       <p class="lead">Bám <b>quy trình BA 8 bước</b> để có <b>đầu ra chuẩn</b>; KORA tự ráp các luồng đang chạy của framework vào từng bước và <b>tự trưởng thành theo thời gian</b>.</p>
 
-      <div class="card"><b>Cách framework hiện tại vận hành:</b> 4 tầng <b>Nguồn (Connect) → Scan &amp; Tổng hợp (wiki KB) → Cloud KB chung (Confluence/GitHub) → Automation (Schedule/Report/Mail/Alert)</b>. Mỗi bước BA dưới đây được một <code>/kora-*</code> hoặc workflow thực thi — cột "KORA thực thi".</div>
+      <div class="card"><b>Cách framework hiện tại vận hành:</b> 4 tầng <b>Nguồn (Connect) → Scan &amp; Tổng hợp (wiki KB) → Cloud KB chung (Confluence/GitHub/SharePoint) → Automation (Schedule/Report/Mail/Alert)</b>. Mỗi bước BA dưới đây được một <code>/kora-*</code> hoặc workflow thực thi — cột "KORA thực thi".</div>
 
       <h2 class="sec">I · Quy trình phát triển feature (8 bước)</h2>
       <table>
@@ -583,6 +583,7 @@
         <div class="os-card"><svg viewBox="0 0 448 512"><path d="M0 93.7l183.6-25.3v177.4H0V93.7zm0 324.6l183.6 25.3V268.4H0v149.9zm203.8 28L448 480V268.4H203.8v177.6zm0-380.6v180.1H448V32L203.8 65.7z"/></svg><h4>Windows</h4><p>Tải install.bat</p><a class="btn" href="install.bat" download="install.bat">⬇ install.bat</a></div>
       </div>
       <div class="callout warn"><span>🔐</span><div><b>Cấp quyền PRIVACY khi cài:</b> truy cập thư mục project, chạy script local, và các Connector cần dùng (Atlassian / Gmail / Microsoft 365). Không cấp đủ → scan MCP / gửi mail / sync không chạy. macOS lần đầu bị chặn → <b>Privacy &amp; Security → Open Anyway</b>.</div></div>
+      <div class="callout"><span>👥</span><div><b>Dùng trong Cowork (Desktop/Web):</b> bộ cài tạo sẵn folder <code>Skill/</code> trong project. Bật các lệnh <code>/kora-*</code> bằng cách <b>kéo các file skill trong <code>Skill/</code> vào Cowork</b> rồi bảo Claude <i>"cài skill này"</i>, hoặc vào <b>Customize → Custom Skills</b> để thêm skill tùy chỉnh. (Bản CLI: installer đã đặt sẵn ở <code>~/.claude/commands/</code>.)</div></div>
 
       <h2 class="sec">🔄 Cập nhật (update)</h2>
       <div class="callout ok"><span>🟢</span><div><b>Cách khuyến nghị — gõ <code>/kora-update</code> trong Claude / Cowork</b> (hoặc nhắn <i>"cập nhật phiên bản"</i> / <i>"kiểm tra phiên bản"</i>). KORA so <code>version.json</code> local với GitHub → hiện <b>nội dung giới thiệu + tóm tắt CHANGELOG</b> → hỏi xác nhận → tự chạy script. <b>Chỉ thay CORE, GIỮ NGUYÊN tri thức</b> của bạn (<code>docs/</code> + vault + config + <code>.env.local</code>). KHÔNG cần ra Terminal. <i>Muốn xem bản đang cài trước → gõ <code>/kora-version</code>.</i></div></div>
@@ -623,10 +624,11 @@
         <div class="step"><div class="node">🔔</div><div class="body"><div class="t"><span class="num">4b</span>Report ticket issue qua mail <code>/kora-alert-mail</code></div><p>Đi kèm Schedule: lịch nền lỗi → tự tạo ticket issue + gửi email cảnh báo; chỉnh người nhận / bật–tắt / nơi tạo ticket tập trung 1 nơi (OVERRIDE mọi lịch).</p></div></div>
         <div class="step"><div class="node">📊</div><div class="body"><div class="t"><span class="num">5</span>Report <code>/kora-daily-report</code> <span class="pw">🔒 (Admin permission)</span></div><p>Dashboard tiến độ (giờ công / OT, rủi ro, dự đoán) — phân tầng + lọc đa chiều. Kéo dữ liệu live → cần mật khẩu vận hành.</p></div></div>
         <div class="step"><div class="node">✉️</div><div class="body"><div class="t"><span class="num">6</span>Send mail <code>/kora-send-mail</code> <span class="pw">🔒 (Admin permission)</span></div><p>Chọn Jira → project → người nhận → gửi ngay / đặt lịch; email có banner header + phân tích AI.</p></div></div>
-        <div class="step"><div class="node">☁️</div><div class="body"><div class="t"><span class="num">7</span>Sync <code>/kora-sync</code> <span class="pw">🔒 (Admin permission)</span></div><p>Đẩy Knowledge Base lên Confluence / GitHub private — idempotent + versioning US ↔ Change Request.</p></div></div>
+        <div class="step"><div class="node">☁️</div><div class="body"><div class="t"><span class="num">7</span>Sync <code>/kora-sync</code> <span class="pw">🔒 (Admin permission)</span></div><p>Đẩy Knowledge Base lên Confluence / GitHub private / <b>SharePoint</b> — idempotent + versioning US ↔ Change Request.</p></div></div>
         <div class="step"><div class="node">📦</div><div class="body"><div class="t"><span class="num">8</span>Archive <code>/kora-archive</code> · <code>/kora-export-*</code> <span class="pw">🔑 Archive</span></div><p>Đóng gói bàn giao phân quyền + mật khẩu; xuất DOCX / PDF; sao lưu Knowledge Base.</p></div></div>
       </div>
       <div class="callout warn"><span>🔒</span><div><b>Mật khẩu admin:</b> <b>🔒 (Admin permission)</b> = <code>KORA_OPS_PW</code> (gác <code>/kora-sync</code> · <code>/kora-send-mail</code> · và bước <b>post/report/mail/sync</b> của <code>/kora-schedule</code> — <b>SCAN tri thức KHÔNG cần</b>; không hỏi qua chat, không in ra). <b>🔑 Archive</b> = mật khẩu đóng gói (chỉ HOST). Export &amp; các bước khác <b>KHÔNG</b> cần.</div></div>
+      <div class="callout warn"><span>⚠️</span><div><b>SharePoint sync — điều kiện:</b> ghi lên SharePoint (qua Microsoft Graph) cần <b>app registration Azure AD</b>. <b>Client-credentials</b> (chạy NỀN theo lịch) cần <b>admin consent <code>Sites.ReadWrite.All</code></b>; <b>device-flow</b> (<code>--login</code>) chỉ chạy tương tác. Mọi verify Graph (<code>--check/--push/--pull</code>) phải chạy ở <b>máy thật</b> hoặc lịch HĐH — <b>sandbox Cowork chặn API ra ngoài</b>.</div></div>
       <div class="callout"><span>🔧</span><div><b>Lệnh bảo trì (ngoài 8 bước):</b> <code>/kora-version</code> (xem bản đang cài) · <code>/kora-evolve</code> (dọn dead-link · hợp nhất trùng · kiểm tra sức khỏe KB) · <code>/kora-update</code> · <code>/kora-uninstall</code> — xem tab <a data-go="install" style="cursor:pointer">Cài đặt (C)</a>.</div></div>
 
       <h2 class="sec">1 · 🚀 Khởi tạo — <code>/kora-init</code></h2>
@@ -639,13 +641,13 @@
         <tr><td><svg class="srcico" viewBox="0 0 24 24" fill="#2684FF"><path d="M11.571 11.513H0a5.218 5.218 0 0 0 5.232 5.215h2.13v2.057A5.215 5.215 0 0 0 12.575 24V12.518a1.005 1.005 0 0 0-1.005-1.005zm5.723-5.756H5.736a5.215 5.215 0 0 0 5.215 5.214h2.129v2.058a5.218 5.218 0 0 0 5.215 5.214V6.758a1.001 1.001 0 0 0-1-1.001zM23.013 0H11.455a5.215 5.215 0 0 0 5.215 5.215h2.129v2.057A5.215 5.215 0 0 0 24 12.483V1.005A1.001 1.001 0 0 0 23.013 0z"/></svg>Jira Cloud</td><td class="yes">✓</td><td class="yes">✓</td><td>MCP: Atlassian Rovo · API: OAuth 2.0 / token</td></tr>
         <tr><td><svg class="srcico" viewBox="0 0 24 24" fill="#2684FF"><path d="M11.571 11.513H0a5.218 5.218 0 0 0 5.232 5.215h2.13v2.057A5.215 5.215 0 0 0 12.575 24V12.518a1.005 1.005 0 0 0-1.005-1.005zm5.723-5.756H5.736a5.215 5.215 0 0 0 5.215 5.214h2.129v2.058a5.218 5.218 0 0 0 5.215 5.214V6.758a1.001 1.001 0 0 0-1-1.001zM23.013 0H11.455a5.215 5.215 0 0 0 5.215 5.215h2.129v2.057A5.215 5.215 0 0 0 24 12.483V1.005A1.001 1.001 0 0 0 23.013 0z"/></svg>Jira Server</td><td class="no">—</td><td class="yes">✓</td><td>API token (PAT)</td></tr>
         <tr><td><svg class="srcico" viewBox="0 0 24 24" fill="#1868DB"><path d="M.87 18.257c-.248.382-.53.875-.763 1.245a.764.764 0 0 0 .255 1.04l4.965 3.054a.764.764 0 0 0 1.058-.26c.199-.332.454-.763.733-1.221 1.967-3.247 3.945-2.853 7.508-1.146l4.957 2.337a.764.764 0 0 0 1.028-.382l2.364-5.346a.764.764 0 0 0-.382-1.003c-1.046-.49-3.123-1.469-4.994-2.372-6.748-3.265-12.477-3.053-16.728 4.06zM23.131 5.743c.249-.382.53-.875.764-1.245a.764.764 0 0 0-.255-1.04L18.675.404a.764.764 0 0 0-1.058.26c-.199.332-.454.763-.733 1.221-1.967 3.247-3.945 2.853-7.508 1.146L4.42.694a.764.764 0 0 0-1.028.382L1.028 6.422a.764.764 0 0 0 .382 1.003c1.046.49 3.123 1.469 4.994 2.372 6.748 3.264 12.477 3.053 16.728-4.054z"/></svg>Confluence</td><td class="yes">✓</td><td class="yes">✓</td><td>đẩy KB chung</td></tr>
-        <tr><td><svg class="srcico" viewBox="0 0 24 24" fill="#e8ebf2"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.5 11.5 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222 0 1.606-.014 2.898-.014 3.293 0 .322.216.694.825.576C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>GitHub</td><td class="yes">✓</td><td class="yes">✓</td><td>sync KB lên repo private</td></tr>
+        <tr><td><svg class="srcico" viewBox="0 0 24 24" fill="#e8ebf2"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.5 11.5 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222 0 1.606-.014 2.898-.014 3.293 0 .322.216.694.825.576C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>GitHub</td><td class="yes">✓</td><td class="yes">✓</td><td>sync KB ↔ repo private (đẩy + KÉO KB host theo lịch)</td></tr>
         <tr><td><svg class="srcico" viewBox="0 0 24 24" fill="#FC6D26"><path d="m23.6 9.593-.033-.086L20.3.677a.851.851 0 0 0-.336-.405.875.875 0 0 0-1 .054.875.875 0 0 0-.29.448l-2.207 6.752H7.535L5.327.774a.857.857 0 0 0-.29-.448.875.875 0 0 0-1-.054.85.85 0 0 0-.336.405L.433 9.502.4 9.593a6.056 6.056 0 0 0 2.01 6.997l.01.009.03.022 4.969 3.722 2.458 1.86 1.497 1.131a1.008 1.008 0 0 0 1.22 0l1.497-1.131 2.458-1.86 5-3.744.012-.01a6.058 6.058 0 0 0 2.008-6.996z"/></svg>GitLab</td><td class="no">—</td><td class="yes">✓</td><td>OAuth 2.0 / PAT</td></tr>
-        <tr><td><span class="msq"><i style="background:#F25022"></i><i style="background:#7FBA00"></i><i style="background:#00A4EF"></i><i style="background:#FFB900"></i></span>SharePoint</td><td class="yes">✓</td><td class="no">—</td><td>MCP Microsoft 365</td></tr>
+        <tr><td><span class="msq"><i style="background:#F25022"></i><i style="background:#7FBA00"></i><i style="background:#00A4EF"></i><i style="background:#FFB900"></i></span>SharePoint</td><td class="yes">✓</td><td class="yes">✓</td><td>MCP Microsoft 365 (đọc) · API Graph (ĐẨY/kéo KB — cần app Azure AD)</td></tr>
         <tr><td><span class="msq"><i style="background:#F25022"></i><i style="background:#7FBA00"></i><i style="background:#00A4EF"></i><i style="background:#FFB900"></i></span>Outlook</td><td class="yes">✓</td><td class="no">—</td><td>MCP Microsoft 365 (gửi mail: cần admin / consent)</td></tr>
         <tr><td><svg class="srcico" viewBox="0 0 24 24" fill="#EA4335"><path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/></svg>Gmail</td><td class="yes">✓</td><td class="no">—</td><td>MCP Gmail · gửi mail cần App Password (bật 2FA)</td></tr>
       </table>
-      <div class="callout"><span>🏢</span><div><b>Connect HOSTING cần đảm bảo:</b> ① nguồn để SCAN · ② đích PUSH (Confluence + GitHub private) · ③ kênh MAIL (Gmail/Outlook/SMTP).</div></div>
+      <div class="callout"><span>🏢</span><div><b>Connect HOSTING cần đảm bảo:</b> ① nguồn để SCAN · ② đích PUSH (Confluence / GitHub private / SharePoint) · ③ kênh MAIL (Gmail/Outlook/SMTP).</div></div>
       <div class="twocol">
         <div class="card"><b>📧 Gmail (SMTP)</b><p style="color:var(--muted);font-size:13.3px;margin:6px 0 0">Cần <b>App Password</b> — chỉ tạo được khi đã <b>bật xác thực 2 lớp (2FA)</b>.</p></div>
         <div class="card"><b>📨 Outlook / M365</b><p style="color:var(--muted);font-size:13.3px;margin:6px 0 0">Cần <b>key admin</b> hoặc được <b>set consent</b> (admin consent).</p></div>
@@ -709,7 +711,7 @@ khi CHẠY:  scan/get (KHÔNG gác) → reindex → 🔒 cổng → post · repo
       <p style="color:var(--muted)">Luồng: chọn <b>nguồn Jira đã kết nối</b> → <b>project cần report</b> → <b>người nhận</b> → <b>[Gửi ngay] / [Đặt lịch]</b>. Email có <b>banner header</b> + phân tích AI (năng suất/OT, rủi ro, dự đoán). Provider Gmail/Outlook/SMTP. Cổng mật khẩu vận hành. <b>Đặt lịch</b> → task hiện ở danh sách <code>/kora-schedule</code> (bật/tắt/xóa).</p>
 
       <h2 class="sec">7 · ☁️ Sync — <code>/kora-sync</code></h2>
-      <p style="color:var(--muted)">Đẩy Knowledge Base lên <b>Confluence / GitHub private</b> — idempotent, có <b>cổng mật khẩu vận hành</b>. Versioning <b>US ↔ Change Request</b>: giữ US cũ, đánh dấu superseded, link CR mới.</p>
+      <p style="color:var(--muted)">Đẩy Knowledge Base lên <b>Confluence / GitHub private / SharePoint</b> — idempotent, có <b>cổng mật khẩu vận hành</b>. Versioning <b>US ↔ Change Request</b>: giữ US cũ, đánh dấu superseded, link CR mới. <b>SharePoint</b> qua Microsoft Graph (app Azure AD; admin consent <code>Sites.ReadWrite.All</code> để chạy nền; verify ở máy thật).</p>
 
       <h2 class="sec">8 · 📦 Archive — <code>/kora-archive</code></h2>
       <p style="color:var(--muted)">Đóng gói KB phân quyền (read-only / read-write) + mật khẩu (chỉ gác HOST tạo gói). HOST đẩy KB lên Cloud → USER import → connect MCP → <code>/kora-schedule</code> kéo về local. Project import luôn <b>hỏi để nắm tri thức</b>. Gói USER tắt report/mail, tự lên lịch get&amp;post. <b>Báo lỗi về người phụ trách:</b> cấu hình email ticket sự cố (<code>scheduler.error_recipients</code>) đi theo gói + ship <b>cred SMTP no-reply</b> → khi lịch của USER lỗi, tự email người phụ trách (HOST). Hỗ trợ đầy đủ <b>Windows · macOS · Linux</b> (đóng gói &amp; import gói USER).</p>
@@ -1550,11 +1552,23 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
       <div class="phead"><div class="pl">I · Release Note</div><h1><span class="em">🆕</span>Lịch sử phiên bản</h1></div>
       <p class="lead">Lịch sử bản <b>APP</b> (CORE: skills, workflows, tools…). Cập nhật: chạy lại lệnh cài (bash CLI, tab <a data-go="install" style="cursor:pointer">C</a>) — <b>tri thức của bạn được giữ nguyên</b> (DATA không bị đụng).</p>
 
-      <div class="callout ok"><span>🆕</span><div><b>Bản mới nhất (latest): <code>v2.3.4</code> — "Kora-1"</b> · phát hành 2026-06-21. Tổng <b>22 bản</b>; danh sách đầy đủ ở <a href="https://github.com/isc-fkit/Kora-Framework/blob/release/CHANGELOG.md">CHANGELOG.md</a>.</div></div>
+      <div class="callout ok"><span>🆕</span><div><b>Bản mới nhất (latest): <code>v2.4.0</code> — "Kora-1"</b> · phát hành 2026-06-21. Tổng <b>23 bản</b>; danh sách đầy đủ ở <a href="https://github.com/isc-fkit/Kora-Framework/blob/release/CHANGELOG.md">CHANGELOG.md</a>.</div></div>
 
       <div class="card" style="border-color:var(--accent)">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.3.4 — "Kora-1" <span style="display:inline-block;margin-left:6px;padding:2px 9px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;font-size:10.5px;font-weight:800;vertical-align:2px">MỚI NHẤT</span></b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
+          <b style="font-size:16px">v2.4.0 — "Kora-1" <span style="display:inline-block;margin-left:6px;padding:2px 9px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;font-size:10.5px;font-weight:800;vertical-align:2px">MỚI NHẤT</span></b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
+        </div>
+        <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
+          <li><b>🆕 SharePoint thành đích/nguồn KB</b> — tool mới <code>tools/sharepoint-sync</code> (Microsoft Graph); <code>/kora-sync</code> đẩy KB lên SharePoint (idempotent) cạnh Confluence/GitHub.</li>
+          <li><b>Auth tự nhận diện</b>: client-credentials (chạy nền, cần admin consent <code>Sites.ReadWrite.All</code>) hoặc device-flow (<code>--login</code>, tương tác).</li>
+          <li><b>Lịch nền kéo <code>github:&lt;owner/repo&gt;</code></b> (máy USER tự kéo KB host từ GitHub private) + <code>sharepoint:&lt;site&gt;</code>; sync-target thêm <code>sharepoint</code>.</li>
+          <li><b>Cowork</b>: hướng dẫn dùng skill <code>/kora-*</code> (folder <code>Skill/</code> → Customize → Custom Skills) ở README + landing.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
+          <b style="font-size:16px">v2.3.4 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>🐞 Sửa lỗi installer kéo về bản cũ</b> (archive nhánh bị CDN cache) — nay tải theo <b>SHA commit mới nhất</b> (4 script install/update).</li>
@@ -1670,6 +1684,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
       <div class="phead"><div class="pl">J · Phụ lục</div><h1><span class="em">📚</span>Quy tắc đặt tên, template &amp; lệnh</h1></div>
 
       <h2 class="sec">I · Các lệnh <code>/kora-*</code></h2>
+      <p style="color:var(--muted)">👥 <b>Cowork:</b> kéo file skill trong folder <code>Skill/</code> vào để Claude cài, hoặc <b>Customize → Custom Skills</b> (chi tiết ở tab <a data-go="install" style="cursor:pointer">Cài đặt (C)</a>).</p>
       <table>
         <tr><th>Lệnh</th><th>Việc</th><th>Mật khẩu</th></tr>
         <tr><td><code>/kora-init</code></td><td>Khởi tạo dự án</td><td>—</td></tr>
@@ -1677,7 +1692,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
         <tr><td><code>/kora-scan</code></td><td>Quét &amp; nạp tri thức + tổng hợp wiki</td><td>—</td></tr>
         <tr><td><code>/kora-scan-jira-task</code></td><td>Quét 1 task/epic theo mã</td><td>—</td></tr>
         <tr><td><code>/kora-import-files</code></td><td>Nạp PDF / DOCX / ảnh / zip</td><td>—</td></tr>
-        <tr><td><code>/kora-sync</code></td><td>Đẩy Knowledge Base lên Confluence / GitHub private</td><td>🔒 (Admin permission)</td></tr>
+        <tr><td><code>/kora-sync</code></td><td>Đẩy Knowledge Base lên Confluence / GitHub private / SharePoint</td><td>🔒 (Admin permission)</td></tr>
         <tr><td><code>/kora-send-mail</code></td><td>Gửi báo cáo, ngay / đặt lịch</td><td>🔒 (Admin permission)</td></tr>
         <tr><td><code>/kora-schedule</code></td><td>Lịch HĐH (local): scan → report → mail → sync; quản lý HĐH+Cowork</td><td>🔒 (post/report/mail/sync · scan KHÔNG cần)</td></tr>
         <tr><td><code>/kora-alert-mail</code></td><td>Mail cảnh báo sự cố (issue ticket) — override mọi lịch</td><td>—</td></tr>

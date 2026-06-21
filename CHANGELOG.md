@@ -10,6 +10,27 @@
 
 ---
 
+## v2.4.0 "Kora-1" — 2026-06-21
+
+- **🆕 SharePoint thành ĐÍCH/NGUỒN KB** — tool mới `tools/sharepoint-sync/sync_sharepoint.py` (Microsoft Graph,
+  chỉ thư viện chuẩn Python, tái dùng helper `sync_confluence`). Lệnh `--check / --login / --push [--dry-run] / --pull`.
+  - **Auth TỰ NHẬN DIỆN cả hai:** `client-credentials` (app-only, **chạy NỀN** — cần `SHAREPOINT_TENANT_ID/CLIENT_ID/CLIENT_SECRET`
+    + admin consent `Sites.ReadWrite.All`) **hoặc** `device-flow` (`--login`, tương tác, cache `.oauth-token.json` + refresh).
+  - **Idempotent:** map `<vault>/_system/sharepoint/sharepoint-map-<host>-<site>.json` (so `content_hash`, lưu `item_id`+`etag`);
+    đẩy raw `.md`, chỉ ghi file đổi nội dung, xóa file rời plan. Token KHÔNG vào chat/git/config.
+- **`/kora-sync` thêm target [SharePoint]** (multi-select cùng Confluence/GitHub) — `workflows/16-sync.md` thêm
+  "Requirement C — Microsoft Graph"; `config` thêm khối `sharepoint:` + `sync.targets: [confluence, github, sharepoint]`.
+- **`/kora-connect` thêm API → [SharePoint (Microsoft Graph)]** (`source_type: sharepoint`, method `api`);
+  `tools/connections/check_connection.py` probe SharePoint qua `sync_sharepoint.py --check`.
+- **Lịch nền (`/kora-schedule` + `orchestrator.py`) thêm nguồn KÉO `github:<owner/repo>`** (máy USER tự kéo KB host từ
+  GitHub private — `sync_github.py --pull` đã có sẵn, nay nối vào SCAN) **và `sharepoint:<site>`**; sync-target thêm `sharepoint`.
+- **Landing/README:** mô tả tính năng SharePoint (bảng nguồn, bước 7 Sync, sơ đồ) + **callout rủi ro** (app Azure AD /
+  admin consent / verify ở máy thật vì sandbox chặn API); thêm **note dùng skill `/kora-*` trong Cowork** (folder `Skill/`
+  → kéo vào / Customize → Custom Skills) ở README + landing.
+
+> **Cập nhật:** thuần CORE — KHÔNG migration DATA (config cũ thiếu khối `sharepoint:` vẫn chạy; tool đọc `cfg.get` an toàn).
+> SharePoint chỉ hoạt động sau khi đăng ký app Azure AD + cấp quyền; verify/đẩy chạy ở **máy thật** (sandbox Cowork chặn API).
+
 ## v2.3.4 "Kora-1" — 2026-06-21
 
 - **🐞 SỬA LỖI QUAN TRỌNG — installer/updater kéo về BẢN CŨ** dù đã phát hành nhiều bản mới. Nguyên nhân:

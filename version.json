@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.3.4",
+  "version": "2.4.0",
   "codename": "Kora-1",
   "released": "2026-06-21",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
-  "force": true,
-  "intro": "Kora-Framework v2.3.4: SỬA LỖI installer/updater kéo về BẢN CŨ dù đã phát hành bản mới — nguyên nhân: archive theo nhánh bị CDN của GitHub cache dai. Nay install/update tải theo SHA commit MỚI NHẤT (immutable, không cache) trên cả 4 script (install.command/.bat, update.command/.bat). ⚠️ Nếu đang kẹt bản cũ: chạy LẠI lệnh cài 1 dòng (curl install.command) để lấy bản mới nhất. Thêm skill /kora-version (xem phiên bản đang cài + so bản mới nhất, chỉ đọc); installer nay copy version.json + CHANGELOG vào ~/.claude/kora-framework để /kora-version /kora-update đọc được."
+  "force": false,
+  "intro": "Kora-Framework v2.4.0: THÊM SharePoint làm đích/nguồn KB. /kora-sync nay đẩy KB lên SharePoint (Microsoft Graph, idempotent) bên cạnh Confluence/GitHub; tool mới tools/sharepoint-sync (auth tự nhận diện: client-credentials chạy nền HOẶC device-flow tương tác). Lịch nền (/kora-schedule) thêm nguồn KÉO 'github:<owner/repo>' (máy USER tự kéo KB host từ GitHub private) và 'sharepoint:<site>'. ⚠️ Ghi SharePoint cần app registration Azure AD: client-credentials cần admin consent Sites.ReadWrite.All để chạy nền; verify Graph phải chạy ở máy thật (sandbox chặn API). Landing/README: hướng dẫn dùng skill /kora-* trong Cowork (folder Skill/ → Customize → Custom Skills). Cập nhật thuần CORE, không migration DATA."
 }

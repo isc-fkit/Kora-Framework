@@ -132,9 +132,29 @@ github:                   # KB → repo GitHub RIÊNG TƯ (private) qua GIT PUSH
     subdir: ""            # thư mục con trong repo đích (mặc định = gốc repo)
   # Token: KORA_GITHUB_SYNC_TOKEN (PAT scope 'repo') trong tools/github-sync/.env.local
 
+sharepoint:               # KB → SharePoint document library qua Microsoft Graph (WRITE). Token ở ~/.zshrc hoặc tools/sharepoint-sync/.env.local (lịch nền).
+  enabled: false          # true khi đã kết nối SharePoint + chọn đẩy lên
+  tool_path: tools/sharepoint-sync
+  base_url: ""            # https://<tenant>.sharepoint.com
+  site_name: ""           # tên site, vd "FTEL_Medicare"
+  library: ""             # tên thư viện tài liệu, vd "Knowledge Base" (rỗng = thư viện mặc định)
+  drive_id: ""            # override trực tiếp drive id (nếu biết) — bỏ trống thì tự resolve theo library
+  auth: auto              # auto | client_credentials (app-only, chạy nền) | device (delegated, tương tác)
+  permission: read_write  # read_only | read_write — read_only thì --push bị từ chối
+  push:
+    source: both          # vault | docs | both — nguồn note để đẩy
+    scope: ""             # lọc theo thư mục/glob (tùy chọn)
+    subdir: ""            # thư mục con trong thư viện đích (mặc định = gốc)
+  pull:
+    into: ""              # "" = kéo vào <vault>/SharePoint/ | đường dẫn khác
+    subdir: ""            # thư mục con trong thư viện để kéo (mặc định = gốc)
+  scheduled: none         # none | "<cron> | <task_id>"
+  # Token: SHAREPOINT_TENANT_ID + SHAREPOINT_CLIENT_ID + SHAREPOINT_CLIENT_SECRET (app-only, admin consent
+  # Sites.ReadWrite.All) ở ~/.zshrc (ưu tiên) hoặc tools/sharepoint-sync/.env.local (lịch nền); hoặc --login device-flow.
+
 sync:                     # Cấu hình chung cho /kora-sync (đẩy KB lên target đã kết nối). CÓ CỔNG MẬT KHẨU vận hành.
   password_required: true # bắt buộc nhập KORA_OPS_PW trước khi đẩy (KHÔNG áp cho /kora-export)
-  targets: [confluence, github]   # target khả dụng; chọn lúc chạy
+  targets: [confluence, github, sharepoint]   # target khả dụng; chọn lúc chạy
   versioning:             # 1 US cũ có "change request" mới → GIỮ US cũ + đánh dấu superseded + link CR
     cr_link_types: ["supersedes", "is superseded by", "clones", "is cloned by", "relates"]
     cr_issue_types: ["Change Request", "Thay đổi yêu cầu"]
