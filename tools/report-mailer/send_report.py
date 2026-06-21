@@ -174,13 +174,22 @@ def main():
         subject = subject or "[Kora] Báo cáo tiến độ"
         text = text or "Báo cáo tiến độ Kora — xem nội dung email (HTML) hoặc file đính kèm."
 
-    # Banner header inline (cid:kora-banner) — hiện cả khi client chặn ảnh remote (Outlook…).
+    # Banner header NHÚNG INLINE (cid:kora-banner) → hiện NGAY cả khi client chặn ảnh remote (Outlook "trust sender").
+    # Resolve path bền (như KORA_MAILER_ENV): --banner → KORA_BANNER → cạnh CORE (assets) → cwd/assets.
     banner_cid_path = None
     if html and not args.test:
-        bpth = Path(args.banner) if args.banner else (HERE.parents[1] / "assets" / "banner-daily-report.png")
-        if bpth.exists() and "banner-daily-report.png" in html:
-            html = re.sub(r'src="[^"]*banner-daily-report\.png[^"]*"', 'src="cid:kora-banner"', html)
+        cands = [args.banner, os.getenv("KORA_BANNER"),
+                 str(HERE.parents[1] / "assets" / "banner-daily-report.png"),
+                 str(Path.cwd() / "assets" / "banner-daily-report.png")]
+        bpth = next((Path(c).expanduser() for c in cands if c and Path(c).expanduser().exists()), None)
+        has_banner = bool(re.search(r"banner-daily-report\.(?:png|jpe?g)", html))
+        if bpth and has_banner:
+            html = re.sub(r'src="[^"]*banner-daily-report\.(?:png|jpe?g)[^"]*"', 'src="cid:kora-banner"', html)
             banner_cid_path = bpth
+            print(f"ℹ️  Banner: nhúng CID inline ← {bpth} ({bpth.stat().st_size // 1024}KB)")
+        elif has_banner:
+            print("⚠️  Banner: KHÔNG thấy file ảnh local → email giữ link REMOTE (Outlook có thể chặn 'trust sender'). "
+                  "Truyền --banner <path> hoặc đặt KORA_BANNER trỏ tới assets/banner-daily-report.png.", file=sys.stderr)
 
     msg = EmailMessage()
     msg["From"] = formataddr((from_name, mail_from))

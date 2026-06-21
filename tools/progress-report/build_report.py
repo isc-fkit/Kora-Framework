@@ -742,6 +742,47 @@ def render_email_body(m, vault, banner_url=""):
         </tr>{prows}
       </table>
       <div style="font-size:11.5px;color:{EPAL['mut']};margin-top:6px">Lọc &amp; drill-down chi tiết từng dự án có trong dashboard đính kèm.</div></td></tr>'''
+    # 👥 Bảng "Theo người phụ trách" — đưa BÁO CÁO ĐẦY ĐỦ vào THÂN email (đọc ngay, không cần mở file đính kèm)
+    asg_full = [a for a in m["by_assignee"] if a["assignee"] not in ("(chưa giao)", "—", "")]
+    asg_block = ""
+    if asg_full:
+        arows = ""
+        for a in asg_full:
+            pc = a.get("pct_capacity", 0)
+            pcol = EPAL["green"] if 80 <= pc <= 120 else (EPAL["red"] if pc > 120 else EPAL["amber"])
+            arows += (
+                f'<tr>'
+                f'<td style="padding:7px 9px;font-size:13px;color:{EPAL["ink"]};font-weight:700;border-top:1px solid #eef1f6">{esc(a["assignee"])}</td>'
+                f'<td style="padding:7px 9px;font-size:13px;color:#39465c;text-align:center;border-top:1px solid #eef1f6">{a["total"]}</td>'
+                f'<td style="padding:7px 9px;font-size:13px;color:{EPAL["green"]};font-weight:700;text-align:center;border-top:1px solid #eef1f6">{a["done"]}</td>'
+                f'<td style="padding:7px 9px;font-size:13px;color:{EPAL["blue2"]};text-align:center;border-top:1px solid #eef1f6">{a["in_progress"]}</td>'
+                f'<td style="padding:7px 9px;font-size:12.5px;color:#39465c;text-align:right;border-top:1px solid #eef1f6">{hs(a["time"]["spent_s"])} · {a.get("logged_working_days", 0)}đ</td>'
+                f'<td style="padding:7px 9px;font-size:13px;color:{pcol};font-weight:700;text-align:center;border-top:1px solid #eef1f6">{pc}%</td>'
+                f'</tr>')
+        asg_block = f'''<tr><td class="kpad" style="padding:8px 22px 2px">
+      <div style="font-size:12px;color:{EPAL['mut']};text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px">Theo người phụ trách ({len(asg_full)})</div>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e6eaf0;border-radius:10px;overflow:hidden">
+        <tr style="background:{EPAL['chip']}">
+          <td style="padding:7px 9px;font-size:11px;color:{EPAL['mut']};text-transform:uppercase">Người</td>
+          <td style="padding:7px 9px;font-size:11px;color:{EPAL['mut']};text-align:center">Issue</td>
+          <td style="padding:7px 9px;font-size:11px;color:{EPAL['green']};text-align:center">Done</td>
+          <td style="padding:7px 9px;font-size:11px;color:{EPAL['blue2']};text-align:center">Đang làm</td>
+          <td style="padding:7px 9px;font-size:11px;color:{EPAL['mut']};text-align:right">Đã log (giờ·ngày)</td>
+          <td style="padding:7px 9px;font-size:11px;color:{EPAL['mut']};text-align:center">% NS</td>
+        </tr>{arows}
+      </table>
+      <div style="font-size:11.5px;color:{EPAL['mut']};margin-top:6px">% NS = năng suất so với kỳ vọng ngày-công đến hôm nay (8h/ngày).</div></td></tr>'''
+    # 🏃 Sprint đang chạy
+    spr_block = ""
+    if m["active_sprints"]:
+        srows = "".join(
+            f'<div style="font-size:12.5px;color:#33405a;margin:3px 0;line-height:1.5">▸ <b style="color:{EPAL["ink"]}">{esc(s["name"])}</b> — '
+            f'{s["total"]} issue · <b style="color:{EPAL["green"]}">{s["pct_done"]}%</b> xong'
+            + (f' · hết hạn <b>{esc(str(s["end"])[:10])}</b>' if s.get("end") else '') + '</div>'
+            for s in m["active_sprints"][:5])
+        spr_block = (f'<tr><td class="kpad" style="padding:6px 22px 2px">'
+                     f'<div style="font-size:12px;color:{EPAL["mut"]};text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">Sprint đang chạy ({len(m["active_sprints"])})</div>'
+                     f'{srows}</td></tr>')
     # 📊 Biểu đồ EMAIL-SAFE (table + bgcolor) — render mọi client, không SVG/JS
     asg = [a for a in m["by_assignee"] if a["assignee"] not in ("(chưa giao)", "—", "")][:6]
     asg_max = max((a["total"] for a in asg), default=1)
@@ -791,6 +832,8 @@ def render_email_body(m, vault, banner_url=""):
     </tr></table></td></tr>
   {charts_block}
   {proj_block}
+  {asg_block}
+  {spr_block}
   {cap_block}
   <tr><td class="kpad" style="padding:12px 22px 4px">
     <div style="background:{EPAL['cream']};border:1px solid {EPAL['creambd']};border-radius:12px;padding:14px 16px">

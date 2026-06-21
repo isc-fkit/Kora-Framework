@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.8.5",
+  "version": "2.8.6",
   "codename": "Kora-1",
   "released": "2026-06-22",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.8.5 (lịch nền report/mail PULL dữ liệu server từ MỌI nguồn Jira TRƯỚC khi build): trước đây orchestrator full-scan project báo cáo chỉ từ nguồn Jira ĐẦU TIÊN (break) — với đa nguồn/đa domain (v2.8.4) các nguồn còn lại không được làm mới đầy đủ. Nay full-scan project báo cáo từ TẤT CẢ nguồn Jira API trong scan-list (mỗi nguồn chỉ quét project nó có qua list-projects ∩ report.projects → tránh JQL lỗi vì key lạ), best-effort (lỗi 1 nguồn không chặn nguồn khác). Nguồn chỉ-MCP không quét nền được → cần kết nối Jira đó qua API + thêm vào scan-list (đã ghi rõ ở /kora-schedule + WF08). Thuần CORE, không migration DATA."
+  "intro": "Kora-Framework v2.8.6 (banner email hết bị Outlook chặn + báo cáo đầy đủ ngay trong thân email): (1) Banner header nay NHÚNG CID INLINE bền bỉ — Outlook/Gmail hiện ngay không cần 'trust sender' để load ảnh remote; ảnh tối ưu 1.8MB → 547KB (tránh bị Exchange strip); send_report resolve banner path bền (--banner/KORA_BANNER/assets) + log rõ; skill + lịch nền truyền --banner. (2) Thân email = BÁO CÁO ĐẦY ĐỦ: thêm bảng 'Theo người phụ trách' (Done/Đang làm/Đã log/% năng suất, tô màu cột) + Sprint đang chạy → đọc trọn vẹn ngay trong email, không cần mở file; vẫn kèm dashboard tương tác (filter) cho ai cần. Thuần CORE, không migration DATA."
 }

@@ -39,6 +39,7 @@ GITHUB_DIR = REPO_ROOT / "tools" / "github-sync"
 SHAREPOINT_DIR = REPO_ROOT / "tools" / "sharepoint-sync"
 MAILER = REPO_ROOT / "tools" / "report-mailer" / "send_report.py"
 MAILER_ENV = REPO_ROOT / "tools" / "report-mailer" / ".env.local"   # truyền qua KORA_MAILER_ENV
+BANNER_PNG = REPO_ROOT / "assets" / "banner-daily-report.png"        # truyền --banner → nhúng CID inline
 PY = sys.executable or "python3"
 
 
@@ -402,7 +403,7 @@ def main():
                     subj = (cfg.get("reports.email.subject") or "[Kora] Báo cáo tiến độ {date}").replace("{date}", today())
                     rc2, o2, e2 = run_tool(MAILER, ["--to", ",".join(recips), "--subject", subj,
                                                     "--html-file", "reports/email-body-latest.html",
-                                                    "--no-attach-html",
+                                                    "--no-attach-html", "--banner", str(BANNER_PNG),
                                                     "--attach", "reports/progress-report-latest.html"],
                                            extra_env={"KORA_MAILER_ENV": str(MAILER_ENV)})
                     if rc2 != 0:

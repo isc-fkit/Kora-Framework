@@ -10,6 +10,18 @@
 
 ---
 
+## v2.8.6 "Kora-1" — 2026-06-22
+
+- **🖼️ Banner email HẾT bị Outlook chặn (nhúng CID inline + nhẹ).** Banner header nay **embed inline** (`cid:kora-banner`)
+  bền bỉ → Outlook/Gmail hiện NGAY, không cần "trust sender" để load ảnh remote. Ảnh tối ưu **1.8MB → 547KB** (1000px,
+  tránh bị Exchange/Outlook *strip*). `send_report.py` resolve banner path bền (`--banner` → `KORA_BANNER` →
+  `assets/` cạnh CORE → `$PWD/assets/`) + **log `ℹ️ Banner: nhúng CID …`**; regex khớp cả png/jpg. Skill (`/kora-send-mail`,
+  WF14) + lịch nền (`orchestrator`) truyền `--banner` tường minh → CID luôn áp, không phụ thuộc cwd.
+- **📋 Thân email = BÁO CÁO ĐẦY ĐỦ (đọc ngay, không cần mở file).** `render_email_body` thêm **bảng "Theo người phụ
+  trách"** (Người · Issue · Done · Đang làm · Đã log giờ/ngày-công · % năng suất — tô màu cột) + **Sprint đang chạy**
+  (tên · % · hạn). Đầy đủ như dashboard, email-safe (table+bgcolor). Vẫn **kèm file dashboard tương tác** (lọc project/người) cho ai cần.
+- Thuần **CORE**, KHÔNG migration DATA. Máy đã cài: gõ **"cập nhật phiên bản"**.
+
 ## v2.8.5 "Kora-1" — 2026-06-22
 
 - **🔄 Lịch nền (report/mail) PULL dữ liệu server từ MỌI nguồn Jira TRƯỚC khi build.** Trước đây orchestrator full-scan
