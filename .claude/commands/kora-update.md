@@ -10,6 +10,9 @@ The user invoked `/kora-update` — cập nhật chương trình lên bản mớ
    - macOS/Linux: `bash scripts/update.command`
    - Windows: `scripts\update.bat`
    Script kéo bản CORE mới (git pull nếu có `.git`, hoặc tải zip + rsync chỉ CORE), **KHÔNG đụng DATA**.
+   Từ v2.5.3 script còn **tự refresh skill `/kora-*` vào `~/.claude/commands/`** (nơi Claude nạp skill) — nếu
+   không, fix skill sẽ không tới user dù CORE đã update. ⚠️ Bản CŨ (≤2.5.2) chưa có bước này → cần **chạy LẠI
+   installer 1 lần** (nhánh 2) để nhận updater mới + skill mới, từ đó `update.command` mới refresh skill đúng.
 2. **Bản cài skill managed** (skill trong `~/.claude`, không có folder project): **chạy lại installer = cập nhật**:
    - macOS/Linux: `bash <(curl -fsSL https://raw.githubusercontent.com/isc-fkit/Kora-Framework/release/install.command)`
    - Windows: `curl -fsSL https://raw.githubusercontent.com/isc-fkit/Kora-Framework/release/install.bat -o "%TEMP%\kora-install.bat" && "%TEMP%\kora-install.bat"`

@@ -10,6 +10,21 @@
 
 ---
 
+## v2.5.3 "Kora-1" — 2026-06-21  ⚠️ QUAN TRỌNG (force)
+
+- **🐞 Sửa BUG cập nhật — updater không refresh skill ở `~/.claude/commands/`:** `scripts/update.command`
+  rsync CORE vào `REPO_ROOT` (bản cài managed = `~/.claude/kora-framework/`) nhưng **không đụng**
+  `~/.claude/commands/` — nơi Claude THỰC SỰ nạp lệnh `/kora-*`. Hệ quả: mọi fix skill (vd `/kora-connect`)
+  **không tới user** dù version CORE đã tăng. Nay `update.command` + `update.bat` thêm bước **refresh
+  `/kora-*` vào `~/.claude/commands/`** (và `<Downloads>/Knowledge-Base/Skill/` nếu có) sau khi cập nhật CORE,
+  loại `kora-release.md` (maintainer-only). `kora-update.md` ghi rõ.
+- **⚠️ MIGRATION (bản ≤2.5.2):** vì updater cũ chưa có bước này, **CHẠY LẠI lệnh cài 1 dòng MỘT LẦN**
+  (`curl … install.command` / `.bat`) để nhận updater mới + toàn bộ skill mới (fix `/kora-connect` API phân
+  trang + Jira Server/Cloud + path tool, MCP `/mcp`, quét Jira idempotent…). Từ đó về sau "cập nhật phiên bản"
+  sẽ tự refresh skill.
+
+> **Cập nhật:** CORE — đánh dấu **force** (quan trọng) vì sửa chính cơ chế cập nhật. KHÔNG migration DATA.
+
 ## v2.5.2 "Kora-1" — 2026-06-21
 
 - **🐞 Quét lại Jira → Obsidian IDEMPOTENT (hết file rác trùng):** `import_jira.py` ghi note theo

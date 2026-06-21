@@ -110,6 +110,17 @@ echo.
 echo [OK] Cap nhat chuong trinh thanh cong (tri thuc cua ban duoc giu nguyen).
 
 :version
+REM --- Refresh skill /kora-* vao %USERPROFILE%\.claude\commands (noi Claude nap skill) ---
+set "GLOBAL_CMD=%USERPROFILE%\.claude\commands"
+set "SRC_CMD=%REPO_ROOT%\.claude\commands"
+if exist "%SRC_CMD%\" if /i not "%SRC_CMD%"=="%GLOBAL_CMD%" (
+  if not exist "%GLOBAL_CMD%\" mkdir "%GLOBAL_CMD%"
+  copy /y "%SRC_CMD%\kora-*.md" "%GLOBAL_CMD%\" >nul 2>nul
+  del /q "%GLOBAL_CMD%\kora-release.md" >nul 2>nul
+  echo [OK] Da refresh skill /kora-* vao "%GLOBAL_CMD%".
+  if exist "%USERPROFILE%\Downloads\Knowledge-Base\Skill\" copy /y "%GLOBAL_CMD%\kora-*.md" "%USERPROFILE%\Downloads\Knowledge-Base\Skill\" >nul 2>nul
+)
+
 set "NEW_VER=0.0.0"
 if exist "%REPO_ROOT%\version.json" (
   for /f "tokens=2 delims=:," %%A in ('findstr /i "\"version\"" "%REPO_ROOT%\version.json"') do (

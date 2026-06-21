@@ -126,6 +126,22 @@ else
   echo "✅ Cập nhật chương trình thành công (tri thức của bạn được giữ nguyên)."
 fi
 
+# --- Refresh SKILL /kora-* vào ~/.claude/commands/ (nơi Claude THỰC SỰ nạp skill) ----------
+# Bản cài managed để CORE ở ~/.claude/kora-framework (=REPO_ROOT) nhưng skill ở ~/.claude/commands;
+# nếu không copy sang đây thì fix skill (vd kora-connect) KHÔNG bao giờ tới user dù CORE đã update.
+GLOBAL_CMD="$HOME/.claude/commands"
+SRC_CMD="$REPO_ROOT/.claude/commands"
+if [ -d "$SRC_CMD" ] && [ "$(cd "$SRC_CMD" && pwd)" != "$(cd "$GLOBAL_CMD" 2>/dev/null && pwd || echo _nope_)" ]; then
+  mkdir -p "$GLOBAL_CMD"
+  cp "$SRC_CMD"/kora-*.md "$GLOBAL_CMD"/ 2>/dev/null || true
+  rm -f "$GLOBAL_CMD/kora-release.md" 2>/dev/null || true   # maintainer-only — không cài cho user
+  echo "🔄 Đã refresh skill /kora-* vào ~/.claude/commands/."
+  # Đồng bộ luôn folder Skill/ (upload tay vào Cowork) nếu có.
+  for sd in "$HOME/Downloads/Knowledge-Base/Skill" "$REPO_ROOT/Skill"; do
+    [ -d "$sd" ] && { cp "$GLOBAL_CMD"/kora-*.md "$sd"/ 2>/dev/null || true; }
+  done
+fi
+
 # --- Báo version mới + nhắc reindex ------------------------------------------
 NEW_VER="$(read_version)"
 echo ""

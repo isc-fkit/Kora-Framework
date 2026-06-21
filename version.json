@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.5.2",
+  "version": "2.5.3",
   "codename": "Kora-1",
   "released": "2026-06-21",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
-  "force": false,
-  "intro": "Kora-Framework v2.5.2: (1) Quét lại Jira → Obsidian nay IDEMPOTENT — mỗi issue chỉ 1 file; khi issue đổi tiêu đề (đổi slug) hoặc đổi loại (đổi thư mục), file CŨ cùng key được dọn → không còn file rác trùng. (2) /kora-connect nhánh MCP nay nhắc gọi /mcp TRƯỚC (Claude Code/Desktop) để kết nối + authorize MCP server, Cowork web thì Settings → Connectors, rồi mới verify. Thuần CORE, không migration DATA."
+  "force": true,
+  "intro": "Kora-Framework v2.5.3 (QUAN TRỌNG — sửa chính cơ chế CẬP NHẬT): trước đây scripts/update.command chỉ cập nhật CORE (~/.claude/kora-framework) mà KHÔNG refresh skill ở ~/.claude/commands — nơi Claude thực sự nạp lệnh /kora-* — nên các fix skill (vd /kora-connect) KHÔNG tới được người dùng dù đã 'cập nhật phiên bản'. Nay update.command + update.bat tự refresh skill /kora-* vào ~/.claude/commands. ⚠️ Vì bản CŨ chưa có bước này, bạn cần CHẠY LẠI lệnh cài 1 dòng (curl install.command) MỘT LẦN để nhận updater mới + toàn bộ skill mới (gồm fix /kora-connect, MCP /mcp, quét Jira không trùng…). Từ đó về sau cập nhật sẽ tự refresh skill."
 }
