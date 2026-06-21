@@ -20,6 +20,12 @@
    `KORA_CLOUD_READ_BASE_URL`, `KORA_CLOUD_READ_USER`, `KORA_CLOUD_READ_TOKEN`, `KORA_CLOUD_SPACE`.
    (Token chỉ đi qua env → file `.env.local` trong gói; KHÔNG vào chat/manifest/git.)
 
+3a. **(Tùy chọn) Token READ-ONLY GitHub** — nếu KB chung của host nằm ở **repo GitHub private** và muốn
+   gói USER tự **PULL** được: truyền `KORA_GITHUB_READ_TOKEN` (script ship thành `github.env` → import đặt vào
+   `tools/github-sync/.env.local`, máy USER chỉ pull). **Khuyến nghị:** Fine-grained PAT giới hạn **đúng 1 repo**,
+   **`Contents: Read-only`**, **có expiry** — KHÔNG dùng PAT cá nhân full-quyền. repo/branch lấy từ `github:` trong
+   config (đi theo DATA). Lộ token → **revoke** trên GitHub. (Token chỉ qua env → file trong gói; KHÔNG vào chat/manifest/git.)
+
 3b. **Email TICKET SỰ CỐ cho gói USER (áp dụng sẵn).** Cấu hình `scheduler.error_recipients` (NGƯỜI PHỤ TRÁCH)
    + `scheduler.ticket_issue` trong `config/factory-config.yaml` **đi theo gói** (nằm trong DATA). ⇒ Khi lịch nền
    của USER **lỗi**, orchestrator tạo ticket + **gửi email cho người phụ trách này** (cùng cấu hình HOST đặt qua

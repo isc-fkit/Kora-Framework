@@ -82,6 +82,20 @@ else
   echo "ℹ️  Không có KORA_CLOUD_READ_TOKEN → gói KHÔNG kèm key đọc (user tự cấu hình sau)."
 fi
 
+# --- Token READ-ONLY GitHub (ship riêng) — để gói USER PULL KB từ repo private của host ------
+# Khuyến nghị HOST: Fine-grained PAT giới hạn ĐÚNG 1 repo, Contents: Read-only, CÓ expiry.
+# KHÔNG dùng PAT cá nhân full-quyền. Lộ token → REVOKE trên GitHub là token chết ngay.
+if [ -n "${KORA_GITHUB_READ_TOKEN:-}" ]; then
+  cat > "$STAGE/github.env" <<EOF
+# Token READ-ONLY repo GitHub KB chung (ship trong archive) — chỉ PULL. KHÔNG có quyền push.
+KORA_GITHUB_SYNC_TOKEN=${KORA_GITHUB_READ_TOKEN}
+EOF
+  chmod 600 "$STAGE/github.env" 2>/dev/null || true
+  echo "🔑 Đã ship token READ-ONLY GitHub (github.env trong gói) — user pull KB từ repo private được."
+else
+  echo "ℹ️  Không có KORA_GITHUB_READ_TOKEN → gói KHÔNG kèm token GitHub (user tự cấu hình sau)."
+fi
+
 # --- (Tùy chọn) Cred SMTP NO-REPLY báo lỗi → để gói USER tự email người phụ trách khi lịch lỗi ----
 # Chỉ ship khi HOST cung cấp (KHÔNG dùng mail cá nhân host). Gửi 1 chiều, đặt vào report-mailer/.env.local lúc import.
 if [ -n "${KORA_NOTIFY_SMTP_USER:-}" ] && [ -n "${KORA_NOTIFY_SMTP_PASS:-}" ]; then

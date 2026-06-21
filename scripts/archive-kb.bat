@@ -97,6 +97,18 @@ if defined KORA_CLOUD_READ_TOKEN (
   echo [..] Khong co KORA_CLOUD_READ_TOKEN - goi khong kem key doc.
 )
 
+REM Token READ-ONLY GitHub (neu co) - de goi USER PULL KB tu repo private cua host.
+REM Khuyen nghi: Fine-grained PAT dung 1 repo, Contents Read-only, co expiry. Lo thi REVOKE.
+if defined KORA_GITHUB_READ_TOKEN (
+  (
+    echo # Token READ-ONLY repo GitHub KB chung ^(ship trong archive^) - chi PULL, khong push.
+    echo KORA_GITHUB_SYNC_TOKEN=%KORA_GITHUB_READ_TOKEN%
+  ) > "%STAGE%\github.env"
+  echo [OK] Da ship token READ-ONLY GitHub ^(github.env^).
+) else (
+  echo [..] Khong co KORA_GITHUB_READ_TOKEN - goi khong kem token GitHub.
+)
+
 REM (Tuy chon) Cred SMTP NO-REPLY bao loi -> goi USER tu email nguoi phu trach khi lich loi.
 if defined KORA_NOTIFY_SMTP_USER if defined KORA_NOTIFY_SMTP_PASS (
   if not defined KORA_NOTIFY_SMTP_HOST set "KORA_NOTIFY_SMTP_HOST=smtp.gmail.com"

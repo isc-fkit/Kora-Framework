@@ -31,6 +31,9 @@
 - **Landing/README:** mô tả tính năng SharePoint (bảng nguồn, bước 7 Sync, sơ đồ) + **callout rủi ro** (app Azure AD /
   admin consent / verify ở máy thật vì sandbox chặn API); thêm **note dùng skill `/kora-*` trong Cowork** (folder `Skill/`
   → kéo vào / Customize → Custom Skills) ở README + landing.
+- **`/kora-archive` ship thêm token READ-ONLY GitHub** (tùy chọn) — để gói USER **pull** KB từ repo **private** của host.
+  Truyền `KORA_GITHUB_READ_TOKEN` → script đóng gói thành `github.env`, import đặt vào `tools/github-sync/.env.local` (chỉ pull).
+  Áp cho cả 4 script archive/import (`.command` + `.bat`). Khuyến nghị Fine-grained PAT 1-repo Contents:Read-only + expiry.
 
 > **Cập nhật:** thuần CORE — KHÔNG migration DATA (config cũ thiếu khối `sharepoint:` vẫn chạy; tool đọc `cfg.get` an toàn).
 > SharePoint chỉ hoạt động sau khi đăng ký app Azure AD + cấp quyền; verify/đẩy chạy ở **máy thật** (sandbox Cowork chặn API).

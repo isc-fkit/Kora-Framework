@@ -103,6 +103,11 @@ if "%ARCHIVE_MODE%"=="1" if /i "%PKG_TYPE%"=="user" (
     copy /y "%PKG_ROOT%\.env.local" "%REPO_ROOT%\tools\confluence-sync\.env.local" >nul
     echo [OK] Da dat key READ cloud-KB vao tools\confluence-sync\.env.local (chi GET).
   )
+  if exist "%PKG_ROOT%\github.env" (
+    mkdir "%REPO_ROOT%\tools\github-sync" 2>nul
+    copy /y "%PKG_ROOT%\github.env" "%REPO_ROOT%\tools\github-sync\.env.local" >nul
+    echo [OK] Da dat token READ GitHub vao tools\github-sync\.env.local (chi PULL).
+  )
   if exist "%PKG_ROOT%\notify-smtp.env" (
     mkdir "%REPO_ROOT%\tools\report-mailer" 2>nul
     copy /y "%PKG_ROOT%\notify-smtp.env" "%REPO_ROOT%\tools\report-mailer\.env.local" >nul

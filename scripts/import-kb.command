@@ -114,6 +114,12 @@ if [ "$ARCHIVE_MODE" = 1 ] && [ "$PKG_TYPE" = "user" ]; then
     cp "$PKG_ROOT/.env.local" "$REPO_ROOT/tools/confluence-sync/.env.local"
     echo "🔑 Đã đặt key READ cloud-KB vào tools/confluence-sync/.env.local (chỉ GET)."
   fi
+  if [ -f "$PKG_ROOT/github.env" ]; then
+    mkdir -p "$REPO_ROOT/tools/github-sync"
+    cp "$PKG_ROOT/github.env" "$REPO_ROOT/tools/github-sync/.env.local"
+    chmod 600 "$REPO_ROOT/tools/github-sync/.env.local" 2>/dev/null || true
+    echo "🔑 Đã đặt token READ GitHub vào tools/github-sync/.env.local (chỉ PULL)."
+  fi
   if [ -f "$PKG_ROOT/notify-smtp.env" ]; then
     mkdir -p "$REPO_ROOT/tools/report-mailer"
     cp "$PKG_ROOT/notify-smtp.env" "$REPO_ROOT/tools/report-mailer/.env.local"
