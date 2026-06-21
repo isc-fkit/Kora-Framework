@@ -38,6 +38,10 @@ ESC hoặc [← Huỷ] = dừng, **KHÔNG ghi gì** vào `connections:`.
     verify/quét, đừng dừng ở "đã kết nối M365" rồi thôi): **Microsoft 365** → **[SharePoint] / [Outlook] /
     [Cả hai]**; **Atlassian Rovo** → **[Jira] / [Confluence] / [Cả hai]**. (Gmail là 1 dịch vụ — không hỏi.)
     Mỗi sub-service ghi entry riêng: `source_type` = `sharepoint`/`outlook`/`jira_cloud`/`confluence`, method `mcp`.
+  > 🔁 **Atlassian Rovo phục vụ CẢ Jira:** report/scan (`/kora-daily-report`, `/kora-send-mail`, WF14) coi **cả
+  >   `source_type: atlassian` (entry Rovo gộp)** lẫn `jira_cloud` (đã tách) là **nguồn Jira MCP** — entry `atlassian__mcp`
+  >   sẵn có vẫn quét Jira được, KHÔNG cần kết nối lại. Nhiều Jira khác **domain** → mỗi cái 1 entry id riêng
+  >   (`__<slug-host>`) + base_url + cred riêng (API: `JIRA_ENV_FILE`/token_env riêng) để quét song song không lẫn.
 - **API** (6 nguồn → **PHÂN TRANG 2 thẻ**; ưu tiên **OAuth 2.0**, PAT là fallback):
   - **Thẻ 1:** **[Jira Cloud]** / **[Jira Server / self-host]** / **[GitHub]** / **[Khác — xem thêm]**.
   - Chọn **[Khác — xem thêm]** → **Thẻ 2:** **[GitLab]** / **[SharePoint (Microsoft Graph — ĐẨY/ghi KB)]** /

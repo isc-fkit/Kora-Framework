@@ -1023,7 +1023,10 @@ def main():
         keys = {k.strip() for k in args.projects.split(",") if k.strip()}
         issues = [i for i in issues if (i.get("project") or "") in keys]
         if not issues:
-            die(f"Không có note Jira cho project {sorted(keys)} trong vault {vault}. Hãy quét project đó trước.")
+            die(f"Không có note Jira cho project {sorted(keys)} trong vault {vault}.\n"
+                f"   → Project này có thể thuộc một NGUỒN Jira đã kết nối nhưng CHƯA ĐƯỢC QUÉT (vd nguồn MCP/Cloud, "
+                f"hoặc một domain Jira khác). Mở /kora-daily-report → chọn ĐÚNG nguồn chứa project này (multi-select nếu "
+                f"nhiều nguồn) rồi quét lại — KHÔNG phải mất dữ liệu.")
     if not issues:
         die(f"Vault chưa có note Jira nào (source: jira) tại {vault}. Hãy 'quét jira' trước.")
 

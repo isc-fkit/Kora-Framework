@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.8.3",
+  "version": "2.8.4",
   "codename": "Kora-1",
   "released": "2026-06-22",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.8.3 (FIX: gửi mail báo 'thiếu SMTP_USER/SMTP_PASS' dù đã điền .env.local): script CORE (bản cài ở ~/.claude/kora-framework/...) trước đây chỉ đọc .env.local CẠNH chính nó, không thấy file bạn điền trong project. Nay send_report.py nhận đường dẫn .env.local qua biến môi trường KORA_MAILER_ENV (skill + lịch nền tự truyền KORA_MAILER_ENV=\"$PWD/tools/report-mailer/.env.local\"); thêm cờ --env; và IN rõ 'Đọc cấu hình mail từ: <file>' khi --check, phân biệt lỗi không-có-file / placeholder-chưa-thay / thiếu-key. KHÔNG cần 'source'. Thuần CORE, không migration DATA."
+  "intro": "Kora-Framework v2.8.4 (FIX: báo cáo Jira quét ĐA NGUỒN + ĐA DOMAIN — trước chỉ thấy Jira API): khi bạn connect nhiều Jira (API self-host + Atlassian Rovo/Cloud MCP, kể cả nhiều domain cùng loại), /kora-daily-report và /kora-send-mail nay cho CHỌN NHIỀU NGUỒN và quét MỖI nguồn bằng route riêng — nguồn 'method: api' chạy import_jira với base_url/cred của chính nó; nguồn 'method: mcp' (gồm source_type 'atlassian' của Rovo) chạy MCP getVisibleJiraProjects + searchJiraIssuesUsingJql → import_jira --from-mcp. Hết cảnh chọn nguồn MCP nhưng vẫn quét nhầm self-host → lỗi 'Không có note Jira cho project'. Thông báo lỗi đó nay gợi ý chọn đúng nguồn & quét. check_connection --list thêm cột SOURCE_TYPE + BASE_URL. Thuần CORE, không migration DATA."
 }

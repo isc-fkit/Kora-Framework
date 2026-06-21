@@ -6,11 +6,11 @@ The user invoked `/kora-send-mail` — gửi email báo cáo tiến độ. **CÓ
 (`KORA_OPS_PW`)** — phải qua cổng mới vào được phần này.
 
 **Luồng (đúng thứ tự — chọn nguồn → người nhận → gửi):**
-1. **Chọn nguồn Jira đã kết nối:** đọc `connections:` (source_type ∈ `jira_cloud`/`jira_server`) →
-   AskUserQuestion liệt kê **các Jira ĐÃ kết nối** (kèm trạng thái ✓). Chọn Jira cần report.
-   (Chưa có Jira nào → mời chạy `/kora-connect` trước.)
-2. **Chọn project trong Jira đó:** lấy danh sách project của Jira đã chọn (API `/rest/api/2/project`
-   hoặc MCP `getVisibleJiraProjects`) → AskUserQuestion **multi-select project cần report** (+ **[Chọn tất cả]**).
+1. **Chọn nguồn Jira đã kết nối (CÓ THỂ NHIỀU):** `check_connection.py --list --json` → lọc entry **Jira-capable**
+   `source_type ∈ {jira_server, jira_cloud, **atlassian**}` (**`atlassian` = Atlassian Rovo CÓ Jira**). AskUserQuestion
+   **multi-select** (kèm `method` API/MCP + `base_url` để phân biệt domain) — chọn **1 HOẶC NHIỀU** Jira. (Chưa có → `/kora-connect`.)
+2. **Chọn project trong (mỗi) Jira đó — THEO `method`:** API → `import_jira.py --list-projects` (env nguồn đó); MCP
+   (`atlassian`/`jira_cloud`) → `getVisibleJiraProjects` → AskUserQuestion **multi-select project** (+ **[Chọn tất cả]**).
 3. **Chọn người nhận (mail gửi đến):** danh bạ `reports.email.to` (multi-select) + **[+ Thêm mới]**
    (ô "Other" → gõ địa chỉ → **lưu vào `reports.email.to`**). Đây là nguồn người nhận DUY NHẤT mà lịch/task đọc.
 4. **Gửi ngay hay đặt lịch:** AskUserQuestion **[Gửi ngay] / [Đặt lịch]**.
@@ -19,11 +19,13 @@ The user invoked `/kora-send-mail` — gửi email báo cáo tiến độ. **CÓ
         (đọc env **HOẶC** `~/.config/kora/ops-pw.env` — đặt 1 lần bằng `/kora-ops-password`; **KHÔNG hỏi qua card, KHÔNG in**). Exit ≠ 0 → **DỪNG**.
      b. **Kênh gửi — ƯU TIÊN TỰ ĐỘNG GỬI:** AskUserQuestion **[Gửi tự động (SMTP / Gmail App Password) — khuyến nghị]**
         / **[Tạo nháp gửi tay (MCP)]**. Gmail **dùng App Password qua SMTP** = auto-send (KHÔNG phải draft). Mặc định auto.
-     c. **FULL-SCAN lấy DỮ LIỆU MỚI NHẤT của (các) project đã chọn (BẮT BUỘC, GHI ĐÈ local — tránh trạng thái/comment cũ):**
-        `python3 "$T/jira-to-obsidian/import_jira.py" --jql "project in (<KEYS>)"` (FULL, **KHÔNG `--since`** → kéo HẾT
-        status + comment hiện tại; `_purge_stale` ghi đè, **không nhân bản**) **hoặc** MCP `searchJiraIssuesUsingJql`
-        `project in (<KEYS>)` → `import_jira.py --from-mcp` → reindex `build_index.py --root .` →
-        `python3 "$T/progress-report/build_report.py" --projects "<KEYS>"` (report scope ĐÚNG project vừa quét).
+     c. **FULL-SCAN MỚI NHẤT — VỚI MỖI nguồn đã chọn, route theo `method` (vòng lặp, GHI ĐÈ, tích lũy CÙNG vault):**
+        - **api** (jira_server/jira_cloud): đặt env đúng instance `JIRA_BASE_URL=<entry.base_url>` (+ `JIRA_AUTH_MODE=server`
+          nếu jira_server; token shell env hoặc `JIRA_ENV_FILE=<creds.dotenv_path>`) → `import_jira.py --jql "project in (<KEYS>)"`
+          (KHÔNG `--since`; `_purge_stale` ghi đè, không nhân bản).
+        - **mcp** (`atlassian`/`jira_cloud`): MCP `searchJiraIssuesUsingJql` `project in (<KEYS>)` `fields:["*all"]` →
+          `import_jira.py --from-mcp <file> --names <names>` (KHÔNG import_jira API). Chọn MCP thì **bắt buộc** đi nhánh MCP.
+        Quét hết → reindex `build_index.py --root .` → `python3 "$T/progress-report/build_report.py" --projects "<UNION KEYS>"`.
      c2. **PHÂN TÍCH AI + chèn CARD MÀU vào email (BẮT BUỘC trước khi gửi):** viết phân tích theo
         `workflows/14-progress-report.md` Bước 1.5 → ghi `reports/ai-analysis-latest.md` (markdown 7 mục: 🔴 rủi ro cao ·
         🟡 vừa · 🟢 tích cực · 👥 BẢNG theo thành viên · 📅 dự đoán · 🎯 hành động · 📌 tóm tắt) → `python3

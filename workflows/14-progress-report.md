@@ -36,9 +36,12 @@ Windows `py`). **Exit ≠ 0 → DỪNG**: không làm mới, không sinh report.
 
 Kiểm tra độ mới: `python3 tools/jira-to-obsidian/import_jira.py --check-fresh` (Windows `py`) → JSON
 `{last_import, is_stale, age_days, done_today}`. **`done_today:true` & `is_stale:false` → BỎ QUA làm mới**
-(dữ liệu đủ mới), sang Bước 1. Ngược lại, làm mới theo LOẠI Jira (đọc `JIRA_BASE_URL`/config):
+(dữ liệu đủ mới), sang Bước 1. Ngược lại, làm mới **theo (CÁC) NGUỒN user đã chọn** (`check_connection.py --list --json`
+→ đọc `method` + `source_type` + `base_url` + `creds` mỗi entry). **NHIỀU nguồn → LẶP, mỗi nguồn route riêng** (API host +
+API Atlassian + MCP, nhiều domain đều quét được; tích lũy CÙNG vault):
 
-**A) Jira Cloud (`*.atlassian.net`, có MCP Atlassian):** tự kéo qua MCP → nạp vào vault → report:
+**A) Nguồn `method: mcp` (`source_type` = `atlassian` Rovo **hoặc** `jira_cloud`):** kéo qua **MCP TOOL** (KHÔNG import_jira API)
+→ nạp vào vault. (Liệt kê project: `getVisibleJiraProjects`.):
 1. `since` = `last_import` (chưa có → kéo full).
 2. MCP `searchJiraIssuesUsingJql`: `project = <KEY> AND updated >= "<since>"` (hoặc `project=<KEY>` nếu
    full), `fields:["*all"]`. Kết quả lớn MCP **tự lưu ra file** → dùng path đó; nhỏ (inline) → ghi ra
@@ -53,11 +56,14 @@ Kiểm tra độ mới: `python3 tools/jira-to-obsidian/import_jira.py --check-f
 > luôn khớp server. (Lịch nền cũng làm bước này trước khi build — xem orchestrator.)
 > Phiên scheduled nền **thiếu MCP** → coi như không kéo được → xử như nhánh "cũ" của B (báo cũ + nhắc mở Cowork gõ "báo cáo tiến độ").
 
-**B) Jira self-host (token, MCP/nền KHÔNG tới host nội bộ):** KHÔNG tự kéo.
-- `is_stale:false` → report bình thường (Bước 1).
-- `is_stale:true` → **vẫn sinh report (dữ liệu CŨ, có banner)** ở Bước 1, RỒI in **lệnh terminal copy-paste**
-  điền sẵn đường dẫn thật (OS-dynamic) để user tự kéo:
-  `python3 "<TOOL_DIR>/import_jira.py" --since` (Windows `py "<TOOL_DIR>\import_jira.py" --since`).
+**B) Nguồn `method: api` (jira_server self-host / jira_cloud qua API):** kéo bằng **`import_jira.py`** với env CỦA ĐÚNG
+nguồn — đặt ở đầu lệnh: `JIRA_BASE_URL=<entry.base_url>` (+ `JIRA_AUTH_MODE=server` nếu jira_server; token:
+`creds.kind=dotenv` → `JIRA_ENV_FILE=<dotenv_path>`, `kind=env` → token đã ở shell env). FULL-scan:
+`import_jira.py --jql "project in (<KEYS>)"` (không `--since`). **Nhiều nguồn API khác domain → mỗi nguồn 1 bộ env riêng** (lặp).
+- **Khi MÁY chạy tới được Jira** (interactive trên máy user, đúng VPN/mạng) → kéo trực tiếp như trên.
+- **Khi KHÔNG tới được** (sandbox Cowork / lịch nền tới host nội bộ) → `is_stale:false` report bình thường;
+  `is_stale:true` → **vẫn sinh report (dữ liệu CŨ, có banner)** rồi in **lệnh terminal copy-paste** (OS-dynamic) cho user tự kéo:
+  `JIRA_BASE_URL=<base_url> [JIRA_AUTH_MODE=server] python3 "<TOOL_DIR>/import_jira.py" --jql "project in (<KEYS>)"`.
   Nhắc: "Chạy lệnh trên để cập nhật, rồi gõ **'báo cáo tiến độ'** lại → báo cáo mới." User kéo xong → chạy lại workflow.
 
 ## Bước 1 — Sinh số liệu + dashboard

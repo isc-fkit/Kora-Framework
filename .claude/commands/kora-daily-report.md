@@ -13,15 +13,23 @@ The user invoked `/kora-daily-report` — build a progress report.
 1. 🔒 **CỔNG MẬT KHẨU vận hành (`KORA_OPS_PW`)** TRƯỚC — báo cáo kéo dữ liệu live nên PHẢI qua cổng:
    `python3 "$T/archive-gate/verify_ops_password.py"` (đọc env **HOẶC** `~/.config/kora/ops-pw.env` — đặt 1 lần bằng
    `/kora-ops-password`; **KHÔNG hỏi qua card, KHÔNG in**). Exit ≠ 0 → **DỪNG**, không kéo, không sinh report.
-2. **Chọn NGUỒN** từ `connections:` (không đoán mò): `python3 "$T/connections/check_connection.py" --list
-   --config "$PWD/config/factory-config.yaml"` → AskUserQuestion chọn 1 nguồn (vd `jira_cloud__mcp`, `jira_server__api`).
-   Chưa kết nối → mời `/kora-connect`.
-3. **Chọn PROJECT TRONG nguồn đó** — Jira: `python3 "$T/jira-to-obsidian/import_jira.py" --list-projects` (JSON
-   `[{key,name}]`) → **multi-select + [Tất cả]**. (SharePoint MCP: chọn folder/path qua `sharepoint_folder_search`.)
-4. **FULL-SCAN LẤY DỮ LIỆU MỚI NHẤT (BẮT BUỘC, GHI ĐÈ — tránh local cũ) cho project đã chọn** — WF14 Bước 0.5:
-   `import_jira.py --jql "project in (<KEYS>)"` (FULL, **KHÔNG `--since`** → HẾT status + comment hiện tại; ghi đè, không
-   nhân bản) **hoặc** Jira Cloud MCP `searchJiraIssuesUsingJql` `project in (<KEYS>)` → `import_jira.py --from-mcp`. Rồi
-   reindex `build_index.py --root .`. **Report luôn trên data vừa kéo** (task đã Done/đổi trạng thái trên server sẽ đúng).
+2. **Chọn NGUỒN Jira (CÓ THỂ NHIỀU)** từ `connections:`: `python3 "$T/connections/check_connection.py" --list --json
+   --config "$PWD/config/factory-config.yaml"` → lọc entry **Jira-capable**: `source_type ∈ {jira_server, jira_cloud,
+   atlassian}` (**`atlassian` = Atlassian Rovo CÓ Jira**). AskUserQuestion **multi-select** — hiện kèm `method` (API/MCP)
+   + `base_url` (phân biệt nhiều domain) — cho chọn **1 HOẶC NHIỀU** nguồn (lẫn API + MCP, nhiều domain đều được). Không
+   nguồn Jira nào → mời `/kora-connect`.
+3–4. **VỚI MỖI nguồn đã chọn → quét bằng ROUTE RIÊNG (vòng lặp), tích lũy vào CÙNG vault** (đọc `method`/`source_type`/
+   `base_url`/`creds` từ `--json`):
+   - **`method: api`** (jira_server/jira_cloud): đặt env CHO ĐÚNG instance ở đầu lệnh — `JIRA_BASE_URL=<entry.base_url>`
+     (+ `JIRA_AUTH_MODE=server` nếu `jira_server`; token: `creds.kind=dotenv` → `JIRA_ENV_FILE=<dotenv_path>`, `kind=env`
+     → token đã ở shell env). Liệt kê: `import_jira.py --list-projects` → multi-select project (hoặc [Tất cả]). FULL-scan:
+     `import_jira.py --jql "project in (<KEYS>)"` (KHÔNG `--since` → hết status/comment, ghi đè, không nhân bản).
+   - **`method: mcp`** (`atlassian`/`jira_cloud`): **DÙNG MCP TOOL, KHÔNG import_jira API** — `getVisibleJiraProjects`
+     (liệt kê project → multi-select) → `searchJiraIssuesUsingJql` `project in (<KEYS>)` `fields:["*all"]` (kết quả lớn MCP
+     tự lưu file → dùng path đó) + `getJiraIssue expand=names` (map field) → `import_jira.py --from-mcp <file> --names <names>`.
+   - ⚠️ Chọn nguồn **MCP** thì **BẮT BUỘC** đi nhánh MCP — đừng im lặng chạy import_jira API (sẽ trúng nguồn/domain khác → thiếu project, lỗi "không có note").
+   Quét xong HẾT các nguồn → reindex **1 lần** `build_index.py --root .`. **Report trên UNION project vừa kéo** (task đã Done/đổi trạng thái sẽ đúng).
+   > ⚠️ Nhiều domain **trùng mã project/issue** → vault đè nhau (giới hạn đã biết). Khác mã thì gộp thoải mái.
 5. (Tùy chọn) **filter member** (assignee / team) — multi-select. Hỏi **khoảng thời gian**.
 6. Build dashboard **scope đúng project**: `python3 "$T/progress-report/build_report.py" --projects "<KEYS>"`
    (time-tracking / active sprint / assignee + **by-project bar**) per `workflows/14-progress-report.md` — inline Cowork UI + HTML.

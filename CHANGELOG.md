@@ -10,6 +10,20 @@
 
 ---
 
+## v2.8.4 "Kora-1" — 2026-06-22
+
+- **🐞 FIX: báo cáo Jira chỉ quét được Jira API dù đã connect cả Jira MCP.** Root cause: (1) Jira qua **Atlassian Rovo**
+  lưu dưới `source_type: atlassian` → luồng report không coi là nguồn Jira; (2) bước scan hardcode `import_jira.py` (API,
+  1 cấu hình `JIRA_*` mặc định) → chọn nguồn nào cũng quét self-host → `LỖI: Không có note Jira cho project [...]`.
+- **✅ Quét ĐA NGUỒN + ĐA DOMAIN, rẽ nhánh theo nguồn user chọn** (`/kora-daily-report`, `/kora-send-mail`, WF14 Bước 0.5):
+  liệt kê mọi nguồn `source_type ∈ {jira_server, jira_cloud, **atlassian**}` (Rovo = có Jira) → **multi-select** (cả API + MCP,
+  nhiều domain) → **vòng lặp quét mỗi nguồn bằng route riêng**: `method: api` → `import_jira.py` với `JIRA_BASE_URL`/cred
+  của instance đó; `method: mcp` → `getVisibleJiraProjects` + `searchJiraIssuesUsingJql` → `import_jira.py --from-mcp`.
+  Tích lũy cùng vault → build_report trên **union project**. (Cảnh báo trùng mã project giữa các domain.)
+- **🔎 Thông báo lỗi "thiếu note project" gợi ý hữu ích:** "project có thể thuộc nguồn MCP/Cloud/domain khác chưa quét →
+  chọn đúng nguồn & quét lại — không phải mất dữ liệu". **`check_connection.py --list`** thêm cột **SOURCE_TYPE + BASE_URL**.
+- Thuần **CORE**, KHÔNG migration DATA. Máy đã cài: gõ **"cập nhật phiên bản"**.
+
 ## v2.8.3 "Kora-1" — 2026-06-22
 
 - **🐞 FIX: gửi mail báo "thiếu SMTP_USER/SMTP_PASS" dù đã điền `.env.local`.** Root cause: `send_report.py` chỉ đọc

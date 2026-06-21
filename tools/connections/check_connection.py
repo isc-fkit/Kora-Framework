@@ -218,10 +218,10 @@ def main():
         if not conns:
             print("ℹ️  Chưa có kết nối nào. Chạy /kora-connect để thêm.")
             return
-        print(f"{'ID':24} {'METHOD':5} {'STATUS':14} LAST CHECKED")
+        print(f"{'ID':30} {'METHOD':6} {'SOURCE_TYPE':12} {'STATUS':11} BASE_URL / DOMAIN")
         for c in conns:
-            print(f"{c.get('id','?'):24} {c.get('method','?'):5} "
-                  f"{c.get('status','?'):14} {c.get('last_checked','-')}")
+            print(f"{c.get('id','?'):30} {c.get('method','?'):6} {c.get('source_type','?'):12} "
+                  f"{c.get('status','?'):11} {c.get('base_url','') or '-'}")
         return
 
     # --check <id>
