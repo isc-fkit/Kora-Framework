@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.12.5",
+  "version": "2.12.6",
   "codename": "Claude-1",
   "released": "2026-06-23",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.12.5 (rule hỏi-làm-rõ + sửa luồng cập nhật dùng run_command): (1) CLAUDE.md thêm rule BẮT BUỘC — yêu cầu mơ hồ/chưa chắc hiểu đúng → LUÔN hỏi user làm rõ TRƯỚC khi làm, xong hỏi 'đã ổn chưa'; thà hỏi thừa hơn làm sai. (2) WF10 cập nhật: CORE ở ~/.claude/kora-framework (ngoài sandbox) → có MCP run_command thì chạy lệnh update THẲNG trên máy, KHÔNG bắt user mở Terminal; bản cài skill → chạy lại installer bash <(curl .../install.command); không có run_command → bàn giao 1 lệnh."
+  "intro": "Kora-Framework v2.12.6 (MCP local-terminal đọc biến từ ~/.zshrc): run_command nay chạy bằng SHELL đăng nhập ($SHELL, zsh macOS) và SOURCE ~/.zshrc (hoặc ~/.bashrc) trước mỗi lệnh → có đúng JIRA_PAT/JIRA_BASE_URL… + PATH như Terminal thật (theo rule #6: key ở shell env, không rải .env). Trước đây bash -lc không đọc ~/.zshrc nên token để ở đó không tới được run_command."
 }

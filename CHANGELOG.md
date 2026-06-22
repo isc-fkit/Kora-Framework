@@ -10,6 +10,17 @@
 
 ---
 
+## v2.12.6 "Claude-1" — 2026-06-23
+
+**MCP `local-terminal` đọc biến môi trường từ `~/.zshrc` (token ở shell env, đúng rule #6).**
+
+- `run_command` nay chạy bằng **SHELL đăng nhập** (`$SHELL` — zsh trên macOS) và **`source ~/.zshrc`** (hoặc
+  `~/.bashrc`) trước mỗi lệnh → có ĐÚNG biến user khai (`JIRA_PAT`, `JIRA_BASE_URL`, `JIRA_AUTH_MODE`…) + PATH như
+  Terminal thật. Trước đây `bash -lc` KHÔNG đọc `~/.zshrc` (file của zsh) + app GUI không có env shell → token để ở
+  `~/.zshrc` không tới được run_command.
+- Hệ quả: đặt token ở `~/.zshrc` (pattern chuẩn rule #6) là run_command quét Jira Server / gửi SMTP dùng được luôn,
+  không cần rải `.env.local`. Bump server v1.1.0. Opt-in (Claude Desktop). Restart Claude Desktop để nạp server mới.
+
 ## v2.12.5 "Claude-1" — 2026-06-23
 
 **Rule "mơ hồ thì hỏi làm rõ" + sửa luồng cập nhật dùng `run_command`.**

@@ -24,12 +24,13 @@ JSON-RPC; mọi log → stderr.
 """
 import json
 import os
+import shlex
 import subprocess
 import sys
 import traceback
 
 SERVER_NAME = "local-terminal"
-SERVER_VERSION = "1.0.0"
+SERVER_VERSION = "1.1.0"
 DEFAULT_PROTOCOL = "2024-11-05"
 
 
@@ -68,8 +69,14 @@ def tool_run_command(args):
         return {"content": [{"type": "text", "text": "LỖI: command rỗng."}], "isError": True}
     if not os.path.isdir(os.path.expanduser(cwd)):
         return {"content": [{"type": "text", "text": f"LỖI: cwd không tồn tại: {cwd}"}], "isError": True}
+    # Chạy bằng SHELL ĐĂNG NHẬP của user (zsh trên macOS) và SOURCE ~/.zshrc (hoặc ~/.bashrc) trước —
+    # để có ĐÚNG biến môi trường user khai trong rc (JIRA_PAT, JIRA_BASE_URL…) + PATH như Terminal thật.
+    # (App GUI spawn MCP KHÔNG có env shell; `bash -lc` cũng không đọc ~/.zshrc → phải source tay.)
+    shell = os.environ.get("SHELL") or "/bin/zsh"
+    rc = os.path.expanduser("~/.zshrc" if "zsh" in shell else "~/.bashrc")
+    wrapped = f"[ -f {shlex.quote(rc)} ] && source {shlex.quote(rc)} >/dev/null 2>&1; {cmd}"
     try:
-        p = subprocess.run(["bash", "-lc", cmd], cwd=os.path.expanduser(cwd),
+        p = subprocess.run([shell, "-c", wrapped], cwd=os.path.expanduser(cwd),
                            capture_output=True, text=True, timeout=float(timeout))
         out = p.stdout or ""
         if p.stderr:

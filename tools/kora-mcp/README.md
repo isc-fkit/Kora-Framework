@@ -34,7 +34,7 @@ thì fallback bàn giao bash như cũ. (Lịch NỀN vẫn chạy qua OS launchd
 
 ## Giao thức
 JSON-RPC 2.0 newline-delimited qua stdio (MCP stdio transport). Chỉ thư viện chuẩn Python 3 — không cần `pip install`.
-Tool `run_command(command, cwd?, timeout?)` → `bash -lc command`, trả stdout + stderr + exit code.
+Tool `run_command(command, cwd?, timeout?)` → chạy bằng SHELL đăng nhập (`$SHELL`, zsh trên macOS) và **source `~/.zshrc`** (hoặc `~/.bashrc`) trước → có đúng biến env user khai (JIRA_PAT…) + PATH như Terminal thật. Trả stdout + stderr + exit code.
 
 ## Gỡ
 Xoá entry `local-terminal` trong `mcpServers` (hoặc khôi phục file backup `claude_desktop_config.json.bak-*`) → restart Claude.
