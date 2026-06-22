@@ -242,7 +242,7 @@ def apply_scope(issues, scope, recent_days):
     return issues, "Toàn bộ"
 
 
-def compute(issues, smap, today, complexity_high=7):
+def compute(issues, smap, today, complexity_high=7, qc_members=None):
     total = len(issues)
     grp = _status_breakdown(issues, smap)
     by_type = {}
@@ -273,20 +273,43 @@ def compute(issues, smap, today, complexity_high=7):
             } for i in items], key=lambda x: x["group"]),
         })
 
-    # Theo assignee
+    # ── Theo người: assignee (Dev) + reporter-của-Bug (QC) ──────────────────────────
+    # QC (tester) TẠO bug, KHÔNG logtime như dev (hay chỉ join cuối sprint) → KHÔNG đo bằng giờ-công.
+    # Vai trò: config reports.qc_members ƯU TIÊN; else auto = 0 logtime + có report Bug + KHÔNG ôm việc khác Bug.
+    qc_set = {str(n).strip().lower() for n in (qc_members or []) if str(n).strip()}
+    def _is_bug(i):
+        return str(i.get("type") or "").lower() == "bug" or str(i.get("jira_issue_type") or "").lower() == "bug"
+    bugs_reported = {}   # người → SỐ Bug họ TẠO (reporter) — đo năng suất QC thay cho giờ-công
+    for i in issues:
+        if _is_bug(i):
+            rep = str(i.get("reporter") or "").strip()
+            if rep:
+                bugs_reported[rep] = bugs_reported.get(rep, 0) + 1
     who = {}
     for i in issues:
         who.setdefault(i.get("assignee") or "(chưa giao)", []).append(i)
+    for rep in bugs_reported:          # QC chỉ-là-reporter (chưa từng được assign) → VẪN vào danh sách người (trước đây bị sót)
+        who.setdefault(rep, [])
     by_assignee = []
     for name, items in who.items():
         g = _status_breakdown(items, smap)
+        t = _time_sum(items)
+        nbug = bugs_reported.get(name, 0)
+        if name in ("(chưa giao)", "—", ""):
+            role = "—"
+        elif name.lower() in qc_set:
+            role = "QC"
+        elif t["spent_s"] == 0 and nbug > 0 and not any(not _is_bug(x) for x in items):
+            role = "QC"   # auto: 0 logtime + có tạo bug + không ôm việc nào khác Bug
+        else:
+            role = "Dev"
         by_assignee.append({
-            "assignee": name, "total": len(items), "todo": g["todo"],
+            "assignee": name, "role": role, "total": len(items), "todo": g["todo"],
             "in_progress": g["in_progress"], "done": g["done"], "pct_done": pct(g["done"], len(items)),
-            "time": _time_sum(items),
+            "time": t, "bugs_reported": nbug,
             "story_points": sum(float(i["story_points"]) for i in items if isinstance(i.get("story_points"), (int, float))),
         })
-    by_assignee.sort(key=lambda x: (-x["total"], x["assignee"]))
+    by_assignee.sort(key=lambda x: (x["role"] == "QC", -x["total"], x["assignee"]))  # Dev trước, QC sau
 
     # Theo project (cho dashboard nhiều project / filter theo dự án)
     proj = {}
@@ -317,14 +340,21 @@ def compute(issues, smap, today, complexity_high=7):
     expect_person = wd_elapsed * 8 * 3600          # KỲ VỌNG đến mốc HOÀN THÀNH gần nhất (0 = đầu kỳ, chưa hết ngày nào)
     for a in by_assignee:
         sp = a["time"]["spent_s"]
+        a["logged_working_days"] = round(sp / (8 * 3600), 1)
+        if a["role"] != "Dev":   # QC/placeholder: KHÔNG đo bằng giờ-công (không logtime / join cuối sprint) → để TRỐNG, đo bằng số Bug
+            a["std_seconds"] = None
+            a["expected_so_far_s"] = None
+            a["ot_seconds"] = 0
+            a["under_seconds"] = 0
+            a["pct_capacity"] = None
+            continue
         a["std_seconds"] = std_person
         a["expected_so_far_s"] = expect_person
-        a["logged_working_days"] = round(sp / (8 * 3600), 1)
         # expect=0 (đầu kỳ / hôm nay chưa hết giờ) → KHÔNG flag thiếu/OT (tránh "thiếu 8h" sai lúc 8:00).
         a["ot_seconds"] = max(0, sp - expect_person) if expect_person else 0
         a["under_seconds"] = max(0, expect_person - sp) if expect_person else 0
         a["pct_capacity"] = pct(sp, expect_person) if expect_person else 0
-    members = [a for a in by_assignee if a["assignee"] not in ("(chưa giao)", "—", "")]
+    members = [a for a in by_assignee if a["role"] == "Dev"]   # team capacity CHỈ tính Dev (QC không logtime → không kéo tụt kỳ vọng team)
     team_std = len(members) * std_person
     team_expect = len(members) * expect_person
     capacity = {
@@ -501,24 +531,40 @@ def render_fragment(m, vault):
         sprint_html = '<div class="pr-card pr-mut">Không có sprint đang chạy (active) — kiểm tra field Sprint trên Jira.</div>'
 
     def _ot_cell(a):
-        # Quy ước màu: DƯƠNG (vượt kỳ vọng / OT) = XANH, ÂM (thiếu) = ĐỎ.
+        # QC không đo bằng giờ-công → "—". Quy ước màu: DƯƠNG (OT) = XANH, ÂM (thiếu) = ĐỎ.
+        if a.get("role") == "QC":
+            return '<span class="pr-mut">—</span>'
         if a.get("ot_seconds"):
             return f'<span style="color:{PAL["green"]}">+{human_seconds(a["ot_seconds"])}</span>'
         if a.get("under_seconds"):
             return f'<span style="color:{PAL["red"]}">−{human_seconds(a["under_seconds"])}</span>'
         return '<span class="pr-mut">0</span>'
+    def _role_cell(a):
+        r = a.get("role") or "—"
+        if r == "QC":
+            return f'<span class="pr-pill" style="background:{PAL["orange"]}1a;color:{PAL["orange"]}">QC</span>'
+        if r == "Dev":
+            return '<span class="pr-mut">Dev</span>'
+        return '<span class="pr-mut">—</span>'
+    def _std_cell(a):   # Giờ chuẩn — QC để "—"
+        return '<span class="pr-mut">—</span>' if a.get("std_seconds") is None else human_seconds(a["std_seconds"])
+    def _cap_cell(a):   # % Năng suất — QC để "—"
+        return '<span class="pr-mut">—</span>' if a.get("pct_capacity") is None else f'{a.get("pct_capacity", 0)}%'
+    def _bug_cell(a):   # Bug tạo (reporter) — đo năng suất QC
+        n = a.get("bugs_reported") or 0
+        return f'<span style="color:{PAL["red"]}">{n}</span>' if n else '<span class="pr-mut">0</span>'
     arows = "".join(
-        f'<tr class="pr-row" data-assignee="{esc(a["assignee"])}"><td>{esc(a["assignee"])}</td><td>{a["total"]}</td>'
+        f'<tr class="pr-row" data-assignee="{esc(a["assignee"])}"><td>{esc(a["assignee"])}</td><td>{_role_cell(a)}</td><td>{a["total"]}</td>'
         f'<td>{a["todo"]}</td><td>{a["in_progress"]}</td><td>{a["done"]}</td>'
         f'<td style="min-width:90px">{bar(a["pct_done"], "green")}</td>'
         f'<td>{human_seconds(a["time"]["spent_s"])} / {human_seconds(a["time"]["estimate_s"])}</td>'
-        f'<td>{human_seconds(a.get("std_seconds", 0))}</td><td>{_ot_cell(a)}</td>'
-        f'<td>{a.get("pct_capacity", 0)}%</td>'
+        f'<td>{_std_cell(a)}</td><td>{_ot_cell(a)}</td>'
+        f'<td>{_cap_cell(a)}</td><td>{_bug_cell(a)}</td>'
         f'<td>{a["story_points"] or ""}</td></tr>' for a in m["by_assignee"])
     assignee_html = (
-        f'<table class="pr-t"><thead><tr><th>Thành viên</th><th>Tổng</th><th>Chưa làm</th><th>Đang làm</th>'
+        f'<table class="pr-t"><thead><tr><th>Thành viên</th><th>Vai trò</th><th>Tổng</th><th>Chưa làm</th><th>Đang làm</th>'
         f'<th>Hoàn thành</th><th>% Hoàn thành</th><th>Đã log / Ước tính</th><th>Giờ chuẩn</th>'
-        f'<th>OT / Thiếu</th><th>% Năng suất</th><th>Story Points</th></tr></thead><tbody>{arows}</tbody></table>')
+        f'<th>OT / Thiếu</th><th>% Năng suất</th><th>Bug tạo</th><th>Story Points</th></tr></thead><tbody>{arows}</tbody></table>')
 
     def risk_list(items, fmt):
         return "".join(f"<li>{fmt(x)}</li>" for x in items) or '<li class="pr-mut">(không có)</li>'
@@ -846,30 +892,44 @@ def render_email_body(m, vault, banner_url=""):
     if asg_full:
         arows = ""
         for a in asg_full:
-            pc = a.get("pct_capacity", 0)
-            pcol = EPAL["green"] if 80 <= pc <= 120 else (EPAL["red"] if pc > 120 else EPAL["amber"])
+            is_qc = a.get("role") == "QC"
+            pc = a.get("pct_capacity")
+            if is_qc or pc is None:   # QC không đo bằng giờ-công → "—"
+                ns_cell = f'<span style="color:{EPAL["mut"]}">—</span>'
+            else:
+                pcol = EPAL["green"] if 80 <= pc <= 120 else (EPAL["red"] if pc > 120 else EPAL["amber"])
+                ns_cell = f'<span style="color:{pcol};font-weight:700">{pc}%</span>'
+            role_cell = (f'<span style="color:{EPAL["amber"]};font-weight:700">QC</span>' if is_qc
+                         else f'<span style="color:{EPAL["mut"]}">Dev</span>')
+            nbug = a.get("bugs_reported") or 0
+            bug_cell = (f'<span style="color:{EPAL["red"]};font-weight:700">{nbug}</span>' if nbug
+                        else f'<span style="color:{EPAL["mut"]}">0</span>')
             arows += (
                 f'<tr>'
                 f'<td style="padding:7px 9px;font-size:13px;color:{EPAL["ink"]};font-weight:700;border-top:1px solid #eef1f6">{esc(a["assignee"])}</td>'
+                f'<td style="padding:7px 9px;font-size:12px;text-align:center;border-top:1px solid #eef1f6">{role_cell}</td>'
                 f'<td style="padding:7px 9px;font-size:13px;color:#39465c;text-align:center;border-top:1px solid #eef1f6">{a["total"]}</td>'
                 f'<td style="padding:7px 9px;font-size:13px;color:{EPAL["green"]};font-weight:700;text-align:center;border-top:1px solid #eef1f6">{a["done"]}</td>'
                 f'<td style="padding:7px 9px;font-size:13px;color:{EPAL["blue2"]};text-align:center;border-top:1px solid #eef1f6">{a["in_progress"]}</td>'
                 f'<td style="padding:7px 9px;font-size:12.5px;color:#39465c;text-align:right;border-top:1px solid #eef1f6">{hs(a["time"]["spent_s"])} · {a.get("logged_working_days", 0)}đ</td>'
-                f'<td style="padding:7px 9px;font-size:13px;color:{pcol};font-weight:700;text-align:center;border-top:1px solid #eef1f6">{pc}%</td>'
+                f'<td style="padding:7px 9px;font-size:13px;text-align:center;border-top:1px solid #eef1f6">{ns_cell}</td>'
+                f'<td style="padding:7px 9px;font-size:13px;text-align:center;border-top:1px solid #eef1f6">{bug_cell}</td>'
                 f'</tr>')
         asg_block = f'''<tr><td class="kpad" style="padding:8px 22px 2px">
       <div style="font-size:12px;color:{EPAL['mut']};text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px">Theo người phụ trách ({len(asg_full)})</div>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e6eaf0;border-radius:10px;overflow:hidden">
         <tr style="background:{EPAL['chip']}">
           <td style="padding:7px 9px;font-size:11px;color:{EPAL['mut']};text-transform:uppercase">Người</td>
+          <td style="padding:7px 9px;font-size:11px;color:{EPAL['mut']};text-align:center">Vai trò</td>
           <td style="padding:7px 9px;font-size:11px;color:{EPAL['mut']};text-align:center">Issue</td>
           <td style="padding:7px 9px;font-size:11px;color:{EPAL['green']};text-align:center">Done</td>
           <td style="padding:7px 9px;font-size:11px;color:{EPAL['blue2']};text-align:center">Đang làm</td>
           <td style="padding:7px 9px;font-size:11px;color:{EPAL['mut']};text-align:right">Đã log (giờ·ngày)</td>
           <td style="padding:7px 9px;font-size:11px;color:{EPAL['mut']};text-align:center">% NS</td>
+          <td style="padding:7px 9px;font-size:11px;color:{EPAL['mut']};text-align:center">Bug tạo</td>
         </tr>{arows}
       </table>
-      <div style="font-size:11.5px;color:{EPAL['mut']};margin-top:6px">% NS = năng suất so với kỳ vọng ngày-công đến hôm nay (8h/ngày).</div></td></tr>'''
+      <div style="font-size:11.5px;color:{EPAL['mut']};margin-top:6px">% NS = năng suất Dev so với kỳ vọng ngày-công đến hôm nay (8h/ngày). <b>QC</b> không logtime → đo bằng <b>Bug tạo</b> (—), không tính giờ-công.</div></td></tr>'''
     # 🏃 Sprint đang chạy
     spr_block = ""
     if m["active_sprints"]:
@@ -1201,12 +1261,16 @@ def main():
     vault = args.vault
     smap = None
     cfg_path = os.path.join(DATA, "config", "factory-config.yaml")
+    qc_members = []   # reports.qc_members: ép vai trò QC (không đo giờ-công). Else auto theo reporter-của-Bug + 0 logtime.
     if os.path.exists(cfg_path):
         cfg = open(cfg_path, encoding="utf-8").read()
         if not vault:
             mm = re.search(r"^\s*vault_path:\s*(.+)$", cfg, re.M)
             if mm:
                 vault = mm.group(1).strip().strip('"').strip("'")
+        qm = re.search(r"^\s*qc_members:\s*\[([^\]]*)\]", cfg, re.M)   # inline list ["A","B"] (như to:/recipients:)
+        if qm:
+            qc_members = [x.strip().strip('"').strip("'") for x in qm.group(1).split(",") if x.strip()]
     if not vault:
         die("Không tìm thấy vault. Truyền --vault <path> hoặc đặt vault_path trong config/factory-config.yaml.")
     if not os.path.isabs(vault):
@@ -1231,7 +1295,7 @@ def main():
         print(f"ℹ️  Phạm vi báo cáo: {scope_label} ({len(issues)} issue).")
 
     today = datetime.now().strftime("%Y-%m-%d")
-    m = compute(issues, smap, today, complexity_high=args.complexity_high)
+    m = compute(issues, smap, today, complexity_high=args.complexity_high, qc_members=qc_members)
     m["scope_label"] = scope_label
     stale_after = 1
     if os.path.exists(cfg_path):

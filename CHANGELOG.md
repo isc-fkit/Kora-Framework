@@ -10,6 +10,20 @@
 
 ---
 
+## v2.11.0 "Claude-1" — 2026-06-22
+
+**Báo cáo phân biệt vai trò QC ↔ Dev — QC report bug, không logtime, hết bị tính "thiếu giờ" sai + hết bị sót.**
+
+- **Quét/tổng hợp đủ người:** `build_report.py` gom danh sách người từ **assignee (Dev) + reporter-của-Bug (QC)** —
+  trước đây chỉ gom theo `assignee` nên QC chỉ tạo bug (không được giao) **bị sót** khỏi báo cáo. Nay xuất hiện đầy đủ.
+- **Cách tính theo vai trò:** thêm cột **Vai trò (Dev/QC)** + **Bug tạo**. QC **KHÔNG** áp công thức giờ-công
+  (vì không logtime / chỉ join cuối sprint) → cột Giờ chuẩn / OT-Thiếu / % Năng suất để **"—"**, đo bằng **số Bug tạo**.
+  **Team-capacity chỉ tính Dev** (QC không kéo tụt kỳ vọng nhóm). Sửa cả dashboard HTML lẫn thân email.
+- **Nhận diện QC:** `reports.qc_members` trong `factory-config.yaml` (ưu tiên, ép vai trò) **HOẶC** tự động
+  (0 logtime + là reporter của Bug + không ôm việc khác Bug).
+- **Phân tích AI (WF14):** không gắn cờ "log thiếu / dưới chuẩn năng suất" cho QC — đánh giá QC bằng `bugs_reported`.
+- Thuần **CORE**, KHÔNG migration DATA. Máy đã cài: gõ **"cập nhật phiên bản"**.
+
 ## v2.10.1 "Claude-1" — 2026-06-22
 
 **Quét nguồn API trong Cowork (chat-only) — bàn giao lệnh BASH cho Terminal, như gửi mail.**

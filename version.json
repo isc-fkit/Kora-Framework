@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.10.1",
+  "version": "2.11.0",
   "codename": "Claude-1",
   "released": "2026-06-22",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.10.1 (quét nguồn API trong Cowork — bàn giao lệnh bash cho Terminal): khi quét trong Cowork (chat-only, sandbox chặn mạng), nguồn MCP (Atlassian Rovo / Microsoft 365) quét THẲNG trong chat; nguồn API (Jira Server, GitHub/GitLab API) nay được /kora-scan TỰ ghi sẵn 'reports/kora-scan.command' (giống bàn giao gửi mail) để bạn chạy `bash reports/kora-scan.command` ở Terminal — không phải gõ lại lệnh. import_jira.py thêm marker 'NETWORK_UNREACHABLE' (phân biệt sandbox-chặn với token-sai) + cờ '--emit-command' (in 1 dòng lệnh abs-path, token KHÔNG lộ). Mỗi nguồn hiển thị rõ (MCP)/(API). Thuần CORE, không migration DATA."
+  "intro": "Kora-Framework v2.11.0 (báo cáo phân biệt vai trò QC ↔ Dev): QC/tester report bug nhưng KHÔNG logtime như dev (hay chỉ join cuối sprint) → trước đây bị tính 'thiếu giờ' sai và còn bị SÓT khỏi bảng người (báo cáo chỉ gom theo assignee). Nay: (1) thêm reporter-của-Bug vào danh sách người — QC không còn bị sót; (2) thêm cột 'Vai trò' (Dev/QC) + 'Bug tạo'; QC KHÔNG áp công thức giờ-công (OT/Thiếu/Năng suất để '—'), đo bằng số Bug tạo; (3) team-capacity chỉ tính Dev (QC không kéo tụt kỳ vọng). Nhận diện QC: config reports.qc_members (ưu tiên) HOẶC tự động (0 logtime + là reporter của Bug). Phân tích AI cũng không gắn cờ 'thiếu giờ' cho QC. Thuần CORE, không migration DATA."
 }
