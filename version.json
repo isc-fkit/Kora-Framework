@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.12.2",
+  "version": "2.12.3",
   "codename": "Claude-1",
   "released": "2026-06-23",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.12.2 (skill ưu tiên MCP local-terminal — chạy thẳng trên Claude Desktop): nếu user đã setup MCP 'local-terminal' (tool run_command, xem tools/kora-mcp/README.md), các skill quét/báo-cáo/gửi-mail ƯU TIÊN gọi run_command chạy import_jira.py/build_report.py/send_report.py THẲNG trên máy thật (ngoài sandbox) → không cần bàn giao file .command cho Terminal. KHÔNG có run_command → fallback bàn giao bash như cũ. Chỉ Claude Desktop (web Cowork không chạy local stdio MCP); là arbitrary-exec opt-in. Lịch nền vẫn qua OS launchd/cron."
+  "intro": "Kora-Framework v2.12.3 (buộc phản hồi tiếng Việt): thêm rule BẮT BUỘC vào CLAUDE.md — Claude LUÔN trả lời trong chat bằng tiếng Việt (giải thích, thẻ AskUserQuestion, báo tiến độ, lỗi) bất kể user nhắn ngôn ngữ nào; chỉ giữ nguyên tên lệnh/field/API/code/đường dẫn. Theo config.language, mặc định vi."
 }

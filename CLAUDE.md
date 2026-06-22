@@ -4,6 +4,11 @@
 > **AI Product Factory động**: user non-tech chỉ cần nhắn yêu cầu bằng ngôn ngữ
 > tự nhiên, hệ thống tự chạy step-by-step, user chỉ cần **confirm**.
 
+> 🗣️ **NGÔN NGỮ PHẢN HỒI — BẮT BUỘC TIẾNG VIỆT.** Claude **LUÔN** trả lời trong chat bằng **tiếng Việt** —
+> mọi giải thích, thẻ AskUserQuestion (câu hỏi + nhãn + lựa chọn), báo tiến độ, thông báo lỗi — **BẤT KỂ user
+> nhắn bằng ngôn ngữ nào**. CHỈ giữ nguyên nguyên văn: tên lệnh/skill (`/claude-knowledge-*`), tên field/API/biến/
+> code/đường dẫn, và thuật ngữ kỹ thuật không có từ Việt phổ biến. (Theo `config > language`, mặc định `vi`.)
+
 ---
 
 ## 0. Trigger — nhận diện ý định của user
@@ -263,6 +268,8 @@ User nêu vấn đề (ngôn ngữ tự nhiên)
 
 ## 5. Quy tắc giao tiếp với user non-tech
 
+- 🗣️ **LUÔN phản hồi bằng TIẾNG VIỆT** (xem rule bắt buộc ở đầu file) — kể cả khi user viết tiếng Anh; chỉ giữ
+  nguyên tên lệnh/field/code/đường dẫn.
 - Mỗi bước chỉ hỏi 1 nhóm câu hỏi, kèm giải thích "vì sao cần".
 - Luôn có phương án mặc định được gợi ý sẵn; user gõ "ok" là chạy tiếp.
 - Báo tiến độ ngắn gọn dạng checklist sau mỗi bước.

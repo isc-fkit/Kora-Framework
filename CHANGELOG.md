@@ -10,6 +10,15 @@
 
 ---
 
+## v2.12.3 "Claude-1" — 2026-06-23
+
+**Buộc agent phản hồi bằng tiếng Việt.**
+
+- **CLAUDE.md** (đầu file + §5): rule BẮT BUỘC — Claude **LUÔN** trả lời trong chat bằng **tiếng Việt** (mọi giải
+  thích, thẻ AskUserQuestion, báo tiến độ, thông báo lỗi), **bất kể user nhắn bằng ngôn ngữ nào**. CHỈ giữ nguyên
+  tên lệnh/skill, field/API/biến/code, đường dẫn, thuật ngữ kỹ thuật không có từ Việt phổ biến.
+- Theo `config > language` (mặc định `vi`). Thuần guidance, không đổi code. Máy đã cài: gõ **"cập nhật phiên bản"**.
+
 ## v2.12.2 "Claude-1" — 2026-06-23
 
 **Skill ưu tiên MCP `local-terminal` (`run_command`) — chạy thẳng trên Claude Desktop, bớt bàn giao bash.**
