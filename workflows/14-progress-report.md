@@ -98,6 +98,10 @@ Tạo trong `reports/`:
 Sinh khối **🤖 Phân tích AI — CỰC KỲ CHI TIẾT** dưới dạng **MARKDOWN**, rồi để TOOL render thành **CARD MÀU**
 (KHÔNG tự viết HTML/chip tay — tool lo màu sắc & bảng):
 1. **Ghi markdown** vào `reports/ai-analysis-latest.md`, MỖI MỤC mở đầu `## ` theo đúng thứ tự:
+   > 📁 **ĐẢM BẢO thư mục `reports/` tồn tại TRƯỚC khi ghi** (Write cần thư mục cha — thiếu sẽ báo *"Error writing
+   > file"*). Bước 1 (`build_report.py`) đã tạo `reports/` ở CÙNG cwd; nếu chạy lẻ / Write lỗi → tạo trước:
+   > macOS/Linux `mkdir -p reports` · Windows `New-Item -ItemType Directory -Force reports` rồi ghi lại. (build_report
+   > nay ghi report vào `reports/` của **project hiện tại** — chạy mọi lệnh ở CÙNG thư mục project.)
    `## 🔴 Rủi ro cao (blocker)` · `## 🟡 Rủi ro vừa / Cần theo dõi` · `## 🟢 Điểm tích cực` ·
    `## 🧩 Độ phức tạp (TRỌNG TÂM)` (đọc `complexity` JSON — issue điểm ≥ ngưỡng, ai phụ trách, ưu tiên review/nguồn lực) ·
    `## 👥 Phân tích theo thành viên` (KÈM BẢNG markdown `| Thành viên | Tổng | Done | Đang làm | Ghi chú |`) ·

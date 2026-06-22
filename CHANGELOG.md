@@ -10,6 +10,17 @@
 
 ---
 
+## v2.9.4 "Kora-1" — 2026-06-22
+
+- **🗂️ Hết "Error writing file" khi tạo báo cáo (report theo PROJECT, không theo script).** `build_report.py`
+  trước đây tính `REPO_ROOT` theo **vị trí script** → bản cài (`~/.claude/kora-framework`) chạy trong project sẽ ghi
+  report + đọc config/vault vào **KF** chứ không phải project (cwd) → `project/reports/` không được tạo → ghi
+  `reports/ai-analysis-latest.md` báo lỗi. Nay thêm `data_root()`: nếu cwd có `config/factory-config.yaml` → dùng
+  **cwd (project)** cho `out` + `config` + `vault`; ngược lại giữ `REPO_ROOT` (bản dev / lịch nền không đổi).
+- **Phòng thủ:** `inject_ai_into_email` tự `os.makedirs(reports/)`; skill `kora-send-mail` + `workflows/14` thêm bước
+  **`mkdir -p reports`** (OS-dynamic) trước khi ghi file phân tích AI.
+- Thuần **CORE**, KHÔNG migration DATA. Máy đã cài: gõ **"cập nhật phiên bản"**.
+
 ## v2.9.3 "Kora-1" — 2026-06-22
 
 - **🃏 Hết lỗi thẻ chọn "Invalid tool parameters".** Bổ sung **HỢP ĐỒNG SCHEMA** cho AskUserQuestion vào

@@ -32,7 +32,9 @@ The user invoked `/kora-send-mail` — gửi email báo cáo tiến độ. **CÓ
         (SCOPE≠all → mỗi `--jql` thêm `AND updated >= -<NDAYS>d` để nhẹ.) Quét hết → reindex `build_index.py --root .` →
         `python3 "$T/progress-report/build_report.py" --projects "<UNION KEYS>" <--scope <SCOPE> --recent-days <NDAYS> nếu ≠all>`.
      c2. **PHÂN TÍCH AI + chèn CARD MÀU vào email (BẮT BUỘC trước khi gửi):** viết phân tích theo
-        `workflows/14-progress-report.md` Bước 1.5 → ghi `reports/ai-analysis-latest.md` (markdown 7 mục: 🔴 rủi ro cao ·
+        `workflows/14-progress-report.md` Bước 1.5 → **`mkdir -p reports`** (Windows `New-Item -ItemType Directory -Force
+        reports`) rồi ghi `reports/ai-analysis-latest.md` (Write cần thư mục cha — thiếu → "Error writing file"; build_report
+        ở bước c đã tạo `reports/` nếu chạy CÙNG cwd project) (markdown 7 mục: 🔴 rủi ro cao ·
         🟡 vừa · 🟢 tích cực · 👥 BẢNG theo thành viên · 📅 dự đoán · 🎯 hành động · 📌 tóm tắt) → `python3
         "$T/progress-report/build_report.py" --inject-ai reports/ai-analysis-latest.md` (tool render **card màu theo mục +
         bảng tô màu trạng thái** vào `email-body-latest.html`). **KHÔNG gửi** khi khối AI còn trống/placeholder.

@@ -30,6 +30,19 @@ from datetime import date, datetime, timedelta, timezone
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+
+def data_root():
+    """Thư mục DỮ LIỆU project user đang chạy — để report/config/vault đọc-ghi ĐÚNG project.
+
+    Khi build_report là bản CÀI (`~/.claude/kora-framework/tools/...`) mà user chạy trong PROJECT (cwd khác),
+    REPO_ROOT trỏ vào KF chứ không phải project → report rơi nhầm chỗ + ghi `reports/` (tương đối cwd) lỗi.
+    Vì vậy: nếu cwd là project Kora thật (có `config/factory-config.yaml`) → dùng cwd; ngược lại → REPO_ROOT
+    (bản dev cwd==REPO_ROOT, hoặc lịch nền orchestrator cwd==REPO_ROOT → giữ nguyên hành vi cũ)."""
+    cwd = os.getcwd()
+    if os.path.exists(os.path.join(cwd, "config", "factory-config.yaml")):
+        return cwd
+    return REPO_ROOT
+
 # Nhóm trạng thái mặc định (đổi qua config > reports.status_map nếu cần)
 _DONE = ("done", "closed", "resolved", "complete", "completed", "hoàn thành", "xong", "đã xong")
 _PROG = ("progress", "review", "doing", "testing", "qa", "đang", "in dev", "developing")
@@ -1149,6 +1162,7 @@ def render_ai_cards(md):
 
 def inject_ai_into_email(out_dir, md_path):
     """Đọc file markdown AI → render card màu → thay khối <!--KR-AI--> trong email-body-latest.html."""
+    os.makedirs(out_dir, exist_ok=True)   # phòng thủ: không chết vì thiếu thư mục
     email = os.path.join(out_dir, "email-body-latest.html")
     if not os.path.exists(email):
         die(f"Không thấy {email} — hãy chạy build_report (sinh email) trước khi --inject-ai.")
@@ -1177,14 +1191,15 @@ def main():
     ap.add_argument("--complexity-high", dest="complexity_high", type=int, default=7,
                     help="Ngưỡng 'phức tạp cao' cho field Complexity (mặc định 7 — >= ngưỡng = cao).")
     args = ap.parse_args()
+    DATA = data_root()   # project (cwd) nếu có config/factory-config.yaml; else REPO_ROOT (dev / lịch nền)
 
     if args.inject_ai:  # chỉ chèn phân tích AI vào email đã build → thoát
-        inject_ai_into_email(args.out or os.path.join(REPO_ROOT, "reports"), args.inject_ai)
+        inject_ai_into_email(args.out or os.path.join(DATA, "reports"), args.inject_ai)
         return
 
     vault = args.vault
     smap = None
-    cfg_path = os.path.join(REPO_ROOT, "config", "factory-config.yaml")
+    cfg_path = os.path.join(DATA, "config", "factory-config.yaml")
     if os.path.exists(cfg_path):
         cfg = open(cfg_path, encoding="utf-8").read()
         if not vault:
@@ -1194,7 +1209,7 @@ def main():
     if not vault:
         die("Không tìm thấy vault. Truyền --vault <path> hoặc đặt vault_path trong config/factory-config.yaml.")
     if not os.path.isabs(vault):
-        vault = os.path.normpath(os.path.join(REPO_ROOT, vault))
+        vault = os.path.normpath(os.path.join(DATA, vault))
     if not os.path.isdir(vault):
         die(f"Vault không tồn tại: {vault}")
 
@@ -1232,7 +1247,7 @@ def main():
         banner_url = "https://raw.githubusercontent.com/isc-fkit/Kora-Framework/main/assets/banner-daily-report.jpg"
     fragment = render_fragment(m, vault)
 
-    out = args.out or os.path.join(REPO_ROOT, "reports")
+    out = args.out or os.path.join(DATA, "reports")
     os.makedirs(out, exist_ok=True)
     now = datetime.now()
     day = now.strftime("%Y-%m-%d")
