@@ -43,7 +43,7 @@ REM Skill chi-duy-tri (maintainer-only) - khong cai cho nguoi dung thuong.
 del /q "%DEST_CMD%\claude-knowledge-release.md" 2>nul
 
 echo Cai workflows ho tro ...
-for %%d in (workflows scripts templates config tools) do (
+for %%d in (workflows scripts templates config tools assets) do (
   if exist "%SRC%\%%d" (
     rmdir /s /q "%DEST_CORE%\%%d" 2>nul
     robocopy "%SRC%\%%d" "%DEST_CORE%\%%d" /E >nul

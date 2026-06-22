@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.12.16",
+  "version": "2.12.17",
   "codename": "Claude-1",
   "released": "2026-06-23",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
-  "force": false,
-  "intro": "Kora-Framework v2.12.16 (FIX: quét/báo-cáo Jira MCP không lưu tri thức + chọn project đầy đủ + prefix nguồn): (1) Sửa lỗi vòng-tròn kora-scan↔WF01 → MCP quét xong nay BẮT BUỘC ghi vault qua import_jira.py --from-mcp (đã smoke-test New Feature→US, Improvement→Task, Sub-task→SubTasks). (2) Báo cáo (WF14) refresh MCP cũng phải --from-mcp mới cập nhật vault. (3) Chọn project: liệt kê ĐẦY ĐỦ từng project + PREFIX nguồn (vd [Cloud·MCP] FA — …), >4 thì phân trang, không bỏ sót."
+  "force": true,
+  "intro": "Kora-Framework v2.12.17 (FIX banner email VỠ trong Outlook): banner daily-report bị vỡ (chỉ còn chữ alt) do bản cài THIẾU file assets/banner-daily-report.jpg → send_report rơi về URL remote → Outlook chặn ảnh remote. Sửa: installer (install.command/.bat) nay SHIP cả thư mục assets/ vào CORE; send_report.py thêm path bền ~/.claude/kora-framework/assets để LUÔN nhúng CID inline (hiện ngay cả khi Outlook chặn ảnh remote). ⚠️ Người đã cài: chạy lại installer (hoặc 'cập nhật phiên bản') để kéo assets về."
 }

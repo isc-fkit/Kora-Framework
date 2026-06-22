@@ -67,7 +67,7 @@ N="$(ls -1 "$DEST_CMD"/claude-knowledge-*.md 2>/dev/null | wc -l | tr -d ' ')"
 
 # --- 2) CORE hỗ trợ → ~/.claude/kora-framework/ (ẩn, quản lý; KHÔNG phải folder source để sửa) ---
 echo "📥 Cài workflows hỗ trợ ..."
-for d in workflows scripts templates config tools; do
+for d in workflows scripts templates config tools assets; do
   if [ -e "$SRC/$d" ]; then
     rm -rf "$DEST_CORE/$d" 2>/dev/null || true
     cp -R "$SRC/$d" "$DEST_CORE/$d"

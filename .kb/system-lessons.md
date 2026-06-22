@@ -58,3 +58,12 @@
   reindex NGAY tại skill chạy nó (kora-scan), KHÔNG "đẩy lên tầng trên/xuống tầng dưới" rồi không tầng nào làm.
   "Chỉ coi là đã quét khi đã chạy `--from-mcp`". Kéo MCP phải PHÂN TRANG lấy HẾT (đừng dừng trang đầu).
 - **Áp dụng:** kora-scan Bước 2 (block Jira MCP) + WF14 Bước 0.5 + CLAUDE.md trigger quét/báo-cáo.
+
+### 2026-06-23 — Banner daily-report VỠ trong Outlook (ảnh remote bị chặn)
+- **Bối cảnh:** email báo cáo (lịch nền) hiện banner vỡ + chỉ còn alt "Cập nhật tiến độ dự án mỗi ngày".
+- **Sai gì:** default `banner_url` của build_report là **URL remote** GitHub raw. `send_report` chỉ thay bằng
+  `cid:kora-banner` (inline) KHI tìm thấy file banner LOCAL. **Installer (install.command/bat) KHÔNG copy `assets/`
+  vào CORE** → bản cài không có file → giữ URL remote → **Outlook chặn ảnh remote → vỡ**. (Gmail web thì vẫn hiện.)
+- **Rút ra:** asset nào email cần nhúng inline (CID) PHẢI được installer/update SHIP vào CORE; tool tìm asset phải
+  có path CORE chuẩn `~/.claude/kora-framework/assets` (không chỉ dựa cwd / HERE.parents). Remote URL chỉ là last-resort.
+- **Áp dụng:** install.command + install.bat thêm `assets` vào danh sách copy; send_report.py thêm candidate CORE.

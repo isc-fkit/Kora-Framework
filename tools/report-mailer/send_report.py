@@ -237,7 +237,10 @@ def main():
     if html and not args.test:
         # Ưu tiên JPEG (nhẹ ~117KB) → fallback PNG (bản cũ). Path bền: --banner → KORA_BANNER → cạnh CORE → cwd.
         cands = [args.banner, os.getenv("KORA_BANNER")]
-        for base in (HERE.parents[1] / "assets", Path.cwd() / "assets"):
+        # Path bền dù gọi từ ĐÂU: cạnh script (CORE đã cài / repo dev) → CORE chuẩn ~/.claude/kora-framework → cwd.
+        for base in (HERE.parents[1] / "assets",
+                     Path.home() / ".claude" / "kora-framework" / "assets",
+                     Path.cwd() / "assets"):
             cands += [str(base / "banner-daily-report.jpg"), str(base / "banner-daily-report.png")]
         bpth = next((Path(c).expanduser() for c in cands if c and Path(c).expanduser().exists()), None)
         has_banner = bool(re.search(r"banner-daily-report\.(?:png|jpe?g)", html))

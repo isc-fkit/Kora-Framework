@@ -10,6 +10,18 @@
 
 ---
 
+## v2.12.17 "Claude-1" — 2026-06-23
+
+**FIX: banner daily-report VỠ trong Outlook (ảnh remote bị chặn) — bản cài thiếu `assets/`.**
+
+- **Lỗi:** email báo cáo hiện banner vỡ + chỉ còn chữ alt "Cập nhật tiến độ dự án mỗi ngày". Nguyên nhân: default
+  `banner_url` là **URL remote** (GitHub raw); `send_report` chỉ nhúng **CID inline** khi thấy file banner LOCAL —
+  nhưng **installer KHÔNG copy `assets/` vào CORE** → không có file → giữ URL remote → **Outlook chặn ảnh remote → vỡ**.
+- **Sửa:** `install.command` + `install.bat` thêm **`assets`** vào danh sách copy CORE. `send_report.py` thêm candidate
+  path bền **`~/.claude/kora-framework/assets`** (không chỉ dựa cwd) → LUÔN tìm thấy file → nhúng `cid:kora-banner`
+  inline (hiện ngay cả khi Outlook chặn ảnh remote). Đã verify: tìm thấy file → thay CID, sạch URL remote.
+- ⚠️ **Migration:** người đã cài **chạy lại installer** (hoặc *"cập nhật phiên bản"*) để kéo `assets/` về CORE.
+
 ## v2.12.16 "Claude-1" — 2026-06-23
 
 **FIX: quét/báo-cáo Jira qua MCP KHÔNG lưu tri thức + chọn project đầy đủ + prefix nguồn.**
