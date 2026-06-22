@@ -26,6 +26,7 @@ import glob
 import json
 import os
 import re
+import shlex
 import sys
 import unicodedata
 import urllib.error
@@ -202,7 +203,14 @@ def api_get(path, params=None):
             pass
         die(f"Jira trả về {e.code}: {body}")
     except urllib.error.URLError as e:
-        die(f"Không kết nối được Jira ({e.reason}). Kiểm tra VPN/LAN/proxy.")
+        # marker máy-đọc: mạng/sandbox chặn → skill BÀN GIAO lệnh bash cho Terminal (KHÁC 401/auth ở trên).
+        print("NETWORK_UNREACHABLE", file=sys.stderr)
+        die(f"Không kết nối được Jira ({e.reason}). Kiểm tra VPN/LAN/proxy "
+            "(hoặc Cowork sandbox chặn mạng → chạy lệnh ở Terminal).")
+    except (TimeoutError, OSError) as e:   # timeout/socket-level KHÔNG bọc trong URLError
+        print("NETWORK_UNREACHABLE", file=sys.stderr)
+        die(f"Không kết nối được Jira ({e}). Kiểm tra VPN/LAN/proxy "
+            "(hoặc Cowork sandbox chặn mạng → chạy lệnh ở Terminal).")
 
 
 def md_escape(v):
@@ -988,6 +996,32 @@ def run_full():
     print(f"\nHoàn tất.\nObsidian Vault đã tạo tại: {os.path.abspath(VAULT)}")
 
 
+def _emit_command(args) -> str:
+    """Sinh 1 DÒNG LỆNH terminal để QUÉT tiếp (bàn giao khi Cowork sandbox chặn mạng API). Path → TUYỆT ĐỐI để chạy
+    từ cwd bất kỳ; token KHÔNG in (vẫn ở .env.local — chỉ truyền JIRA_ENV_FILE trỏ tới file đó). Tái dựng từ args đã truyền."""
+    env_file = os.environ.get("JIRA_ENV_FILE") or os.path.join(SCRIPT_DIR, ".env.local")
+    env_file = os.path.abspath(os.path.expanduser(env_file))
+    parts = [f"JIRA_ENV_FILE={shlex.quote(env_file)}",
+             "python3", shlex.quote(os.path.abspath(__file__))]
+    if args.test:
+        parts += ["--test"]
+    if args.list_projects:
+        parts += ["--list-projects"]
+    if args.keys:
+        parts += ["--keys", shlex.quote(args.keys)]
+    if args.jql:
+        parts += ["--jql", shlex.quote(args.jql)]
+    if args.since is not None:
+        parts += ["--since"] + ([] if args.since == "__last__" else [shlex.quote(args.since)])
+    if args.per_project:
+        parts += ["--per-project"]
+    if args.vault:
+        parts += ["--vault", shlex.quote(os.path.abspath(os.path.expanduser(args.vault)))]
+    if args.force:
+        parts += ["--force"]
+    return " ".join(parts)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--test", action="store_true", help="Chỉ test kết nối")
@@ -1005,9 +1039,15 @@ def main():
     ap.add_argument("--list-projects", action="store_true",
                     help="In danh sách project [{key,name}] dạng JSON (cho /kora-scan chọn project)")
     ap.add_argument("--force", action="store_true", help="Bỏ qua guard idempotent-per-day")
+    ap.add_argument("--emit-command", action="store_true",
+                    help="KHÔNG quét — in 1 DÒNG LỆNH (path tuyệt đối) để chạy ở TERMINAL quét tiếp (bàn giao khi "
+                         "Cowork sandbox chặn mạng API). Token KHÔNG in (vẫn ở .env.local; chỉ trỏ JIRA_ENV_FILE).")
     ap.add_argument("--vault", help="Đường dẫn vault (override; mặc định OBSIDIAN_VAULT → config vault_path → ./KB-Vault). "
                                     "Tương đối → neo theo project hiện tại.")
     args = ap.parse_args()
+    if args.emit_command:   # BÀN GIAO: in lệnh chạy ở Terminal (KHÔNG quét, KHÔNG cần token/mạng)
+        print(_emit_command(args))
+        return
     global PER_PROJECT, FIELD_MAP, VAULT
     if args.per_project:
         PER_PROJECT = True

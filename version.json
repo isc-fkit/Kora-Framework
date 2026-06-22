@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.10.0",
+  "version": "2.10.1",
   "codename": "Claude-1",
   "released": "2026-06-22",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.10.0 (landing đổi thương hiệu Claude AI + tinh gọn + PO hỏi tiến độ rõ hơn): trang giới thiệu đổi hiển thị 'Kora AI'→'Claude AI', codename 'Claude-1' (GIỮ tên repo isc-fkit/Kora-Framework + lệnh /kora-* để không hỏng cài đặt); tạm ẨN 6 mục (Quy trình, Prompt&Template, Ví dụ, Output, Troubleshooting, Release) — vẫn trong file, dễ bật lại; viết lại Giới thiệu 3 phần (kết nối nguồn · là gì · đạt được gì) + giá trị cốt lõi; gộp Cài đặt+Chức năng → 'Hướng dẫn cài đặt'; mục báo cáo nêu rõ gửi mail (banner CID hiện ngay Outlook + tách mail + bàn giao bash Cowork). CLAUDE.md: PO hỏi 'cập nhật tiến độ' → HỎI DỰ ÁN trước → chỉ kéo mục MỚI → daily-report → send-mail. Thuần CORE, không migration DATA."
+  "intro": "Kora-Framework v2.10.1 (quét nguồn API trong Cowork — bàn giao lệnh bash cho Terminal): khi quét trong Cowork (chat-only, sandbox chặn mạng), nguồn MCP (Atlassian Rovo / Microsoft 365) quét THẲNG trong chat; nguồn API (Jira Server, GitHub/GitLab API) nay được /kora-scan TỰ ghi sẵn 'reports/kora-scan.command' (giống bàn giao gửi mail) để bạn chạy `bash reports/kora-scan.command` ở Terminal — không phải gõ lại lệnh. import_jira.py thêm marker 'NETWORK_UNREACHABLE' (phân biệt sandbox-chặn với token-sai) + cờ '--emit-command' (in 1 dòng lệnh abs-path, token KHÔNG lộ). Mỗi nguồn hiển thị rõ (MCP)/(API). Thuần CORE, không migration DATA."
 }

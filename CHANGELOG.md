@@ -10,6 +10,21 @@
 
 ---
 
+## v2.10.1 "Claude-1" — 2026-06-22
+
+**Quét nguồn API trong Cowork (chat-only) — bàn giao lệnh BASH cho Terminal, như gửi mail.**
+
+- **`import_jira.py`:** thêm marker **`NETWORK_UNREACHABLE`** (stderr) khi lỗi kết nối/timeout (`URLError` +
+  `TimeoutError/OSError`) → skill phân biệt **sandbox Cowork chặn mạng** với **token sai (401)**. Thêm cờ
+  **`--emit-command`**: KHÔNG quét — in 1 dòng lệnh đã resolve abs-path (`JIRA_ENV_FILE=<abs> python3 "<abs import_jira.py>" …`),
+  token KHÔNG in (vẫn ở `.env.local`).
+- **`/kora-scan` + WF01:** mỗi nguồn hiện rõ **(MCP)** / **(API)**. Trong Cowork: nguồn **MCP** quét THẲNG trong chat;
+  nguồn **API** in `NETWORK_UNREACHABLE` → **tự ghi `reports/kora-scan.command`** (shebang + `cd` + lệnh `--emit-command`,
+  gộp nhiều nguồn; `chmod +x`; Windows `.bat`) → user chạy `bash reports/kora-scan.command` ở Terminal (KHÔNG bắt gõ lại
+  lệnh, KHÔNG dead-end). Làm rõ: chạy bằng `bash <file>` an toàn — chỉ **double-click** mới bị macOS Gatekeeper chặn.
+- **CLAUDE.md:** trigger "quét jira"/"lấy dữ liệu mới" nêu rõ luồng Cowork MCP-thẳng / API-bàn-giao.
+- Thuần **CORE**, KHÔNG migration DATA. Máy đã cài: gõ **"cập nhật phiên bản"**.
+
 ## v2.10.0 "Claude-1" — 2026-06-22
 
 - **🎨 Landing đổi thương hiệu "Claude AI" + tinh gọn.** Trang giới thiệu (`index.html`): hiển thị **"Kora AI" → "Claude AI"**,

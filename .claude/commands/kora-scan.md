@@ -22,6 +22,11 @@ The user invoked `/kora-scan` — scan & import knowledge.
      (vd *"Jira Cloud (MCP) ✓ · 2h trước", "GitHub (API) ✓ · hôm qua"*). Nguồn `last_checked` quá cũ
      (>24h) / `status≠connected` → `⟳ chưa kiểm tra gần đây`, **kiểm tra lại** (`--check <id>`) trước khi quét.
      Kèm **[+ Kết nối nguồn mới]** → `/kora-connect`.
+   - 🏷️ **Mỗi nguồn HIỆN RÕ phương thức `(MCP)` hay `(API)`.** 🖥️ **Trong Cowork (sandbox CHẶN mạng):** nguồn
+     **MCP** (Atlassian Rovo / Microsoft 365) quét **THẲNG trong chat**; nguồn **API** (Jira Server, GitHub/GitLab API)
+     bị chặn mạng → mình **tạo sẵn 1 lệnh ở `reports/kora-scan.command`** để bạn chạy ở **Terminal** (KHÔNG bắt gõ lại
+     lệnh) — xem Bước 2. **Terminal CLI** (không sandbox): quét thẳng mọi nguồn. Gợi ý: trong Cowork, ưu tiên tích các
+     nguồn **(MCP)** để quét ngay không cần Terminal.
    - **Chọn 1 nguồn cụ thể** (không phải "tất cả") → kết nối rồi **trả về danh sách project/folder** để
      chọn (Jira: `python3 tools/jira-to-obsidian/import_jira.py --list-projects` → JSON `[{key,name}]`;
      SharePoint/GitHub: liệt kê folder/repo qua MCP). **MỌI cấp chọn đều có [Chọn tất cả].**
@@ -36,6 +41,13 @@ The user invoked `/kora-scan` — scan & import knowledge.
    - **GitHub (API)** → `python3 tools/github-sync/sync_github.py --pull` → kéo `.md` từ repo → `<vault>/GitHub/` (frontmatter + link nguồn + `_GitHub-Index.md`).
    - **GitLab (API)** → `python3 tools/gitlab-sync/sync_gitlab.py --pull` → kéo `.md` từ repo → `<vault>/GitLab/` (frontmatter + link nguồn + `_GitLab-Index.md`). Token `KORA_GITLAB_SYNC_TOKEN` ở `tools/gitlab-sync/.env.local`.
    - **Confluence (MCP)** → MCP tool của Confluence.
+   - 🖥️ **BÀN GIAO TERMINAL khi Cowork chặn mạng nguồn API (KHÔNG dead-end):** nếu tool quét nguồn **API** in marker
+     **`NETWORK_UNREACHABLE`** ở stderr (sandbox Cowork chặn) → **KHÔNG retry vô ích**, KHÔNG kết luận "nguồn hỏng".
+     Thay vào đó **tạo file lệnh** để user chạy ở Terminal local (đúng mạng/VPN):
+     1. Lấy lệnh quét đã resolve abs-path: `python3 <import_jira.py> --emit-command <đúng args định quét: --jql/--since/--keys/--per-project>` (Jira). Nguồn pull khác cũng API → thêm dòng `python3 <abs>/github-sync/sync_github.py --pull` / `.../gitlab-sync/sync_gitlab.py --pull`.
+     2. **Ghi `reports/kora-scan.command`** (`mkdir -p reports` trước): dòng đầu `#!/bin/bash`, rồi `cd "<PROJECT tuyệt đối>"`, rồi (các) lệnh ở (1) — **gộp NHIỀU nguồn API vào 1 file**; `chmod +x`. Windows: ghi `reports\kora-scan.bat` (bỏ shebang, `cd /d "<project>"`, dùng `py`).
+     3. Báo user 1 câu: *"Cowork bị chặn mạng nên không quét nguồn API từ đây. Mở **Terminal** chạy: `bash \"reports/kora-scan.command\"` — quét xong gõ **'đã quét xong'** để mình reindex + tổng hợp + (tùy chọn) báo cáo."* Token KHÔNG nằm trong file (chỉ trỏ `JIRA_ENV_FILE`).
+     - **Nguồn MCP KHÔNG cần bàn giao** — gọi MCP tool quét thẳng trong Cowork. **Terminal CLI** cũng quét thẳng, bỏ qua bàn giao.
 3. **Tổng hợp NHẸ (tự động, ngay sau khi nạp):** `python3 tools/kb-synth/synthesize.py --root .` → dựng
    trang `_wiki/<Project>-Wiki.md` liên kết cho mỗi project (index theo loại + mục "Quan hệ"). Rồi reindex
    `python3 tools/kb-indexer/build_index.py --root .`; báo số note đã thêm + số trang wiki.

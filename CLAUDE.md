@@ -23,7 +23,7 @@
 | User nhắn | Claude làm gì |
 |---|---|
 | `@khởi tạo dự án` (hoặc "setup factory", "cài đặt hệ thống") | Confirm → chạy `workflows/00-setup.md` **từng bước, MỖI bước DỪNG hỏi user** (AskUserQuestion/câu thường) rồi mới sang bước kế — KHÔNG tự chọn thay user, KHÔNG chạy lướt |
-| "quét jira" (toàn bộ project) | Confirm → chạy `workflows/01-import-jira.md` (Bước 0: **chọn nguồn/domain** — Server nội bộ hay Atlassian Cloud — rồi mới quét) |
+| "quét jira" / "lấy dữ liệu mới" / "quét dữ liệu" (toàn bộ project) | Confirm → chạy `workflows/01-import-jira.md` (Bước 0: **chọn nguồn/domain** — Server nội bộ hay Atlassian Cloud — rồi mới quét). **Cowork (sandbox chặn mạng):** nguồn **MCP** quét THẲNG trong chat; nguồn **API** in marker `NETWORK_UNREACHABLE` → **BÀN GIAO**: ghi sẵn `reports/kora-scan.command` (`import_jira.py --emit-command`, token KHÔNG in) cho user chạy `bash reports/kora-scan.command` ở **Terminal** (không bắt gõ lại lệnh). Terminal CLI: quét thẳng. |
 | "quét task <KEY>" / "quét epic <KEY>" (vd `quét task PROJ-102`) | Confirm → chạy `workflows/01b-import-jira-single.md` |
 | "kết nối nguồn", "connect", "thêm Jira/GitHub/GitLab/Confluence/SharePoint" | Confirm → `/kora-connect`: chọn **MCP/API** → nguồn (API ưu tiên **OAuth 2.0**; API vs MCP tính RIÊNG) → verify → ghi `connections:`. |
 | "đẩy lên Confluence", "đồng bộ KB chung", "post tri thức", "sync cloud KB" | Confirm → `tools/confluence-sync/sync_confluence.py --push` (headless) / MCP Atlassian (tương tác); `--pull` để kéo về. `permission: read_only` → chỉ pull. |

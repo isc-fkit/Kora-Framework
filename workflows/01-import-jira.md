@@ -83,9 +83,10 @@ Chưa có → hướng dẫn cài theo OS.
 >    và in tên user Jira (không in token); (b) lấy danh sách project thấy được.
 >    Tương đương 2 lệnh curl /myself + /project nhưng gộp sẵn — KHÔNG cần chạy curl riêng.
 >    Jira public/cloud thường chạy được → tự động hoàn toàn, không phiền user.
-> 2. Sandbox lỗi mạng (timeout / DNS / bị chặn) → KHÔNG retry vô ích, KHÔNG kết luận
->    "Jira hỏng". Giải thích: sandbox của Claude có thể không ra được domain này dù
->    domain public. Chuyển sang **chế độ user tự chạy**.
+> 2. Sandbox lỗi mạng (timeout / DNS / bị chặn — tool in marker **`NETWORK_UNREACHABLE`** ở
+>    stderr) → KHÔNG retry vô ích, KHÔNG kết luận "Jira hỏng". Giải thích: sandbox của Claude
+>    (vd Cowork) có thể không ra được domain này dù domain public. Chuyển sang **chế độ user
+>    tự chạy** (Bước 4 → "Chế độ user_terminal": ghi sẵn `reports/kora-scan.command` cho user chạy ở Terminal).
 > 3. **Sinh lệnh theo OS của user** (xác định từ context phiên làm việc; không chắc
 >    thì hỏi 1 câu: macOS / Windows / Linux). Điền `<TOOL_DIR>` = **đường dẫn tuyệt đối
 >    THẬT của máy này** tới `tools/jira-to-obsidian` (lấy từ project root hiện tại — Claude
@@ -151,11 +152,15 @@ ràng (mã + tên project) và cho user CHỌN bằng AskUserQuestion:
 Khi sandbox không chạy được (lỗi mạng), KHÔNG dừng luồng setup lại chờ:
 
 1. Hoàn tất mọi cấu hình trước (`.env.local` đầy đủ).
-2. **Cách DUY NHẤT cho user tự chạy = lệnh Terminal copy-paste.**
-   > 🚫 KHÔNG dùng file double-click (`.command`/`.bat`) — macOS Gatekeeper hay chặn
-   > "không đáng tin cậy / không mở được" gây hoang mang. Đã bỏ 2 file đó khỏi tool.
+2. **Bàn giao cho user chạy ở Terminal — 2 cách, cùng kết quả:**
 
-   In **MỘT khối lệnh hoàn chỉnh, đã điền sẵn đường dẫn TUYỆT ĐỐI THẬT của máy này**.
+   **2a. Ghi sẵn file lệnh `reports/kora-scan.command` (TIỆN, giống bàn giao gửi mail v2.9.8):**
+   - Lấy lệnh đã resolve abs-path: `python3 "<TOOL_DIR>/import_jira.py" --emit-command <args định quét: --jql/--since/--keys/--per-project>` → in 1 dòng `JIRA_ENV_FILE=<abs> python3 "<abs import_jira.py>" …` (token KHÔNG in).
+   - `mkdir -p reports` → ghi `reports/kora-scan.command`: dòng đầu `#!/bin/bash`, rồi `cd "<PROJECT tuyệt đối>"`, rồi (các) dòng lệnh từ `--emit-command` (nhiều nguồn API → gộp nhiều dòng) → `chmod +x reports/kora-scan.command`. Windows: ghi `reports\kora-scan.bat` (bỏ shebang, `cd /d "<project>"`, đổi `python3`→`py`).
+   - Báo user **chạy bằng `bash`** (KHÔNG double-click): `bash "reports/kora-scan.command"`.
+     > ⚠️ **Chỉ chạy bằng `bash <file>`** — double-click `.command` trong Finder mới bị macOS Gatekeeper chặn; gọi qua `bash` thì LUÔN chạy. (Trước đây bỏ file vì sợ user double-click — nay hướng dẫn rõ chạy bằng bash nên an toàn.)
+
+   **2b. Hoặc khối lệnh copy-paste** (nếu user thích dán tay) — **MỘT khối hoàn chỉnh, đường dẫn TUYỆT ĐỐI THẬT của máy này**.
    **Quy tắc trình bày lệnh:**
    - **Đường dẫn `<TOOL_DIR>` Claude tự tính** từ project root hiện tại + `/tools/jira-to-obsidian`
      — **dynamic theo từng máy/OS, TUYỆT ĐỐI KHÔNG hardcode đường dẫn mẫu.**
