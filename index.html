@@ -93,7 +93,7 @@
   .content{padding:0 46px 90px;max-width:none;min-width:0}
   .page{display:none;animation:fade .24s ease}
   .page.active{display:block}
-  /* ẨN TẠM (v2.12.3) — xem khối <!-- HIDDEN-SECTIONS --> gần <body> để biết mục nào ẩn + cách bật lại */
+  /* ẨN TẠM (v2.12.4) — xem khối <!-- HIDDEN-SECTIONS --> gần <body> để biết mục nào ẩn + cách bật lại */
   .page.hidden,.nav a.hidden,.hc.hidden,.btn.hidden{display:none!important}
   @keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
 
@@ -270,7 +270,7 @@
 </style>
 </head>
 <body>
-<!-- ============================ HIDDEN-SECTIONS (v2.12.3) ============================
+<!-- ============================ HIDDEN-SECTIONS (v2.12.4) ============================
   MỤC ĐANG ẨN TẠM (vẫn còn nguyên trong file, chỉ ẩn bằng class "hidden"):
     1. workflow         — "Quy trình BA"
     2. prompts          — "Prompt & Template"
@@ -294,7 +294,7 @@
     <div class="brand" data-go="home" title="Trang chủ">
       <span class="brandmark" aria-hidden="true">K</span>
       <span class="org">FPT TELECOM</span>
-      <div class="fw">Claude Knowledge AI<span>v2.12.3 · Claude-1</span></div>
+      <div class="fw">Claude Knowledge AI<span>v2.12.4 · Claude-1</span></div>
     </div>
     <nav class="nav">
       <div class="grp">Tổng quan</div>
@@ -320,7 +320,7 @@
     <!-- ===================== HOME ===================== -->
     <div class="page" id="home">
       <header class="hero">
-        <span class="badge">FPT Telecom · Claude Knowledge AI · v2.12.3 · &ldquo;Claude-1&rdquo;</span>
+        <span class="badge">FPT Telecom · Claude Knowledge AI · v2.12.4 · &ldquo;Claude-1&rdquo;</span>
         <h1>Claude Knowledge AI — Sơ đồ nguyên lý hoạt động</h1>
         <p class="sub">Trợ lý tri thức tự lớn lên cùng dự án: hợp nhất tri thức phân tán, nối tri thức local của nhân viên với <b>Knowledge Base</b> chung (trên Cloud), và tự động hóa đồng bộ — báo cáo — cảnh báo.</p>
         <div class="pipe">
@@ -669,7 +669,7 @@
 <pre><code>curl -fsSL https://raw.githubusercontent.com/isc-fkit/Kora-Framework/release/uninstall.bat -o "%TEMP%\claude-knowledge-uninstall.bat" &amp;&amp; "%TEMP%\claude-knowledge-uninstall.bat"</code></pre></div>
       <p style="color:var(--faint);font-size:13.3px;margin:10px 0 0">Script hỏi gõ <code>yes</code> để xác nhận, và nhắc xóa tay các dòng <code>export KORA_*</code> trong <code>~/.zshrc</code> / <code>~/.bashrc</code> (Windows: biến môi trường) nếu có. Gỡ skill <b>KHÔNG</b> đụng tới tri thức của bạn.</p>
 
-      <!-- ↓↓↓ GỘP (v2.12.3): nội dung "Chức năng" (D cũ) gộp vào "Hướng dẫn cài đặt" ↓↓↓ -->
+      <!-- ↓↓↓ GỘP (v2.12.4): nội dung "Chức năng" (D cũ) gộp vào "Hướng dẫn cài đặt" ↓↓↓ -->
       <h2 class="sec" style="margin-top:32px">🧩 Chức năng &amp; cách vận hành (8 bước)</h2>
       <p class="lead">Sau khi cài (mục trên), đây là <b>8 bước thực thi</b> theo thứ tự: <b>1 init → 2 connect → 3 scan → 4 schedule → 4b cảnh báo ticket → 5 report → 6 send-mail → 7 sync → 8 archive</b>.</p>
 
@@ -2165,7 +2165,7 @@ Trạng thái: Pass / Fail / Blocked</code></pre></div>
   var links = Array.prototype.slice.call(document.querySelectorAll('[data-go]'));
   function go(id){
     var t = document.getElementById(id);
-    if(!t || t.classList.contains('hidden')) id = 'home';   // mục ẩn (v2.12.3) → về Trang chủ, không hiện trang trống
+    if(!t || t.classList.contains('hidden')) id = 'home';   // mục ẩn (v2.12.4) → về Trang chủ, không hiện trang trống
     pages.forEach(function(p){ p.classList.toggle('active', p.id===id); });
     document.querySelectorAll('.nav a').forEach(function(a){ a.classList.toggle('active', a.getAttribute('data-go')===id); });
     if(location.hash.slice(1)!==id) history.replaceState(null,'','#'+id);

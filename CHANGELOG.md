@@ -10,6 +10,16 @@
 
 ---
 
+## v2.12.4 "Claude-1" — 2026-06-23
+
+**"quét jira" ưu tiên MCP, KHÔNG hỏi "quét từ nguồn nào".**
+
+- Khi nói **"quét dữ liệu mới jira"** chung: nếu có nguồn Jira qua **MCP** (Atlassian Cloud/Rovo) → **quét THẲNG**,
+  **KHÔNG hỏi "nguồn nào"** — dù có cả **Jira Server host (API)** kết nối song song (báo nhẹ "đang quét qua MCP; muốn
+  quét cả Jira Server host thì bảo").
+- CHỈ hiện chọn nguồn khi: user nói rõ **"quét jira server"/"nguồn nội bộ"/"cả 2 nguồn"**, hoặc **không có** nguồn MCP.
+- Sửa `claude-knowledge-scan` (fast-path) + CLAUDE.md trigger + WF01 Bước 0. Thuần guidance. Máy đã cài: **"cập nhật phiên bản"**.
+
 ## v2.12.3 "Claude-1" — 2026-06-23
 
 **Buộc agent phản hồi bằng tiếng Việt.**
