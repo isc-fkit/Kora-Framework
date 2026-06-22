@@ -36,13 +36,31 @@ The user invoked `/claude-knowledge-scan` — scan & import knowledge.
      bị chặn mạng → mình **tạo sẵn 1 lệnh ở `reports/claude-knowledge-scan.command`** để bạn chạy ở **Terminal** (KHÔNG bắt gõ lại
      lệnh) — xem Bước 2. **Terminal CLI** (không sandbox): quét thẳng mọi nguồn. Gợi ý: trong Cowork, ưu tiên tích các
      nguồn **(MCP)** để quét ngay không cần Terminal.
-   - **Chọn 1 nguồn cụ thể** (không phải "tất cả") → kết nối rồi **trả về danh sách project/folder** để
-     chọn (Jira: `python3 tools/jira-to-obsidian/import_jira.py --list-projects` → JSON `[{key,name}]`;
-     SharePoint/GitHub: liệt kê folder/repo qua MCP). **MỌI cấp chọn đều có [Chọn tất cả].**
+   - **Chọn 1 nguồn cụ thể** (không phải "tất cả") → **liệt kê ĐẦY ĐỦ TỪNG project + PREFIX NGUỒN** để chọn:
+     - Lấy danh sách project: **Jira API** → `python3 tools/jira-to-obsidian/import_jira.py --list-projects` → JSON
+       `[{key,name}]`; **Jira MCP** → `getVisibleJiraProjects` (**phân trang lấy HẾT**, đừng dừng trang đầu);
+       SharePoint/GitHub → liệt kê folder/repo qua MCP.
+     - 🏷️ **HIỆN TỪNG project, KHÔNG rút gọn / KHÔNG bỏ sót** — mỗi project 1 dòng `KEY — Tên`, **gắn PREFIX nguồn**
+       (tên + phương thức) để phân biệt: vd `[Cloud·MCP] FA — FMC App`, `[Server·API] IA — Insurance`. Đa nguồn/“cả 2” →
+       prefix giúp tránh nhầm project trùng KEY khác nguồn.
+     - 📑 **AskUserQuestion tối đa 4 option/thẻ → >4 project thì PHÂN TRANG** (3 project + **[Khác — xem thêm]** sang lượt
+       kế) theo rule #8; luôn kèm **[✓ Chọn tất cả project]**. **TUYỆT ĐỐI không** nhồi >4 option, **không** im lặng cắt
+       danh sách (mất project là lỗi). **MỌI cấp chọn đều có [Chọn tất cả].**
    - ⚠️ **Tránh quét trùng:** nếu user tích 2 entry CÙNG `source_type` (vd `jira_cloud__api` và `jira_cloud__mcp`)
      → cảnh báo có thể nạp trùng; nhắc chọn 1 (vault vẫn dedupe theo `jira_key` nhưng tốn công).
 2. **Kéo dữ liệu** từng nguồn đã chọn vào vault:
-   - **Jira (API/MCP)** → `workflows/01-import-jira.md`; cào **HẾT field, kể cả custom field & comment**.
+   - **Jira (API)** → `workflows/01-import-jira.md`; cào **HẾT field, kể cả custom field & comment**.
+   - **Jira (MCP — Atlassian Cloud/Rovo) → BẮT BUỘC GHI VÀO VAULT qua `--from-mcp` (KHÔNG chỉ đọc rồi bỏ — đây là
+     lỗi "quét MCP không lưu tri thức"):**
+     1. Chọn project (xem mục "liệt kê project" ở Bước 1) → có (các) `<KEY>`.
+     2. `searchJiraIssuesUsingJql` (`project = <KEY>` [+ `AND updated >= "<since>"` nếu incremental], `fields:["*all"]`,
+        **phân trang LẤY HẾT** — đừng dừng ở trang đầu). MCP trả file → dùng path đó; inline nhỏ → tự ghi ra
+        `reports/_mcp-pull.json`. **KHÔNG** nạp cả khối vào ngữ cảnh.
+     3. Map tên field 1 lần: `getJiraIssue` 1 hạng mục `expand=names` → ghi `{id:name}` ra `reports/_mcp-names.json`.
+     4. ⚠️ **GHI VAULT (bước trước nay BỊ THIẾU):** `python3 tools/jira-to-obsidian/import_jira.py --from-mcp <file>
+        --names reports/_mcp-names.json` → tái dùng TOÀN BỘ logic ghi note (mọi field/comment + phân loại theo loại +
+        backlink quan hệ). Nhiều project → lặp/gộp file. (Không cần token cho `--from-mcp`.)
+     5. Reindex (Bước 3) + báo cáo **theo loại** như mọi nguồn. **Chỉ coi là "đã quét" khi đã chạy xong bước 4 này.**
    - **SharePoint (MCP)** → `sharepoint_folder_search` để **liệt kê THƯ MỤC / PATH** (mọi cấp có [Chọn tất cả])
      → user chọn folder → `sharepoint_search` (+ fetch) **get nội dung** tài liệu về vault.
    - **Outlook (MCP)** → `outlook_email_search` (+ `outlook_calendar_search`) → lấy email/lịch theo bộ lọc về vault.

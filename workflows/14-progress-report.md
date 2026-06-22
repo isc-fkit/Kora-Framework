@@ -35,6 +35,12 @@ Windows `py`). **Exit ≠ 0 → DỪNG**: không làm mới, không sinh report.
 > last_import` (mốc lưu RIÊNG theo từng nguồn ở `_system/last-import-<nguồn>.txt`); chưa có mốc → kéo full. **Báo cho user
 > RÕ:** *"Đang lấy dữ liệu cập nhật của `<nguồn>` từ mốc `<last_import>`."* (Nguồn nào chưa quét lần nào → báo cần quét trước.)
 
+> 🏷️ **CHỌN PROJECT — liệt kê ĐẦY ĐỦ TỪNG project + PREFIX NGUỒN:** lấy project của nguồn đã chọn (API `--list-projects`;
+> MCP `getVisibleJiraProjects`, **phân trang lấy HẾT**) → hiện **mỗi project 1 dòng `KEY — Tên` kèm prefix** (vd
+> `[Cloud·MCP] FA — FMC App`), **KHÔNG rút gọn/bỏ sót**; >4 project → **PHÂN TRANG** (rule #8) + **[✓ Tất cả project]**.
+> ⚠️ **MCP refresh PHẢI ghi vault qua `import_jira.py --from-mcp` (mục A bên dưới)** — nếu chỉ đọc inline mà KHÔNG chạy
+> `--from-mcp` thì report xong **vault không được cập nhật** (đúng lỗi "cập nhật báo cáo không lưu tri thức").
+
 > 💡 Nếu `config > jira.effort_field` có giá trị (vd `customfield_10867`), **đặt biến
 > `JIRA_EFFORT_FIELD=<id>` trước mọi lệnh `import_jira.py`** (token lẫn `--from-mcp`) để gộp field
 > "ước tính theo giờ" vào est khi hạng mục công việc thiếu time-tracking chuẩn.

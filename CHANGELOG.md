@@ -10,6 +10,19 @@
 
 ---
 
+## v2.12.16 "Claude-1" — 2026-06-23
+
+**FIX: quét/báo-cáo Jira qua MCP KHÔNG lưu tri thức + chọn project đầy đủ + prefix nguồn.**
+
+- **Lỗi:** `kora-scan` đẩy "Jira MCP → WF01", `WF01` đẩy ngược "MCP xử lý ở kora-scan" → **vòng tròn, không chỗ nào
+  gọi `import_jira.py --from-mcp`** → fetch MCP xong chỉ đọc inline, KHÔNG ghi note vào vault.
+- **Sửa:** `kora-scan` Bước 2 thêm block **Jira (MCP) → BẮT BUỘC ghi vault qua `import_jira.py --from-mcp <file>
+  --names <names>` + reindex**; "chỉ coi là đã quét khi đã chạy `--from-mcp`". Smoke-test OK (New Feature→US,
+  Improvement→Task, Sub-task→SubTasks). `WF14` Bước 0.5 nhấn lại điều này cho luồng báo cáo.
+- **Chọn project:** liệt kê **ĐẦY ĐỦ TỪNG project + PREFIX nguồn** (vd `[Cloud·MCP] FA — FMC App`); >4 project →
+  **PHÂN TRANG** (rule #8) + `[✓ Tất cả project]`; **không rút gọn / không bỏ sót**. Áp cho kora-scan + WF14 + CLAUDE.md.
+- Ghi `.kb/system-lessons.md`: luồng MCP→vault phải nêu minh bạch bước `--from-mcp` tại nơi chạy, không đẩy lòng vòng.
+
 ## v2.12.15 "Claude-1" — 2026-06-23
 
 **Rule TOÀN CỤC: có `run_command` → ƯU TIÊN chạy MỌI lệnh qua nó, không bàn giao Terminal.**

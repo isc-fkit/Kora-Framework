@@ -48,3 +48,13 @@
   xuống câu thường SAU khi user chọn nhánh cần nhập. Thêm rule 🔑 vào workflow 00 + CLAUDE.md §1.8.
 - **Rút ra:** MỞ ĐẦU mọi quyết định (kể cả câu dẫn tới nhập tự do) bằng AskUserQuestion tối thiểu
   Có/Không — TUYỆT ĐỐI không mở một bước bằng câu hỏi free-text trống. Free-text chỉ ở lượt kế sau khi chọn nhánh.
+
+### 2026-06-23 — Quét/báo-cáo Jira MCP KHÔNG lưu vault (tham chiếu vòng tròn)
+- **Bối cảnh:** user báo "quét jira MCP + cập nhật báo cáo không lưu tri thức".
+- **Sai gì:** `kora-scan` Bước 2 ghi "Jira (API/MCP) → WF01", nhưng `WF01` Bước 0 lại ghi "MCP xử lý ở tầng
+  trên kora-scan" → **vòng tròn, KHÔNG chỗ nào gọi `import_jira.py --from-mcp`** → Claude fetch MCP rồi chỉ
+  ĐỌC inline, không ghi note vào vault. (Code `--from-mcp` vốn đúng — đã smoke-test New Feature→US, Improvement→Task.)
+- **Rút ra:** mỗi luồng MCP→vault PHẢI nêu MINH BẠCH bước `import_jira.py --from-mcp <file> --names <names>` +
+  reindex NGAY tại skill chạy nó (kora-scan), KHÔNG "đẩy lên tầng trên/xuống tầng dưới" rồi không tầng nào làm.
+  "Chỉ coi là đã quét khi đã chạy `--from-mcp`". Kéo MCP phải PHÂN TRANG lấy HẾT (đừng dừng trang đầu).
+- **Áp dụng:** kora-scan Bước 2 (block Jira MCP) + WF14 Bước 0.5 + CLAUDE.md trigger quét/báo-cáo.

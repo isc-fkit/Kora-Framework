@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.12.15",
+  "version": "2.12.16",
   "codename": "Claude-1",
   "released": "2026-06-23",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.12.15 (ưu tiên run_command cho MỌI lệnh): khi MCP local-terminal (run_command, chỉ Claude Desktop) khả dụng → MẶC ĐỊNH chạy mọi lệnh/script THẲNG trên máy (quét API/self-host, report, mail SMTP, update app, sync, reindex, file bị sandbox chặn) — KHÔNG bàn giao Terminal. run_command tự source ~/.zshrc nên luôn có token/config mới. Vẫn giữ Approval Gate + cổng KORA_OPS_PW + không in token. Không có run_command (web Cowork) → fallback bàn giao bash như cũ."
+  "intro": "Kora-Framework v2.12.16 (FIX: quét/báo-cáo Jira MCP không lưu tri thức + chọn project đầy đủ + prefix nguồn): (1) Sửa lỗi vòng-tròn kora-scan↔WF01 → MCP quét xong nay BẮT BUỘC ghi vault qua import_jira.py --from-mcp (đã smoke-test New Feature→US, Improvement→Task, Sub-task→SubTasks). (2) Báo cáo (WF14) refresh MCP cũng phải --from-mcp mới cập nhật vault. (3) Chọn project: liệt kê ĐẦY ĐỦ từng project + PREFIX nguồn (vd [Cloud·MCP] FA — …), >4 thì phân trang, không bỏ sót."
 }
