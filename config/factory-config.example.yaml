@@ -42,6 +42,8 @@ jira:
   enabled: false          # true nếu user chọn quét Jira lúc setup
   type: auto              # auto | cloud | server — cloud (*.atlassian.net, MCP/token) | server (self-host, token-only)
   effort_field: ""        # custom field "ước tính theo giờ" gộp vào est khi thiếu time-tracking (vd FMC: customfield_10867)
+  complexity_field: ""    # custom field "Complexity" (độ phức tạp, số). Rỗng → tự dò field tên "Complexity". Ghi frontmatter `complexity`.
+  complexity_high: 7      # ngưỡng PHỨC TẠP CAO (>= ngưỡng = cao) — báo cáo lấy nhóm này làm trọng tâm
   tool_path: tools/jira-to-obsidian
   group_by_project: true  # mỗi project Jira 1 thư mục con trong vault (hỏi lúc setup)
   run_mode: auto          # auto = thử sandbox trước | sandbox | user_terminal (tự ghi sau lần chạy đầu)

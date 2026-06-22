@@ -30,7 +30,11 @@
 
 1. **Tiền kiểm:** mỗi nguồn trong scan/post-list phải có credential **chạy nền được**
    (PAT/API token/OAuth còn refresh) — cron không mở trình duyệt. Kiểm bằng
-   `python3 tools/connections/check_connection.py --check <id>`. Nguồn chỉ-MCP không quét nền được → báo user.
+   `python3 tools/connections/check_connection.py --check <id>`.
+   > 🔌 **Nguồn chỉ-MCP (vd Atlassian Rovo) — KHÔNG dead-end:** MCP do APP Claude giữ token → tiến trình nền (cron/launchd)
+   > KHÔNG gọi được MCP. **AskUserQuestion 2 lựa chọn:** **[A]** kết nối Jira đó qua **API** (`/kora-connect`) rồi đặt lịch
+   > **HĐH nền 24/7** (auto-mail SMTP — khuyến nghị) · **[B]** tạo **lịch Cowork** (`mcp__scheduled-tasks__create_scheduled_task`,
+   > chạy khi MỞ app, dùng MCP; sandbox chặn SMTP → mail qua draft). Đừng chỉ "báo lỗi rồi dừng".
 2. **Hỏi (THÂN THIỆN — KHÔNG bắt gõ cron):**
    - **Mốc giờ** → AskUserQuestion **multi-select** gợi ý `08:00 / 12:00 / 14:00 / 17:00` + ô **"Other"** (HH:MM).
      Cho chọn **NHIỀU mốc** (cùng số phút; khác phút → lịch riêng).

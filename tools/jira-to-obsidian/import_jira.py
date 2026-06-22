@@ -81,6 +81,9 @@ BR_FIELD = os.getenv("JIRA_BR_FIELD") or ""
 # Custom field "effort/estimate theo GIỜ" (vd FMC: customfield_10867 "Effort Plan (h)") — gộp vào
 # ước tính khi issue KHÔNG có time-tracking chuẩn. Giá trị field tính bằng giờ → x3600 ra giây.
 EFFORT_FIELD = os.getenv("JIRA_EFFORT_FIELD") or ""
+# Custom field "Complexity" (độ phức tạp; số càng lớn càng phức tạp, >=7 = cao). Ưu tiên id cấu hình; nếu rỗng,
+# tự dò field tên "Complexity" trong FIELD_MAP. Ghi frontmatter máy-đọc `complexity` để report lấy làm trọng tâm.
+COMPLEXITY_FIELD = os.getenv("JIRA_COMPLEXITY_FIELD") or ""
 # Mặc định BẬT gom theo project; chỉ tắt khi user ghi rõ GROUP_BY_PROJECT=false
 PER_PROJECT = (os.getenv("GROUP_BY_PROJECT") or "true").strip().lower() not in ("0", "false", "no")
 # Mặc định CÀO HẾT mọi field (fields=*all + map tên custom field). Tắt: JIRA_FETCH_ALL_FIELDS=false
@@ -481,8 +484,29 @@ def _story_points(f):
     return None
 
 
+def _complexity(f):
+    """Giá trị field Complexity (số). Ưu tiên COMPLEXITY_FIELD; rỗng → dò field tên 'complexity' trong FIELD_MAP."""
+    fid = COMPLEXITY_FIELD
+    if not fid:
+        for k, name in FIELD_MAP.items():
+            if (name or "").strip().lower() == "complexity":
+                fid = k
+                break
+    if not fid:
+        return None
+    v = f.get(fid)
+    if isinstance(v, dict):              # custom field dạng option {value:"7"} / {name:"7"}
+        v = v.get("value") or v.get("name")
+    if isinstance(v, bool) or v is None or str(v).strip() == "":
+        return None
+    try:
+        return int(float(v))
+    except (ValueError, TypeError):
+        return None
+
+
 def _machine_progress_fields(f):
-    """Dòng frontmatter MÁY-ĐỌC cho report: status_category, time(giây), story_points, sprint active."""
+    """Dòng frontmatter MÁY-ĐỌC cho report: status_category, time(giây), story_points, sprint active, complexity."""
     lines = []
     sc = ((f.get("status") or {}).get("statusCategory") or {}).get("key", "")  # new|indeterminate|done
     cat = {"new": "todo", "indeterminate": "in_progress", "done": "done"}.get(sc, "")
@@ -505,6 +529,9 @@ def _machine_progress_fields(f):
             lines.append(f"sprint_state: {sprint['state']}")
         if sprint.get("end"):
             lines.append(f"sprint_end: {json.dumps((sprint['end'] or '')[:10], ensure_ascii=False)}")
+    cx = _complexity(f)
+    if cx is not None:
+        lines.append(f"complexity: {cx}")
     return lines
 
 

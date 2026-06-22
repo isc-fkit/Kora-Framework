@@ -412,7 +412,12 @@ def cmd_register(args):
 
     reg = load_registry()
     reg["schedules"] = [s for s in reg["schedules"] if s.get("id") != sid]  # replace-in-place
-    artifact, ok = _os_install(osname, sid, args.cron, native)
+    # OS install lỗi (sandbox / thiếu launchctl…) TUYỆT ĐỐI không được chặn việc LƯU registry → task luôn findable ở list.
+    install_err = None
+    try:
+        artifact, ok = _os_install(osname, sid, args.cron, native)
+    except Exception as e:  # noqa: BLE001
+        artifact, ok, install_err = None, False, f"{type(e).__name__}: {e}"
 
     rp = getattr(args, "report_projects", None)
     st = getattr(args, "sync_targets", None)
@@ -430,7 +435,7 @@ def cmd_register(args):
         "os_artifact": artifact, "created_at": now_iso(), "updated_at": now_iso(),
     }
     if not ok:
-        entry["install_error"] = INSTALL_FAIL_HINT
+        entry["install_error"] = install_err or INSTALL_FAIL_HINT
     reg["schedules"].append(entry)
     save_registry(reg)
     if ok:

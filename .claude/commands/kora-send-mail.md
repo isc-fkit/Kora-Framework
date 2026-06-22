@@ -51,6 +51,10 @@ The user invoked `/kora-send-mail` — gửi email báo cáo tiến độ. **CÓ
           BÁO CÁO ĐẦY ĐỦ; dashboard tương tác đính kèm). Tool in `ℹ️ Banner: nhúng CID …`. Báo "đã gửi tới <list>".
         - **[Tạo nháp] = FALLBACK** (chỉ khi user chọn / không gửi SMTP được): tạo NHÁP Gmail/Outlook qua MCP → user bấm gửi.
    - **[Đặt lịch]:**
+     a0. **Nếu nguồn Jira đã chọn là MCP-only** (method=mcp, vd `atlassian`/`jira_cloud` MCP) → **KHÔNG dead-end:**
+        AskUserQuestion **[A]** kết nối Jira qua **API** (`/kora-connect`) rồi lịch HĐH nền 24/7 (auto-mail SMTP — khuyến
+        nghị) · **[B]** lịch **Cowork** (`mcp__scheduled-tasks__create_scheduled_task`, chạy khi mở app, mail draft). (Lý
+        do: cron không gọi được MCP — token do app giữ.)
      a. **Provider** (lịch NỀN chỉ gửi **SMTP**).
      b. **Mốc giờ** — AskUserQuestion **multi-select** gợi ý `08:00 / 12:00 / 14:00 / 17:00` + ô **"Other"**
         (HH:MM tùy chỉnh). Cho chọn **NHIỀU mốc** (các mốc phải cùng số phút; khác phút → tạo lịch riêng).
@@ -63,6 +67,9 @@ The user invoked `/kora-send-mail` — gửi email báo cáo tiến độ. **CÓ
      e. → **Task xuất hiện trong danh sách `/kora-schedule`** — quản lý tại đó: **Bật/Tắt (active/inactive)**
         (`schedule.py enable|disable --id <slug>`) hoặc **Xóa** (`remove`). Nếu in `⚠️CHƯA-CÀI-HĐH` →
         lịch đã LƯU nhưng chưa cài được vào HĐH (enabled=false); thử `enable` lại hoặc dùng cơ chế **Cowork** làm fallback.
+     f. **VERIFY (bắt buộc):** sau register, chạy `python3 "$T/kora-scheduler/schedule.py" list` → xác nhận `id` vừa tạo
+        XUẤT HIỆN; báo user rõ "đã lưu ở `tools/kora-scheduler/schedules.json` (lịch HĐH)". (Lịch nay LUÔN lưu được dù
+        cài HĐH lỗi → hết cảnh 'tạo xong mà list không thấy'.)
 
 Chỉ quét Jira tới bước **tạo report + gửi mail** (KHÔNG sync KB). Token/secret chỉ ở `.env.local`.
 Windows: `python3` → `py`. Gói USER (`.kora-user`) → report/mail bị TẮT → chặn tại đây.

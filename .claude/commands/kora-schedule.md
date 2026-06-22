@@ -41,7 +41,8 @@ lịch Cowork (`mcp__scheduled-tasks__*`, service giữ ở RAM + registry trên
 
 ### Bước 2 — Hành động (AskUserQuestion): **[Liệt kê & quản lý]** / **[Tạo mới]** / **[Tùy chỉnh gửi mail]**
 
-**[Liệt kê & quản lý]** → hợp nhất **2 NGUỒN** lịch, gắn nhãn engine + cột **ENABLED (active/inactive)**:
+**[Liệt kê & quản lý]** → **BẮT BUỘC chạy CẢ 2 lệnh** rồi hợp nhất (đừng bỏ sót — task từ `/kora-send-mail [Đặt lịch]`
+nằm ở **HĐH** `schedules.json`; nếu chỉ chạy 1 lệnh sẽ "không thấy"), gắn nhãn engine + cột **ENABLED**:
 - **Lịch HĐH (disk — chạy cả khi ĐÓNG app):** `python3 tools/kora-scheduler/schedule.py list`
   (registry `tools/kora-scheduler/schedules.json`).
 - **Lịch Cowork (RAM + disk — chạy khi MỞ app):** `mcp__scheduled-tasks__list_scheduled_tasks`
@@ -110,8 +111,11 @@ Với MỖI task → AskUserQuestion quản lý **theo loại engine**:
    - ⚙️ Đây là **cấu hình CHUNG** (đọc lúc chạy) → áp cho **MỌI lịch** và **được ship sẵn trong archive/export**
      (xem `/kora-alert-mail` + `workflows/15-archive.md`): gói **USER** khi lỗi sẽ tự gửi mail ticket cho **người phụ trách** này.
 6. **Tiền kiểm CONNECTION** (§C) + **(tùy chọn) Sync** — đẩy KB lên target (`--sync-targets confluence,github,sharepoint`), có cổng.
+   > 🔌 **Nguồn scan là MCP-only** → **KHÔNG dead-end**: AskUserQuestion **[A]** kết nối Jira qua API + lịch HĐH nền 24/7
+   > (khuyến nghị) · **[B]** lịch **Cowork** (`create_scheduled_task`, chạy khi mở app). (cron không gọi được MCP — token do app giữ.)
 7. ✋ Confirm → `schedule.py register --id <slug> --times "08:00,14:00" --days mon-fri --scan a,b
    --report-projects KEY1,KEY2 --mail-provider smtp --email "x@y.com" [--sync-targets confluence,github,sharepoint]`.
+   → **VERIFY:** chạy `schedule.py list` xác nhận `<slug>` xuất hiện (lịch nay LUÔN lưu được dù cài HĐH lỗi) + báo nơi lưu.
 
 #### §T — Thời gian + tần suất (THÂN THIỆN — KHÔNG bắt gõ cron)
 - **Mốc giờ** → AskUserQuestion **multi-select** `08:00 / 12:00 / 14:00 / 17:00` + ô **"Other"** (HH:MM). NHIỀU mốc

@@ -33,6 +33,9 @@ Windows `py`). **Exit ≠ 0 → DỪNG**: không làm mới, không sinh report.
 > 💡 Nếu `config > jira.effort_field` có giá trị (vd `customfield_10867`), **đặt biến
 > `JIRA_EFFORT_FIELD=<id>` trước mọi lệnh `import_jira.py`** (token lẫn `--from-mcp`) để gộp field
 > "ước tính theo giờ" vào est khi issue thiếu time-tracking chuẩn.
+> 🧩 Tương tự với **Complexity**: đặt `JIRA_COMPLEXITY_FIELD=<id>` (từ `config > jira.complexity_field`; rỗng → tool tự
+> dò field tên "Complexity") trước `import_jira.py` → ghi frontmatter `complexity`. Khi build report, truyền
+> `--complexity-high <config jira.complexity_high, mặc định 7>` để báo cáo lấy nhóm điểm ≥ ngưỡng làm TRỌNG TÂM.
 
 Kiểm tra độ mới: `python3 tools/jira-to-obsidian/import_jira.py --check-fresh` (Windows `py`) → JSON
 `{last_import, is_stale, age_days, done_today}`. **`done_today:true` & `is_stale:false` → BỎ QUA làm mới**
@@ -96,6 +99,7 @@ Sinh khối **🤖 Phân tích AI — CỰC KỲ CHI TIẾT** dưới dạng **M
 (KHÔNG tự viết HTML/chip tay — tool lo màu sắc & bảng):
 1. **Ghi markdown** vào `reports/ai-analysis-latest.md`, MỖI MỤC mở đầu `## ` theo đúng thứ tự:
    `## 🔴 Rủi ro cao (blocker)` · `## 🟡 Rủi ro vừa / Cần theo dõi` · `## 🟢 Điểm tích cực` ·
+   `## 🧩 Độ phức tạp (TRỌNG TÂM)` (đọc `complexity` JSON — issue điểm ≥ ngưỡng, ai phụ trách, ưu tiên review/nguồn lực) ·
    `## 👥 Phân tích theo thành viên` (KÈM BẢNG markdown `| Thành viên | Tổng | Done | Đang làm | Ghi chú |`) ·
    `## 📅 Dự đoán sprint / timeline` · `## 🎯 Hành động ưu tiên` · `## 📌 Tóm tắt điều hành`.
 2. **Render + chèn vào email:** `python3 "$T/progress-report/build_report.py" --inject-ai reports/ai-analysis-latest.md`

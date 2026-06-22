@@ -10,6 +10,22 @@
 
 ---
 
+## v2.9.0 "Kora-1" — 2026-06-22
+
+- **🧩 Field `Complexity` làm TRỌNG TÂM.** Nạp field Jira "Complexity" (số càng lớn càng phức tạp; **≥7 = phức tạp cao**)
+  → frontmatter `complexity` (`import_jira` đọc `JIRA_COMPLEXITY_FIELD`, rỗng → tự dò field tên "Complexity"). Báo cáo có
+  **section nổi bật "🧩 Độ phức tạp"** (email + dashboard): KPI *số issue ≥7*, **bar phân bố** (≥7 tô đỏ), **bảng issue phức
+  tạp cao** (điểm/người/trạng thái). **AI ưu tiên** phân tích nhóm điểm cao. Cấu hình `jira.complexity_field` / `jira.complexity_high` (7).
+- **🔌 Lịch nguồn Jira MCP — KHÔNG báo lỗi cụt.** MCP không chạy được cron nền (token do app giữ) → nay **CHO CHỌN**:
+  **[A]** kết nối Jira qua **API** + lịch HĐH nền 24/7 (auto-mail SMTP) · **[B]** lịch **Cowork** (chạy khi mở app). Landing
+  (Connect + Schedule) **nói rõ** vì sao MCP không chạy nền + bảng so OS-cron vs Cowork-task.
+- **🐞 FIX task tạo từ `/kora-send-mail` không hiện trong `/kora-schedule` list.** `schedule.py cmd_register` nay **LUÔN
+  lưu registry** dù `_os_install` lỗi (try/except → enabled=false + install_error) → task luôn findable. `[Liệt kê]` BẮT
+  BUỘC gộp cả lịch HĐH + Cowork; **verify** sau khi tạo (chạy `list` xác nhận id + báo nơi lưu).
+- **🗂️ Daily report lưu theo THƯ MỤC NGÀY** `reports/<YYYY-MM-DD>/` (progress-report.html · email-body.html · progress-data.json)
+  — lịch sử từng ngày; vẫn giữ `-latest` + `progress-data-<ngày>.json` ở gốc cho mailer/orchestrator.
+- Thuần **CORE**, KHÔNG migration DATA. Máy đã cài: gõ **"cập nhật phiên bản"**.
+
 ## v2.8.9 "Kora-1" — 2026-06-22
 
 - **🕛 Chuẩn lại mốc tính ngày-công: HÔM NAY chỉ tính SAU 24:00 (hết ngày), KHÔNG phải 17:00.** Ngày chưa qua hết thì
