@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.12.17",
+  "version": "2.12.18",
   "codename": "Claude-1",
   "released": "2026-06-23",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": true,
-  "intro": "Kora-Framework v2.12.17 (FIX banner email VỠ trong Outlook): banner daily-report bị vỡ (chỉ còn chữ alt) do bản cài THIẾU file assets/banner-daily-report.jpg → send_report rơi về URL remote → Outlook chặn ảnh remote. Sửa: installer (install.command/.bat) nay SHIP cả thư mục assets/ vào CORE; send_report.py thêm path bền ~/.claude/kora-framework/assets để LUÔN nhúng CID inline (hiện ngay cả khi Outlook chặn ảnh remote). ⚠️ Người đã cài: chạy lại installer (hoặc 'cập nhật phiên bản') để kéo assets về."
+  "intro": "Kora-Framework v2.12.18 (FIX banner Outlook vỡ khi email CÓ đính kèm + banner nhẹ hơn): banner CID hiện tốt khi không đính kèm nhưng VỠ ('Download pictures') khi email kèm dashboard HTML — do multipart/related bị chôn dưới alternative+mixed nên Outlook FPT/Exchange không resolve cid. Sửa: dựng MIME thủ công mixed[related[alternative,image], đính-kèm] (related ngay dưới mixed). Đã verify end-to-end trên Outlook: banner hiện NGAY dù có đính kèm. Banner cũng nén 120KB→57KB (800px). ⚠️ Đã cài → cập nhật để kéo send_report mới + banner nhẹ."
 }

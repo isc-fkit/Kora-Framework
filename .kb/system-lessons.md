@@ -67,3 +67,15 @@
 - **Rút ra:** asset nào email cần nhúng inline (CID) PHẢI được installer/update SHIP vào CORE; tool tìm asset phải
   có path CORE chuẩn `~/.claude/kora-framework/assets` (không chỉ dựa cwd / HERE.parents). Remote URL chỉ là last-resort.
 - **Áp dụng:** install.command + install.bat thêm `assets` vào danh sách copy; send_report.py thêm candidate CORE.
+
+### 2026-06-23 — Banner CID không hiện trong Outlook khi email CÓ đính kèm
+- **Bối cảnh:** banner nhúng CID hiện tốt khi gửi mail KHÔNG đính kèm, nhưng VỠ ("Download pictures") khi
+  email có file đính kèm (báo cáo daily kèm dashboard HTML).
+- **Sai gì:** `EmailMessage` + `set_content` + `add_alternative(html)` + `get_payload()[-1].add_related(img)` tạo
+  `multipart/related` BỊ CHÔN dưới `alternative`, rồi `add_attachment` bọc thêm `mixed` →
+  `mixed > alternative > related`. Outlook FPT/Exchange KHÔNG traverse related chôn sâu → coi cid là ảnh NGOÀI.
+- **Rút ra:** email có inline-CID + đính kèm phải dựng `multipart/related` NGAY DƯỚI `multipart/mixed` (sibling của
+  đính kèm): `mixed[ related[ alternative[text,html], image(cid) ], đính-kèm ]`. `add_related` của EmailMessage
+  KHÔNG bọc được `alternative` (raise "Cannot convert alternative to related") → phải dựng MIME thủ công
+  (MIMEMultipart/MIMEImage/MIMEBase). Đã xác minh end-to-end trên Outlook (v3 có đính kèm → banner hiện ngay).
+- **Áp dụng:** tools/report-mailer/send_report.py (dựng body related-trên-cùng). + banner asset nén 120KB→57KB.

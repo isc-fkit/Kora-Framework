@@ -10,6 +10,20 @@
 
 ---
 
+## v2.12.18 "Claude-1" — 2026-06-23
+
+**FIX: banner Outlook VỠ khi email CÓ đính kèm (multipart/related chôn sâu) + banner nhẹ hơn.**
+
+- **Lỗi:** banner CID hiện tốt khi gửi mail KHÔNG đính kèm, nhưng **vỡ ("Download pictures")** khi email kèm
+  dashboard HTML. Do `EmailMessage.add_related` tạo `multipart/related` **chôn dưới `alternative`**, `add_attachment`
+  bọc thêm `mixed` → `mixed > alternative > related`. Outlook FPT/Exchange **không traverse related chôn sâu** → coi
+  banner là ảnh NGOÀI → chặn.
+- **Sửa:** `send_report.py` **dựng MIME thủ công** → `multipart/related` NGAY DƯỚI `mixed` (sibling đính kèm):
+  `mixed[ related[ alternative[text,html], image(cid) ], đính-kèm ]`. **Verify end-to-end trên Outlook:** banner
+  hiện NGAY cả khi có đính kèm (test v3), không cần "Download pictures".
+- **Banner nhẹ hơn:** nén `120KB → 57KB` (800px, JPEG q55) → tải nhanh hơn, vẫn sắc nét ở khổ email 600px.
+- ⚠️ **Migration:** người đã cài **cập nhật phiên bản** / chạy lại installer để kéo `send_report.py` mới + banner nhẹ.
+
 ## v2.12.17 "Claude-1" — 2026-06-23
 
 **FIX: banner daily-report VỠ trong Outlook (ảnh remote bị chặn) — bản cài thiếu `assets/`.**

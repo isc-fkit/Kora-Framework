@@ -29,7 +29,11 @@ import ssl
 import sys
 import time
 from datetime import datetime
-from email.message import EmailMessage
+from email import encoders
+from email.mime.base import MIMEBase
+from email.mime.image import MIMEImage
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from email.utils import formataddr
 from pathlib import Path
 
@@ -252,34 +256,8 @@ def main():
             print("⚠️  Banner: KHÔNG thấy file ảnh local → email giữ link REMOTE (Outlook có thể chặn 'trust sender'). "
                   "Truyền --banner <path> hoặc đặt KORA_BANNER trỏ tới assets/banner-daily-report.jpg.", file=sys.stderr)
 
-    msg = EmailMessage()
-    msg["From"] = formataddr((from_name, mail_from))
-    msg["To"] = ", ".join(to)
-    if cc:
-        msg["Cc"] = ", ".join(cc)
-    msg["Subject"] = subject
-    msg.set_content(text or "")
-    if html:
-        msg.add_alternative(html, subtype="html")
-        if banner_cid_path:
-            ctype, _ = mimetypes.guess_type(str(banner_cid_path))
-            mt, st = (ctype.split("/", 1) if ctype else ("image", "png"))
-            msg.get_payload()[-1].add_related(banner_cid_path.read_bytes(),
-                                              maintype=mt, subtype=st, cid="kora-banner")
-            # Outlook hiện ngay ảnh CID (không bắt "tin cậy/download pictures" như ảnh remote) — NHƯNG `add_related`
-            # đặt `Content-ID: kora-banner` KHÔNG ngoặc nhọn → Outlook không khớp `src="cid:kora-banner"`. RFC 2392
-            # yêu cầu Content-ID bọc <...>. Sửa: thêm ngoặc nhọn + Content-Disposition inline kèm filename + X-Attachment-Id.
-            related = msg.get_payload()[-1]          # text/html → đã thành multipart/related sau add_related
-            img_part = related.get_payload()[-1]     # phần ảnh vừa thêm
-            img_part.replace_header("Content-ID", "<kora-banner>")
-            del img_part["Content-Disposition"]      # add_related set 'inline' (không filename) → thay bằng có filename
-            img_part.add_header("Content-Disposition", "inline",
-                                filename="banner" + (banner_cid_path.suffix or ".jpg"))
-            img_part.add_header("X-Attachment-Id", "kora-banner")
-
     # Tên đính kèm KHÁC NHAU mỗi lần: report HTML cố định (progress-report-latest / email-body-latest /
-    # processing_report…) được đổi sang tên có NGÀY-GIỜ → client mail không lấy lại bản cũ cùng tên, và
-    # người nhận thấy rõ đây là bản mới. (File đính kèm khác giữ nguyên tên gốc.)
+    # processing_report…) được đổi sang tên có NGÀY-GIỜ → client mail không lấy lại bản cũ cùng tên.
     stamp = datetime.now().strftime("%Y-%m-%d_%H%M")
 
     def _attach_name(name):
@@ -289,19 +267,66 @@ def main():
             return f"email-body-{stamp}.html"
         return name
 
-    seen_names = set()
+    # Lọc đính kèm hợp lệ + dedup tên TRƯỚC → quyết định có cần bọc multipart/mixed hay không.
+    valid_atts, seen_names = [], set()
     for fp in attachments:
         p = Path(fp)
         if not p.exists():
             print(f"⚠️  Bỏ qua đính kèm (không thấy): {p}", file=sys.stderr)
             continue
-        ctype, _ = mimetypes.guess_type(str(p))
-        maintype, subtype = (ctype.split("/", 1) if ctype else ("application", "octet-stream"))
         fname = _attach_name(p.name)
         if fname in seen_names:  # tránh 2 đính kèm trùng tên trong cùng mail
             continue
         seen_names.add(fname)
-        msg.add_attachment(p.read_bytes(), maintype=maintype, subtype=subtype, filename=fname)
+        valid_atts.append((p, fname))
+
+    # ── Dựng BODY. Khi CÓ banner CID + ĐÍNH KÈM: phải để multipart/related NGAY DƯỚI multipart/mixed
+    #    (sibling của file đính kèm). Nếu related bị CHÔN dưới alternative+mixed (cách add_related cũ) →
+    #    Outlook (nhất là Outlook FPT/Exchange) KHÔNG resolve được `cid:` → coi banner là ảnh NGOÀI →
+    #    "Download pictures" + vỡ ảnh. Cấu trúc đích: mixed[ related[ alternative[text,html], image(cid) ], đính-kèm… ].
+    def _alt_part():
+        a = MIMEMultipart("alternative")
+        a.attach(MIMEText(text or "", "plain", "utf-8"))
+        if html:
+            a.attach(MIMEText(html, "html", "utf-8"))
+        return a
+
+    if html and banner_cid_path:
+        ctype, _ = mimetypes.guess_type(str(banner_cid_path))
+        _mt, st = (ctype.split("/", 1) if ctype else ("image", "jpeg"))
+        body = MIMEMultipart("related")
+        body.attach(_alt_part())
+        img = MIMEImage(banner_cid_path.read_bytes(), _subtype=st)
+        img.add_header("Content-ID", "<kora-banner>")              # RFC 2392: src="cid:kora-banner" ↔ <kora-banner>
+        img.add_header("Content-Disposition", "inline",
+                       filename="banner" + (banner_cid_path.suffix or ".jpg"))
+        img.add_header("X-Attachment-Id", "kora-banner")
+        body.attach(img)
+    elif html:
+        body = _alt_part()
+    else:
+        body = MIMEText(text or "", "plain", "utf-8")
+
+    # CÓ đính kèm → bọc multipart/mixed (body làm phần đầu, related KHÔNG bị chôn). KHÔNG có → body là message.
+    if valid_atts:
+        msg = MIMEMultipart("mixed")
+        msg.attach(body)
+        for p, fname in valid_atts:
+            ctype, _ = mimetypes.guess_type(str(p))
+            maintype, subtype = (ctype.split("/", 1) if ctype else ("application", "octet-stream"))
+            part = MIMEBase(maintype, subtype)
+            part.set_payload(p.read_bytes())
+            encoders.encode_base64(part)
+            part.add_header("Content-Disposition", "attachment", filename=fname)
+            msg.attach(part)
+    else:
+        msg = body
+
+    msg["From"] = formataddr((from_name, mail_from))
+    msg["To"] = ", ".join(to)
+    if cc:
+        msg["Cc"] = ", ".join(cc)
+    msg["Subject"] = subject
 
     all_rcpt = to + cc + bcc
 
