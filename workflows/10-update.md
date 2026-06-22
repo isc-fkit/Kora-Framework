@@ -45,13 +45,21 @@
 
 ## Bước 3 — Chạy cập nhật
 
-Chạy `scripts/update.command` (Claude tự chạy trong Cowork; sandbox chặn mạng → hướng dẫn user double-click file):
-- Có `.git` → `git pull --ff-only` (DATA đã gitignore nên không đụng).
-- Không có `.git` (bản zip) → tải `…/archive/refs/heads/release.zip`, giải nén, **chỉ ghi đè CORE**;
-  loại trừ MỌI DATA (vault `*_Brain/`, `.kb/*`, `docs/` nội dung, `inbox/`,
-  `config/factory-config.yaml`, `config/domain-rules.md`, `.env.*`). KHÔNG dùng `--delete`.
+> ⚠️ **Sandbox Cowork chặn mạng** → Claude KHÔNG tự tải/ghi đè CORE từ trong chat. **CORE bản cài nằm ở
+> `~/.claude/kora-framework` (ngoài sandbox).** Có 2 đường, ưu tiên theo thứ tự:
 
-Tường thuật tiến độ. Lỗi mạng/quyền → hướng dẫn double-click `scripts/update.command`.
+**Xác định LỆNH cập nhật đúng cho máy này:**
+- **Bản cài SKILL** (KHÔNG có `scripts/update.command` trong project; CORE ở `~/.claude/kora-framework`) → cập nhật =
+  **chạy lại installer**: `bash <(curl -fsSL https://raw.githubusercontent.com/isc-fkit/Kora-Framework/release/install.command)`
+  (Windows: tải `install.bat` về `%TEMP%` rồi chạy). Kéo CORE+skill mới, **GIỮ NGUYÊN tri thức** (vault/config/.env/docs).
+- **Bản DEV / có `scripts/update.command`** → `bash scripts/update.command` (git pull --ff-only nếu có `.git`; else tải
+  `release.zip` ghi đè **chỉ CORE**, loại trừ MỌI DATA: vault `*_Brain/`, `.kb/*`, `docs/`, `inbox/`, `config/factory-config.yaml`,
+  `config/domain-rules.md`, `.env.*`; KHÔNG `--delete`).
+
+**1. ⚡ ƯU TIÊN — có MCP `local-terminal` (`run_command`, Claude Desktop)?** → gọi `run_command(command="<lệnh cập nhật ở trên>")`
+   chạy THẲNG trên máy thật (ngoài sandbox), tường thuật output → sang Bước 4. **KHÔNG bắt user tự mở Terminal.**
+**2. KHÔNG có `run_command` → BÀN GIAO Terminal:** đưa user **đúng 1 lệnh** ở trên để dán vào **Terminal** chạy; xong
+   user gõ **"đã cập nhật"** → làm Bước 4. (Tuyệt đối KHÔNG bảo double-click `.command` — macOS Gatekeeper chặn; chạy bằng `bash`.)
 
 ## Bước 4 — Sau cập nhật
 

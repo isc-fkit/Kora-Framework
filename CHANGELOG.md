@@ -10,6 +10,19 @@
 
 ---
 
+## v2.12.5 "Claude-1" — 2026-06-23
+
+**Rule "mơ hồ thì hỏi làm rõ" + sửa luồng cập nhật dùng `run_command`.**
+
+- **CLAUDE.md (đầu file):** rule BẮT BUỘC — yêu cầu có **≥2 cách hiểu / thiếu thông tin / chưa chắc hiểu đúng vấn đề**
+  → **LUÔN hỏi user làm rõ TRƯỚC khi làm** (đừng tự đoán rồi làm sai); xong việc → hỏi lại "đã ổn chưa / còn gì không".
+  Thà hỏi thừa hơn làm sai. (Ngoại lệ: phân tích read-only §0.1 vẫn tự chạy.)
+- **WF10 cập nhật (sửa lỗi luồng):** CORE bản cài ở `~/.claude/kora-framework` (ngoài sandbox) → Claude KHÔNG tải/ghi đè
+  từ chat. Nay: **(a) có MCP `run_command` (Claude Desktop) → chạy lệnh cập nhật THẲNG trên máy, KHÔNG bắt user mở
+  Terminal;** (b) không có → bàn giao 1 lệnh. **Bản cài SKILL** (không có `scripts/update.command`) → cập nhật = chạy lại
+  installer `bash <(curl -fsSL …/install.command)` (giữ nguyên tri thức). CLAUDE.md trigger "cập nhật phiên bản" cập nhật theo.
+- Thuần guidance. Máy đã cài: gõ **"cập nhật phiên bản"**.
+
 ## v2.12.4 "Claude-1" — 2026-06-23
 
 **"quét jira" ưu tiên MCP, KHÔNG hỏi "quét từ nguồn nào".**

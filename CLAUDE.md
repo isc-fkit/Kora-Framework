@@ -9,6 +9,12 @@
 > nhắn bằng ngôn ngữ nào**. CHỈ giữ nguyên nguyên văn: tên lệnh/skill (`/claude-knowledge-*`), tên field/API/biến/
 > code/đường dẫn, và thuật ngữ kỹ thuật không có từ Việt phổ biến. (Theo `config > language`, mặc định `vi`.)
 
+> 🔍 **MƠ HỒ / KHÔNG CHẮC → LUÔN HỎI USER LÀM RÕ, ĐỪNG TỰ ĐOÁN.** Khi yêu cầu có **≥2 cách hiểu**, **thiếu thông
+> tin để làm đúng**, hoặc Claude **chưa chắc đã hiểu đúng vấn đề** → **HỎI 1 câu làm rõ** (AskUserQuestion, có gợi ý
+> + ô "Other") **TRƯỚC khi làm** — đừng suy diễn rồi làm sai phải làm lại. Sau khi sửa lỗi/thay đổi xong → **hỏi lại
+> "đã ổn chưa / còn gì nữa không"** để chắc đúng vấn đề. **Thà hỏi thừa còn hơn làm sai.** (Khác Approval Gate: gate
+> là xác nhận TRƯỚC KHI GHI; rule này là làm rõ Ý ĐỊNH/VẤN ĐỀ. Ngoại lệ: phân tích read-only §0.1 vẫn tự chạy.)
+
 ---
 
 ## 0. Trigger — nhận diện ý định của user
@@ -46,7 +52,7 @@
 | "xuất tài liệu", "export docx/pdf" | Confirm → chạy `workflows/06-export-docs.md` |
 | "đổi domain", "sửa rule" | Confirm → chạy `workflows/00-setup.md` mục B (chỉ phần domain/rules) |
 | "đang cài bản nào", "xem phiên bản đang cài", "phiên bản hiện tại / đang dùng", "version đang cài", `/claude-knowledge-version` | **CHỈ ĐỌC** → `/claude-knowledge-version`: đọc `~/.claude/kora-framework/version.json` (fallback `./version.json`) hiện bản đang cài + so với bản mới nhất trên GitHub (gợi ý `/claude-knowledge-update` nếu cũ). KHÔNG cập nhật, KHÔNG ghi gì. (Khác "cập nhật phiên bản" = WF10 đi tải/ghi đè.) |
-| "cập nhật phiên bản", "cập nhật ứng dụng / app", "lên bản mới nhất", "có bản mới không", "kiểm tra phiên bản" | **= Cập nhật CHƯƠNG TRÌNH (app) lên bản phát hành mới nhất** → chạy `workflows/10-update.md` (giữ nguyên tri thức). **TUYỆT ĐỐI KHÔNG** hỏi lại "bạn muốn cập nhật cái gì" — chạy thẳng WF10 (WF10 tự confirm trước khi tải/ghi đè). **Chỉ khi** user gõ **"cập nhật" TRƠ** (không có tân ngữ) mới hỏi 1 câu phân biệt: *"Cập nhật ứng dụng lên bản mới, hay cập nhật tri thức/nội dung?"* |
+| "cập nhật phiên bản", "cập nhật ứng dụng / app", "lên bản mới nhất", "có bản mới không", "kiểm tra phiên bản" | **= Cập nhật CHƯƠNG TRÌNH (app) lên bản phát hành mới nhất** → chạy `workflows/10-update.md` (giữ nguyên tri thức). **TUYỆT ĐỐI KHÔNG** hỏi lại "bạn muốn cập nhật cái gì" — chạy thẳng WF10 (WF10 tự confirm trước khi tải/ghi đè). **CORE ở `~/.claude/kora-framework` (ngoài sandbox) → KHÔNG tải/ghi đè từ trong chat.** WF10: **(a) có MCP `run_command` (local-terminal, Claude Desktop) → chạy lệnh cập nhật THẲNG trên máy, KHÔNG bắt user mở Terminal;** (b) không có → BÀN GIAO 1 lệnh cho user chạy ở Terminal. **Bản cài SKILL** (không có `scripts/update.command`) → cập nhật = chạy lại installer `bash <(curl -fsSL …/install.command)`. **Chỉ khi** user gõ **"cập nhật" TRƠ** mới hỏi 1 câu phân biệt: *"Cập nhật ứng dụng lên bản mới, hay cập nhật tri thức/nội dung?"* |
 | "sao lưu", "xuất tri thức", "chuyển/dời máy" | Confirm → chạy `workflows/11-export-import.md` mục A (export) |
 | "nhập tri thức", "khôi phục", đưa file `kora-kb-*.zip` / `kora-archive-*.zip` | Confirm → chạy `workflows/11-export-import.md` mục B (import) — nhận cả gói sao lưu lẫn gói archive |
 | "đóng gói bàn giao", "archive", "handover", "đóng gói cho user dùng" | Confirm → `workflows/15-archive.md` (`/claude-knowledge-archive`): **cổng mật khẩu** → chọn USER/HOST + read-only/read-write → ship key READ → `kora-archive-*.zip`. Gói USER tắt report/mail, tự lên lịch get&post. |
