@@ -10,6 +10,15 @@
 
 ---
 
+## v2.9.3 "Kora-1" — 2026-06-22
+
+- **🃏 Hết lỗi thẻ chọn "Invalid tool parameters".** Bổ sung **HỢP ĐỒNG SCHEMA** cho AskUserQuestion vào
+  `CLAUDE.md` rule #8 (nạp mỗi phiên → áp cho MỌI skill): `header` **≤ 12 ký tự** (lỗi hay gặp nhất — header
+  dài như "Gửi ngay / Đặt lịch"), mỗi `option` phải có CẢ **`label` + `description`**, **`multiSelect` bắt
+  buộc**, `options` **2–4** (>4 → phân trang). Skill `kora-send-mail` (bước 2b/4) ghi rõ shape hợp lệ;
+  `.kb/system-lessons.md` ghi bài học để không lặp.
+- Thuần **CORE (guidance)**, KHÔNG migration DATA. Máy đã cài: gõ **"cập nhật phiên bản"**.
+
 ## v2.9.2 "Kora-1" — 2026-06-22
 
 - **🆕 Report đính kèm luôn MỚI & KHÁC TÊN (hết "gửi mail bản cũ").** File báo cáo đính kèm nay đổi **tên có

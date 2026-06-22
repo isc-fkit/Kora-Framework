@@ -9,6 +9,16 @@
 > - **Sửa gì:** ...
 > - **Rút ra / áp dụng từ nay:** ...
 
+## 2026-06-22 — AskUserQuestion "Invalid tool parameters" do SCHEMA (header >12 ký tự)
+- **Sai gì:** `/kora-send-mail` bước "Gửi ngay hay đặt lịch?" báo `Invalid tool parameters`. Khác lỗi "Failed"
+  (2026-06-14, do input tự do) và khác "could not be parsed as JSON" (sai cú pháp): đây là **vi phạm SCHEMA** —
+  thường do `header` >12 ký tự, hoặc option thiếu `description`, hoặc thiếu `multiSelect`. Guidance ghi terse
+  "AskUserQuestion [A] / [B]" (28+ chỗ) không nêu ràng buộc → model dễ dựng header dài / thiếu field.
+- **Sửa gì:** CLAUDE.md rule #8 thêm **HỢP ĐỒNG SCHEMA** (header ≤12 ký tự · mỗi option có `label`+`description` ·
+  `multiSelect` bắt buộc · 2–4 option, >4 phân trang). Ghi shape ngắn ở kora-send-mail bước 2b/4. (v2.9.3)
+- **Rút ra / áp dụng từ nay:** Mọi thẻ chọn — `header` NGẮN ≤12 ("Gửi/Lịch", "Phạm vi", "Kênh gửi"), KHÔNG nhồi
+  cả câu vào header; mỗi option luôn kèm `description`; luôn set `multiSelect`. >4 lựa chọn → phân trang, không nhồi.
+
 ## 2026-06-14 — AskUserQuestion cho input tự do → "Failed"
 - **Sai gì:** Setup hỏi tên project bằng AskUserQuestion (vốn cần options cố định) → hiển thị "Failed".
 - **Sửa gì:** Nguyên tắc 8 cấm AskUserQuestion cho input tự do + xử lý case "lai"; workflow 00 Bước 2

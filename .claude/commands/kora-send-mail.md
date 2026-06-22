@@ -13,9 +13,11 @@ The user invoked `/kora-send-mail` — gửi email báo cáo tiến độ. **CÓ
    (`atlassian`/`jira_cloud`) → `getVisibleJiraProjects` → AskUserQuestion **multi-select project** (+ **[Chọn tất cả]**).
 2b. **Chọn PHẠM VI báo cáo (dự án LỚN — không lấy hết):** AskUserQuestion **[Sprint đang chạy] / [N ngày gần đây —
    mặc định 30] / [Toàn bộ]** → `SCOPE` (sprint/recent/all), `NDAYS`. SCOPE≠all → scan thêm `AND updated >= -<NDAYS>d` + build_report `--scope`.
+   (Thẻ hợp lệ: `header` ≤12 ký tự vd "Phạm vi", mỗi option có `description`, `multiSelect:false` — CLAUDE.md rule #8.)
 3. **Chọn người nhận (mail gửi đến):** danh bạ `reports.email.to` (multi-select) + **[+ Thêm mới]**
    (ô "Other" → gõ địa chỉ → **lưu vào `reports.email.to`**). Đây là nguồn người nhận DUY NHẤT mà lịch/task đọc.
-4. **Gửi ngay hay đặt lịch:** AskUserQuestion **[Gửi ngay] / [Đặt lịch]**.
+4. **Gửi ngay hay đặt lịch:** AskUserQuestion **[Gửi ngay] / [Đặt lịch]** (thẻ hợp lệ: `header` NGẮN ≤12 ký tự
+   vd "Gửi/Lịch", mỗi option có `description`, `multiSelect:false` — xem CLAUDE.md rule #8; header dài → `Invalid tool parameters`).
    - **[Gửi ngay]:**
      a. **CỔNG MẬT KHẨU vận hành `KORA_OPS_PW`** → `python3 tools/archive-gate/verify_ops_password.py`
         (đọc env **HOẶC** `~/.config/kora/ops-pw.env` — đặt 1 lần bằng `/kora-ops-password`; **KHÔNG hỏi qua card, KHÔNG in**). Exit ≠ 0 → **DỪNG**.

@@ -149,6 +149,12 @@ Mục tiêu: user KHÔNG cần thuộc lệnh nào — chỉ nói bằng lời t
 7. **Mọi thay đổi ghi changelog** vào `.kb/changelog.md` (ngày, source, file, lý do, người duyệt).
 8. **Hỏi bằng THẺ CHỌN — kể cả khi nhập liệu.** Cần user CHỌN giữa phương án rõ ràng (2–4 lựa
    chọn) → dùng AskUserQuestion kèm mô tả.
+   > ⚙️ **HỢP ĐỒNG SCHEMA — vi phạm là báo `Invalid tool parameters`:** mỗi câu hỏi cần `question`;
+   > **`header` ≤ 12 KÝ TỰ** (đặt NGẮN: "Gửi/Lịch", "Phạm vi", "Kênh gửi"… — KHÔNG nhồi cả câu vào header,
+   > đây là lỗi hay gặp nhất); `options` **2–4 phần tử**, **MỖI option BẮT BUỘC có CẢ `label` LẪN `description`**
+   > (đừng để trống `description`); **`multiSelect` (true/false) BẮT BUỘC**. Cần **>4 lựa chọn → PHÂN TRANG**
+   > (3 mục + "[Khác — xem thêm]" → lượt kế), KHÔNG nhồi >4 option/thẻ. (Ràng buộc này áp cho MỌI skill/workflow,
+   > kể cả nơi ghi terse "AskUserQuestion [A] / [B]".)
    **Input TỰ DO không nhạy cảm** (tên project, đường dẫn, tên thư mục, mô tả ngắn): **VẪN dùng
    AskUserQuestion** — đưa vài **GỢI Ý** làm option + để user bấm ô **"Other" (ô trống)** tự gõ
    giá trị thật. **KHÔNG bắt user gõ vào chat** khi có thể hiện thẻ.

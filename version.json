@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.9.2",
+  "version": "2.9.3",
   "codename": "Kora-1",
   "released": "2026-06-22",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.9.2 (report đính kèm luôn MỚI & KHÁC TÊN + banner nhẹ/hiện được + màu OT/Thiếu đúng): (1) File báo cáo đính kèm nay đổi TÊN có ngày-giờ mỗi lần gửi (progress-report-<YYYY-MM-DD_HHMM>.html) → client mail KHÔNG lấy lại bản cũ cùng tên; send_report thêm guard chống gửi bản CŨ (báo cáo cũ hơn 30' → DỪNG, bắt build lại). (2) Banner header nén JPEG 547KB → 117KB (4.7x nhẹ hơn) + nhúng CID inline chắc chắn → hết load fail trong body. (3) Màu OT/Thiếu: ÂM (thiếu) = ĐỎ, DƯƠNG (vượt/OT) = XANH (trước đây ngược). Thuần CORE, không migration DATA."
+  "intro": "Kora-Framework v2.9.3 (hết lỗi thẻ chọn 'Invalid tool parameters'): bổ sung HỢP ĐỒNG SCHEMA cho AskUserQuestion vào CLAUDE.md rule #8 — header ≤12 ký tự, mỗi lựa chọn phải có mô tả (description), multiSelect bắt buộc, tối đa 4 lựa chọn (nhiều hơn thì phân trang). Lỗi 'Invalid tool parameters' ở các bước hỏi (vd 'Gửi ngay hay đặt lịch?') thường do header quá 12 ký tự — nay guidance trung tâm + skill kora-send-mail nêu rõ để mọi thẻ dựng hợp lệ. Thuần CORE (guidance), không migration DATA."
 }
