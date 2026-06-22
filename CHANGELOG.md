@@ -10,6 +10,16 @@
 
 ---
 
+## v2.12.14 "Claude-1" — 2026-06-23
+
+**Map loại Jira FMC-riêng → phân loại đúng thư mục (không rơi vào RawIssues).**
+
+- `_TYPE_MAP` (import_jira.py): **"Improvement" → Task**, **"New Feature"/"Feature" → User Story**. Trước đây "New
+  Feature" không khớp pattern nào → rơi `08_RawIssues`; nay vào `03_UserStories`. ("Improvement"→task vốn đã có.)
+- Giữ thứ tự an toàn: **"sub" đứng trước "task"** nên "Sub-task" vẫn vào `06_SubTasks` (không nhầm Task).
+- Vẫn **override/bổ sung** được qua `JIRA_TYPE_MAP` (JSON) trong `.env.local` — vd Jira tiếng Việt
+  (`{"cải tiến":"task","tính năng mới":"user_story"}`).
+
 ## v2.12.13 "Claude-1" — 2026-06-23
 
 **Bảng keyword+ví dụ · connect Gmail hỏi SMTP/MCP (ưu tiên SMTP) · luôn `source` lấy config mới.**

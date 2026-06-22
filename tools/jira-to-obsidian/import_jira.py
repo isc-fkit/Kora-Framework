@@ -235,8 +235,11 @@ def safe_name(key, summary, maxlen=80):
 # Mapping tên loại issue → loại chuẩn. Override/bổ sung qua JIRA_TYPE_MAP trong .env.local
 # (JSON, substring không phân biệt hoa thường), vd Jira tiếng Việt:
 # JIRA_TYPE_MAP={"câu chuyện":"user_story","lỗi":"bug","công việc":"task","sử thi":"epic"}
+# Lưu ý: "sub" đặt TRƯỚC "task" để "Sub-task" khớp sub-task (không rơi vào task).
+# FMC-riêng: "improvement"→task, "feature" (gồm "New Feature")→user_story.
 _TYPE_MAP = {"epic": "epic", "story": "user_story", "sub": "sub-task",
-             "bug": "bug", "task": "task", "defect": "bug", "improvement": "task"}
+             "bug": "bug", "defect": "bug", "improvement": "task",
+             "feature": "user_story", "task": "task"}
 try:
     _TYPE_MAP.update({k.lower(): v for k, v in json.loads(os.getenv("JIRA_TYPE_MAP") or "{}").items()})
 except json.JSONDecodeError:
