@@ -10,6 +10,13 @@
 
 ---
 
+## v2.9.1 "Kora-1" — 2026-06-22
+
+- **🕘 Tên file report gắn NGÀY-GIỜ tạo.** File trong thư mục ngày nay đặt tên kèm ngày-giờ:
+  `reports/<YYYY-MM-DD>/progress-report-<YYYY-MM-DD_HHMM>.html` (+ `email-body-<…>.html` · `progress-data-<…>.json`).
+  Chạy nhiều lần trong ngày = **nhiều bản riêng, không ghi đè**, tra cứu theo thời điểm dễ. Bản `-latest` ở gốc giữ
+  nguyên cho mailer/orchestrator. Thuần **CORE**, không migration DATA.
+
 ## v2.9.0 "Kora-1" — 2026-06-22
 
 - **🧩 Field `Complexity` làm TRỌNG TÂM.** Nạp field Jira "Complexity" (số càng lớn càng phức tạp; **≥7 = phức tạp cao**)
