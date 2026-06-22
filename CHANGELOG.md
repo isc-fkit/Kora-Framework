@@ -10,6 +10,15 @@
 
 ---
 
+## v2.12.8 "Claude-1" — 2026-06-23
+
+**Installer nhắc (tùy chọn) bật MCP `local-terminal` cho nguồn nội bộ.**
+
+- Cuối `install.command` (macOS) + `install.bat` (Windows) in gợi ý: muốn **quét nguồn NỘI BỘ (Jira Server self-host)
+  THẲNG trong Cowork không cần Terminal** → chạy `tools/kora-mcp/setup_macos.command` (macOS) / xem `tools/kora-mcp/README.md`
+  (Windows) để bật MCP `local-terminal`. **Opt-in, chỉ Claude Desktop, không tự bật** (arbitrary-exec). Bỏ qua nếu chỉ dùng Cloud/MCP.
+- Installer được tải LIVE từ nhánh release nên có hiệu lực ngay cho bản cài mới.
+
 ## v2.12.7 "Claude-1" — 2026-06-23
 
 **`kora-mcp`: script setup + mô tả đúng (token ở `~/.zshrc` cho run_command).**

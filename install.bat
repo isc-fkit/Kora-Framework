@@ -97,6 +97,9 @@ echo      Folder skill (upload vao Cowork): %SKILL_DIR%
 echo      Claude Code (CLI): mo  %ROOT%  -^> go  /claude-knowledge-init (dat domain/ten) roi /claude-knowledge-scan.
 echo      Claude Cowork (App): upload claude-knowledge-*.md trong  %SKILL_DIR%  vao Skills -^> mo  %ROOT%  -^> go /claude-knowledge-init.
 echo      Cap nhat: chay lai file nay (skill moi tu keo ve, tri thuc giu nguyen).  Go: chay uninstall.bat.
+echo.
+echo   (Tuy chon) Quet nguon NOI BO (Jira Server self-host) THANG trong Cowork khong can Terminal?
+echo      -^> Bat MCP local-terminal: xem huong dan "%DEST_CORE%\tools\kora-mcp\README.md" (chi Claude Desktop, opt-in).
 :end
 echo.
 pause

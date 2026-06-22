@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.12.7",
+  "version": "2.12.8",
   "codename": "Claude-1",
   "released": "2026-06-23",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.12.7 (kora-mcp: script setup + mô tả đúng): thêm tools/kora-mcp/setup_macos.command tự gắn MCP local-terminal vào Claude Desktop (backup + từ chối nếu app đang mở, tránh ghi đè). Sửa mô tả tool run_command (shell đăng nhập + source ~/.zshrc, không phải bash -lc). Token nguồn API/Server đặt ở ~/.zshrc (đúng rule #6, connect cũng ghi vào đây); run_command source ~/.zshrc mỗi lần → đổi token không cần restart. Đã verify quét thật Jira Server (IA 25 issue OK)."
+  "intro": "Kora-Framework v2.12.8 (installer nhắc bật MCP local-terminal): cuối install.command/install.bat in gợi ý — muốn quét nguồn NỘI BỘ (Jira Server self-host) thẳng trong Cowork không cần Terminal thì chạy tools/kora-mcp/setup_macos.command (macOS) / xem README (Windows) để bật MCP local-terminal (opt-in, chỉ Claude Desktop). Bỏ qua nếu chỉ dùng nguồn Cloud/MCP. Không tự bật (arbitrary-exec)."
 }
