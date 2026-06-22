@@ -146,6 +146,19 @@ github:                   # KB → repo GitHub RIÊNG TƯ (private) qua GIT PUSH
     subdir: ""            # thư mục con trong repo đích (mặc định = gốc repo)
   # Token: KORA_GITHUB_SYNC_TOKEN (PAT scope 'repo') trong tools/github-sync/.env.local
 
+gitlab:                   # KB → repo GitLab RIÊNG TƯ (private) qua GIT PUSH. Token CHỈ ở tools/gitlab-sync/.env.local.
+  enabled: false          # true khi đã cấu hình repo + có token
+  tool_path: tools/gitlab-sync
+  repo: ""                # group/name, vd "isc-fkit/kb-mirror" (nhóm con: "group/sub/name") — repo PHẢI private
+  branch: main
+  base_url: https://gitlab.com   # đổi cho GitLab self-hosted (vd https://gitlab.cty.vn)
+  permission: read_write  # read_only | read_write — read_only thì --push bị từ chối
+  push:
+    source: both          # vault | docs | both — nguồn note để đẩy
+    scope: ""             # lọc theo thư mục/glob (tùy chọn)
+    subdir: ""            # thư mục con trong repo đích (mặc định = gốc repo)
+  # Token: KORA_GITLAB_SYNC_TOKEN (PAT scope 'api' hoặc read_repository+write_repository) trong tools/gitlab-sync/.env.local
+
 sharepoint:               # KB → SharePoint document library qua Microsoft Graph (WRITE). Token ở ~/.zshrc hoặc tools/sharepoint-sync/.env.local (lịch nền).
   enabled: false          # true khi đã kết nối SharePoint + chọn đẩy lên
   tool_path: tools/sharepoint-sync

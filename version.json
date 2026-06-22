@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.9.6",
+  "version": "2.9.7",
   "codename": "Kora-1",
   "released": "2026-06-22",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.9.6 (banner email full-width trên mobile + tách mail từng người): (1) Banner header báo cáo nay HIỂN THỊ FULL-WIDTH trên điện thoại — hết khoảng trắng 2 bên (thêm meta viewport + media query full-bleed cho card/banner); desktop vẫn card 600px căn giữa như cũ. (2) Gửi report cho nhiều người nay TÁCH RIÊNG từng email (mỗi người một mail, To là chính họ, không thấy nhau; một người lỗi vẫn gửi người khác) qua cờ --split — kora-send-mail + lịch nền tự dùng. Thuần CORE, không migration DATA."
+  "intro": "Kora-Framework v2.9.7 (kết nối API hoàn chỉnh cho GitHub & GitLab): (1) Kết nối API nay LIỆT KÊ repo (GitHub) / project (GitLab) để CHỌN sau khi verify — không phải gõ tay (check_connection --list-repos). (2) GitLab thành nguồn ĐẦY ĐỦ như GitHub: thêm tool tools/gitlab-sync (push/pull KB ↔ repo GitLab qua git+PAT, idempotent), config gitlab:, gắn vào /kora-scan (pull) + /kora-sync (push, cổng KORA_OPS_PW) + lịch nền. Token PAT ở tools/gitlab-sync/.env.local (KORA_GITLAB_SYNC_TOKEN). Thuần CORE, không migration DATA."
 }

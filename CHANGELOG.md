@@ -10,6 +10,18 @@
 
 ---
 
+## v2.9.7 "Kora-1" — 2026-06-22
+
+- **🔌 Kết nối API hoàn chỉnh cho GitHub & GitLab.** Sau khi verify, connect nay **LIỆT KÊ repo (GitHub
+  `/user/repos`) / project (GitLab `/projects`) để CHỌN** — không phải gõ tay (`check_connection.py --list-repos`,
+  cùng mẫu Jira `--list-projects`). Tô-ken: `KORA_GITHUB_TOKEN` / `KORA_GITLAB_TOKEN` (shell env; lịch nền → PAT).
+- **🦊 GitLab thành nguồn ĐẦY ĐỦ như GitHub.** Thêm tool **`tools/gitlab-sync/sync_gitlab.py`** (mirror github-sync):
+  `--check/--push/--pull` KB ↔ repo GitLab qua git + PAT (Basic `oauth2:<token>`, idempotent, gương 1 chiều), kéo
+  `.md` → `<vault>/GitLab/` + `_GitLab-Index.md`. Thêm section config `gitlab:` + `.env.example` + README. Gắn vào
+  **`/kora-scan`** (pull), **`/kora-sync`** + WF16 (push, target `gitlab`, cổng `KORA_OPS_PW`), và **lịch nền**
+  (orchestrator: scan `gitlab:<repo>` pull + sync push). Self-hosted: đổi `gitlab.base_url`.
+- Thuần **CORE**, KHÔNG migration DATA. Máy đã cài: gõ **"cập nhật phiên bản"**.
+
 ## v2.9.6 "Kora-1" — 2026-06-22
 
 - **📱 Banner email FULL-WIDTH trên mobile (hết khoảng trắng 2 bên).** Thân email thiếu `<meta viewport>` nên trên

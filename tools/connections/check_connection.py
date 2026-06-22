@@ -200,16 +200,78 @@ def probe_api(entry: dict):
         return "error", f"network: {e.reason}"
 
 
+def _gh_api(base: str) -> str:
+    """Base API GitHub: github.com → api.github.com; Enterprise <host> → <host>/api/v3."""
+    base = (base or "").rstrip("/")
+    if not base or base in ("https://github.com", "http://github.com"):
+        return "https://api.github.com"
+    if "api.github.com" in base:
+        return base
+    return base + "/api/v3"
+
+
+def _gl_api(base: str) -> str:
+    """Base API GitLab: <host> → <host>/api/v4 (mặc định gitlab.com)."""
+    base = (base or "").rstrip("/") or "https://gitlab.com"
+    return base if base.endswith("/api/v4") else base + "/api/v4"
+
+
+def list_repos(entry: dict):
+    """In JSON danh sách repo (GitHub) / project (GitLab) của 1 connection để skill cho user CHỌN.
+    GitHub: GET /user/repos · GitLab: GET /projects?membership=true. Tái dùng resolve_token + http_get."""
+    st = entry.get("source_type", "")
+    token, _ = resolve_token(entry)
+    if not token:
+        print(json.dumps({"error": "Thiếu token (chưa set env var / .env). Chạy /kora-connect."}, ensure_ascii=False))
+        sys.exit(1)
+    base = entry.get("base_url") or ""
+    try:
+        if st == "github":
+            url = (_gh_api(base) + "/user/repos?per_page=100&sort=updated"
+                   "&affiliation=owner,collaborator,organization_member")
+            _code, body = http_get(url, {"Accept": "application/vnd.github+json",
+                                         "Authorization": f"Bearer {token}", "User-Agent": "kora-connect"})
+            data = json.loads(body)
+            out = [{"full_name": r.get("full_name"), "private": r.get("private"),
+                    "default_branch": r.get("default_branch")} for r in data if isinstance(r, dict)]
+        elif st == "gitlab":
+            url = _gl_api(base) + "/projects?membership=true&per_page=100&order_by=last_activity_at&simple=true"
+            _code, body = http_get(url, {"Accept": "application/json", "PRIVATE-TOKEN": token})
+            data = json.loads(body)
+            out = [{"path_with_namespace": r.get("path_with_namespace"), "id": r.get("id"),
+                    "default_branch": r.get("default_branch")} for r in data if isinstance(r, dict)]
+        else:
+            print(json.dumps({"error": f"--list-repos chỉ hỗ trợ github/gitlab (source_type={st})"}, ensure_ascii=False))
+            sys.exit(1)
+    except urllib.error.HTTPError as e:
+        print(json.dumps({"error": f"HTTP {e.code} (token sai/hết hạn hoặc thiếu quyền)"}, ensure_ascii=False))
+        sys.exit(1)
+    except urllib.error.URLError as e:
+        print(json.dumps({"error": f"network: {e.reason}"}, ensure_ascii=False))
+        sys.exit(1)
+    print(json.dumps(out, ensure_ascii=False))
+
+
 def main():
     ap = argparse.ArgumentParser(description="Kiểm tra sổ kết nối Kora.")
     ap.add_argument("--list", action="store_true", help="In bảng các kết nối đã đăng ký.")
     ap.add_argument("--check", metavar="ID", help="Kiểm tra 1 kết nối theo id.")
+    ap.add_argument("--list-repos", dest="list_repos", metavar="ID",
+                    help="Liệt kê repo (GitHub) / project (GitLab) của connection <id> (JSON) để CHỌN.")
     ap.add_argument("--json", action="store_true", help="In JSON thay vì bảng (cho --list).")
     ap.add_argument("--config", default="", help="Đường dẫn factory-config.yaml (mặc định: config của "
                     "thư mục hiện tại = PROJECT). Cần khi tool chạy từ CORE cho project ở nơi khác.")
     args = ap.parse_args()
 
     conns = parse_connections(resolve_config(args.config))
+
+    if args.list_repos:
+        entry = next((c for c in conns if c.get("id") == args.list_repos), None)
+        if not entry:
+            print(json.dumps({"error": f"không tìm thấy id '{args.list_repos}' trong connections"}, ensure_ascii=False))
+            sys.exit(1)
+        list_repos(entry)
+        return
 
     if args.list or (not args.check):
         if args.json:

@@ -12,6 +12,9 @@ tools/confluence-sync/.oauth-token.json
 tools/github-sync/.env.*
 !tools/github-sync/.env.example
 tools/github-sync/work/
+tools/gitlab-sync/.env.*
+!tools/gitlab-sync/.env.example
+tools/gitlab-sync/work/
 # Lịch cấp HĐH (DATA, máy-cục-bộ) — registry + log. Plist/crontab nằm NGOÀI repo.
 tools/kora-scheduler/schedules.json
 reports/scheduler-logs/

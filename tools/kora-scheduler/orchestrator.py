@@ -16,6 +16,7 @@ Token map:
     jira:<name>        → import_jira.py --since với JIRA_ENV_FILE=.env.<name> (name=local → .env.local)
     confluence:<space> → sync_confluence.py --pull (scan) / --push (post) --space <space>
     github:<owner/repo>→ sync_github.py --pull (scan; KÉO KB host về local) [--repo nếu có owner/repo]
+    gitlab:<group/repo>→ sync_gitlab.py --pull (scan; KÉO KB host về local) [--repo nếu có group/repo]
     sharepoint:<site>  → sync_sharepoint.py --pull (scan) / --push (post) --site <site>
 """
 import argparse
@@ -36,6 +37,7 @@ REGISTRY = HERE / "schedules.json"
 JIRA_DIR = REPO_ROOT / "tools" / "jira-to-obsidian"
 CONFL_DIR = REPO_ROOT / "tools" / "confluence-sync"
 GITHUB_DIR = REPO_ROOT / "tools" / "github-sync"
+GITLAB_DIR = REPO_ROOT / "tools" / "gitlab-sync"
 SHAREPOINT_DIR = REPO_ROOT / "tools" / "sharepoint-sync"
 MAILER = REPO_ROOT / "tools" / "report-mailer" / "send_report.py"
 MAILER_ENV = REPO_ROOT / "tools" / "report-mailer" / ".env.local"   # truyền qua KORA_MAILER_ENV
@@ -314,6 +316,10 @@ def main():
                 # token "github:owner/repo" → --repo; "github:" → dùng repo trong config + .env.local.
                 rc, out, err = run_tool(GITHUB_DIR / "sync_github.py",
                                         ["--pull"] + (["--repo", name] if name and "/" in name else []))
+            elif kind == "gitlab":
+                # Kéo KB host từ repo GitLab private về local. "gitlab:group/repo" → --repo; "gitlab:" → config.
+                rc, out, err = run_tool(GITLAB_DIR / "sync_gitlab.py",
+                                        ["--pull"] + (["--repo", name] if name and "/" in name else []))
             elif kind == "sharepoint":
                 rc, out, err = run_tool(SHAREPOINT_DIR / "sync_sharepoint.py",
                                         ["--pull"] + (["--site", name] if name else []))
@@ -439,6 +445,11 @@ def main():
                     posted.append({"target": "sync:github", "result": (out.strip()[-150:] or err[-150:])})
                     if rc not in (0,):
                         run_errors.append({"step": "sync", "target": "github", "reason": (err or out)[:300]})
+                if "gitlab" in targets:
+                    rc, out, err = run_tool(GITLAB_DIR / "sync_gitlab.py", ["--push"])
+                    posted.append({"target": "sync:gitlab", "result": (out.strip()[-150:] or err[-150:])})
+                    if rc not in (0,):
+                        run_errors.append({"step": "sync", "target": "gitlab", "reason": (err or out)[:300]})
                 if "sharepoint" in targets:
                     rc, out, err = run_tool(SHAREPOINT_DIR / "sync_sharepoint.py", ["--push"])
                     posted.append({"target": "sync:sharepoint", "result": (out.strip()[-150:] or err[-150:])})

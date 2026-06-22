@@ -6,9 +6,9 @@
 > Gói USER (`.kora-user`) chỉ đồng bộ KB chung theo cấu hình — vẫn áp cổng mật khẩu.
 
 ## Bước 1 — Chọn target
-Đọc `confluence.enabled` / `github.enabled` / `sharepoint.enabled` (và `.env.local` tương ứng).
-**AskUserQuestion (multi-select): [Confluence] / [GitHub] / [SharePoint]** — chỉ hiện target đã
-cấu hình. Chưa có target nào → sang **"Cấu hình target"** bên dưới rồi quay lại.
+Đọc `confluence.enabled` / `github.enabled` / `gitlab.enabled` / `sharepoint.enabled` (và `.env.local` tương ứng).
+**AskUserQuestion (multi-select): [Confluence] / [GitHub] / [GitLab] / [SharePoint]** — chỉ hiện target đã
+cấu hình (>4 → phân trang). Chưa có target nào → sang **"Cấu hình target"** bên dưới rồi quay lại.
 
 ## Bước 2 — Cổng mật khẩu (BẮT BUỘC, trước mọi thao tác đẩy)
 Hướng dẫn user đặt biến môi trường `KORA_OPS_PW` (**KHÔNG hỏi qua card, KHÔNG in ra**). Chạy:
@@ -30,6 +30,7 @@ banner + link CR; thêm cạnh `supersedes`). Rồi reindex: `python3 tools/kb-i
 ```
 python3 tools/confluence-sync/sync_confluence.py --push --dry-run   # nếu chọn Confluence
 python3 tools/github-sync/sync_github.py --push --dry-run           # nếu chọn GitHub
+python3 tools/gitlab-sync/sync_gitlab.py --push --dry-run           # nếu chọn GitLab
 python3 tools/sharepoint-sync/sync_sharepoint.py --push --dry-run   # nếu chọn SharePoint (offline OK)
 ```
 Trình bày kế hoạch (+tạo / ~cập nhật / -xóa / =bỏ qua). ✋ confirm mới đẩy thật.
@@ -38,6 +39,7 @@ Trình bày kế hoạch (+tạo / ~cập nhật / -xóa / =bỏ qua). ✋ confi
 ```
 python3 tools/confluence-sync/sync_confluence.py --push
 python3 tools/github-sync/sync_github.py --push
+python3 tools/gitlab-sync/sync_gitlab.py --push
 python3 tools/sharepoint-sync/sync_sharepoint.py --push
 ```
 Báo kết quả; ghi `.kb/changelog.md` (ngày · target · số trang · người duyệt).
@@ -66,6 +68,13 @@ Ghi vào `config/factory-config.yaml` để lần sau khỏi hỏi lại:
 4. `python3 tools/github-sync/sync_github.py --check`.
 Token CHỈ ở `.env.local` (gitignore); bơm vào git qua `GIT_CONFIG_*` (KHÔNG vào `.git/config`/argv/log).
 Repo đích là **gương 1 chiều** — đừng sửa tay (sẽ bị ghi đè); lịch sử git là vết kiểm toán.
+
+### GitLab riêng tư (git push — anh em với GitHub)
+1. Tạo project **private** (gitlab.com hoặc self-hosted); tạo **PAT** scope `api` (hoặc `read_repository`+`write_repository`).
+2. `tools/gitlab-sync/.env.local` (copy `.env.example`): `KORA_GITLAB_SYNC_TOKEN=<PAT>`.
+3. `gitlab.repo: "group/name"` (nhóm con: `group/sub/name`), `branch`, `base_url` (self-hosted thì đổi), `enabled: true`.
+4. `python3 tools/gitlab-sync/sync_gitlab.py --check`.
+Cùng cơ chế bảo mật/gương-1-chiều như GitHub; token bơm qua `GIT_CONFIG_*` (Basic `oauth2:<token>`).
 
 ### SharePoint (Requirement C — Microsoft Graph)
 1. **Đăng ký app Azure AD** (Entra ID → App registrations). Lấy `Tenant ID` + `Client ID`.

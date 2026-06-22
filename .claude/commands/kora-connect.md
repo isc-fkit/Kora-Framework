@@ -114,6 +114,13 @@ ESC hoặc [← Huỷ] = dừng, **KHÔNG ghi gì** vào `connections:`.
   auth_kind (oauth2|token|mcp_oauth), base_url, creds {kind: mcp_connector|env|dotenv, …pointer…},
   verify {tool|probe}, status: connected, last_checked: <ISO local>, last_error: ""`.
   Verify thất bại → báo lỗi rõ (token sai/hết hạn, connector chưa bật), **KHÔNG ghi entry**.
+- **GitHub / GitLab (API) — CHỌN repo/project sau verify (KHÔNG bắt gõ tay):** verify OK → liệt kê để CHỌN
+  (giống Jira `--list-projects`): `python3 "$T/connections/check_connection.py" --list-repos <id> --config
+  "$PWD/config/factory-config.yaml"` → JSON (`full_name` cho GitHub · `path_with_namespace` cho GitLab) →
+  **AskUserQuestion chọn repo/project** (phân trang nếu >4; thẻ đúng schema rule #8: header ≤12 ký tự, mỗi option có
+  description, multiSelect) → ghi `github.repo` / `gitlab.repo` + `base_url` (+ `enabled: true`) vào config. Token:
+  `KORA_GITHUB_TOKEN` / `KORA_GITLAB_TOKEN` (shell env; **lịch nền → PAT** ở `tools/github-sync|gitlab-sync/.env.local`
+  với key `KORA_GITHUB_SYNC_TOKEN` / `KORA_GITLAB_SYNC_TOKEN`).
 
 Kết thúc — **KHÔNG dead-end** (verify xong phải dẫn user đi tiếp, đừng dừng im): báo (các) nguồn/sub-service đã
 kết nối, rồi đề xuất bước kế (AskUserQuestion, **item đầu = QUÉT NGAY**): **[A] Quét & lấy dữ liệu ngay
