@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.9.4",
+  "version": "2.9.5",
   "codename": "Kora-1",
   "released": "2026-06-22",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.9.4 (hết 'Error writing file' khi tạo báo cáo): build_report nay ghi report + đọc config/vault theo THƯ MỤC PROJECT bạn đang chạy (cwd), không theo vị trí script — nên bản cài (~/.claude/kora-framework) chạy trong project sẽ tạo đúng reports/ của project, hết lỗi ghi reports/ai-analysis-latest.md. inject_ai tự tạo thư mục; skill/workflow thêm bước mkdir -p reports trước khi ghi. Thuần CORE, không migration DATA."
+  "intro": "Kora-Framework v2.9.5 (quét Jira ghi ĐÚNG vault — hết lệch 'KB-Vault'): import_jira nay ĐỌC vault_path từ config project và ghi note vào đúng vault đó (vd FPT_Medicare_Brain), thay vì mặc định KB-Vault cạnh script. Khớp với build_report (đọc cùng vault) → quét xong báo cáo đọc đúng nguồn, không còn rỗng/lệch. Ưu tiên: OBSIDIAN_VAULT > config vault_path > ./KB-Vault; thêm cờ --vault. LƯU Ý: nếu trước đó đã quét vào KB-Vault, hãy QUÉT LẠI (sẽ ghi vào vault đúng) hoặc di chuyển KB-Vault → vault cấu hình rồi reindex. Thuần CORE, không migration DATA tự động."
 }

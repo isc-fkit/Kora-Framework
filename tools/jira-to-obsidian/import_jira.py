@@ -37,6 +37,38 @@ from datetime import datetime, timezone
 
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+# SCRIPT_DIR đã là THƯ MỤC tools/jira-to-obsidian → root = lên 2 cấp (KHÁC build_report tính 3 cấp từ FILE).
+REPO_ROOT = os.path.dirname(os.path.dirname(SCRIPT_DIR))
+
+
+def data_root():
+    """Thư mục DỮ LIỆU project user đang chạy (giống build_report.data_root) — để ghi vault ĐÚNG project.
+
+    Bản CÀI (`~/.claude/kora-framework/tools/...`) chạy trong PROJECT (cwd): neo theo SCRIPT_DIR sẽ ghi vault vào
+    KF chứ không phải project. Vì vậy: cwd nếu là project Kora thật (có `config/factory-config.yaml`) → dùng cwd;
+    ngược lại → REPO_ROOT (bản dev cwd==REPO_ROOT, hoặc lịch nền)."""
+    cwd = os.getcwd()
+    if os.path.exists(os.path.join(cwd, "config", "factory-config.yaml")):
+        return cwd
+    return REPO_ROOT
+
+
+def _cfg_vault_path(data):
+    """Đọc `vault_path` từ <data>/config/factory-config.yaml (regex như build_report — KHÔNG cần pyyaml)."""
+    cfg_path = os.path.join(data, "config", "factory-config.yaml")
+    if os.path.exists(cfg_path):
+        try:
+            mm = re.search(r"^\s*vault_path:\s*(.+)$", open(cfg_path, encoding="utf-8").read(), re.M)
+            if mm:
+                return mm.group(1).strip().strip('"').strip("'")
+        except OSError:
+            pass
+    return ""
+
+
+def _resolve_vault(raw, data):
+    """Đường dẫn vault: tuyệt đối giữ nguyên; tương đối → neo theo DATA (project), KHÔNG SCRIPT_DIR."""
+    return raw if os.path.isabs(raw) else os.path.normpath(os.path.join(data, raw))
 
 
 def load_env_local(path=None):
@@ -71,10 +103,12 @@ EMAIL = (os.getenv("JIRA_EMAIL") or "").strip()
 # auto = tự nhận diện: có JIRA_EMAIL hoặc URL *.atlassian.net → Cloud (Basic email:token);
 # còn lại → Server/DC (Bearer PAT). Ép bằng JIRA_AUTH_MODE = cloud | server
 AUTH_MODE = (os.getenv("JIRA_AUTH_MODE") or "auto").strip().lower()
-# Vault: đường dẫn tương đối → neo theo thư mục script (tools/jira-to-obsidian/), KHÔNG
-# theo cwd — để Cowork chạy từ đâu cũng GHI đúng chỗ như khi chạy bằng quet-jira.command.
-_vault_raw = os.getenv("OBSIDIAN_VAULT") or "./KB-Vault"
-VAULT = _vault_raw if os.path.isabs(_vault_raw) else os.path.normpath(os.path.join(SCRIPT_DIR, _vault_raw))
+# Vault: GHI ĐÚNG vault của PROJECT. Ưu tiên: OBSIDIAN_VAULT env > `vault_path` trong config project >
+# "./KB-Vault". Đường dẫn tương đối neo theo DATA (project hiện tại, qua data_root) — KHÔNG theo SCRIPT_DIR
+# (bản cài SCRIPT_DIR=KF sẽ ghi nhầm KF; và phải KHỚP vault build_report đọc từ config). --vault override ở main().
+DATA = data_root()
+_vault_raw = os.getenv("OBSIDIAN_VAULT") or _cfg_vault_path(DATA) or "./KB-Vault"
+VAULT = _resolve_vault(_vault_raw, DATA)
 PROJECT_KEYS = [k.strip() for k in (os.getenv("PROJECT_KEYS") or "").split(",") if k.strip()]
 AC_FIELD = os.getenv("JIRA_AC_FIELD") or ""
 BR_FIELD = os.getenv("JIRA_BR_FIELD") or ""
@@ -971,10 +1005,14 @@ def main():
     ap.add_argument("--list-projects", action="store_true",
                     help="In danh sách project [{key,name}] dạng JSON (cho /kora-scan chọn project)")
     ap.add_argument("--force", action="store_true", help="Bỏ qua guard idempotent-per-day")
+    ap.add_argument("--vault", help="Đường dẫn vault (override; mặc định OBSIDIAN_VAULT → config vault_path → ./KB-Vault). "
+                                    "Tương đối → neo theo project hiện tại.")
     args = ap.parse_args()
-    global PER_PROJECT, FIELD_MAP
+    global PER_PROJECT, FIELD_MAP, VAULT
     if args.per_project:
         PER_PROJECT = True
+    if args.vault:   # override cao nhất — neo theo DATA (project)
+        VAULT = _resolve_vault(args.vault, DATA)
 
     # --check-fresh: chỉ đọc vault, KHÔNG cần token/cấu hình kết nối
     if args.check_fresh:

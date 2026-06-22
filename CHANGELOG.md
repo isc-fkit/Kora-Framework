@@ -10,6 +10,18 @@
 
 ---
 
+## v2.9.5 "Kora-1" — 2026-06-22
+
+- **🧭 Quét Jira ghi ĐÚNG vault (hết lệch "KB-Vault" ↔ report).** `import_jira.py` trước đây **không đọc
+  `vault_path`** và neo vault mặc định `./KB-Vault` theo **vị trí script** → ghi nhầm `KB-Vault` (hoặc thư mục KF),
+  trong khi `build_report` (v2.9.4) đọc `vault_path` từ config (vd `FPT_Medicare_Brain`) → **import ghi một nơi,
+  report đọc một nơi** → báo cáo rỗng/sai nguồn. Nay import_jira dùng `data_root()` + đọc `vault_path` từ config
+  project, neo theo **project (cwd)** — KHỚP build_report. Ưu tiên: `OBSIDIAN_VAULT` > config `vault_path` >
+  `./KB-Vault`; thêm cờ **`--vault`**.
+  > ⚠️ **DATA:** nếu trước đó đã quét vào `KB-Vault`, **quét lại** (ghi vào vault đúng) hoặc **di chuyển**
+  > `KB-Vault/* → <vault_path>/` rồi `build_index.py --root .`.
+- Thuần **CORE**, KHÔNG migration DATA tự động. Máy đã cài: gõ **"cập nhật phiên bản"**.
+
 ## v2.9.4 "Kora-1" — 2026-06-22
 
 - **🗂️ Hết "Error writing file" khi tạo báo cáo (report theo PROJECT, không theo script).** `build_report.py`
