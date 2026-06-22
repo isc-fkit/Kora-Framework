@@ -93,13 +93,13 @@ ESC hoặc [← Huỷ] = dừng, **KHÔNG ghi gì** vào `connections:`.
         nhân / email đăng nhập của user**; nếu chưa rõ, dùng AskUserQuestion (gợi ý + ô "Other"). Tài khoản này bật
         **xác minh 2 bước** → tạo **App Password** (16 ký tự) tại *myaccount.google.com → Security → App passwords*.
         (App Password KHÔNG ra chat / KHÔNG vào card.)
-     2. Tạo & điền file ở **ĐÚNG đường dẫn cố định** `"$PWD/tools/report-mailer/.env.local"` (chạy
-        `mkdir -p tools/report-mailer` trong project nếu chưa có; copy từ `.env.local.example`; đã gitignore) — NGOẠI LỆ
-        `.env` hợp lệ: `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=587`, `SMTP_SECURITY=starttls`, `SMTP_USER=<tài khoản gửi>`,
-        `SMTP_PASS=<App Password>`, `MAIL_FROM=<tài khoản gửi>`, **`MAIL_FROM_NAME=Kora AI Daily Report`** (tên hiển thị —
-        đổi tự do; người nhận thấy *Kora AI Daily Report &lt;tài khoản gửi&gt;*). KHÔNG nhồi email cá nhân làm mặc định.
-        Present file kèm **đường dẫn tuyệt đối** + cách mở (Finder `Cmd+Shift+G` / Explorer; file ẩn). **Lưu ý:** điền xong
-        chạy lại verify là được — **KHÔNG cần `source`** (script đọc file trực tiếp qua biến `KORA_MAILER_ENV`).
+     2. **Đặt creds — 2 cách (send_report đọc ENV TRƯỚC rồi tới file):**
+        - **(A) KHUYẾN NGHỊ — `~/.zshrc`** (gom token 1 chỗ như Jira PAT; run_command source được nên Cowork+MCP gửi thẳng):
+          `export SMTP_HOST=smtp.gmail.com SMTP_PORT=587 SMTP_USER=<tài khoản gửi> SMTP_PASS=<App Password> MAIL_FROM_NAME="Claude Knowledge AI Daily Report"`.
+        - **(B) hoặc file** `"$PWD/tools/report-mailer/.env.local"` (NGOẠI LỆ `.env` hợp lệ; `mkdir -p tools/report-mailer`,
+          copy từ `.env.local.example`; gitignore): cùng các key trên + `SMTP_SECURITY=starttls`, `MAIL_FROM=<tài khoản gửi>`.
+        Người nhận thấy *Claude Knowledge AI Daily Report &lt;tài khoản gửi&gt;*. KHÔNG nhồi email cá nhân. **Lưu ý:** điền xong
+        chạy lại verify là được — **KHÔNG cần `source`** (run_command/script tự đọc). App Password KHÔNG ra chat/card.
      3. `source_type = gmail_smtp`, method = `smtp`, `creds.kind = dotenv` (trỏ `tools/report-mailer/.env.local`).
 
 ### Bước 4 — Verify rồi mới GHI (KHÔNG ghi nửa chừng)

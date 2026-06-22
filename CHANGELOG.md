@@ -10,6 +10,18 @@
 
 ---
 
+## v2.12.10 "Claude-1" — 2026-06-23
+
+**Gmail SMTP token gom ở `~/.zshrc` — daily-report tự gửi qua `run_command` (đồng nhất với Jira PAT).**
+
+- `send_report.py` đọc creds SMTP theo thứ tự **ENV TRƯỚC** (`export SMTP_USER/SMTP_PASS` trong `~/.zshrc` —
+  `run_command` source được) → rồi file `.env.local`. (Cơ chế `os.getenv(key) or env.get(key)` vốn đã có; nay làm rõ +
+  bỏ chặn "thiếu file": creds ở ENV vẫn chạy dù không có `.env.local`.)
+- Hệ quả: đặt **Gmail App Password ở `~/.zshrc`** (gom 1 chỗ như Jira PAT) → `/claude-knowledge-daily-report` tự gọi
+  `run_command` gửi mail THẲNG trong Cowork (Claude Desktop), **không cần Terminal**.
+- Thông báo thiếu-creds + `--check` (in nguồn creds: ENV/file) + `/claude-knowledge-connect` (Gmail SMTP) cập nhật nêu rõ
+  2 chỗ đặt: `~/.zshrc` (khuyến nghị) hoặc `.env.local`. **Verify thật:** `--check` qua run_command đọc đúng SMTP_USER từ `~/.zshrc`.
+
 ## v2.12.9 "Claude-1" — 2026-06-23
 
 **Trigger "bật run_command" + note connect MCP local-terminal ở landing.**

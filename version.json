@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.12.9",
+  "version": "2.12.10",
   "codename": "Claude-1",
   "released": "2026-06-23",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.12.9 (trigger 'bật run_command' + note connect ở landing): (b) CLAUDE.md thêm trigger 'bật run_command'/'setup mcp local-terminal' → hướng dẫn bàn giao 3 bước bật MCP local-terminal (chỉ Claude Desktop; không tự chạy được vì script phải chạy lúc app đã thoát). Landing 'Hướng dẫn cài đặt' → mục Connect thêm callout: cách quét nguồn nội bộ (Jira Server self-host) thẳng trong Cowork không cần Terminal (bật MCP local-terminal + token ở ~/.zshrc, opt-in)."
+  "intro": "Kora-Framework v2.12.10 (Gmail SMTP token gom ở ~/.zshrc — daily report tự gửi qua run_command): send_report.py đọc creds SMTP theo thứ tự ENV (export SMTP_USER/SMTP_PASS trong ~/.zshrc — run_command source được) → rồi file .env.local. Nay đặt App Password ở ~/.zshrc (gom 1 chỗ như Jira PAT) là daily-report tự gọi run_command gửi mail THẲNG trong Cowork, không cần Terminal. Thông báo lỗi + --check + kora-connect cập nhật nêu rõ 2 chỗ đặt creds. Đã verify --check đọc đúng từ ~/.zshrc."
 }

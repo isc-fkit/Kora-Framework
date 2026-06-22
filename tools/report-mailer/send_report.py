@@ -2,8 +2,9 @@
 """
 send_report.py — Gửi báo cáo tiến độ Kora qua email bằng SMTP (full-auto).
 
-Bí mật (mật khẩu / App Password) đọc từ tools/report-mailer/.env.local (đã gitignore
-qua **/.env.local). KHÔNG in mật khẩu ra log. Chỉ dùng thư viện chuẩn Python.
+Bí mật (mật khẩu / App Password) đọc theo thứ tự: ENV trước (vd `export SMTP_USER/SMTP_PASS`
+trong ~/.zshrc — gom token 1 chỗ, run_command source được) → rồi file tools/report-mailer/.env.local
+(gitignore). KHÔNG in mật khẩu ra log. Chỉ dùng thư viện chuẩn Python.
 
 Ví dụ:
   # Gửi thử (email test nhỏ, không cần report) tới chính mình:
@@ -148,17 +149,18 @@ def main():
     from_name = cfg("MAIL_FROM_NAME") or DEFAULT_FROM_NAME   # tên hiển thị → "Tên <email>"
 
     def _missing_msg():
-        if not file_exists:
-            return (f"Không thấy file cấu hình mail: {env_path}\n"
-                    f"   → Tạo file đó (copy từ .env.local.example) rồi điền SMTP_USER/SMTP_PASS, HOẶC trỏ "
-                    f"biến KORA_MAILER_ENV / cờ --env tới đúng .env.local của bạn.")
         if placeholder:
-            return (f"SMTP_PASS vẫn là placeholder 'PASTE_…' trong {env_path} — dán App Password (16 ký tự) THẬT vào.")
-        return (f"Thiếu SMTP_USER/SMTP_PASS trong {env_path} (tạo Google App Password rồi điền). "
-                f"Script đọc TRỰC TIẾP file này — KHÔNG cần 'source'.")
+            return ("SMTP_PASS vẫn là placeholder 'PASTE_…' — dán App Password (16 ký tự) THẬT vào "
+                    f"(export trong ~/.zshrc HOẶC file {env_path}).")
+        # Creds đọc theo thứ tự: ENV (export ~/.zshrc — run_command source được) → file .env.local.
+        return ("Thiếu SMTP_USER/SMTP_PASS. Đặt Gmail App Password ở 1 trong 2 chỗ:\n"
+                "   • ~/.zshrc (KHUYẾN NGHỊ, gom token 1 chỗ):  export SMTP_USER=tk@gmail.com  export SMTP_PASS=<AppPassword>\n"
+                f"   • hoặc file {env_path} (copy từ .env.local.example){'' if file_exists else ' — CHƯA tồn tại'}.\n"
+                "   (Tạo Google App Password: bật 2FA → myaccount.google.com/apppasswords. Script đọc ENV trước rồi file, KHÔNG cần 'source'.)")
 
     if args.check:
-        print(f"ℹ️  Đọc cấu hình mail từ: {env_path}")
+        _src = "ENV (~/.zshrc)" if (os.getenv("SMTP_USER") or os.getenv("SMTP_PASS")) else (f"file {env_path}" if file_exists else "(chưa thấy)")
+        print(f"ℹ️  Nguồn creds SMTP: {_src}  ·  user={user or '(thiếu)'}")
         if not user or not pw:
             die(_missing_msg())
         try:
