@@ -10,6 +10,20 @@
 
 ---
 
+## v2.9.2 "Kora-1" — 2026-06-22
+
+- **🆕 Report đính kèm luôn MỚI & KHÁC TÊN (hết "gửi mail bản cũ").** File báo cáo đính kèm nay đổi **tên có
+  ngày-giờ** mỗi lần gửi (`progress-report-<YYYY-MM-DD_HHMM>.html`) → client mail KHÔNG lấy lại bản cũ cùng tên.
+  `send_report.py` thêm **guard `--stale-after-min` (mặc định 30)**: nếu `email-body-latest.html` cũ hơn 30' → **DỪNG**,
+  báo "build lại" — chặn việc lặng lẽ gửi `-latest` cũ khi schedule/sendmail không build lại. Skill + orchestrator
+  khẳng định build_report chạy NGAY trước send.
+- **🖼️ Banner header NHẸ + hiện chắc trong body.** Nén `assets/banner-daily-report.png` (547KB) → **`banner-daily-report.jpg`
+  117KB** (4.7× nhẹ hơn, chữ vẫn rõ). Nhúng **CID inline** (image/jpeg) → ảnh hiện cả khi client chặn ảnh remote — hết
+  "load fail" trong thân email. Mọi tham chiếu chuyển sang `.jpg` (send_report vẫn fallback `.png` cho bản cũ).
+- **🎨 Màu OT/Thiếu đúng: ÂM = ĐỎ, DƯƠNG = XANH.** `_ot_cell` + KPI + text email: **vượt kỳ vọng (OT, `+`) → XANH**,
+  **thiếu (`−`) → ĐỎ** (trước đây ngược: OT đỏ / thiếu xám-amber).
+- Thuần **CORE**, KHÔNG migration DATA. Máy đã cài: gõ **"cập nhật phiên bản"**.
+
 ## v2.9.1 "Kora-1" — 2026-06-22
 
 - **🕘 Tên file report gắn NGÀY-GIỜ tạo.** File trong thư mục ngày nay đặt tên kèm ngày-giờ:

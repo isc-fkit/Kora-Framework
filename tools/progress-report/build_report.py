@@ -464,7 +464,7 @@ def render_fragment(m, vault):
         kpi("Vượt kỳ vọng (OT)" if m["capacity"]["ot_seconds"] else "Thiếu so với kỳ vọng",
             human_seconds(m["capacity"]["ot_seconds"] or m["capacity"]["under_seconds"]),
             f'Đạt {m["capacity"]["pct_capacity"]}% kỳ vọng đến hôm nay',
-            "red" if m["capacity"]["ot_seconds"] else "orange"),
+            "green" if m["capacity"]["ot_seconds"] else "red"),  # dương(OT)=xanh · âm(thiếu)=đỏ
     ])
 
     sprint_html = ""
@@ -488,9 +488,12 @@ def render_fragment(m, vault):
         sprint_html = '<div class="pr-card pr-mut">Không có sprint đang chạy (active) — kiểm tra field Sprint trên Jira.</div>'
 
     def _ot_cell(a):
+        # Quy ước màu: DƯƠNG (vượt kỳ vọng / OT) = XANH, ÂM (thiếu) = ĐỎ.
         if a.get("ot_seconds"):
-            return f'<span style="color:{PAL["red"]}">+{human_seconds(a["ot_seconds"])}</span>'
-        return f'<span class="pr-mut">−{human_seconds(a.get("under_seconds", 0))}</span>'
+            return f'<span style="color:{PAL["green"]}">+{human_seconds(a["ot_seconds"])}</span>'
+        if a.get("under_seconds"):
+            return f'<span style="color:{PAL["red"]}">−{human_seconds(a["under_seconds"])}</span>'
+        return '<span class="pr-mut">0</span>'
     arows = "".join(
         f'<tr class="pr-row" data-assignee="{esc(a["assignee"])}"><td>{esc(a["assignee"])}</td><td>{a["total"]}</td>'
         f'<td>{a["todo"]}</td><td>{a["in_progress"]}</td><td>{a["done"]}</td>'
@@ -766,10 +769,10 @@ def render_email_body(m, vault, banner_url=""):
     # ── Năng suất & giờ công + lưu ý logtime theo loại ──
     cap = m.get("capacity", {})
     hs = human_seconds
-    if cap.get("ot_seconds"):
-        ot_txt = f'<span style="color:{EPAL["red"]}"><b>Vượt kỳ vọng đến hôm nay (OT): +{hs(cap["ot_seconds"])}</b></span>'
-    else:
-        ot_txt = f'<span style="color:{EPAL["amber"]}">Còn thiếu so với kỳ vọng đến hôm nay: {hs(cap.get("under_seconds", 0))}</span>'
+    if cap.get("ot_seconds"):  # dương (vượt) = xanh
+        ot_txt = f'<span style="color:{EPAL["green"]}"><b>Vượt kỳ vọng đến hôm nay (OT): +{hs(cap["ot_seconds"])}</b></span>'
+    else:                      # âm (thiếu) = đỏ
+        ot_txt = f'<span style="color:{EPAL["red"]}"><b>Còn thiếu so với kỳ vọng đến hôm nay: −{hs(cap.get("under_seconds", 0))}</b></span>'
     lbt = m.get("logged_by_type", {})
     log_rows = "".join(
         f'<tr><td style="padding:3px 0;font-size:13px;color:{EPAL["ink"]}">{esc(_type_label(k))}</td>'
@@ -1226,7 +1229,7 @@ def main():
         if bm:
             banner_url = bm.group(1).strip()
     if not banner_url:  # mặc định → email LUÔN có banner (asset trên nhánh main)
-        banner_url = "https://raw.githubusercontent.com/isc-fkit/Kora-Framework/main/assets/banner-daily-report.png"
+        banner_url = "https://raw.githubusercontent.com/isc-fkit/Kora-Framework/main/assets/banner-daily-report.jpg"
     fragment = render_fragment(m, vault)
 
     out = args.out or os.path.join(REPO_ROOT, "reports")

@@ -257,7 +257,7 @@
     <div class="brand" data-go="home" title="Trang chủ">
       <span class="brandmark" aria-hidden="true">K</span>
       <span class="org">FPT TELECOM</span>
-      <div class="fw">KORA AI<span>v2.9.1 · Kora-1</span></div>
+      <div class="fw">KORA AI<span>v2.9.2 · Kora-1</span></div>
     </div>
     <nav class="nav">
       <div class="grp">Tổng quan</div>
@@ -284,7 +284,7 @@
     <!-- ===================== HOME ===================== -->
     <div class="page" id="home">
       <header class="hero">
-        <span class="badge">FPT Telecom · KORA AI · v2.9.1 · &ldquo;Kora-1&rdquo;</span>
+        <span class="badge">FPT Telecom · KORA AI · v2.9.2 · &ldquo;Kora-1&rdquo;</span>
         <h1>KORA AI — Sơ đồ nguyên lý hoạt động</h1>
         <p class="sub">Trợ lý tri thức tự lớn lên cùng dự án: hợp nhất tri thức phân tán, nối tri thức local của nhân viên với <b>Knowledge Base</b> chung (trên Cloud), và tự động hóa đồng bộ — báo cáo — cảnh báo.</p>
         <div class="pipe">
@@ -712,7 +712,7 @@ khi CHẠY:  scan/get (KHÔNG gác) → reindex → 🔒 cổng → post · repo
       <p style="color:var(--muted)">Dashboard tiến độ: năng suất theo <b>NGÀY LÀM VIỆC đã trôi qua</b> (8h = 1 ngày công, bỏ T7/CN — hết "OT nhầm") vs đã log + OT, rủi ro · dự đoán theo <b>chuẩn Cloud</b>; <b>phân tầng + lọc</b> theo project / thành viên / thời gian. Hiện <b>UI inline trong Cowork</b> + file HTML. <b>Kéo dữ liệu live</b> → có <b>cổng mật khẩu vận hành</b> (<code>KORA_OPS_PW</code>).</p>
 
       <h2 class="sec">6 · ✉️ Send mail — <code>/kora-send-mail</code></h2>
-      <div class="imgframe"><img src="assets/banner-daily-report.png" alt="Banner báo cáo tiến độ" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><div class="ph" style="display:none">🖼️ <b>assets/banner-daily-report.png</b> — banner header email.</div></div>
+      <div class="imgframe"><img src="assets/banner-daily-report.jpg" alt="Banner báo cáo tiến độ" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><div class="ph" style="display:none">🖼️ <b>assets/banner-daily-report.jpg</b> — banner header email.</div></div>
       <p style="color:var(--muted)">Luồng: chọn <b>nguồn Jira đã kết nối</b> → <b>project cần report</b> (<b>FULL-scan</b> lấy status + comment MỚI NHẤT, ghi đè local — task đã Done trên server hết hiện cũ) → <b>người nhận</b> → <b>[Gửi ngay] / [Đặt lịch]</b>. Email có <b>banner header</b> + <b>biểu đồ</b> (table-safe, chống dark-mode) + <b>phân tích AI dạng CARD MÀU theo mục</b> (🔴 rủi ro · 📅 dự đoán · 🎯 hành động · 👥 bảng thành viên tô màu trạng thái). <b>Tự động gửi qua SMTP</b> (Gmail App Password ưu tiên; MCP draft = fallback). Cổng mật khẩu vận hành. <b>Đặt lịch</b> → task hiện ở danh sách <code>/kora-schedule</code> (bật/tắt/xóa).</p>
 
       <h2 class="sec">7 · ☁️ Sync — <code>/kora-sync</code></h2>
@@ -1558,11 +1558,22 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
       <div class="phead"><div class="pl">I · Release Note</div><h1><span class="em">🆕</span>Lịch sử phiên bản</h1></div>
       <p class="lead">Lịch sử bản <b>APP</b> (CORE: skills, workflows, tools…). Cập nhật: chạy lại lệnh cài (bash CLI, tab <a data-go="install" style="cursor:pointer">C</a>) — <b>tri thức của bạn được giữ nguyên</b> (DATA không bị đụng).</p>
 
-      <div class="callout ok"><span>🆕</span><div><b>Bản mới nhất (latest): <code>v2.9.1</code> — "Kora-1"</b> · phát hành 2026-06-22. Tổng <b>42 bản</b>; danh sách đầy đủ ở <a href="https://github.com/isc-fkit/Kora-Framework/blob/release/CHANGELOG.md">CHANGELOG.md</a>.</div></div>
+      <div class="callout ok"><span>🆕</span><div><b>Bản mới nhất (latest): <code>v2.9.2</code> — "Kora-1"</b> · phát hành 2026-06-22. Tổng <b>43 bản</b>; danh sách đầy đủ ở <a href="https://github.com/isc-fkit/Kora-Framework/blob/release/CHANGELOG.md">CHANGELOG.md</a>.</div></div>
 
       <div class="card" style="border-color:var(--accent)">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.9.1 — "Kora-1" <span style="display:inline-block;margin-left:6px;padding:2px 9px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;font-size:10.5px;font-weight:800;vertical-align:2px">MỚI NHẤT</span></b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
+          <b style="font-size:16px">v2.9.2 — "Kora-1" <span style="display:inline-block;margin-left:6px;padding:2px 9px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;font-size:10.5px;font-weight:800;vertical-align:2px">MỚI NHẤT</span></b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
+        </div>
+        <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
+          <li><b>🆕 Report đính kèm luôn MỚI &amp; khác tên</b>: file đính kèm đổi tên có ngày-giờ mỗi lần (<code>progress-report-&lt;ngày-giờ&gt;.html</code>) → client mail không lấy bản cũ; guard chống gửi báo cáo cũ hơn 30' (bắt build lại).</li>
+          <li><b>🖼️ Banner nhẹ + hiện chắc</b>: nén JPEG 547KB → <b>117KB</b> (4.7× nhẹ) + nhúng CID inline → hết load fail trong body.</li>
+          <li><b>🎨 Màu OT/Thiếu đúng</b>: âm (thiếu) = <span style="color:#c0392b;font-weight:700">ĐỎ</span>, dương (vượt/OT) = <span style="color:#1a9e63;font-weight:700">XANH</span>.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
+          <b style="font-size:16px">v2.9.1 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>🕘 Tên file report gắn NGÀY-GIỜ tạo</b>: file trong thư mục ngày nay đặt tên kèm ngày-giờ — <code>reports/&lt;ngày&gt;/progress-report-&lt;YYYY-MM-DD_HHMM&gt;.html</code> (+ email-body & data). Chạy nhiều lần/ngày = nhiều bản riêng, không ghi đè. Bản <code>-latest</code> ở gốc giữ nguyên cho mailer.</li>

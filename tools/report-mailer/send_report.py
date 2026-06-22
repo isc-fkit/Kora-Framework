@@ -25,6 +25,8 @@ import re
 import smtplib
 import ssl
 import sys
+import time
+from datetime import datetime
 from email.message import EmailMessage
 from email.utils import formataddr
 from pathlib import Path
@@ -78,7 +80,10 @@ def main():
     ap.add_argument("--body", default="", help="Nội dung text thuần (fallback).")
     ap.add_argument("--attach", action="append", default=[], help="File đính kèm thêm (lặp lại được).")
     ap.add_argument("--no-attach-html", action="store_true", help="Chỉ nhúng HTML, không đính kèm file.")
-    ap.add_argument("--banner", help="Ảnh banner nhúng inline (cid:kora-banner). Mặc định assets/banner-daily-report.png.")
+    ap.add_argument("--stale-after-min", dest="stale_after_min", type=int, default=30,
+                    help="Chặn gửi báo cáo CŨ: nếu --html-file cũ hơn N phút → DỪNG (báo build lại). "
+                         "0 = tắt kiểm tra. Mặc định 30.")
+    ap.add_argument("--banner", help="Ảnh banner nhúng inline (cid:kora-banner). Mặc định assets/banner-daily-report.jpg.")
     ap.add_argument("--test", action="store_true", help="Gửi email test nhỏ (không cần report).")
     ap.add_argument("--check", action="store_true", help="Chỉ kiểm tra cấu hình + đăng nhập SMTP (KHÔNG gửi).")
     ap.add_argument("--env", help="Đường dẫn .env.local (ưu tiên cao nhất; mặc định đọc KORA_MAILER_ENV rồi .env.local cạnh script).")
@@ -168,6 +173,15 @@ def main():
             p = Path(args.html_file)
             if not p.exists():
                 die(f"Không thấy file HTML: {p}")
+            # GUARD chống gửi báo cáo CŨ: file report phải vừa được build_report tạo (mtime mới).
+            # Lý do: report dùng tên cố định (-latest); nếu schedule/sendmail KHÔNG build lại, ta sẽ
+            # lặng lẽ gửi bản cũ. Chặn tại đây để bắt buộc tạo mới trước khi gửi.
+            if args.stale_after_min and args.stale_after_min > 0:
+                age_min = (time.time() - os.path.getmtime(p)) / 60.0
+                if age_min > args.stale_after_min:
+                    die(f"Báo cáo CŨ ({age_min:.0f} phút > {args.stale_after_min}'): {p.name} chưa được tạo mới. "
+                        f"Hãy chạy build_report.py NGAY TRƯỚC khi gửi (lịch nền/gửi-ngay phải build lại). "
+                        f"Bỏ kiểm tra: --stale-after-min 0.")
             html = p.read_text(encoding="utf-8")
             if not args.no_attach_html:
                 attachments.append(str(p))
@@ -178,9 +192,10 @@ def main():
     # Resolve path bền (như KORA_MAILER_ENV): --banner → KORA_BANNER → cạnh CORE (assets) → cwd/assets.
     banner_cid_path = None
     if html and not args.test:
-        cands = [args.banner, os.getenv("KORA_BANNER"),
-                 str(HERE.parents[1] / "assets" / "banner-daily-report.png"),
-                 str(Path.cwd() / "assets" / "banner-daily-report.png")]
+        # Ưu tiên JPEG (nhẹ ~117KB) → fallback PNG (bản cũ). Path bền: --banner → KORA_BANNER → cạnh CORE → cwd.
+        cands = [args.banner, os.getenv("KORA_BANNER")]
+        for base in (HERE.parents[1] / "assets", Path.cwd() / "assets"):
+            cands += [str(base / "banner-daily-report.jpg"), str(base / "banner-daily-report.png")]
         bpth = next((Path(c).expanduser() for c in cands if c and Path(c).expanduser().exists()), None)
         has_banner = bool(re.search(r"banner-daily-report\.(?:png|jpe?g)", html))
         if bpth and has_banner:
@@ -189,7 +204,7 @@ def main():
             print(f"ℹ️  Banner: nhúng CID inline ← {bpth} ({bpth.stat().st_size // 1024}KB)")
         elif has_banner:
             print("⚠️  Banner: KHÔNG thấy file ảnh local → email giữ link REMOTE (Outlook có thể chặn 'trust sender'). "
-                  "Truyền --banner <path> hoặc đặt KORA_BANNER trỏ tới assets/banner-daily-report.png.", file=sys.stderr)
+                  "Truyền --banner <path> hoặc đặt KORA_BANNER trỏ tới assets/banner-daily-report.jpg.", file=sys.stderr)
 
     msg = EmailMessage()
     msg["From"] = formataddr((from_name, mail_from))
@@ -206,6 +221,19 @@ def main():
             msg.get_payload()[-1].add_related(banner_cid_path.read_bytes(),
                                               maintype=mt, subtype=st, cid="kora-banner")
 
+    # Tên đính kèm KHÁC NHAU mỗi lần: report HTML cố định (progress-report-latest / email-body-latest /
+    # processing_report…) được đổi sang tên có NGÀY-GIỜ → client mail không lấy lại bản cũ cùng tên, và
+    # người nhận thấy rõ đây là bản mới. (File đính kèm khác giữ nguyên tên gốc.)
+    stamp = datetime.now().strftime("%Y-%m-%d_%H%M")
+
+    def _attach_name(name):
+        if re.search(r"(progress[-_]?report|processing[-_]?report)", name, re.I) and name.lower().endswith((".html", ".htm")):
+            return f"progress-report-{stamp}.html"
+        if re.search(r"email[-_]?body", name, re.I) and name.lower().endswith((".html", ".htm")):
+            return f"email-body-{stamp}.html"
+        return name
+
+    seen_names = set()
     for fp in attachments:
         p = Path(fp)
         if not p.exists():
@@ -213,7 +241,11 @@ def main():
             continue
         ctype, _ = mimetypes.guess_type(str(p))
         maintype, subtype = (ctype.split("/", 1) if ctype else ("application", "octet-stream"))
-        msg.add_attachment(p.read_bytes(), maintype=maintype, subtype=subtype, filename=p.name)
+        fname = _attach_name(p.name)
+        if fname in seen_names:  # tránh 2 đính kèm trùng tên trong cùng mail
+            continue
+        seen_names.add(fname)
+        msg.add_attachment(p.read_bytes(), maintype=maintype, subtype=subtype, filename=fname)
 
     all_rcpt = to + cc + bcc
     try:

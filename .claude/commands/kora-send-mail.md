@@ -46,9 +46,12 @@ The user invoked `/kora-send-mail` — gửi email báo cáo tiến độ. **CÓ
           (tool in `ℹ️ Đọc cấu hình mail từ: …`; điền xong chạy lại là được, **KHÔNG cần `source`**). Token chỉ ở `.env.local`.
           Người nhận thấy *Kora AI Daily Report &lt;…&gt;*.
         - ✋ confirm → `KORA_MAILER_ENV="$PWD/tools/report-mailer/.env.local" python3 "$T/report-mailer/send_report.py" --to "<list>"
-          --subject "<chủ đề>" --html-file reports/email-body-latest.html --no-attach-html --banner "$T/../assets/banner-daily-report.png"
+          --subject "<chủ đề>" --html-file reports/email-body-latest.html --no-attach-html --banner "$T/../assets/banner-daily-report.jpg"
           --attach reports/progress-report-latest.html` → **GỬI THẲNG** (banner **nhúng CID inline** → Outlook hết chặn; body =
           BÁO CÁO ĐẦY ĐỦ; dashboard tương tác đính kèm). Tool in `ℹ️ Banner: nhúng CID …`. Báo "đã gửi tới <list>".
+          > ⏱️ **build_report PHẢI chạy NGAY TRƯỚC** lệnh này (Bước c). send_report có **guard chống gửi bản cũ**: nếu
+          > `email-body-latest.html` cũ hơn **30 phút** → DỪNG, báo "build lại". File đính kèm tự đổi **tên có ngày-giờ**
+          > (`progress-report-<YYYY-MM-DD_HHMM>.html`) nên mỗi mail một bản KHÁC, client không lấy lại bản cũ cùng tên.
         - **[Tạo nháp] = FALLBACK** (chỉ khi user chọn / không gửi SMTP được): tạo NHÁP Gmail/Outlook qua MCP → user bấm gửi.
    - **[Đặt lịch]:**
      a0. **Nếu nguồn Jira đã chọn là MCP-only** (method=mcp, vd `atlassian`/`jira_cloud` MCP) → **KHÔNG dead-end:**

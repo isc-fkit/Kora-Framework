@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.9.1",
+  "version": "2.9.2",
   "codename": "Kora-1",
   "released": "2026-06-22",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.9.1 (tên file report gắn NGÀY-GIỜ tạo): file báo cáo trong thư mục ngày nay đặt tên kèm ngày-giờ — reports/<YYYY-MM-DD>/progress-report-<YYYY-MM-DD_HHMM>.html (+ email-body & progress-data tương tự). Chạy nhiều lần trong ngày = nhiều bản riêng, không ghi đè, dễ tra theo thời điểm. Bản -latest ở gốc giữ nguyên cho mailer/orchestrator. Thuần CORE, không migration DATA."
+  "intro": "Kora-Framework v2.9.2 (report đính kèm luôn MỚI & KHÁC TÊN + banner nhẹ/hiện được + màu OT/Thiếu đúng): (1) File báo cáo đính kèm nay đổi TÊN có ngày-giờ mỗi lần gửi (progress-report-<YYYY-MM-DD_HHMM>.html) → client mail KHÔNG lấy lại bản cũ cùng tên; send_report thêm guard chống gửi bản CŨ (báo cáo cũ hơn 30' → DỪNG, bắt build lại). (2) Banner header nén JPEG 547KB → 117KB (4.7x nhẹ hơn) + nhúng CID inline chắc chắn → hết load fail trong body. (3) Màu OT/Thiếu: ÂM (thiếu) = ĐỎ, DƯƠNG (vượt/OT) = XANH (trước đây ngược). Thuần CORE, không migration DATA."
 }
