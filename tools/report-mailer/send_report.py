@@ -40,7 +40,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 
 # Tên người gửi hiển thị mặc định — CẤU HÌNH được qua MAIL_FROM_NAME trong .env.local.
-DEFAULT_FROM_NAME = "Kora AI Daily Report"
+DEFAULT_FROM_NAME = "Claude AI Daily Report"
 
 
 def load_env(path: Path) -> dict:

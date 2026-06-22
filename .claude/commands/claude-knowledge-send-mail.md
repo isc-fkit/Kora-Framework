@@ -45,10 +45,10 @@ The user invoked `/claude-knowledge-send-mail` — gửi email báo cáo tiến 
           của user**) → tạo **Gmail App Password** (bật 2FA → `myaccount.google.com/apppasswords`), `mkdir -p
           tools/report-mailer` rồi điền `tools/report-mailer/.env.local`: `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=587`,
           `SMTP_USER=<tài khoản gửi>`, `SMTP_PASS=<app password 16 ký tự>`, `MAIL_FROM=<tài khoản gửi>`,
-          `MAIL_FROM_NAME=Kora AI Daily Report` (tên hiển thị, đổi tự do) → verify
+          `MAIL_FROM_NAME=Claude AI Daily Report` (tên hiển thị, đổi tự do) → verify
           `KORA_MAILER_ENV="$PWD/tools/report-mailer/.env.local" python3 "$T/report-mailer/send_report.py" --check`
           (tool in `ℹ️ Đọc cấu hình mail từ: …`; điền xong chạy lại là được, **KHÔNG cần `source`**). Token chỉ ở `.env.local`.
-          Người nhận thấy *Kora AI Daily Report &lt;…&gt;*.
+          Người nhận thấy *Claude AI Daily Report &lt;…&gt;*.
         - ✋ confirm → `KORA_MAILER_ENV="$PWD/tools/report-mailer/.env.local" python3 "$T/report-mailer/send_report.py" --to "<list>"
           --subject "<chủ đề>" --html-file reports/email-body-latest.html --no-attach-html --banner "$T/../assets/banner-daily-report.jpg"
           --attach reports/progress-report-latest.html --split` → **GỬI THẲNG** (banner **nhúng CID inline** → Outlook hết

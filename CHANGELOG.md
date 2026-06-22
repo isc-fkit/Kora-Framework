@@ -10,6 +10,20 @@
 
 ---
 
+## v2.12.20 "Claude-1" — 2026-06-23
+
+**Đổi 'KORA AI' → 'Claude AI' trong email + rule truy vết Knowledge Base đầy đủ vòng đời.**
+
+- **Email rebrand:** lời chào *"Trợ lý KORA AI – FPT Telecom"* → *"Trợ lý **Claude AI** – FPT Telecom"*, footer
+  *"KORA AI · Trợ lý tiến độ"* → *"**Claude AI** · …"*, tên người gửi mặc định `Kora AI Daily Report` →
+  `Claude AI Daily Report` (`send_report.py` + ví dụ trong `/claude-knowledge-send-mail`). (Biến config nội bộ
+  `KORA_*` / URL repo GIỮ NGUYÊN — không phải nội dung mail.)
+- **Rule MỚI — hỏi về KB phải TRUY VẾT ĐẦY ĐỦ** (CLAUDE.md): khi user hỏi 1 feature/US/chủ đề, truy vết HẾT
+  **US gốc → Change Request (theo thời gian, link supersedes/relates) → bug/bugfix → trạng thái approved / chưa
+  approved / superseded / rejected** (đọc `status` + `.kb/changelog.md` + `inbox/**/approved|rejected`), mô tả CHI
+  TIẾT từng mục (nội dung · AC/BR/FR/NFR · người · ngày), trích nguồn theo file, dùng `relation-graph.json` +
+  backlink để không bỏ sót. KHÔNG trả lời sơ sài / gộp "có N US".
+
 ## v2.12.19 "Claude-1" — 2026-06-23
 
 **FIX: banner email không responsive (full-width) trên APP MOBILE.**

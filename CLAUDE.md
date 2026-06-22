@@ -27,6 +27,16 @@
 > mail/sync, **token KHÔNG in ra chat**, mỗi lệnh `run_command` là **arbitrary-exec** qua permission prompt (opt-in).
 > *(Lịch NỀN vẫn chạy ở OS launchd/cron, KHÔNG qua MCP.)*
 
+> 🧬 **HỎI VỀ KNOWLEDGE BASE → TRUY VẾT ĐẦY ĐỦ VÒNG ĐỜI, KHÔNG TRẢ LỜI SƠ SÀI.** Khi user hỏi về một feature / US /
+> hạng mục / chủ đề trong KB, **phải truy vết HẾT chuỗi vòng đời + mô tả CHI TIẾT từng mục** (đừng tóm tắt gộp "có N
+> US"): **(1) US/yêu cầu GỐC đầu tiên** (ID · nội dung · AC/BR/FR/NFR); **(2) các Change Request (CR)** sửa đổi nó —
+> theo DÒNG THỜI GIAN, kèm link `supersedes`/`clones`/`relates`; **(3) Bug/bugfix** liên quan; **(4) TRẠNG THÁI DUYỆT
+> từng mục: approved / CHƯA approved / superseded / rejected** — đọc `status` ở frontmatter note + `.kb/changelog.md`
+> + `inbox/**/approved|rejected|pending-approval`; **(5) mô tả CHI TIẾT** nội dung, AC/BR/FR/NFR, người liên quan,
+> ngày, **trích NGUỒN theo từng file**. Dùng `.kb/relation-graph.json` + backlink `[[…]]` + `.kb/index.json` để
+> **KHÔNG bỏ sót** mục liên quan (index trống mà vault có dữ liệu → grep thẳng vault). Trình bày theo **dòng thời
+> gian / cây quan hệ** (US gốc → CR → bugfix), nêu RÕ cái nào đã duyệt, cái nào còn treo `[CẦN XÁC NHẬN]`.
+
 ---
 
 ## 0. Trigger — nhận diện ý định của user

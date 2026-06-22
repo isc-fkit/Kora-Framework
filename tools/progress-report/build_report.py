@@ -1020,7 +1020,7 @@ def render_email_body(m, vault, banner_url=""):
     <span style="display:inline-block;background:{EPAL['cream']};border:1px solid {EPAL['creambd']};color:#b45309;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:6px 13px;border-radius:999px">⏱️ Cập nhật tiến độ · {scope}</span></td></tr>
   <tr><td class="kpad" style="padding:10px 22px 0">
     <div style="font-size:15px;color:{EPAL['ink']};font-weight:700;font-style:italic">Kính gửi Anh/Chị,</div>
-    <div style="font-size:13.5px;color:#33405a;line-height:1.7;margin-top:6px">Trợ lý <b>KORA AI</b> – FPT Telecom xin cập nhật <b>tiến độ dự án</b> ({scope}) tới <b>{esc(gen)}</b> (UTC) như sau:</div></td></tr>
+    <div style="font-size:13.5px;color:#33405a;line-height:1.7;margin-top:6px">Trợ lý <b>Claude AI</b> – FPT Telecom xin cập nhật <b>tiến độ dự án</b> ({scope}) tới <b>{esc(gen)}</b> (UTC) như sau:</div></td></tr>
   <tr><td class="kpad" style="padding:12px 22px 2px">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#fff3e0" style="background-color:#fff3e0;border:1.5px solid #ffb74d;border-left:5px solid #f57c00;border-radius:10px">
       <tr><td style="padding:12px 15px">
@@ -1061,7 +1061,7 @@ def render_email_body(m, vault, banner_url=""):
     <div style="font-size:13px;color:#33405a;line-height:1.7">Để xem chi tiết từng hạng mục công việc / sprint / thành viên (có bộ lọc), vui lòng mở <b>Dashboard đính kèm</b>. Mọi thông tin cần hỗ trợ, vui lòng liên hệ đầu mối bên dưới.</div>
     <div style="font-size:13.5px;color:{EPAL['ink']};font-weight:700;margin-top:10px">Trân trọng!</div></td></tr>
   <tr><td class="kfoot" bgcolor="#0b2a5e" style="background:linear-gradient(135deg,#0b2a5e,#15428f);background-color:#0b2a5e;padding:16px 22px;text-align:center">
-    <div style="color:#ffffff;font-size:13px;font-weight:700">KORA AI · Trợ lý tiến độ dự án — FPT Telecom</div>
+    <div style="color:#ffffff;font-size:13px;font-weight:700">Claude AI · Trợ lý tiến độ dự án — FPT Telecom</div>
     <div style="color:#a9c2ee;font-size:11.5px;margin-top:4px">Báo cáo tạo tự động mỗi ngày · Dữ liệu cập nhật {esc(gen)} (UTC)</div></td></tr>
 </table></td></tr></table>"""
 

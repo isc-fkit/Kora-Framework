@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.12.19",
+  "version": "2.12.20",
   "codename": "Claude-1",
   "released": "2026-06-23",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.12.19 (FIX banner responsive trên app mobile): banner email không giãn hết bề ngang như các card khi mở từ app mobile (Outlook/Gmail app bỏ qua width:100% trên <img>). Sửa: thêm min-width:100% (ép ảnh tối thiểu = bề ngang container) + td width=100% + font-size:0. Đã xác minh trên app mobile thật: banner full-width như card, nội dung báo cáo bên dưới giữ nguyên."
+  "intro": "Kora-Framework v2.12.20: (1) Đổi hết 'KORA AI' → 'Claude AI' trong EMAIL (lời chào + footer báo cáo + tên người gửi mặc định). (2) Rule MỚI: khi user hỏi về Knowledge Base, BẮT BUỘC truy vết ĐẦY ĐỦ vòng đời — US gốc đầu tiên → Change Request → bugfix → trạng thái approved/chưa approved/superseded — mô tả CHI TIẾT từng mục + trích nguồn, không trả lời sơ sài."
 }
