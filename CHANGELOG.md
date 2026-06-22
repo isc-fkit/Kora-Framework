@@ -10,6 +10,16 @@
 
 ---
 
+## v2.12.9 "Claude-1" — 2026-06-23
+
+**Trigger "bật run_command" + note connect MCP local-terminal ở landing.**
+
+- **(b) CLAUDE.md trigger** "bật run_command" / "setup mcp local-terminal" / "bật quét nội bộ thẳng" → hướng dẫn
+  **bàn giao 3 bước** bật MCP `local-terminal` (thoát Claude → chạy `setup_macos.command` → token vào `~/.zshrc` → mở
+  lại). KHÔNG tự chạy được (script phải chạy lúc app ĐÃ THOÁT + run_command chưa có để bootstrap). Chỉ Claude Desktop.
+- **Landing** "Hướng dẫn cài đặt" → mục **Connect** thêm callout: cách quét nguồn **NỘI BỘ (Jira Server self-host)
+  THẲNG trong Cowork không cần Terminal** = bật MCP `local-terminal` + token ở `~/.zshrc`. Opt-in, Claude Desktop.
+
 ## v2.12.8 "Claude-1" — 2026-06-23
 
 **Installer nhắc (tùy chọn) bật MCP `local-terminal` cho nguồn nội bộ.**

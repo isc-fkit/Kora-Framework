@@ -93,7 +93,7 @@
   .content{padding:0 46px 90px;max-width:none;min-width:0}
   .page{display:none;animation:fade .24s ease}
   .page.active{display:block}
-  /* ẨN TẠM (v2.12.8) — xem khối <!-- HIDDEN-SECTIONS --> gần <body> để biết mục nào ẩn + cách bật lại */
+  /* ẨN TẠM (v2.12.9) — xem khối <!-- HIDDEN-SECTIONS --> gần <body> để biết mục nào ẩn + cách bật lại */
   .page.hidden,.nav a.hidden,.hc.hidden,.btn.hidden{display:none!important}
   @keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
 
@@ -270,7 +270,7 @@
 </style>
 </head>
 <body>
-<!-- ============================ HIDDEN-SECTIONS (v2.12.8) ============================
+<!-- ============================ HIDDEN-SECTIONS (v2.12.9) ============================
   MỤC ĐANG ẨN TẠM (vẫn còn nguyên trong file, chỉ ẩn bằng class "hidden"):
     1. workflow         — "Quy trình BA"
     2. prompts          — "Prompt & Template"
@@ -294,7 +294,7 @@
     <div class="brand" data-go="home" title="Trang chủ">
       <span class="brandmark" aria-hidden="true">K</span>
       <span class="org">FPT TELECOM</span>
-      <div class="fw">Claude Knowledge AI<span>v2.12.8 · Claude-1</span></div>
+      <div class="fw">Claude Knowledge AI<span>v2.12.9 · Claude-1</span></div>
     </div>
     <nav class="nav">
       <div class="grp">Tổng quan</div>
@@ -320,7 +320,7 @@
     <!-- ===================== HOME ===================== -->
     <div class="page" id="home">
       <header class="hero">
-        <span class="badge">FPT Telecom · Claude Knowledge AI · v2.12.8 · &ldquo;Claude-1&rdquo;</span>
+        <span class="badge">FPT Telecom · Claude Knowledge AI · v2.12.9 · &ldquo;Claude-1&rdquo;</span>
         <h1>Claude Knowledge AI — Sơ đồ nguyên lý hoạt động</h1>
         <p class="sub">Trợ lý tri thức tự lớn lên cùng dự án: hợp nhất tri thức phân tán, nối tri thức local của nhân viên với <b>Knowledge Base</b> chung (trên Cloud), và tự động hóa đồng bộ — báo cáo — cảnh báo.</p>
         <div class="pipe">
@@ -669,7 +669,7 @@
 <pre><code>curl -fsSL https://raw.githubusercontent.com/isc-fkit/Kora-Framework/release/uninstall.bat -o "%TEMP%\claude-knowledge-uninstall.bat" &amp;&amp; "%TEMP%\claude-knowledge-uninstall.bat"</code></pre></div>
       <p style="color:var(--faint);font-size:13.3px;margin:10px 0 0">Script hỏi gõ <code>yes</code> để xác nhận, và nhắc xóa tay các dòng <code>export KORA_*</code> trong <code>~/.zshrc</code> / <code>~/.bashrc</code> (Windows: biến môi trường) nếu có. Gỡ skill <b>KHÔNG</b> đụng tới tri thức của bạn.</p>
 
-      <!-- ↓↓↓ GỘP (v2.12.8): nội dung "Chức năng" (D cũ) gộp vào "Hướng dẫn cài đặt" ↓↓↓ -->
+      <!-- ↓↓↓ GỘP (v2.12.9): nội dung "Chức năng" (D cũ) gộp vào "Hướng dẫn cài đặt" ↓↓↓ -->
       <h2 class="sec" style="margin-top:32px">🧩 Chức năng &amp; cách vận hành (8 bước)</h2>
       <p class="lead">Sau khi cài (mục trên), đây là <b>8 bước thực thi</b> theo thứ tự: <b>1 init → 2 connect → 3 scan → 4 schedule → 4b cảnh báo ticket → 5 report → 6 send-mail → 7 sync → 8 archive</b>.</p>
 
@@ -709,6 +709,7 @@
       <div class="callout"><span>🔌</span><div><b>Nguồn MCP phải KẾT NỐI ở Claude web/Desktop TRƯỚC mới hiện ở CLI:</b> MCP do <b>app Claude</b> quản lý OAuth — connector (Atlassian / Microsoft 365 / Gmail) phải được <b>bật + authorize</b> trong <b>Claude web/Desktop → Settings → Connectors</b> (hoặc gõ <code>/mcp</code> trong Claude Code/Desktop). Chỉ khi server <b>connected</b> thì nguồn MCP đó mới <b>xuất hiện &amp; gọi được ở CLI</b> (<code>/claude-knowledge-connect</code>, scan). Chưa kết nối ở app → CLI không thấy. (Nguồn <b>API</b>/token thì kết nối thẳng ở CLI, không cần bước này.)</div></div>
       <div class="callout warn"><span>⏰</span><div><b>MCP KHÔNG chạy được LỊCH NỀN (cron):</b> token connector do <b>app Claude</b> giữ → tiến trình nền (cron/launchd) không gọi được MCP. Dùng MCP cho <b>quét/báo cáo TƯƠNG TÁC</b>; muốn <b>lịch nền 24/7</b> (report/mail/sync tự động) thì kết nối nguồn qua <b>API/token</b>. (Lịch Cowork dùng được MCP nhưng chỉ khi MỞ app + sandbox chặn SMTP → mail qua draft.)</div></div>
       <div class="callout"><span>🏢</span><div><b>Connect HOSTING cần đảm bảo:</b> ① nguồn để SCAN · ② đích PUSH (Confluence / GitHub private / SharePoint) · ③ kênh MAIL (Gmail/Outlook/SMTP). <b>Lịch nền 24/7 → nguồn phải qua API/token</b> (không phải MCP).</div></div>
+      <div class="callout"><span>🖥️</span><div><b>Quét nguồn NỘI BỘ (Jira Server self-host…) THẲNG trong Cowork — không cần Terminal:</b> Cowork sandbox chặn mạng nội bộ, nên nguồn <b>API/self-host</b> mặc định phải bàn giao lệnh ra Terminal. Bật <b>MCP <code>local-terminal</code></b> (chỉ <b>Claude Desktop</b>, không phải web) để skill chạy lệnh quét THẲNG trên máy: <b>thoát Claude</b> → Terminal chạy <code>bash ~/.claude/kora-framework/tools/kora-mcp/setup_macos.command</code> → đặt token nguồn vào <code>~/.zshrc</code> (đúng rule bảo mật — <code>/claude-knowledge-connect</code> cũng ghi vào đây) → mở lại Claude. <b>Opt-in</b> (chạy lệnh local — duyệt từng lần). Nguồn <b>Cloud/MCP</b> thì quét thẳng sẵn, không cần bước này.</div></div>
       <div class="twocol">
         <div class="card"><b>📧 Gmail (SMTP — tự động gửi)</b><p style="color:var(--muted);font-size:13.3px;margin:6px 0 0">Connect qua <b>API → Gmail SMTP</b>: dùng <b>tài khoản gửi chuyên dụng</b> (KHÔNG phải email cá nhân) + <b>App Password</b> (đã <b>bật 2FA</b>) → điền <code>tools/report-mailer/.env.local</code> → verify <code>send_report.py --check</code>. Người nhận thấy <b>“Claude Knowledge AI Daily Report &lt;tài khoản&gt;”</b> (đổi qua <code>MAIL_FROM_NAME</code>). <b>TỰ ĐỘNG GỬI</b> (khác Gmail MCP = chỉ tạo nháp).</p></div>
         <div class="card"><b>📨 Outlook / M365</b><p style="color:var(--muted);font-size:13.3px;margin:6px 0 0">Cần <b>key admin</b> hoặc được <b>set consent</b> (admin consent).</p></div>
@@ -2165,7 +2166,7 @@ Trạng thái: Pass / Fail / Blocked</code></pre></div>
   var links = Array.prototype.slice.call(document.querySelectorAll('[data-go]'));
   function go(id){
     var t = document.getElementById(id);
-    if(!t || t.classList.contains('hidden')) id = 'home';   // mục ẩn (v2.12.8) → về Trang chủ, không hiện trang trống
+    if(!t || t.classList.contains('hidden')) id = 'home';   // mục ẩn (v2.12.9) → về Trang chủ, không hiện trang trống
     pages.forEach(function(p){ p.classList.toggle('active', p.id===id); });
     document.querySelectorAll('.nav a').forEach(function(a){ a.classList.toggle('active', a.getAttribute('data-go')===id); });
     if(location.hash.slice(1)!==id) history.replaceState(null,'','#'+id);
