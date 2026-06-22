@@ -57,7 +57,15 @@ The user invoked `/kora-send-mail` — gửi email báo cáo tiến độ. **CÓ
           > ⏱️ **build_report PHẢI chạy NGAY TRƯỚC** lệnh này (Bước c). send_report có **guard chống gửi bản cũ**: nếu
           > `email-body-latest.html` cũ hơn **30 phút** → DỪNG, báo "build lại". File đính kèm tự đổi **tên có ngày-giờ**
           > (`progress-report-<YYYY-MM-DD_HHMM>.html`) nên mỗi mail một bản KHÁC, client không lấy lại bản cũ cùng tên.
-        - **[Tạo nháp] = FALLBACK** (chỉ khi user chọn / không gửi SMTP được): tạo NHÁP Gmail/Outlook qua MCP → user bấm gửi.
+        - 🖥️ **BÀN GIAO TERMINAL khi Cowork chặn SMTP (KHÔNG dead-end) — fallback CHÍNH:** đọc stderr của `send_report.py`:
+          - **`SMTP_UNREACHABLE`** (Cowork sandbox chặn mạng SMTP) → báo cáo ĐÃ build xong ở `reports/` (local thật). **Lấy
+            lệnh bàn giao** = chạy lại CÙNG lệnh trên + cờ `--emit-command` (KHÔNG gửi, in 1 dòng lệnh path tuyệt đối) →
+            **ghi file chạy được**: macOS/Linux `reports/kora-send-mail.command` (thêm dòng đầu `#!/bin/bash` + `chmod +x`),
+            Windows `reports/kora-send-mail.bat`. Báo user RÕ: *"Cowork bị hạn chế gửi Gmail SMTP. Báo cáo đã tạo xong. Mở
+            **Terminal** chạy: `bash "reports/kora-send-mail.command"` (hoặc dán lệnh hiện ra) → gửi luôn báo cáo vừa tạo —
+            terminal CHỈ gửi, không build lại."* (Đây là cách "tiếp tục việc dang dở ở Cowork, gửi mail luôn".)
+          - **`SMTP_AUTH_FAILED`** → KHÔNG bàn giao vô ích; nhắc **sửa App Password** (16 ký tự) trong `tools/report-mailer/.env.local` rồi gửi lại.
+        - **[Tạo nháp] = fallback PHỤ** (chỉ khi user chủ động chọn): tạo NHÁP Gmail/Outlook qua MCP → user bấm gửi.
    - **[Đặt lịch]:**
      a0. **Nếu nguồn Jira đã chọn là MCP-only** (method=mcp, vd `atlassian`/`jira_cloud` MCP) → **KHÔNG dead-end:**
         AskUserQuestion **[A]** kết nối Jira qua **API** (`/kora-connect`) rồi lịch HĐH nền 24/7 (auto-mail SMTP — khuyến

@@ -22,6 +22,7 @@ import argparse
 import mimetypes
 import os
 import re
+import shlex
 import smtplib
 import ssl
 import sys
@@ -70,6 +71,36 @@ def split_addrs(raw: str):
     return [x.strip() for x in (raw or "").split(",") if x.strip()]
 
 
+def _emit_command(args, env_path) -> str:
+    """Sinh 1 DÒNG LỆNH terminal để gửi tiếp (bàn giao khi Cowork chặn SMTP). Path → TUYỆT ĐỐI để chạy từ
+    cwd bất kỳ; secret KHÔNG in (vẫn ở .env.local). Tái dựng từ chính args đã truyền."""
+    def absify(p):
+        return str(Path(p).expanduser().resolve()) if p else p
+    parts = [f"KORA_MAILER_ENV={shlex.quote(str(Path(env_path).resolve()))}",
+             "python3", shlex.quote(str(Path(__file__).resolve()))]
+    if args.to:
+        parts += ["--to", shlex.quote(args.to)]
+    if args.cc:
+        parts += ["--cc", shlex.quote(args.cc)]
+    if args.bcc:
+        parts += ["--bcc", shlex.quote(args.bcc)]
+    if args.subject:
+        parts += ["--subject", shlex.quote(args.subject)]
+    if args.html_file:
+        parts += ["--html-file", shlex.quote(absify(args.html_file))]
+    if args.no_attach_html:
+        parts += ["--no-attach-html"]
+    for a in (args.attach or []):
+        parts += ["--attach", shlex.quote(absify(a))]
+    if args.banner:
+        parts += ["--banner", shlex.quote(absify(args.banner))]
+    if args.split:
+        parts += ["--split"]
+    if args.stale_after_min != 30:
+        parts += ["--stale-after-min", str(args.stale_after_min)]
+    return " ".join(parts)
+
+
 def main():
     ap = argparse.ArgumentParser(description="Gửi báo cáo Kora qua SMTP.")
     ap.add_argument("--to", help="Danh sách email nhận, phân tách bằng dấu phẩy.")
@@ -90,11 +121,18 @@ def main():
     ap.add_argument("--test", action="store_true", help="Gửi email test nhỏ (không cần report).")
     ap.add_argument("--check", action="store_true", help="Chỉ kiểm tra cấu hình + đăng nhập SMTP (KHÔNG gửi).")
     ap.add_argument("--env", help="Đường dẫn .env.local (ưu tiên cao nhất; mặc định đọc KORA_MAILER_ENV rồi .env.local cạnh script).")
+    ap.add_argument("--emit-command", action="store_true",
+                    help="KHÔNG gửi — in 1 DÒNG LỆNH (path tuyệt đối) để chạy ở TERMINAL gửi tiếp (bàn giao khi "
+                         "Cowork sandbox chặn SMTP). Secret KHÔNG in (vẫn ở .env.local).")
     args = ap.parse_args()
 
     env_path = resolve_env_path(args.env)
     env = load_env(env_path)
     file_exists = env_path.exists()
+
+    if args.emit_command:   # BÀN GIAO: in lệnh chạy ở terminal (không gửi, không cần creds)
+        print(_emit_command(args, env_path))
+        return
 
     def cfg(key, default=None):
         return os.getenv(key) or env.get(key) or default
@@ -284,8 +322,12 @@ def main():
                 s.login(user, pw)
                 sent, failed = _deliver(s)
     except smtplib.SMTPAuthenticationError:
+        print("SMTP_AUTH_FAILED", file=sys.stderr)   # marker máy-đọc: sai App Password → nhắc sửa creds
         die("Xác thực SMTP thất bại. Gmail: phải dùng App Password (bật 2FA rồi tạo tại "
             "https://myaccount.google.com/apppasswords), KHÔNG dùng mật khẩu Gmail thường.")
+    except (OSError, smtplib.SMTPConnectError, smtplib.SMTPServerDisconnected, TimeoutError) as e:
+        print("SMTP_UNREACHABLE", file=sys.stderr)   # marker: mạng/sandbox chặn → skill bàn giao bash cho terminal
+        die(f"Không kết nối được SMTP (mạng/sandbox Cowork chặn?): {e}")
     except Exception as e:  # noqa: BLE001 — báo gọn cho user non-tech
         die(f"Gửi mail lỗi: {e}")
 

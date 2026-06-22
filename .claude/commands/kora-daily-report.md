@@ -41,6 +41,10 @@ The user invoked `/kora-daily-report` — build a progress report.
   classification (🟢/🟡/🔴), **timeline-slip prediction per active sprint** (with reasoning),
   per-member recommendations, risk-resolution suggestions, and a 1–2 sentence executive summary —
   written by Claude from the data, never made up.
-- **Sau khi sinh report → đề xuất (AskUserQuestion): "Đặt lịch tự động hằng ngày?"** Nếu **Có** → tạo một
-  **Cowork scheduled task qua `/schedule` của Claude** (theo `workflows/08-schedule-sync.md` Mục B) chạy mỗi ngày:
-  **kéo dữ liệu → sinh report → tự gửi email** tới `reports.email.to` (bật gửi mail cần qua cổng `send_report.py --check`).
+- **Sau khi sinh report → đề xuất bước kế (AskUserQuestion, schema rule #8 — header ≤12 ký tự vd "Bước kế"):
+  [Gửi mail ngay] / [Đặt lịch hằng ngày] / [Dừng].**
+  - **[Gửi mail ngay]** → đi luồng GỬI của `/kora-send-mail` ([Gửi ngay]): cổng `KORA_OPS_PW` → chọn người nhận
+    (`reports.email.to`) → **tự dùng Gmail SMTP nếu đã setup** → gửi. **Cowork sandbox chặn SMTP → BÀN GIAO bash cho
+    terminal** (xem kora-send-mail "BÀN GIAO TERMINAL"): KHÔNG dead-end, KHÔNG bắt mở lại lệnh.
+  - **[Đặt lịch hằng ngày]** → tạo **Cowork scheduled task qua `/schedule`** (theo `workflows/08-schedule-sync.md`
+    Mục B) chạy mỗi ngày: **kéo dữ liệu → sinh report → tự gửi email** tới `reports.email.to` (gửi mail qua cổng `send_report.py --check`).

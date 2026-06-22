@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.9.7",
+  "version": "2.9.8",
   "codename": "Kora-1",
   "released": "2026-06-22",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.9.7 (kết nối API hoàn chỉnh cho GitHub & GitLab): (1) Kết nối API nay LIỆT KÊ repo (GitHub) / project (GitLab) để CHỌN sau khi verify — không phải gõ tay (check_connection --list-repos). (2) GitLab thành nguồn ĐẦY ĐỦ như GitHub: thêm tool tools/gitlab-sync (push/pull KB ↔ repo GitLab qua git+PAT, idempotent), config gitlab:, gắn vào /kora-scan (pull) + /kora-sync (push, cổng KORA_OPS_PW) + lịch nền. Token PAT ở tools/gitlab-sync/.env.local (KORA_GITLAB_SYNC_TOKEN). Thuần CORE, không migration DATA."
+  "intro": "Kora-Framework v2.9.8 (Cowork: hỏi 'cập nhật tiến độ' → tự phân tích → gửi mail; SMTP bị sandbox chặn → BÀN GIAO lệnh bash cho terminal gửi tiếp): PM/PO hỏi tiến độ bằng lời trong Cowork → tự kéo Jira về local + reindex + phân tích + sinh báo cáo → đề xuất [Gửi mail ngay]. Gửi tự dùng Gmail SMTP nếu đã setup; vì Cowork bị hạn chế gửi SMTP, khi không gửi được Kora XUẤT một lệnh bash (ghi reports/kora-send-mail.command) để bạn chạy ở Terminal gửi luôn báo cáo vừa tạo — không dead-end, không phải mở lại lệnh. send_report.py thêm marker SMTP_UNREACHABLE/SMTP_AUTH_FAILED + cờ --emit-command. Thuần CORE, không migration DATA."
 }

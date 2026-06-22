@@ -10,6 +10,18 @@
 
 ---
 
+## v2.9.8 "Kora-1" — 2026-06-22
+
+- **🖥️ Cowork: hỏi "cập nhật tiến độ" → tự phân tích → gửi mail; SMTP bị sandbox chặn → BÀN GIAO lệnh bash cho terminal.**
+  PM/PO hỏi tiến độ **bằng lời** trong Cowork → tự kéo Jira về local + reindex + phân tích AI + sinh báo cáo → đề xuất
+  **[Gửi mail ngay] / [Đặt lịch] / [Dừng]**. Gửi: **tự dùng Gmail SMTP nếu đã setup**. Vì Cowork bị hạn chế gửi SMTP
+  (sandbox), khi không gửi được → Kora **XUẤT một lệnh bash** + ghi file chạy được **`reports/kora-send-mail.command`**
+  (Windows `.bat`) để bạn chạy ở **Terminal** → gửi luôn báo cáo vừa tạo (report đã build sẵn ở local — terminal chỉ
+  gửi, không build lại). KHÔNG dead-end, không phải mở lại lệnh.
+- `send_report.py`: thêm **marker `SMTP_UNREACHABLE`** (mạng/sandbox chặn → bàn giao bash) **/ `SMTP_AUTH_FAILED`** (sai
+  App Password → nhắc sửa creds) + cờ **`--emit-command`** (in 1 dòng lệnh path tuyệt đối, không lộ secret).
+- Thuần **CORE**, KHÔNG migration DATA. Máy đã cài: gõ **"cập nhật phiên bản"**.
+
 ## v2.9.7 "Kora-1" — 2026-06-22
 
 - **🔌 Kết nối API hoàn chỉnh cho GitHub & GitLab.** Sau khi verify, connect nay **LIỆT KÊ repo (GitHub
