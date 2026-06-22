@@ -10,6 +10,17 @@
 
 ---
 
+## v2.12.19 "Claude-1" — 2026-06-23
+
+**FIX: banner email không responsive (full-width) trên APP MOBILE.**
+
+- **Lỗi:** mở mail trên app mobile (Outlook/Gmail app), banner KHÔNG giãn hết bề ngang như các card — ảnh thiếu
+  width. Nguyên nhân: app mobile hay **bỏ qua `width:100%` trên `<img>`** và giữ `width="600"`.
+- **Sửa (chỉ banner, KHÔNG đụng nội dung báo cáo):** thêm **`min-width:100%`** (ép ảnh tối thiểu bằng bề ngang
+  container → full-width mobile, vẫn cap 600px desktop) + `<td width="100%">` + `font-size:0;line-height:0` (khử
+  khoảng trắng) + `-ms-interpolation-mode:bicubic`. Media query `.kbanner` thêm `min-width:100%!important`.
+- **Verify trên app mobile thật:** banner full-width như card; phần báo cáo bên dưới nguyên vẹn.
+
 ## v2.12.18 "Claude-1" — 2026-06-23
 
 **FIX: banner Outlook VỠ khi email CÓ đính kèm (multipart/related chôn sâu) + banner nhẹ hơn.**

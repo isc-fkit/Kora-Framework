@@ -822,9 +822,14 @@ def render_email_body(m, vault, banner_url=""):
     _sl = m.get("scope_label", "")
     if _sl and not _sl.startswith("Toàn bộ"):
         scope = f"{scope} · {esc(_sl)}"
-    banner_row = (f'<tr><td style="padding:0;line-height:0"><img class="kbanner" src="{banner_url}" '
-                  f'alt="Cập nhật tiến độ dự án mỗi ngày" width="600" style="display:block;width:100%;'
-                  f'max-width:600px;height:auto;border:0"></td></tr>') if banner_url else ""
+    # Banner RESPONSIVE bền cho APP MOBILE (Outlook/Gmail app hay bỏ qua `width:100%` trên <img> + giữ
+    # width="600" → ảnh không giãn hết width như card). `min-width:100%` ÉP ảnh tối thiểu = bề ngang container
+    # (full-width trên mobile, vẫn cap 600px desktop); td width="100%" + font-size:0 khử khoảng trắng.
+    banner_row = (f'<tr><td width="100%" align="center" valign="top" '
+                  f'style="padding:0;margin:0;font-size:0;line-height:0;mso-line-height-rule:exactly">'
+                  f'<img class="kbanner" src="{banner_url}" alt="Cập nhật tiến độ dự án mỗi ngày" width="600" border="0" '
+                  f'style="display:block;width:100%;min-width:100%;max-width:600px;height:auto;margin:0 auto;'
+                  f'border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic"></td></tr>') if banner_url else ""
     # ── Năng suất & giờ công + lưu ý logtime theo loại ──
     cap = m.get("capacity", {})
     hs = human_seconds
@@ -1001,7 +1006,7 @@ def render_email_body(m, vault, banner_url=""):
 <meta name="color-scheme" content="light only"><meta name="supported-color-schemes" content="light only">
 <style>
 :root{{color-scheme:light only;supported-color-schemes:light only}}
-@media only screen and (max-width:600px){{.kc{{display:block!important;width:100%!important;box-sizing:border-box}}.kpad{{padding:16px!important}}.kbody{{padding-left:0!important;padding-right:0!important}}.kcard{{border-radius:0!important}}.kbanner{{width:100%!important;max-width:100%!important;height:auto!important}}}}
+@media only screen and (max-width:600px){{.kc{{display:block!important;width:100%!important;box-sizing:border-box}}.kpad{{padding:16px!important}}.kbody{{padding-left:0!important;padding-right:0!important}}.kcard{{border-radius:0!important}}.kbanner{{width:100%!important;min-width:100%!important;max-width:100%!important;height:auto!important}}}}
 @media (prefers-color-scheme:dark){{
   .kbody,.kbody td,.kbody div,.kbody span,.kbody b,.kbody li,.kbody strong{{color:{EPAL['ink']}!important}}
   .kcard{{background:#ffffff!important;background-color:#ffffff!important}}
