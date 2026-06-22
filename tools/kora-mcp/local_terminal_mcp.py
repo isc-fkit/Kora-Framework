@@ -45,9 +45,10 @@ def send(obj):
 
 TOOLS = [{
     "name": "run_command",
-    "description": ("Chạy 1 lệnh shell trên MÁY LOCAL thật (bash -lc, đúng PATH/VPN của bạn), trả "
-                    "stdout + stderr + exit code. Dùng để VƯỢT sandbox: quét Jira nội bộ, gửi SMTP, "
-                    "chạy import_jira.py / build_report.py / send_report.py... Chạy với QUYỀN USER."),
+    "description": ("Chạy 1 lệnh shell trên MÁY LOCAL thật bằng SHELL đăng nhập + source ~/.zshrc (đúng "
+                    "PATH/VPN + biến env user khai như JIRA_PAT), trả stdout + stderr + exit code. Dùng để VƯỢT "
+                    "sandbox: quét Jira nội bộ, gửi SMTP, chạy import_jira.py / build_report.py / send_report.py... "
+                    "Chạy với QUYỀN USER."),
     "inputSchema": {
         "type": "object",
         "properties": {

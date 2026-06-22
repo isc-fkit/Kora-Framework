@@ -10,6 +10,18 @@
 
 ---
 
+## v2.12.7 "Claude-1" — 2026-06-23
+
+**`kora-mcp`: script setup + mô tả đúng (token ở `~/.zshrc` cho run_command).**
+
+- **MỚI `tools/kora-mcp/setup_macos.command`**: tự gắn MCP `local-terminal` vào `claude_desktop_config.json` (backup +
+  **từ chối chạy nếu Claude đang mở** — tránh app ghi đè config khi thoát). Cài 1 lệnh thay vì sửa JSON tay.
+- **Sửa mô tả tool `run_command`**: ghi đúng "SHELL đăng nhập + source `~/.zshrc`" (không phải `bash -lc` cũ).
+- **Chuẩn hoá token ở `~/.zshrc`**: nguồn API/Server (Jira Server…) đặt token ở `~/.zshrc` (đúng rule #6 —
+  `/claude-knowledge-connect` cũng ghi vào đây); `run_command` source `~/.zshrc` **mỗi lần chạy** → đổi/thêm token
+  KHÔNG cần restart Claude. README hướng dẫn cách nhanh (script) + thủ công.
+- Đã verify end-to-end: run_command đọc PAT từ `~/.zshrc` + quét thật Jira Server (project IA, 25 issue, ghi vault OK).
+
 ## v2.12.6 "Claude-1" — 2026-06-23
 
 **MCP `local-terminal` đọc biến môi trường từ `~/.zshrc` (token ở shell env, đúng rule #6).**

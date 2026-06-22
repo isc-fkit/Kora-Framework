@@ -9,7 +9,18 @@ quét/report/gửi-mail thẳng trong chat, **không cần bàn giao file `.comm
 > ⚠️ **`run_command` = arbitrary command execution** với quyền của bạn. Opt-in. Mỗi lần gọi vẫn qua permission prompt
 > của Claude. **KHÔNG** bật cho người dùng cuối nếu không cố ý. Đây KHÔNG phải phần cài tự động của framework.
 
-## Cài (macOS)
+## Cài (macOS) — CÁCH NHANH (script)
+**Thoát hẳn Claude Desktop (`Cmd+Q`)** rồi chạy ở Terminal:
+```bash
+bash "$HOME/.claude/kora-framework/tools/kora-mcp/setup_macos.command"
+```
+Script tự backup + thêm `mcpServers.local-terminal` (trỏ server bản cài) + từ chối chạy nếu Claude đang mở (tránh app
+ghi đè). Xong → đặt token vào `~/.zshrc` (xem dưới) → mở lại Claude.
+
+> 🔑 **Token đặt ở `~/.zshrc`** (đúng rule #6 — `/claude-knowledge-connect` cũng ghi vào đây): `export JIRA_BASE_URL=… JIRA_PAT=… JIRA_AUTH_MODE=server`.
+> `run_command` **source `~/.zshrc` mỗi lần chạy** → đổi/thêm token KHÔNG cần restart Claude.
+
+## Cài (macOS) — THỦ CÔNG
 1. Mở `~/Library/Application Support/Claude/claude_desktop_config.json`, thêm (giữ nguyên các key cũ):
    ```json
    {
