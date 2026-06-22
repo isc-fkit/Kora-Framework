@@ -261,6 +261,16 @@ def main():
             mt, st = (ctype.split("/", 1) if ctype else ("image", "png"))
             msg.get_payload()[-1].add_related(banner_cid_path.read_bytes(),
                                               maintype=mt, subtype=st, cid="kora-banner")
+            # Outlook hiện ngay ảnh CID (không bắt "tin cậy/download pictures" như ảnh remote) — NHƯNG `add_related`
+            # đặt `Content-ID: kora-banner` KHÔNG ngoặc nhọn → Outlook không khớp `src="cid:kora-banner"`. RFC 2392
+            # yêu cầu Content-ID bọc <...>. Sửa: thêm ngoặc nhọn + Content-Disposition inline kèm filename + X-Attachment-Id.
+            related = msg.get_payload()[-1]          # text/html → đã thành multipart/related sau add_related
+            img_part = related.get_payload()[-1]     # phần ảnh vừa thêm
+            img_part.replace_header("Content-ID", "<kora-banner>")
+            del img_part["Content-Disposition"]      # add_related set 'inline' (không filename) → thay bằng có filename
+            img_part.add_header("Content-Disposition", "inline",
+                                filename="banner" + (banner_cid_path.suffix or ".jpg"))
+            img_part.add_header("X-Attachment-Id", "kora-banner")
 
     # Tên đính kèm KHÁC NHAU mỗi lần: report HTML cố định (progress-report-latest / email-body-latest /
     # processing_report…) được đổi sang tên có NGÀY-GIỜ → client mail không lấy lại bản cũ cùng tên, và

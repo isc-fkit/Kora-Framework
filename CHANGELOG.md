@@ -10,6 +10,14 @@
 
 ---
 
+## v2.9.9 "Kora-1" — 2026-06-22
+
+- **📧 Banner email hiện NGAY trong Outlook (hết phải bấm "tin cậy/tải ảnh").** Sửa nhúng ảnh CID: `add_related`
+  đặt `Content-ID: kora-banner` **KHÔNG ngoặc nhọn** → Outlook không khớp `src="cid:kora-banner"` → chặn ảnh cho người
+  nhận lần đầu. Nay đặt **`Content-ID: <kora-banner>`** (đúng RFC 2392) + **`Content-Disposition: inline; filename="banner.jpg"`**
+  + `X-Attachment-Id` → ảnh **đính kèm trong mail, gọi qua Content-ID**, hiện inline ngay (khác ảnh remote bị chặn).
+- Thuần **CORE**, KHÔNG migration DATA. Máy đã cài: gõ **"cập nhật phiên bản"**.
+
 ## v2.9.8 "Kora-1" — 2026-06-22
 
 - **🖥️ Cowork: hỏi "cập nhật tiến độ" → tự phân tích → gửi mail; SMTP bị sandbox chặn → BÀN GIAO lệnh bash cho terminal.**

@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.9.8",
+  "version": "2.9.9",
   "codename": "Kora-1",
   "released": "2026-06-22",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.9.8 (Cowork: hỏi 'cập nhật tiến độ' → tự phân tích → gửi mail; SMTP bị sandbox chặn → BÀN GIAO lệnh bash cho terminal gửi tiếp): PM/PO hỏi tiến độ bằng lời trong Cowork → tự kéo Jira về local + reindex + phân tích + sinh báo cáo → đề xuất [Gửi mail ngay]. Gửi tự dùng Gmail SMTP nếu đã setup; vì Cowork bị hạn chế gửi SMTP, khi không gửi được Kora XUẤT một lệnh bash (ghi reports/kora-send-mail.command) để bạn chạy ở Terminal gửi luôn báo cáo vừa tạo — không dead-end, không phải mở lại lệnh. send_report.py thêm marker SMTP_UNREACHABLE/SMTP_AUTH_FAILED + cờ --emit-command. Thuần CORE, không migration DATA."
+  "intro": "Kora-Framework v2.9.9 (banner email hiện NGAY trong Outlook): sửa nhúng ảnh CID — Content-ID nay bọc ngoặc nhọn <kora-banner> đúng RFC 2392 (trước đây add_related đặt 'kora-banner' KHÔNG ngoặc → Outlook không khớp src cid:kora-banner → chặn ảnh, bắt người nhận lần đầu bấm 'tin cậy/tải ảnh'). Thêm Content-Disposition: inline kèm filename + X-Attachment-Id để Outlook render inline chắc chắn. Ảnh đính kèm trong mail + gọi qua Content-ID → hiện ngay, không cần trust. Thuần CORE, không migration DATA."
 }
