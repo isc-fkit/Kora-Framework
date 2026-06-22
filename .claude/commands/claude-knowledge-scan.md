@@ -17,14 +17,15 @@ The user invoked `/claude-knowledge-scan` — scan & import knowledge.
    `T=tools; [ -e "$T/connections/check_connection.py" ] || T="$HOME/.claude/kora-framework/tools"; python3 "$T/connections/check_connection.py" --list --config "$PWD/config/factory-config.yaml"`
    (Windows: `py`) để lấy danh sách từ `connections`. **KHÔNG hiện đoạn giới thiệu "quét Jira".**
    - **Chưa kết nối nguồn nào** (registry rỗng) → mời chạy **`/claude-knowledge-connect`**.
-   - 🎯 **"quét jira" / "quét dữ liệu mới jira" (chung, KHÔNG nêu nguồn) → ƯU TIÊN nguồn Jira qua MCP, KHÔNG HỎI "nguồn nào".**
-     Nếu có ≥1 nguồn `jira_*` phương thức **MCP** (Atlassian Cloud/Rovo) → **tự chọn nó, quét THẲNG trong chat** (bỏ qua
-     checklist + bàn giao). **Dù có Jira Server host (API) kết nối song song cũng KHÔNG hỏi** — báo nhẹ 1 dòng: *"Đang quét
-     Jira qua MCP (Atlassian Cloud). Muốn quét cả Jira Server host nội bộ thì bảo mình (vd 'quét jira server')."* CHỈ hiện
-     checklist chọn nguồn khi: (a) user nói **"quét tất cả nguồn"/"chọn nguồn"**; (b) user nêu RÕ nguồn server (**"quét jira
-     server"**, "nguồn nội bộ/host", "quét cả 2 nguồn"); hoặc (c) **KHÔNG có** nguồn Jira MCP (chỉ có API/server → dùng luôn
-     nguồn đó, vẫn KHÔNG hỏi vô ích — quét thẳng nếu có `run_command`, else bàn giao). *(Quy tắc này chỉ cho NGUỒN JIRA; "quét
-     tất cả nguồn" hay nguồn khác (GitHub/SharePoint…) vẫn theo checklist bên dưới.)*
+   - 🎯 **"quét jira" / "quét dữ liệu mới jira" / "cập nhật dữ liệu (mới) (từ) jira" (chung) → HỎI NGUỒN khi có ≥2 nguồn Jira:**
+     Đếm nguồn `jira_*` đã kết nối (MCP Cloud, API/Server host…):
+     - **≥2 nguồn Jira** → **AskUserQuestion cho user CHỌN nguồn** (dễ chọn): mỗi nguồn = 1 lựa chọn kèm phương thức
+       (vd *"Atlassian Cloud (MCP) ✓"*, *"Jira Server host — jira.cong-ty.vn (API) ✓"*) + **"[Cả 2 nguồn]"**. Header ≤12 ký tự,
+       2–4 option, có description. (Đây chính là "hỏi từ nguồn nào cho user dễ chọn".)
+     - **đúng 1 nguồn Jira** → dùng LUÔN, không hỏi vô ích (báo nhẹ "đang quét từ `<nguồn>`").
+     - **user đã nêu rõ nguồn** trong câu ("quét jira server" / "nguồn nội bộ" / "cả 2") → theo đó, khỏi hỏi.
+     Sau khi xác định nguồn: **MCP** → quét thẳng trong chat; **API/Server** → `run_command` (nếu có) gửi thẳng, else bàn giao.
+     *(Chỉ cho NGUỒN JIRA; "quét tất cả nguồn" / nguồn khác (GitHub/SharePoint…) vẫn theo checklist bên dưới.)*
    - **Có rồi** (các trường hợp còn lại) → hiện **checklist (multi-select)** với item đầu **[✓ Quét tất cả nguồn]** (lấy HẾT),
      rồi từng nguồn kèm trạng thái: `display_name + ✓ connected · checked <thời gian tương đối>`
      (vd *"Jira Cloud (MCP) ✓ · 2h trước", "GitHub (API) ✓ · hôm qua"*). Nguồn `last_checked` quá cũ

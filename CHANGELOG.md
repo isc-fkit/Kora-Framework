@@ -10,6 +10,18 @@
 
 ---
 
+## v2.12.12 "Claude-1" — 2026-06-23
+
+**Quét/báo-cáo Jira: HỎI NGUỒN khi có ≥2 nguồn (dễ chọn) + trigger "cập nhật dữ liệu jira" + làm rõ mốc "dữ liệu mới".**
+
+- **(A) Trigger** `"cập nhật dữ liệu (mới) (từ) jira"` = quét (đồng nghĩa "quét dữ liệu mới jira"). Phân biệt rõ với
+  "cập nhật phiên bản/ứng dụng" (= update APP, WF10).
+- **(B) Quét "jira"** (`/claude-knowledge-scan` + CLAUDE.md): có **≥2 nguồn Jira** → **AskUserQuestion cho user CHỌN nguồn**
+  (mỗi nguồn kèm MCP/API + [Cả 2]) — **đảo v2.12.4** (trước auto-MCP không hỏi). **1 nguồn** → dùng luôn; user nêu rõ nguồn → theo đó.
+- **(C) Báo cáo tiến độ** (CLAUDE.md + WF14): cũng **hỏi NGUỒN trước** (lấy dữ liệu nguồn ĐÃ quét về vault) rồi hỏi project.
+- **(D) "Dữ liệu mới"** = mục có **`updated >= last_import`**; mốc lưu RIÊNG theo từng nguồn (`_system/last-import-<nguồn>.txt`),
+  chưa có → kéo full; sau quét full cập nhật mốc. Skill báo rõ *"đang lấy dữ liệu cập nhật từ <mốc>"*.
+
 ## v2.12.11 "Claude-1" — 2026-06-23
 
 **Quét Jira: BÁO CÁO phân loại theo loại (Epic/US/Task/Bug/Sub-task) — KHÔNG gộp chung gọi "issue".**

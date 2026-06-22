@@ -30,6 +30,11 @@ Windows `py`). **Exit ≠ 0 → DỪNG**: không làm mới, không sinh report.
 
 ## Bước 0.5 — LÀM MỚI dữ liệu trước khi report (Pha 2)
 
+> 🎯 **HỎI NGUỒN JIRA trước (nếu có ≥2 nguồn) — báo cáo lấy dữ liệu của nguồn ĐÃ QUÉT VỀ VAULT:** AskUserQuestion liệt kê
+> từng nguồn `jira_*` (kèm MCP/API) cho user chọn; **1 nguồn → khỏi hỏi**. **Mốc "dữ liệu mới"** = các mục có `updated >=
+> last_import` (mốc lưu RIÊNG theo từng nguồn ở `_system/last-import-<nguồn>.txt`); chưa có mốc → kéo full. **Báo cho user
+> RÕ:** *"Đang lấy dữ liệu cập nhật của `<nguồn>` từ mốc `<last_import>`."* (Nguồn nào chưa quét lần nào → báo cần quét trước.)
+
 > 💡 Nếu `config > jira.effort_field` có giá trị (vd `customfield_10867`), **đặt biến
 > `JIRA_EFFORT_FIELD=<id>` trước mọi lệnh `import_jira.py`** (token lẫn `--from-mcp`) để gộp field
 > "ước tính theo giờ" vào est khi hạng mục công việc thiếu time-tracking chuẩn.
