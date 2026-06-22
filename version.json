@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.12.12",
+  "version": "2.12.13",
   "codename": "Claude-1",
   "released": "2026-06-23",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.12.12 (quét/báo-cáo Jira HỎI NGUỒN khi có ≥2 nguồn + thêm trigger 'cập nhật dữ liệu jira'): (A) 'cập nhật dữ liệu (mới) từ jira' = trigger quét. (B) Nói 'jira' (quét) có ≥2 nguồn → HỎI nguồn nào (card dễ chọn) thay vì auto-MCP (đảo v2.12.4); 1 nguồn → dùng luôn. (C) Báo cáo tiến độ cũng hỏi nguồn trước (lấy dữ liệu vault đã quét của nguồn đó) rồi hỏi project. (D) 'Dữ liệu mới' = mục có updated >= last_import (mốc riêng theo từng nguồn _system/last-import-<nguồn>.txt); báo rõ 'đang lấy từ mốc <...>'."
+  "intro": "Kora-Framework v2.12.13 (bảng keyword+ví dụ + connect Gmail hỏi SMTP/MCP ưu tiên SMTP + luôn source config mới): (1) KEYWORDS.md + bảng 'Keyword & ví dụ' ở landing Phụ lục — tra nhanh trigger lời-thường. (2) Kết nối Gmail LUÔN hỏi thẳng SMTP hay MCP, ƯU TIÊN SMTP (tự động gửi), chỉ fallback MCP nháp. (3) Sau khi ghi/đổi token ~/.zshrc → LUÔN source ~/.zshrc lấy config MỚI (run_command tự source mỗi lần)."
 }

@@ -32,8 +32,11 @@ ESC hoặc [← Huỷ] = dừng, **KHÔNG ghi gì** vào `connections:`.
 - **MCP** (3 nguồn → 1 thẻ) → **[Atlassian Rovo (Jira + Confluence)]** / **[Gmail — tạo NHÁP/draft]** /
   **[Microsoft 365 (SharePoint + Outlook)]** — Connector đang có trong Claude App/Cowork (Settings →
   Connectors) **hoặc** gõ **`/mcp`** (Claude Code/Desktop) để kết nối server trước.
-  > ✉️ **Gmail MCP = tạo NHÁP (draft) gửi tay.** Muốn **TỰ ĐỘNG GỬI** (lịch nền/báo cáo) → chọn **API → Gmail
-  >   SMTP (App Password)** bên dưới. Mail tự động ưu tiên SMTP, MCP draft chỉ là fallback.
+  > ✉️ **KẾT NỐI GMAIL → LUÔN HỎI THẲNG "SMTP hay MCP", ƯU TIÊN SMTP:** khi user muốn nối Gmail (nói "kết nối gmail"/
+  >   "gửi mail"), **AskUserQuestion**: **[Gmail SMTP — TỰ ĐỘNG GỬI (App Password) ✅ KHUYẾN NGHỊ]** / **[Gmail MCP — chỉ
+  >   tạo NHÁP, gửi tay]**. **MẶC ĐỊNH/ưu tiên SMTP** (báo cáo + lịch nền cần tự gửi); **CHỈ fallback MCP** khi user chọn
+  >   rõ hoặc KHÔNG lập được App Password/2FA. Chọn SMTP → đi luồng **API → Gmail SMTP** bên dưới (App Password ở `~/.zshrc`
+  >   hoặc `.env.local`).
   - ▸ **Connector GỘP nhiều dịch vụ → HỎI sub-service** (AskUserQuestion; mỗi dịch vụ = 1 nguồn RIÊNG để
     verify/quét, đừng dừng ở "đã kết nối M365" rồi thôi): **Microsoft 365** → **[SharePoint] / [Outlook] /
     [Cả hai]**; **Atlassian Rovo** → **[Jira] / [Confluence] / [Cả hai]**. (Gmail là 1 dịch vụ — không hỏi.)
@@ -72,7 +75,10 @@ ESC hoặc [← Huỷ] = dừng, **KHÔNG ghi gì** vào `connections:`.
   2. Hiện **verification URL + user code** cho user (KHÔNG phải secret) → user duyệt trên trình duyệt → poll token.
   3. Ghi **access token** vào **biến môi trường SHELL** — MẶC ĐỊNH, KHÔNG tạo `.env` trong project (rule §1.6):
      - `export KORA_<SRC>_TOKEN=...` (+ `_EMAIL` / `_BASE_URL` nếu cần) vào `~/.zshrc` (bash → `~/.bashrc`;
-       chọn rc theo `$SHELL`) → nhắc user `source`. Token KHÔNG ra chat. Các tool đọc qua `os.getenv`.
+       chọn rc theo `$SHELL`). Token KHÔNG ra chat. Các tool đọc qua `os.getenv`.
+     - 🔄 **LUÔN DÙNG `source` ĐỂ LẤY CONFIG MỚI:** sau khi ghi/ĐỔI token trong `~/.zshrc` → **luôn nhắc/chạy
+       `source ~/.zshrc`** (hoặc mở Terminal mới) → giá trị MỚI có hiệu lực NGAY; verify lại bằng giá trị mới, **KHÔNG
+       dùng config cũ**. (Qua `run_command`/MCP thì server **tự `source ~/.zshrc` mỗi lần** → đổi token KHÔNG cần restart.)
      - vd GitHub: `export KORA_GITHUB_TOKEN=...`; GitLab: `export KORA_GITLAB_TOKEN=...`.
   ▸ **Jira — chọn ĐÚNG theo nguồn ở Bước 2 (đừng để Server hoá Cloud):**
      - **Jira Server / self-host** (`source_type: jira_server`) → **PAT/Bearer**, KHÔNG OAuth, KHÔNG atlassian.net:

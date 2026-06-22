@@ -93,7 +93,7 @@
   .content{padding:0 46px 90px;max-width:none;min-width:0}
   .page{display:none;animation:fade .24s ease}
   .page.active{display:block}
-  /* ẨN TẠM (v2.12.12) — xem khối <!-- HIDDEN-SECTIONS --> gần <body> để biết mục nào ẩn + cách bật lại */
+  /* ẨN TẠM (v2.12.13) — xem khối <!-- HIDDEN-SECTIONS --> gần <body> để biết mục nào ẩn + cách bật lại */
   .page.hidden,.nav a.hidden,.hc.hidden,.btn.hidden{display:none!important}
   @keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
 
@@ -270,7 +270,7 @@
 </style>
 </head>
 <body>
-<!-- ============================ HIDDEN-SECTIONS (v2.12.12) ============================
+<!-- ============================ HIDDEN-SECTIONS (v2.12.13) ============================
   MỤC ĐANG ẨN TẠM (vẫn còn nguyên trong file, chỉ ẩn bằng class "hidden"):
     1. workflow         — "Quy trình BA"
     2. prompts          — "Prompt & Template"
@@ -294,7 +294,7 @@
     <div class="brand" data-go="home" title="Trang chủ">
       <span class="brandmark" aria-hidden="true">K</span>
       <span class="org">FPT TELECOM</span>
-      <div class="fw">Claude Knowledge AI<span>v2.12.12 · Claude-1</span></div>
+      <div class="fw">Claude Knowledge AI<span>v2.12.13 · Claude-1</span></div>
     </div>
     <nav class="nav">
       <div class="grp">Tổng quan</div>
@@ -320,7 +320,7 @@
     <!-- ===================== HOME ===================== -->
     <div class="page" id="home">
       <header class="hero">
-        <span class="badge">FPT Telecom · Claude Knowledge AI · v2.12.12 · &ldquo;Claude-1&rdquo;</span>
+        <span class="badge">FPT Telecom · Claude Knowledge AI · v2.12.13 · &ldquo;Claude-1&rdquo;</span>
         <h1>Claude Knowledge AI — Sơ đồ nguyên lý hoạt động</h1>
         <p class="sub">Trợ lý tri thức tự lớn lên cùng dự án: hợp nhất tri thức phân tán, nối tri thức local của nhân viên với <b>Knowledge Base</b> chung (trên Cloud), và tự động hóa đồng bộ — báo cáo — cảnh báo.</p>
         <div class="pipe">
@@ -669,7 +669,7 @@
 <pre><code>curl -fsSL https://raw.githubusercontent.com/isc-fkit/Kora-Framework/release/uninstall.bat -o "%TEMP%\claude-knowledge-uninstall.bat" &amp;&amp; "%TEMP%\claude-knowledge-uninstall.bat"</code></pre></div>
       <p style="color:var(--faint);font-size:13.3px;margin:10px 0 0">Script hỏi gõ <code>yes</code> để xác nhận, và nhắc xóa tay các dòng <code>export KORA_*</code> trong <code>~/.zshrc</code> / <code>~/.bashrc</code> (Windows: biến môi trường) nếu có. Gỡ skill <b>KHÔNG</b> đụng tới tri thức của bạn.</p>
 
-      <!-- ↓↓↓ GỘP (v2.12.12): nội dung "Chức năng" (D cũ) gộp vào "Hướng dẫn cài đặt" ↓↓↓ -->
+      <!-- ↓↓↓ GỘP (v2.12.13): nội dung "Chức năng" (D cũ) gộp vào "Hướng dẫn cài đặt" ↓↓↓ -->
       <h2 class="sec" style="margin-top:32px">🧩 Chức năng &amp; cách vận hành (8 bước)</h2>
       <p class="lead">Sau khi cài (mục trên), đây là <b>8 bước thực thi</b> theo thứ tự: <b>1 init → 2 connect → 3 scan → 4 schedule → 4b cảnh báo ticket → 5 report → 6 send-mail → 7 sync → 8 archive</b>.</p>
 
@@ -2059,6 +2059,37 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
         <tr><td><code>/claude-knowledge-update</code> · <code>/claude-knowledge-uninstall</code></td><td>Cập nhật · Gỡ skill (hoặc bash CLI)</td><td>—</td></tr>
       </table>
 
+      <h2 class="sec">I-bis · Keyword (nói lời thường) &amp; ví dụ</h2>
+      <p style="color:var(--muted);font-size:13.5px;margin:0 0 8px">Không cần nhớ lệnh — nói bằng lời thường, hệ thống tự nhận diện rồi <b>confirm 1 câu</b> trước khi chạy. (Phân tích read-only thì tự chạy, không hỏi.)</p>
+      <table>
+        <tr><th>Việc</th><th>Keyword</th><th>Ví dụ gõ</th></tr>
+        <tr><td>Khởi tạo</td><td><code>@khởi tạo dự án</code>, "cài đặt hệ thống"</td><td><i>@khởi tạo dự án</i></td></tr>
+        <tr><td>Quét / cập nhật Jira</td><td>"quét jira", "lấy dữ liệu mới từ jira", "cập nhật dữ liệu mới từ jira"</td><td><i>cập nhật dữ liệu mới từ jira</i> → hỏi nguồn nếu ≥2</td></tr>
+        <tr><td>Quét 1 task/epic</td><td>"quét task &lt;KEY&gt;", "quét epic &lt;KEY&gt;"</td><td><i>quét task PROJ-102</i></td></tr>
+        <tr><td>Kết nối nguồn</td><td>"kết nối nguồn", "connect", "thêm Jira/GitHub/Gmail…"</td><td><i>kết nối Gmail</i> → hỏi SMTP hay MCP (ưu tiên SMTP)</td></tr>
+        <tr><td>Bật run_command 🖥️</td><td>"bật run_command", "setup mcp local-terminal"</td><td><i>bật run_command</i> (Claude Desktop)</td></tr>
+        <tr><td>Đẩy Confluence</td><td>"đẩy lên Confluence", "post tri thức"</td><td><i>đẩy tri thức lên Confluence</i></td></tr>
+        <tr><td>Đồng bộ KB lên repo</td><td>"đồng bộ KB", "sync lên GitHub/SharePoint"</td><td><i>sync KB lên GitHub</i> 🔒</td></tr>
+        <tr><td>Mật khẩu vận hành</td><td>"đặt mật khẩu vận hành", "set ops password"</td><td><i>đặt mật khẩu vận hành</i></td></tr>
+        <tr><td>Gửi mail báo cáo</td><td>"gửi mail báo cáo", "email tiến độ cho team"</td><td><i>gửi mail báo cáo cho team</i></td></tr>
+        <tr><td>Đặt lịch quét/sync</td><td>"đặt lịch quét jira", "tự động đồng bộ"</td><td><i>đặt lịch quét jira 8h sáng</i></td></tr>
+        <tr><td>Báo cáo tiến độ</td><td>"báo cáo tiến độ", "tiến độ dự án", "cập nhật tiến độ"</td><td><i>cập nhật tiến độ dự án FA</i> → hỏi nguồn → project</td></tr>
+        <tr><td>Đặt lịch báo cáo</td><td>"đặt lịch báo cáo", "lịch báo cáo tiến độ"</td><td><i>đặt lịch báo cáo 8h hằng ngày</i></td></tr>
+        <tr><td>Sửa danh sách mail</td><td>"sửa danh sách email báo cáo", "thêm người nhận mail"</td><td><i>thêm a@x.com vào nhận report</i></td></tr>
+        <tr><td>Mail cảnh báo sự cố</td><td>"sửa mail cảnh báo sự cố", "cấu hình mail lỗi lịch"</td><td><i>đổi người nhận mail cảnh báo lịch</i></td></tr>
+        <tr><td>Tiến hóa KB</td><td>"tiến hóa KB", "dọn dẹp KB", "kiểm tra sức khỏe KB"</td><td><i>dọn dẹp KB, kiểm tra dead-link</i></td></tr>
+        <tr><td>Nạp file</td><td>gửi PDF / DOCX / ảnh / zip Obsidian</td><td>(kéo <i>tài-liệu.pdf</i> vào chat)</td></tr>
+        <tr><td>Phân tích yêu cầu 🔵</td><td>nêu vấn đề / yêu cầu / rule / màn hình</td><td><i>Sửa rule: bệnh nhân &lt;6 tuổi miễn phí khám</i> (tự phân tích)</td></tr>
+        <tr><td>Xuất tài liệu</td><td>"xuất tài liệu", "export docx/pdf"</td><td><i>xuất tài liệu F-012 ra Word</i></td></tr>
+        <tr><td>Đổi domain/rule</td><td>"đổi domain", "sửa rule"</td><td><i>đổi domain sang fintech</i></td></tr>
+        <tr><td>Xem phiên bản</td><td>"đang cài bản nào", "phiên bản hiện tại"</td><td><i>đang cài bản nào?</i> (chỉ đọc)</td></tr>
+        <tr><td>Cập nhật APP</td><td>"cập nhật phiên bản", "cập nhật ứng dụng", "có bản mới không"</td><td><i>cập nhật phiên bản</i></td></tr>
+        <tr><td>Sao lưu / dời máy</td><td>"sao lưu", "chuyển/dời máy"</td><td><i>sao lưu tri thức để chuyển máy</i></td></tr>
+        <tr><td>Nhập tri thức</td><td>"nhập tri thức", "khôi phục", đưa file <code>*-kb-*.zip</code></td><td>(kéo <i>kora-kb-FMC.zip</i> vào chat)</td></tr>
+        <tr><td>Đóng gói bàn giao</td><td>"đóng gói bàn giao", "archive", "handover"</td><td><i>đóng gói bàn giao cho team QC</i></td></tr>
+      </table>
+      <p style="color:var(--muted);font-size:12.8px;margin:8px 0 0">⚠️ Tránh nhầm: <b>"cập nhật dữ liệu jira"</b> = quét ≠ <b>"cập nhật phiên bản/ứng dụng"</b> = update app. · 🔒 = cần mật khẩu vận hành. · 🔵 = tự chạy không cần lệnh.</p>
+
       <h2 class="sec">II · Quy tắc đặt tên file (tài liệu xuất)</h2>
       <p style="color:var(--muted)">Áp cho tài liệu <b>xuất ra cho người đọc</b> (qua <code>/claude-knowledge-export-docs</code>) — bổ trợ cấu trúc source/vault nội bộ (xem Giới thiệu §IV).</p>
       <table>
@@ -2166,7 +2197,7 @@ Trạng thái: Pass / Fail / Blocked</code></pre></div>
   var links = Array.prototype.slice.call(document.querySelectorAll('[data-go]'));
   function go(id){
     var t = document.getElementById(id);
-    if(!t || t.classList.contains('hidden')) id = 'home';   // mục ẩn (v2.12.12) → về Trang chủ, không hiện trang trống
+    if(!t || t.classList.contains('hidden')) id = 'home';   // mục ẩn (v2.12.13) → về Trang chủ, không hiện trang trống
     pages.forEach(function(p){ p.classList.toggle('active', p.id===id); });
     document.querySelectorAll('.nav a').forEach(function(a){ a.classList.toggle('active', a.getAttribute('data-go')===id); });
     if(location.hash.slice(1)!==id) history.replaceState(null,'','#'+id);

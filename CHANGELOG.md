@@ -10,6 +10,16 @@
 
 ---
 
+## v2.12.13 "Claude-1" — 2026-06-23
+
+**Bảng keyword+ví dụ · connect Gmail hỏi SMTP/MCP (ưu tiên SMTP) · luôn `source` lấy config mới.**
+
+- **MỚI `KEYWORDS.md`** + bảng **"Keyword (lời thường) & ví dụ"** ở **landing Phụ lục** — tra nhanh mọi trigger + ví dụ gõ.
+- **Kết nối Gmail**: `/claude-knowledge-connect` nay **LUÔN hỏi thẳng "SMTP hay MCP"** — **ƯU TIÊN SMTP** (tự động gửi báo
+  cáo/lịch nền); CHỈ fallback **MCP (nháp)** khi user chọn rõ / không lập được App Password.
+- **Luôn `source` lấy config mới**: sau khi ghi/ĐỔI token trong `~/.zshrc` → LUÔN nhắc/chạy `source ~/.zshrc` để giá trị
+  MỚI có hiệu lực ngay (verify bằng giá trị mới, không dùng config cũ). Qua run_command/MCP thì tự source mỗi lần.
+
 ## v2.12.12 "Claude-1" — 2026-06-23
 
 **Quét/báo-cáo Jira: HỎI NGUỒN khi có ≥2 nguồn (dễ chọn) + trigger "cập nhật dữ liệu jira" + làm rõ mốc "dữ liệu mới".**
