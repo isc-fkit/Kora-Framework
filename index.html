@@ -118,6 +118,26 @@
   .step p{margin:0 0 8px;color:var(--muted)}
 
   .card{background:linear-gradient(135deg,rgba(99,102,241,.12) 0%,rgba(168,85,247,.08) 100%),var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin:14px 0}
+  /* ── Giới thiệu: layout document đẹp, mục rõ ràng ── */
+  .intro-lead{font-size:16.5px;line-height:1.7;color:var(--text);margin:2px 0 24px;max-width:870px}
+  .intro-lead b{color:var(--text-heading);font-weight:650}
+  .intro-steps{display:grid;gap:13px;margin:0 0 18px;max-width:880px}
+  .intro-step{display:flex;gap:15px;align-items:flex-start;padding:15px 18px;background:var(--bg-card);border:1px solid var(--border-soft);border-radius:13px;transition:border-color .15s,transform .15s}
+  .intro-step:hover{border-color:var(--accent-soft);transform:translateX(2px)}
+  .intro-num{flex:none;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font:800 14px/1 var(--sans);color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent-2));box-shadow:0 3px 10px rgba(99,102,241,.32)}
+  .intro-step h3{margin:3px 0 5px;font-size:15.5px;font-weight:750;color:var(--text-heading);letter-spacing:.2px}
+  .intro-step p{margin:0;font-size:14px;line-height:1.62;color:var(--text-muted)}
+  .intro-step p b{color:var(--text);font-weight:650}
+  .intro-payoff{background:linear-gradient(135deg,rgba(99,102,241,.14),rgba(168,85,247,.07) 60%,transparent),var(--bg-card);border:1px solid var(--border2);border-radius:15px;padding:18px 20px 20px;max-width:880px;margin:0}
+  .intro-payoff-h{display:flex;align-items:center;gap:11px;margin:0}
+  .intro-payoff-h h3{margin:0;font-size:16.5px;font-weight:800;color:var(--text-heading)}
+  .intro-payoff-sub{margin:9px 0 16px 41px;font-size:13.5px;color:var(--faint);line-height:1.55}
+  .intro-list{list-style:none;margin:0;padding:0;display:grid;gap:13px}
+  .intro-list li{display:flex;gap:12px;align-items:flex-start}
+  .intro-list .tick{flex:none;width:22px;height:22px;border-radius:7px;display:grid;place-items:center;background:var(--greenbg);color:var(--green);font-size:12px;font-weight:800;margin-top:1px;border:1px solid rgba(34,197,94,.28)}
+  .intro-list .vt{font-size:14px;line-height:1.58;color:var(--text-muted)}
+  .intro-list .vt b{color:var(--text-heading);font-weight:700}
+  @media(max-width:560px){.intro-payoff-sub{margin-left:0}}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
   .os-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:18px;text-align:center}
   .os-card svg{width:28px;height:28px;fill:var(--text);opacity:.92}
@@ -334,18 +354,31 @@
     <!-- ===================== INTRODUCTION ===================== -->
     <div class="page" id="introduction">
       <div class="phead"><div class="pl">A · Giới thiệu</div><h1><span class="em">📘</span>Claude Knowledge AI là gì?</h1></div>
-      <p class="lead">Trong mọi dự án, tri thức nằm <b>rải rác khắp nơi</b> — issue trên Jira, trang Confluence, code GitHub/GitLab, file SharePoint, email Outlook/Gmail — và phần nhiều chỉ tồn tại trong <b>trí nhớ của vài người</b>. <b>Claude Knowledge AI Framework</b> gom những mảnh rời rạc ấy lại và <b>kết nối thành một kho tri thức (Knowledge Base) sống</b> mà cả đội cùng tra cứu được, thay vì mỗi người giữ một mảnh.</p>
+      <p class="intro-lead">Trong mọi dự án, tri thức nằm <b>rải rác khắp nơi</b> — issue trên Jira, trang Confluence, code GitHub/GitLab, file SharePoint, email Outlook/Gmail — và phần nhiều chỉ tồn tại trong <b>trí nhớ của vài người</b>. <b>Claude Knowledge AI Framework</b> gom những mảnh rời rạc ấy lại và <b>kết nối thành một kho tri thức (Knowledge Base) sống</b> mà cả đội cùng tra cứu được, thay vì mỗi người giữ một mảnh.</p>
 
-      <div style="margin:6px 0 4px">
-        <p style="margin:16px 0 6px;font-size:14.5px;color:var(--ink)"><b>1 · Giới thiệu — một framework kết nối nguồn.</b> Đây là bộ khung tự động <b>kết nối tới nhiều nguồn</b> nơi dữ liệu đang nằm rải rác (Jira, Confluence, GitHub, GitLab, SharePoint, Outlook, Gmail — qua <b>MCP / API</b>), <b>gom về một chỗ</b>, dọn trùng lặp, gán nhãn rồi <b>liên kết lại theo kiểu wiki</b>; sau đó đồng bộ hai chiều với một <b>Knowledge Base chung trên Cloud</b> để cả tổ chức dùng chung.</p>
-        <p style="margin:16px 0 6px;font-size:14.5px;color:var(--ink)"><b>2 · Đây là gì.</b> Nói gọn: nó biến mớ dữ liệu phân tán thành một <b>bộ nhớ sống, có cấu trúc và truy ngược được nguồn gốc</b> — mỗi mẩu tri thức đều biết mình <b>đến từ đâu</b> (issue / tài liệu nào), <b>liên quan tới điều gì</b>, và <b>tự lớn lên</b> theo dự án thay vì cũ dần rồi thất lạc.</p>
-        <p style="margin:16px 0 6px;font-size:14.5px;color:var(--ink)"><b>3 · Mục đích là gì.</b> Để tri thức của dự án <b>không còn phụ thuộc vào trí nhớ cá nhân</b> hay những lần "đi hỏi vòng vòng": ai cần gì cũng tự tra được tận gốc — nhanh, nhất quán và đáng tin; đồng thời <b>chuẩn hóa cách cả đội làm việc cùng AI</b> (đúng vai trò, đúng quy trình, có kiểm soát) để chất lượng không lệ thuộc vào việc "ai dùng AI khéo hơn ai".</p>
-        <p style="margin:16px 0 6px;font-size:14.5px;color:var(--ink)"><b>4 · Đạt được gì.</b> Giá trị cốt lõi là biến tri thức rời rạc thành một bộ nhớ sống, có cấu trúc và truy ngược được nguồn gốc. Nhờ đó:</p>
-        <div class="card" style="margin-top:4px">
-          <p style="margin:0 0 10px"><b>· Bàn giao gần như tức thì</b> — người mới vào dự án tự đọc hiểu được bối cảnh, không phải đi hỏi từng người hay phụ thuộc trí nhớ của vài cá nhân về việc "mục này ngày xưa làm để làm gì".</p>
-          <p style="margin:0 0 10px"><b>· Mỗi vai trò tự nắm dự án</b> — Dev tra cứu ngữ cảnh mà không phải quay lại hỏi BA; BA khi thêm tính năng hay sửa rule được hệ thống <b>tự rà soát ảnh hưởng, phát hiện xung đột trước khi thành lỗi</b>; PM/QA nhìn được bức tranh chung mà không cần chạy qua chạy lại giữa các bên.</p>
-          <p style="margin:0"><b>· Tỉnh táo, không lạc lối</b> — chỉ nạp đúng phần tri thức liên quan, <b>tiết kiệm token</b> và tránh AI suy diễn lan man.</p>
+      <div class="intro-steps">
+        <div class="intro-step">
+          <div class="intro-num">1</div>
+          <div><h3>Framework kết nối nguồn</h3><p>Một bộ khung tự động <b>kết nối tới nhiều nguồn</b> nơi dữ liệu đang rải rác (Jira, Confluence, GitHub, GitLab, SharePoint, Outlook, Gmail — qua <b>MCP / API</b>), <b>gom về một chỗ</b>, dọn trùng lặp, gán nhãn rồi <b>liên kết theo kiểu wiki</b>; sau đó đồng bộ hai chiều với một <b>Knowledge Base chung trên Cloud</b> để cả tổ chức dùng chung.</p></div>
         </div>
+        <div class="intro-step">
+          <div class="intro-num">2</div>
+          <div><h3>Đây là gì</h3><p>Nói gọn: nó biến mớ dữ liệu phân tán thành một <b>bộ nhớ sống, có cấu trúc và truy ngược được nguồn gốc</b> — mỗi mẩu tri thức đều biết mình <b>đến từ đâu</b> (issue / tài liệu nào), <b>liên quan tới điều gì</b>, và <b>tự lớn lên</b> theo dự án thay vì cũ dần rồi thất lạc.</p></div>
+        </div>
+        <div class="intro-step">
+          <div class="intro-num">3</div>
+          <div><h3>Mục đích là gì</h3><p>Để tri thức của dự án <b>không còn phụ thuộc vào trí nhớ cá nhân</b> hay những lần "đi hỏi vòng vòng": ai cần gì cũng tự tra được tận gốc — nhanh, nhất quán và đáng tin; đồng thời <b>chuẩn hóa cách cả đội làm việc cùng AI</b> (đúng vai trò, đúng quy trình, có kiểm soát) để chất lượng không lệ thuộc vào việc "ai dùng AI khéo hơn ai".</p></div>
+        </div>
+      </div>
+
+      <div class="intro-payoff">
+        <div class="intro-payoff-h"><div class="intro-num">4</div><h3>Đạt được gì</h3></div>
+        <p class="intro-payoff-sub">Biến tri thức rời rạc thành một bộ nhớ sống, có cấu trúc và truy ngược được nguồn gốc. Nhờ đó:</p>
+        <ul class="intro-list">
+          <li><span class="tick">✓</span><span class="vt"><b>Bàn giao gần như tức thì</b> — người mới vào dự án tự đọc hiểu được bối cảnh, không phải đi hỏi từng người hay phụ thuộc trí nhớ của vài cá nhân về việc "mục này ngày xưa làm để làm gì".</span></li>
+          <li><span class="tick">✓</span><span class="vt"><b>Mỗi vai trò tự nắm dự án</b> — Dev tra cứu ngữ cảnh mà không phải quay lại hỏi BA; BA khi thêm tính năng hay sửa rule được hệ thống <b>tự rà soát ảnh hưởng, phát hiện xung đột trước khi thành lỗi</b>; PM/QA nhìn được bức tranh chung mà không cần chạy qua chạy lại giữa các bên.</span></li>
+          <li><span class="tick">✓</span><span class="vt"><b>Tỉnh táo, không lạc lối</b> — chỉ nạp đúng phần tri thức liên quan, <b>tiết kiệm token</b> và tránh AI suy diễn lan man.</span></li>
+        </ul>
       </div>
 
       <h2 class="sec">I · Thông tin chung</h2>
