@@ -10,6 +10,19 @@
 
 ---
 
+## v2.12.15 "Claude-1" — 2026-06-23
+
+**Rule TOÀN CỤC: có `run_command` → ƯU TIÊN chạy MỌI lệnh qua nó, không bàn giao Terminal.**
+
+- CLAUDE.md thêm banner: khi MCP `run_command` (local-terminal, **chỉ Claude Desktop**) khả dụng → **mặc định chạy
+  MỌI lệnh/script THẲNG trên máy** (quét Jira API/self-host, build_report, send_report SMTP, update app WF10, sync
+  GitHub/Confluence/SharePoint, reindex, thao tác file bị sandbox chặn) — **KHÔNG in lệnh bắt user mở Terminal**.
+- Lý do: `run_command` chạy `$SHELL -c 'source ~/.zshrc; <lệnh>'` → **tự lấy token/config mới nhất** mỗi lần.
+- Thứ tự ưu tiên 1 lệnh: ① MCP gốc (Atlassian/M365) nếu có tool chuyên → ② `run_command` → ③ không có thì fallback
+  sandbox/bàn-giao-bash (web Cowork).
+- **Giữ nguyên**: Approval Gate (lệnh GHI/NẶNG vẫn confirm), cổng `KORA_OPS_PW`, token KHÔNG in, mỗi lệnh là
+  arbitrary-exec qua permission prompt (opt-in). Lịch NỀN vẫn ở OS launchd/cron, không qua MCP.
+
 ## v2.12.14 "Claude-1" — 2026-06-23
 
 **Map loại Jira FMC-riêng → phân loại đúng thư mục (không rơi vào RawIssues).**

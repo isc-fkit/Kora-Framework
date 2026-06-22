@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.12.14",
+  "version": "2.12.15",
   "codename": "Claude-1",
   "released": "2026-06-23",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.12.14 (map loại Jira FMC-riêng): 'Improvement' → Task, 'New Feature'/'Feature' → User Story — quét về tự phân loại đúng thư mục (04_Tasks / 03_UserStories) thay vì rơi vào 08_RawIssues. Sub-task vẫn khớp đúng (ưu tiên trước Task). Vẫn override được qua JIRA_TYPE_MAP trong .env.local."
+  "intro": "Kora-Framework v2.12.15 (ưu tiên run_command cho MỌI lệnh): khi MCP local-terminal (run_command, chỉ Claude Desktop) khả dụng → MẶC ĐỊNH chạy mọi lệnh/script THẲNG trên máy (quét API/self-host, report, mail SMTP, update app, sync, reindex, file bị sandbox chặn) — KHÔNG bàn giao Terminal. run_command tự source ~/.zshrc nên luôn có token/config mới. Vẫn giữ Approval Gate + cổng KORA_OPS_PW + không in token. Không có run_command (web Cowork) → fallback bàn giao bash như cũ."
 }

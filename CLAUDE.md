@@ -15,6 +15,18 @@
 > "đã ổn chưa / còn gì nữa không"** để chắc đúng vấn đề. **Thà hỏi thừa còn hơn làm sai.** (Khác Approval Gate: gate
 > là xác nhận TRƯỚC KHI GHI; rule này là làm rõ Ý ĐỊNH/VẤN ĐỀ. Ngoại lệ: phân tích read-only §0.1 vẫn tự chạy.)
 
+> ⚡ **CÓ `run_command` (MCP local-terminal) → ƯU TIÊN CHẠY MỌI LỆNH QUA NÓ — KHÔNG BÀN GIAO.** Khi MCP tool
+> `run_command` (local-terminal, **chỉ Claude Desktop**) khả dụng, **MẶC ĐỊNH chạy MỌI lệnh/script THẲNG trên máy**
+> (ngoài sandbox) qua nó — quét Jira API/self-host, build_report, send_report (SMTP), cập nhật app (WF10), sync
+> GitHub/Confluence/SharePoint, reindex (`build_index.py`), thao tác file bị sandbox chặn, v.v. **KHÔNG in lệnh bắt
+> user mở Terminal**, KHÔNG dùng nhánh "BÀN GIAO `.command`" khi đã có `run_command`. Lý do: `run_command` chạy
+> `$SHELL -c 'source ~/.zshrc; <lệnh>'` nên **tự lấy token/config MỚI NHẤT** mỗi lần. **Thứ tự ưu tiên 1 lệnh:**
+> ① nguồn MCP gốc (Atlassian/M365…) nếu có tool chuyên → dùng thẳng; ② còn lại (API/mạng/SMTP/file/script) → **`run_command`**;
+> ③ **KHÔNG có `run_command`** (web Cowork / chưa setup) → mới fallback: sandbox cho việc đọc/MCP, **BÀN GIAO bash** cho
+> việc API/mạng. ⚠️ Vẫn giữ: **Approval Gate** (lệnh GHI/NẶNG vẫn confirm trước), **cổng `KORA_OPS_PW`** cho post/report/
+> mail/sync, **token KHÔNG in ra chat**, mỗi lệnh `run_command` là **arbitrary-exec** qua permission prompt (opt-in).
+> *(Lịch NỀN vẫn chạy ở OS launchd/cron, KHÔNG qua MCP.)*
+
 ---
 
 ## 0. Trigger — nhận diện ý định của user
