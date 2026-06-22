@@ -41,7 +41,12 @@ The user invoked `/claude-knowledge-scan` — scan & import knowledge.
    - **GitHub (API)** → `python3 tools/github-sync/sync_github.py --pull` → kéo `.md` từ repo → `<vault>/GitHub/` (frontmatter + link nguồn + `_GitHub-Index.md`).
    - **GitLab (API)** → `python3 tools/gitlab-sync/sync_gitlab.py --pull` → kéo `.md` từ repo → `<vault>/GitLab/` (frontmatter + link nguồn + `_GitLab-Index.md`). Token `KORA_GITLAB_SYNC_TOKEN` ở `tools/gitlab-sync/.env.local`.
    - **Confluence (MCP)** → MCP tool của Confluence.
-   - 🖥️ **BÀN GIAO TERMINAL khi Cowork chặn mạng nguồn API (KHÔNG dead-end):** nếu tool quét nguồn **API** in marker
+   - ⚡ **ƯU TIÊN: có MCP `local-terminal` (`run_command`) → CHẠY THẲNG, KHÔNG bàn giao.** Khi nguồn API in
+     **`NETWORK_UNREACHABLE`**, TRƯỚC khi tạo file lệnh: kiểm tra có tool **`run_command`** (MCP `local-terminal`,
+     thường là Claude Desktop) không. **CÓ** → gọi `run_command(command="<lệnh quét lấy từ `--emit-command`: JIRA_ENV_FILE=<abs> python3 \"<abs import_jira.py>\" --jql/--since…>", cwd="<PROJECT tuyệt đối>")`
+     → chạy trên máy thật (ngoài sandbox, đúng VPN), lấy stdout về → reindex + tổng hợp THẲNG trong chat, **không cần
+     `.command`/Terminal**. (Nhiều nguồn API → gọi `run_command` lần lượt.) Chỉ khi **KHÔNG có** `run_command` → mới bàn giao file lệnh dưới đây.
+   - 🖥️ **BÀN GIAO TERMINAL khi Cowork chặn mạng nguồn API + KHÔNG có `run_command` (KHÔNG dead-end):** nếu tool quét nguồn **API** in marker
      **`NETWORK_UNREACHABLE`** ở stderr (sandbox Cowork chặn) → **KHÔNG retry vô ích**, KHÔNG kết luận "nguồn hỏng".
      Thay vào đó **tạo file lệnh** để user chạy ở Terminal local (đúng mạng/VPN):
      1. Lấy lệnh quét đã resolve abs-path: `python3 <import_jira.py> --emit-command <đúng args định quét: --jql/--since/--keys/--per-project>` (Jira). Nguồn pull khác cũng API → thêm dòng `python3 <abs>/github-sync/sync_github.py --pull` / `.../gitlab-sync/sync_gitlab.py --pull`.

@@ -57,7 +57,11 @@ The user invoked `/claude-knowledge-send-mail` — gửi email báo cáo tiến 
           > ⏱️ **build_report PHẢI chạy NGAY TRƯỚC** lệnh này (Bước c). send_report có **guard chống gửi bản cũ**: nếu
           > `email-body-latest.html` cũ hơn **30 phút** → DỪNG, báo "build lại". File đính kèm tự đổi **tên có ngày-giờ**
           > (`progress-report-<YYYY-MM-DD_HHMM>.html`) nên mỗi mail một bản KHÁC, client không lấy lại bản cũ cùng tên.
-        - 🖥️ **BÀN GIAO TERMINAL khi Cowork chặn SMTP (KHÔNG dead-end) — fallback CHÍNH:** đọc stderr của `send_report.py`:
+        - ⚡ **ƯU TIÊN: có MCP `local-terminal` (`run_command`) → GỬI THẲNG, KHÔNG bàn giao.** Khi `send_report.py` in
+          **`SMTP_UNREACHABLE`**, TRƯỚC khi bàn giao: nếu có tool **`run_command`** (MCP `local-terminal`, Claude Desktop)
+          → gọi `run_command(command="<đúng lệnh send_report.py vừa chạy, lấy từ `--emit-command`>", cwd="<PROJECT>")`
+          → gửi mail THẲNG trên máy thật (ngoài sandbox), lấy kết quả về báo user. Chỉ khi **KHÔNG có** `run_command` → mới bàn giao file lệnh dưới.
+        - 🖥️ **BÀN GIAO TERMINAL khi Cowork chặn SMTP + KHÔNG có `run_command` (KHÔNG dead-end):** đọc stderr của `send_report.py`:
           - **`SMTP_UNREACHABLE`** (Cowork sandbox chặn mạng SMTP) → báo cáo ĐÃ build xong ở `reports/` (local thật). **Lấy
             lệnh bàn giao** = chạy lại CÙNG lệnh trên + cờ `--emit-command` (KHÔNG gửi, in 1 dòng lệnh path tuyệt đối) →
             **ghi file chạy được**: macOS/Linux `reports/claude-knowledge-send-mail.command` (thêm dòng đầu `#!/bin/bash` + `chmod +x`),

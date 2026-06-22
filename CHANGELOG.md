@@ -10,6 +10,21 @@
 
 ---
 
+## v2.12.2 "Claude-1" — 2026-06-23
+
+**Skill ưu tiên MCP `local-terminal` (`run_command`) — chạy thẳng trên Claude Desktop, bớt bàn giao bash.**
+
+- **`tools/kora-mcp/local_terminal_mcp.py`** (MỚI): MCP server stdio thuần Python (stdlib, không cần pip) phơi tool
+  **`run_command`** chạy lệnh `bash -lc` trên MÁY LOCAL thật — tiến trình local riêng do Claude Desktop spawn, **ngoài
+  sandbox** → tới được Jira nội bộ + SMTP. Kèm `tools/kora-mcp/README.md` (cách gắn vào `claude_desktop_config.json`, bảo mật).
+- **Skill/workflow ưu tiên `run_command` khi có:** `/claude-knowledge-scan` · `/claude-knowledge-send-mail` ·
+  `/claude-knowledge-daily-report` · WF01 · WF14 — khi gặp `NETWORK_UNREACHABLE`/`SMTP_UNREACHABLE`, **TRƯỚC** khi bàn giao
+  `.command`, nếu có tool `run_command` → gọi nó chạy `import_jira.py`/`build_report.py`/`send_report.py` THẲNG trên máy →
+  quét/report/mail ngay trong chat Cowork. **KHÔNG có** `run_command` → fallback bàn giao bash như cũ.
+- **CLAUDE.md:** trigger quét/báo-cáo + §6 ghi rõ lối thoát sandbox tương tác (chỉ Claude Desktop, arbitrary-exec opt-in;
+  web Cowork không chạy local stdio MCP; lịch nền vẫn qua OS).
+- Opt-in, KHÔNG cài tự động. Máy đã cài: gõ **"cập nhật phiên bản"**.
+
 ## v2.12.1 "Claude-1" — 2026-06-23
 
 **Rõ nghĩa thuật ngữ — bỏ từ "issue" trong text hiển thị.** Quét Jira gồm Epic / User Story / Task / Bug; gộp chung gọi "issue" gây mơ hồ.

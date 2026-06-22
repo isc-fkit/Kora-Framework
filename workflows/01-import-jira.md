@@ -152,7 +152,11 @@ ràng (mã + tên project) và cho user CHỌN bằng AskUserQuestion:
 Khi sandbox không chạy được (lỗi mạng), KHÔNG dừng luồng setup lại chờ:
 
 1. Hoàn tất mọi cấu hình trước (`.env.local` đầy đủ).
-2. **Bàn giao cho user chạy ở Terminal — 2 cách, cùng kết quả:**
+2. ⚡ **ƯU TIÊN — có MCP `local-terminal` (`run_command`, thường Claude Desktop)?** Lấy lệnh đã resolve
+   (`import_jira.py --emit-command …`) rồi gọi `run_command(command="<lệnh đó>", cwd="<project>")` → chạy THẲNG trên
+   máy thật (ngoài sandbox, đúng VPN), lấy stdout về tiếp Bước 5 — **KHÔNG cần file `.command`/Terminal**. Chỉ khi KHÔNG có
+   `run_command` → mới bàn giao file lệnh (3 dưới đây).
+3. **Bàn giao cho user chạy ở Terminal (khi không có `run_command`) — 2 cách, cùng kết quả:**
 
    **2a. Ghi sẵn file lệnh `reports/claude-knowledge-scan.command` (TIỆN, giống bàn giao gửi mail v2.9.8):**
    - Lấy lệnh đã resolve abs-path: `python3 "<TOOL_DIR>/import_jira.py" --emit-command <args định quét: --jql/--since/--keys/--per-project>` → in 1 dòng `JIRA_ENV_FILE=<abs> python3 "<abs import_jira.py>" …` (token KHÔNG in).

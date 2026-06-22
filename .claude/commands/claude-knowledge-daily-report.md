@@ -44,7 +44,7 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
 - **Sau khi sinh report → đề xuất bước kế (AskUserQuestion, schema rule #8 — header ≤12 ký tự vd "Bước kế"):
   [Gửi mail ngay] / [Đặt lịch hằng ngày] / [Dừng].**
   - **[Gửi mail ngay]** → đi luồng GỬI của `/claude-knowledge-send-mail` ([Gửi ngay]): cổng `KORA_OPS_PW` → chọn người nhận
-    (`reports.email.to`) → **tự dùng Gmail SMTP nếu đã setup** → gửi. **Cowork sandbox chặn SMTP → BÀN GIAO bash cho
-    terminal** (xem claude-knowledge-send-mail "BÀN GIAO TERMINAL"): KHÔNG dead-end, KHÔNG bắt mở lại lệnh.
+    (`reports.email.to`) → **tự dùng Gmail SMTP nếu đã setup** → gửi. **Cowork chặn SMTP → ưu tiên MCP `run_command`
+    (local-terminal) GỬI THẲNG nếu có; không có → BÀN GIAO bash cho terminal** (xem claude-knowledge-send-mail "ƯU TIÊN/BÀN GIAO"): KHÔNG dead-end.
   - **[Đặt lịch hằng ngày]** → tạo **Cowork scheduled task qua `/schedule`** (theo `workflows/08-schedule-sync.md`
     Mục B) chạy mỗi ngày: **kéo dữ liệu → sinh report → tự gửi email** tới `reports.email.to` (gửi mail qua cổng `send_report.py --check`).
