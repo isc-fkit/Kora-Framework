@@ -916,6 +916,26 @@ def merge_system(nodes, edges, registry):
     write(rpath, json.dumps(list(by_src.values()), ensure_ascii=False, indent=2))
 
 
+_TYPE_LABEL = {"epic": "Epic", "user_story": "User Story", "story": "User Story",
+               "task": "Task", "bug": "Bug", "sub-task": "Sub-task", "subtask": "Sub-task",
+               "raw": "Khác", "issue": "Khác"}
+_TYPE_ORDER = ["Epic", "User Story", "Task", "Bug", "Sub-task", "Khác"]
+
+
+def type_breakdown(issues):
+    """Đếm theo LOẠI (Epic/User Story/Task/Bug/Sub-task/Khác) → list 'Nhãn: N' (Epic trước, Khác cuối).
+    Để báo cáo PHÂN LOẠI RÕ — KHÔNG gộp chung gọi 'issue'."""
+    from collections import Counter
+    c = Counter(norm_type(i) for i in issues)
+    seen = {}
+    for k, v in c.items():
+        lbl = _TYPE_LABEL.get(k, k.replace("_", " ").title())
+        seen[lbl] = seen.get(lbl, 0) + v
+    parts = [f"{lbl}: {seen[lbl]}" for lbl in _TYPE_ORDER if lbl in seen]
+    parts += [f"{lbl}: {n}" for lbl, n in seen.items() if lbl not in _TYPE_ORDER]
+    return parts
+
+
 def run_single(jql):
     """Chế độ quét lẻ: --keys / --jql. Chỉ tạo/cập nhật note liên quan, merge graph."""
     print(f"Đang quét theo điều kiện: {jql}")
@@ -931,7 +951,8 @@ def run_single(jql):
 def run_from_issues(issues):
     """Ghi danh sách issue (shape Jira REST 'fields') vào vault + merge graph. Dùng CHUNG cho
     token (fetch_by_jql) lẫn MCP (--from-mcp) — issues đã có sẵn, KHÔNG fetch lại."""
-    print(f"  → {len(issues)} issues")
+    bd = type_breakdown(issues)
+    print(f"  → {len(issues)} hạng mục công việc — phân loại: " + " · ".join(bd))
     fname_map = {i["key"]: safe_name(i["key"], i["fields"].get("summary", "")) for i in issues}
     nodes, edges, registry = [], [], []
     for i in issues:
@@ -940,12 +961,14 @@ def run_from_issues(issues):
         if proj.get("name"):
             PROJECT_NAMES[pkey] = proj["name"]
         write_issue(i, pkey, fname_map, nodes, edges, registry)
-        print(f"  ✓ {i['key']} — {i['fields'].get('summary', '')}")
+        print(f"  ✓ [{_TYPE_LABEL.get(norm_type(i), norm_type(i))}] {i['key']} — {i['fields'].get('summary', '')}")
     root_dirs = [DIRS["index"], DIRS["system"]] if PER_PROJECT else ALL_DIRS
     for d in root_dirs:
         os.makedirs(os.path.join(VAULT, d), exist_ok=True)
     merge_system(nodes, edges, registry)
-    print(f"\nHoàn tất (đã merge vào vault).\nVault: {os.path.abspath(VAULT)}")
+    print("\nHoàn tất — đã PHÂN LOẠI vào thư mục theo loại + tạo liên kết quan hệ:")
+    print("  " + " · ".join(bd))
+    print(f"Vault: {os.path.abspath(VAULT)}  (Epic→02_Epics · US→03_UserStories · Task→04_Tasks · Bug→05_Bugs · Sub-task→06_SubTasks)")
 
 
 def run_full():
@@ -964,10 +987,7 @@ def run_full():
         PROJECT_NAMES[pkey] = pname
         print(f"Đang quét project {pkey} — {pname}")
         issues = fetch_by_jql(f"project={pkey} ORDER BY key ASC")
-        from collections import Counter
-        cnt = Counter(norm_type(i) for i in issues)
-        detail = ", ".join(f"{k}: {v}" for k, v in sorted(cnt.items()))
-        print(f"  → {len(issues)} issues ({detail})")
+        print(f"  → {len(issues)} hạng mục công việc — phân loại: " + " · ".join(type_breakdown(issues)))
 
         fname_map = {i["key"]: safe_name(i["key"], i["fields"].get("summary", "")) for i in issues}
         proj_fname = f"{pkey}_" + re.sub(r"[^\w-]", "-", pname)

@@ -231,9 +231,11 @@ Script tự tạo trong vault: notes Project/Epic/Story/Task/Bug/Sub-task có ba
 
 ## Bước 5 — Báo cáo + Approval Gate
 
-1. **Hiện NGAY bảng kết quả** (tiếng Việt): đếm theo loại — Epics / User Stories / Tasks /
-   Bugs / Sub-tasks + **tổng hạng mục công việc** + đường dẫn vault. Lấy số từ dòng script in ra, hoặc
-   đếm file `.md` trong vault. Nêu thêm: cái gì thiếu parent (ở `08_RawIssues`), điểm đáng chú ý.
+1. **Hiện NGAY bảng kết quả PHÂN LOẠI** (tiếng Việt) — **BẮT BUỘC tách theo loại, TUYỆT ĐỐI KHÔNG gộp chung gọi
+   "issue"/"N hạng mục":** đếm **Epic / User Story / Task / Bug / Sub-task** cho **từng project** (+ tổng) — lấy từ dòng
+   `phân loại: Epic: X · User Story: Y · Task: Z · Bug: W …` script in ra. Nêu rõ: **đã phân vào thư mục theo loại**
+   (`02_Epics/03_UserStories/04_Tasks/05_Bugs/06_SubTasks`) + **đã tạo LIÊN KẾT quan hệ** (parent/issue-link → `[[…]]` +
+   relation-graph) + đường dẫn vault. Cái gì thiếu parent → `08_RawIssues`; điểm đáng chú ý.
 2. **Đây là RAW KB** — chưa phải tri thức chính thức. Hỏi user **bằng AskUserQuestion (4 lựa chọn)**:
    - **[A] Phân loại thành tri thức ngay** (chạy `workflows/03-request.md` chế độ classify-batch) — khuyến nghị.
    - **[B] Quét thêm nguồn Jira khác** (domain nội bộ khác / Atlassian Cloud) → quay lại **Bước 0** của

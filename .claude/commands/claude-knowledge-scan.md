@@ -63,7 +63,12 @@ The user invoked `/claude-knowledge-scan` — scan & import knowledge.
      - **Nguồn MCP KHÔNG cần bàn giao** — gọi MCP tool quét thẳng trong Cowork. **Terminal CLI** cũng quét thẳng, bỏ qua bàn giao.
 3. **Tổng hợp NHẸ (tự động, ngay sau khi nạp):** `python3 tools/kb-synth/synthesize.py --root .` → dựng
    trang `_wiki/<Project>-Wiki.md` liên kết cho mỗi project (index theo loại + mục "Quan hệ"). Rồi reindex
-   `python3 tools/kb-indexer/build_index.py --root .`; báo số note đã thêm + số trang wiki.
+   `python3 tools/kb-indexer/build_index.py --root .`.
+   - 📊 **BÁO CÁO KẾT QUẢ — BẮT BUỘC theo LOẠI, KHÔNG gộp chung "issue":** lấy dòng `phân loại: Epic: X · User Story: Y ·
+     Task: Z · Bug: W · Sub-task: …` mà `import_jira.py` in ra (mỗi project + tổng) → trình bày bảng/list **theo từng loại
+     cho từng project**. Nêu rõ **đã PHÂN vào thư mục theo loại** (`02_Epics/03_UserStories/04_Tasks/05_Bugs/06_SubTasks`) +
+     **đã tạo LIÊN KẾT quan hệ** (parent/issue-link → backlink `[[…]]` + relation-graph). **TUYỆT ĐỐI KHÔNG** báo gộp kiểu
+     "đã nạp N issue" — phải tách Epic/US/Task/Bug. + số trang wiki.
 4. **(Tùy chọn) Đào sâu → `docs/`:** AskUserQuestion **[Phân loại sâu thành feature/BR/AC]** / **[Để vậy]**.
    Chọn đào sâu → Claude đọc hạng mục công việc thô (kể cả AC/BR raw) → đề xuất phân loại vào `docs/03-features/F-xxx/…`,
    BR/AC (ID nối tiếp max trong `.kb/index.json`) → **✋ Approval Gate (Tầng B)** → ghi + reindex.

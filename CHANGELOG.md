@@ -10,6 +10,19 @@
 
 ---
 
+## v2.12.11 "Claude-1" — 2026-06-23
+
+**Quét Jira: BÁO CÁO phân loại theo loại (Epic/US/Task/Bug/Sub-task) — KHÔNG gộp chung gọi "issue".**
+
+- **`import_jira.py`**: thêm `type_breakdown()` — luồng `--jql`/`--keys` (`run_from_issues`) nay in **`phân loại: Epic: X ·
+  User Story: Y · Task: Z · Bug: W · Sub-task: …`** (mỗi `✓` cũng gắn `[Loại]`) + dòng kết "đã PHÂN LOẠI vào thư mục theo
+  loại + tạo liên kết quan hệ" (trước chỉ in "N issues"). `run_full` dùng cùng nhãn đẹp.
+- **`/claude-knowledge-scan` Bước 3 + WF01 Bước 5**: BẮT BUỘC báo cáo **tách theo loại cho từng project**, nêu **đã phân
+  thư mục** (`02_Epics/03_UserStories/04_Tasks/05_Bugs/06_SubTasks`) + **liên kết quan hệ** (parent/issue-link → backlink
+  + relation-graph). **TUYỆT ĐỐI KHÔNG** báo gộp "đã nạp N issue".
+- **Lưu ý:** dữ liệu vốn ĐÃ phân loại đúng (thư mục theo loại + backlink) — lỗi chỉ ở phần BÁO CÁO gộp chung. Verify thật:
+  quét IA → "Epic: 2 · User Story: 4 · Task: 6 · Bug: 13".
+
 ## v2.12.10 "Claude-1" — 2026-06-23
 
 **Gmail SMTP token gom ở `~/.zshrc` — daily-report tự gửi qua `run_command` (đồng nhất với Jira PAT).**

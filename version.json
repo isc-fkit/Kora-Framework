@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.12.10",
+  "version": "2.12.11",
   "codename": "Claude-1",
   "released": "2026-06-23",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.12.10 (Gmail SMTP token gom ở ~/.zshrc — daily report tự gửi qua run_command): send_report.py đọc creds SMTP theo thứ tự ENV (export SMTP_USER/SMTP_PASS trong ~/.zshrc — run_command source được) → rồi file .env.local. Nay đặt App Password ở ~/.zshrc (gom 1 chỗ như Jira PAT) là daily-report tự gọi run_command gửi mail THẲNG trong Cowork, không cần Terminal. Thông báo lỗi + --check + kora-connect cập nhật nêu rõ 2 chỗ đặt creds. Đã verify --check đọc đúng từ ~/.zshrc."
+  "intro": "Kora-Framework v2.12.11 (quét Jira báo cáo PHÂN LOẠI theo loại, không gộp 'issue'): import_jira.py in breakdown theo loại (Epic/User Story/Task/Bug/Sub-task) cho mỗi project + tổng, + xác nhận ĐÃ phân thư mục theo loại + tạo liên kết quan hệ. Skill /claude-knowledge-scan + WF01 BẮT BUỘC báo cáo tách theo loại, TUYỆT ĐỐI không gộp gọi 'N issue'. (Dữ liệu vốn ĐÃ phân loại đúng vào 02_Epics/03_UserStories/04_Tasks/05_Bugs/06_SubTasks + backlink; lỗi chỉ ở phần báo cáo gộp chung.)"
 }
