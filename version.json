@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.9.9",
-  "codename": "Kora-1",
+  "version": "2.10.0",
+  "codename": "Claude-1",
   "released": "2026-06-22",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.9.9 (banner email hiện NGAY trong Outlook): sửa nhúng ảnh CID — Content-ID nay bọc ngoặc nhọn <kora-banner> đúng RFC 2392 (trước đây add_related đặt 'kora-banner' KHÔNG ngoặc → Outlook không khớp src cid:kora-banner → chặn ảnh, bắt người nhận lần đầu bấm 'tin cậy/tải ảnh'). Thêm Content-Disposition: inline kèm filename + X-Attachment-Id để Outlook render inline chắc chắn. Ảnh đính kèm trong mail + gọi qua Content-ID → hiện ngay, không cần trust. Thuần CORE, không migration DATA."
+  "intro": "Kora-Framework v2.10.0 (landing đổi thương hiệu Claude AI + tinh gọn + PO hỏi tiến độ rõ hơn): trang giới thiệu đổi hiển thị 'Kora AI'→'Claude AI', codename 'Claude-1' (GIỮ tên repo isc-fkit/Kora-Framework + lệnh /kora-* để không hỏng cài đặt); tạm ẨN 6 mục (Quy trình, Prompt&Template, Ví dụ, Output, Troubleshooting, Release) — vẫn trong file, dễ bật lại; viết lại Giới thiệu 3 phần (kết nối nguồn · là gì · đạt được gì) + giá trị cốt lõi; gộp Cài đặt+Chức năng → 'Hướng dẫn cài đặt'; mục báo cáo nêu rõ gửi mail (banner CID hiện ngay Outlook + tách mail + bàn giao bash Cowork). CLAUDE.md: PO hỏi 'cập nhật tiến độ' → HỎI DỰ ÁN trước → chỉ kéo mục MỚI → daily-report → send-mail. Thuần CORE, không migration DATA."
 }

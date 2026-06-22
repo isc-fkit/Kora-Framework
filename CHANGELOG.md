@@ -10,6 +10,18 @@
 
 ---
 
+## v2.10.0 "Claude-1" — 2026-06-22
+
+- **🎨 Landing đổi thương hiệu "Claude AI" + tinh gọn.** Trang giới thiệu (`index.html`): hiển thị **"Kora AI" → "Claude AI"**,
+  codename **"Claude-1"** (GIỮ tên repo `isc-fkit/Kora-Framework` + lệnh `/kora-*` + biến `KORA_*` để KHÔNG hỏng cài đặt/chức năng).
+  **Tạm ẨN 6 mục** (Quy trình · Prompt & Template · Ví dụ thực tế · Output · Troubleshooting · Release) — vẫn còn trong file
+  (class `hidden` + khối `<!-- HIDDEN-SECTIONS -->` liệt kê + cách bật lại). **Viết lại Giới thiệu** 3 phần (framework kết nối
+  nguồn · đây là gì · đạt được gì + giá trị cốt lõi: bàn giao tức thì, mỗi vai trò tự nắm dự án). **Gộp Cài đặt + Chức năng →
+  "Hướng dẫn cài đặt"**. Mục báo cáo nêu rõ **gửi mail** (banner CID hiện ngay Outlook · tách mail từng người · bàn giao bash khi Cowork chặn SMTP) + GitLab.
+- **🗣️ PO hỏi "cập nhật tiến độ" rõ hơn (CLAUDE.md).** → **HỎI DỰ ÁN trước** (liệt kê project để chọn) → chỉ kéo các **mục MỚI/cập nhật**
+  của project đó → daily-report → send-mail. (Các luồng đọc-KB-theo-domain, phân-tích→BA-template, lịch-Cowork-kéo-Jira đã có sẵn.)
+- **Đổi codename** "Kora-1" → **"Claude-1"** từ bản này (lịch sử cũ giữ "Kora-1"). Thuần **CORE**, KHÔNG migration DATA.
+
 ## v2.9.9 "Kora-1" — 2026-06-22
 
 - **📧 Banner email hiện NGAY trong Outlook (hết phải bấm "tin cậy/tải ảnh").** Sửa nhúng ảnh CID: `add_related`

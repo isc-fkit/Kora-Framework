@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>KORA AI — Hướng dẫn (FPT Telecom)</title>
-<meta name="description" content="KORA AI — Kết nối đa nguồn → Tổng hợp tri thức → Đồng bộ Knowledge Base chung → Tự động báo cáo &amp; cảnh báo. Giới thiệu, quy trình BA, chức năng, template, ví dụ, troubleshooting.">
+<title>Claude AI — Hướng dẫn (FPT Telecom)</title>
+<meta name="description" content="Claude AI — Kết nối đa nguồn → Tổng hợp tri thức → Đồng bộ Knowledge Base chung → Tự động báo cáo &amp; cảnh báo. Giới thiệu, quy trình BA, chức năng, template, ví dụ, troubleshooting.">
 <style>
   :root{
     --bg:#0b1024; --bg-card:#151a30; --bg-elev:#1c2240; --bg-sidebar:#0e1330; --bg-hover:#232a50;
@@ -93,6 +93,8 @@
   .content{padding:0 46px 90px;max-width:none;min-width:0}
   .page{display:none;animation:fade .24s ease}
   .page.active{display:block}
+  /* ẨN TẠM (v2.10.0) — xem khối <!-- HIDDEN-SECTIONS --> gần <body> để biết mục nào ẩn + cách bật lại */
+  .page.hidden,.nav a.hidden,.hc.hidden,.btn.hidden{display:none!important}
   @keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
 
   header.hero{padding:48px 0 6px}
@@ -248,8 +250,23 @@
 </style>
 </head>
 <body>
+<!-- ============================ HIDDEN-SECTIONS (v2.10.0) ============================
+  MỤC ĐANG ẨN TẠM (vẫn còn nguyên trong file, chỉ ẩn bằng class "hidden"):
+    1. workflow         — "Quy trình BA"
+    2. prompts          — "Prompt & Template"
+    3. examples         — "Ví dụ thực tế"
+    4. good-vs-bad      — "Output: Tốt vs Chưa tốt"
+    5. troubleshooting  — "Troubleshooting"
+    6. release          — "Release Note"
+  CÁCH HIỆN LẠI 1 mục <id>: bỏ chữ "hidden" ở 4 chỗ —
+    .page  : <div class="page hidden" id="<id>">      → <div class="page" id="<id>">
+    nav    : <a class="hidden" data-go="<id>" …>       → <a data-go="<id>" …>
+    home   : <div class="hc hidden" data-go="<id>">    → <div class="hc" data-go="<id>">
+    (hero btn workflow: <span class="btn ghost hidden" …> nếu cần)
+  (Khi user yêu cầu "hiện lại / mở mục", liệt kê danh sách trên rồi bỏ "hidden" theo mục họ chọn.)
+============================================================================= -->
 
-<button class="menu-btn" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰ &nbsp;KORA AI — Mục lục</button>
+<button class="menu-btn" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰ &nbsp;Claude AI — Mục lục</button>
 
 <div class="layout">
   <script>try{if(localStorage.getItem('kora-sb')==='mini')document.currentScript.parentNode.classList.add('mini');}catch(e){}</script>
@@ -257,21 +274,20 @@
     <div class="brand" data-go="home" title="Trang chủ">
       <span class="brandmark" aria-hidden="true">K</span>
       <span class="org">FPT TELECOM</span>
-      <div class="fw">KORA AI<span>v2.9.9 · Kora-1</span></div>
+      <div class="fw">Claude AI<span>v2.10.0 · Claude-1</span></div>
     </div>
     <nav class="nav">
       <div class="grp">Tổng quan</div>
       <a data-go="home" title="Trang chủ"><span class="em">🏠</span><span class="tx">Trang chủ</span></a>
       <div class="grp">Nội dung</div>
       <a data-go="introduction" title="Giới thiệu"><span class="lb">A</span><span class="em">📘</span><span class="tx">Giới thiệu</span></a>
-      <a data-go="workflow" title="Quy trình"><span class="lb">B</span><span class="em">🔁</span><span class="tx">Quy trình</span></a>
-      <a data-go="install" title="Cài đặt"><span class="lb">C</span><span class="em">⚙️</span><span class="tx">Cài đặt</span></a>
-      <a data-go="features" title="Chức năng"><span class="lb">D</span><span class="em">🧩</span><span class="tx">Chức năng</span></a>
-      <a data-go="prompts" title="Prompt &amp; Template"><span class="lb">E</span><span class="em">💬</span><span class="tx">Prompt &amp; Template</span></a>
-      <a data-go="examples" title="Ví dụ thực tế"><span class="lb">F</span><span class="em">🎯</span><span class="tx">Ví dụ thực tế</span></a>
-      <a data-go="good-vs-bad" title="Output: Tốt vs Chưa tốt"><span class="lb">G</span><span class="em">✅</span><span class="tx">Output: Tốt vs Chưa tốt</span></a>
-      <a data-go="troubleshooting" title="Troubleshooting"><span class="lb">H</span><span class="em">🔧</span><span class="tx">Troubleshooting</span></a>
-      <a data-go="release" title="Release Note"><span class="lb">I</span><span class="em">🆕</span><span class="tx">Release Note</span></a>
+      <a class="hidden" data-go="workflow" title="Quy trình"><span class="lb">B</span><span class="em">🔁</span><span class="tx">Quy trình</span></a>
+      <a data-go="install" title="Hướng dẫn cài đặt"><span class="lb">C</span><span class="em">⚙️</span><span class="tx">Hướng dẫn cài đặt</span></a>
+      <a class="hidden" data-go="prompts" title="Prompt &amp; Template"><span class="lb">E</span><span class="em">💬</span><span class="tx">Prompt &amp; Template</span></a>
+      <a class="hidden" data-go="examples" title="Ví dụ thực tế"><span class="lb">F</span><span class="em">🎯</span><span class="tx">Ví dụ thực tế</span></a>
+      <a class="hidden" data-go="good-vs-bad" title="Output: Tốt vs Chưa tốt"><span class="lb">G</span><span class="em">✅</span><span class="tx">Output: Tốt vs Chưa tốt</span></a>
+      <a class="hidden" data-go="troubleshooting" title="Troubleshooting"><span class="lb">H</span><span class="em">🔧</span><span class="tx">Troubleshooting</span></a>
+      <a class="hidden" data-go="release" title="Release Note"><span class="lb">I</span><span class="em">🆕</span><span class="tx">Release Note</span></a>
       <a data-go="appendix" title="Phụ lục"><span class="lb">J</span><span class="em">📚</span><span class="tx">Phụ lục</span></a>
     </nav>
     <button class="sb-toggle" id="sbToggle" type="button" aria-label="Thu gọn / mở rộng menu" aria-expanded="true" title="Thu gọn menu">
@@ -284,8 +300,8 @@
     <!-- ===================== HOME ===================== -->
     <div class="page" id="home">
       <header class="hero">
-        <span class="badge">FPT Telecom · KORA AI · v2.9.9 · &ldquo;Kora-1&rdquo;</span>
-        <h1>KORA AI — Sơ đồ nguyên lý hoạt động</h1>
+        <span class="badge">FPT Telecom · Claude AI · v2.10.0 · &ldquo;Claude-1&rdquo;</span>
+        <h1>Claude AI — Sơ đồ nguyên lý hoạt động</h1>
         <p class="sub">Trợ lý tri thức tự lớn lên cùng dự án: hợp nhất tri thức phân tán, nối tri thức local của nhân viên với <b>Knowledge Base</b> chung (trên Cloud), và tự động hóa đồng bộ — báo cáo — cảnh báo.</p>
         <div class="pipe">
           <span><b>1.</b> Kết nối đa nguồn</span><span>→</span>
@@ -296,21 +312,20 @@
         <div style="margin:18px 0 4px;display:flex;gap:10px;flex-wrap:wrap">
           <span class="btn" data-go="introduction">📘 Bắt đầu — Giới thiệu</span>
           <span class="btn ghost" data-go="install">⚙️ Cài đặt</span>
-          <span class="btn ghost" data-go="workflow">🔁 Quy trình</span>
+          <span class="btn ghost hidden" data-go="workflow">🔁 Quy trình</span>
         </div>
         <div class="card"><b>Dành cho MỌI vai trò — không chỉ BA.</b> BA · PO · SA · QA đều dùng được: hỏi <b>vai trò</b> trước → nạp đúng prompt mẫu + doc template theo vai trò &amp; domain. HOST dựng <b>Knowledge Base</b> chung &amp; đẩy lên Cloud; user kéo tri thức về local và phân tích — luôn bám đúng tri thức dự án.</div>
 
         <h2 class="sec" style="margin-top:26px">Nội dung</h2>
         <div class="home-cards">
           <div class="hc" data-go="introduction"><span class="ic">📘</span><div><b>A · Giới thiệu</b><p>Tổng quan · nguyên lý 4 tầng · Responsible AI &amp; bảo mật dữ liệu</p></div></div>
-          <div class="hc" data-go="workflow"><span class="ic">🔁</span><div><b>B · Quy trình</b><p>BA 8 bước · 4 cổng phân tích · Quality Gate 3 tầng</p></div></div>
-          <div class="hc" data-go="install"><span class="ic">⚙️</span><div><b>C · Cài đặt</b><p>Cài / cập nhật / gỡ (CLI + Desktop)</p></div></div>
-          <div class="hc" data-go="features"><span class="ic">🧩</span><div><b>D · Chức năng</b><p>init · connect · scan · sync · schedule · mail · archive</p></div></div>
-          <div class="hc" data-go="prompts"><span class="ic">💬</span><div><b>E · Prompt &amp; Template</b><p>20 prompt + template động theo domain/vai trò · kỹ thuật prompt</p></div></div>
-          <div class="hc" data-go="examples"><span class="ic">🎯</span><div><b>F · Ví dụ thực tế</b><p>Use case Input / Prompt / Output</p></div></div>
-          <div class="hc" data-go="good-vs-bad"><span class="ic">✅</span><div><b>G · Output Tốt vs Chưa tốt</b><p>5 bảng so sánh tự đánh giá</p></div></div>
-          <div class="hc" data-go="troubleshooting"><span class="ic">🔧</span><div><b>H · Troubleshooting</b><p>Khắc phục sự cố · giới hạn &amp; hallucination</p></div></div>
-          <div class="hc" data-go="release"><span class="ic">🆕</span><div><b>I · Release Note</b><p>Lịch sử phiên bản &amp; cách cập nhật</p></div></div>
+          <div class="hc hidden" data-go="workflow"><span class="ic">🔁</span><div><b>B · Quy trình</b><p>BA 8 bước · 4 cổng phân tích · Quality Gate 3 tầng</p></div></div>
+          <div class="hc" data-go="install"><span class="ic">⚙️</span><div><b>C · Hướng dẫn cài đặt</b><p>Cài / cập nhật / gỡ + 8 chức năng: init · connect · scan · sync · schedule · mail · archive</p></div></div>
+          <div class="hc hidden" data-go="prompts"><span class="ic">💬</span><div><b>E · Prompt &amp; Template</b><p>20 prompt + template động theo domain/vai trò · kỹ thuật prompt</p></div></div>
+          <div class="hc hidden" data-go="examples"><span class="ic">🎯</span><div><b>F · Ví dụ thực tế</b><p>Use case Input / Prompt / Output</p></div></div>
+          <div class="hc hidden" data-go="good-vs-bad"><span class="ic">✅</span><div><b>G · Output Tốt vs Chưa tốt</b><p>5 bảng so sánh tự đánh giá</p></div></div>
+          <div class="hc hidden" data-go="troubleshooting"><span class="ic">🔧</span><div><b>H · Troubleshooting</b><p>Khắc phục sự cố · giới hạn &amp; hallucination</p></div></div>
+          <div class="hc hidden" data-go="release"><span class="ic">🆕</span><div><b>I · Release Note</b><p>Lịch sử phiên bản &amp; cách cập nhật</p></div></div>
           <div class="hc" data-go="appendix"><span class="ic">📚</span><div><b>J · Phụ lục</b><p>Bảng lệnh · cấu hình · tiêu chuẩn ngành &amp; tham khảo</p></div></div>
         </div>
       </header>
@@ -318,8 +333,18 @@
 
     <!-- ===================== INTRODUCTION ===================== -->
     <div class="page" id="introduction">
-      <div class="phead"><div class="pl">A · Giới thiệu</div><h1><span class="em">📘</span>KORA AI là gì?</h1></div>
-      <p class="lead">KORA chuẩn hóa cách dùng Claude xuyên suốt vòng đời dự án — là <b>bộ khuếch đại phân tích</b>, không thay thế phán đoán của con người. Mọi bước AI tự chạy, bạn chỉ confirm.</p>
+      <div class="phead"><div class="pl">A · Giới thiệu</div><h1><span class="em">📘</span>Claude AI là gì?</h1></div>
+      <p class="lead"><b>Claude AI Framework</b> chuẩn hóa cách dùng Claude xuyên suốt vòng đời dự án — là <b>bộ khuếch đại phân tích</b>, không thay thế phán đoán của con người. Mọi bước AI tự chạy, bạn chỉ confirm.</p>
+
+      <div style="margin:6px 0 4px">
+        <p style="margin:14px 0 6px;font-size:14.5px;color:var(--ink)"><b>1 · Framework kết nối nguồn.</b> Nối <b>đa nguồn</b> tri thức rời rạc — Jira, Confluence, GitHub, GitLab, SharePoint, Outlook, Gmail (qua <b>MCP / API</b>) — gom về một chỗ, chuẩn hóa và liên kết kiểu wiki, đồng bộ hai chiều với <b>Knowledge Base chung</b> trên Cloud.</p>
+        <p style="margin:14px 0 6px;font-size:14.5px;color:var(--ink)"><b>2 · Đây là gì.</b> Nó biến tri thức rời rạc thành một <b>bộ nhớ sống, có cấu trúc và truy ngược được nguồn gốc</b> — mỗi mẩu tri thức đều biết đến từ đâu (issue/tài liệu nào), liên kết với cái gì, và tự lớn lên cùng dự án.</p>
+        <p style="margin:14px 0 6px;font-size:14.5px;color:var(--ink)"><b>3 · Đạt được gì.</b> Giá trị cốt lõi là biến tri thức rời rạc thành một bộ nhớ sống, có cấu trúc và truy ngược được nguồn gốc. Nhờ đó:</p>
+        <div class="card" style="margin-top:4px">
+          <p style="margin:0 0 10px"><b>· Bàn giao gần như tức thì</b> — người mới vào dự án tự đọc hiểu được bối cảnh, không phải đi hỏi từng người hay phụ thuộc trí nhớ của vài cá nhân về việc "mục này ngày xưa làm để làm gì".</p>
+          <p style="margin:0"><b>· Mỗi vai trò tự nắm dự án</b> — Dev tra cứu ngữ cảnh mà không phải quay lại hỏi BA; BA khi thêm tính năng hay sửa rule được hệ thống <b>tự rà soát ảnh hưởng, phát hiện xung đột trước khi thành lỗi</b>; PM/QA nhìn được bức tranh chung mà không cần chạy qua chạy lại giữa các bên.</p>
+        </div>
+      </div>
 
       <h2 class="sec">I · Thông tin chung</h2>
       <table>
@@ -332,7 +357,7 @@
       </table>
 
       <h2 class="sec">II · Nguyên lý hoạt động</h2>
-      <div class="imgframe"><img src="assets/flow.png" alt="KORA AI — Sơ đồ nguyên lý hoạt động" style="width:100%;display:block;border-radius:14px;border:1px solid var(--border)"></div>
+      <div class="imgframe"><img src="assets/flow.png" alt="Claude AI — Sơ đồ nguyên lý hoạt động" style="width:100%;display:block;border-radius:14px;border:1px solid var(--border)"></div>
       <details style="margin:12px 0 4px"><summary style="cursor:pointer;color:var(--accent-3);font-size:13.5px;font-weight:600">▸ Xem sơ đồ dạng tương tác (chi tiết từng tầng)</summary>
       <div class="fd">
         <div class="tier">
@@ -419,7 +444,7 @@
       </table>
 
       <h2 class="sec">VI · Responsible AI &amp; Bảo mật dữ liệu <span class="pill r">BẮT BUỘC</span></h2>
-      <div class="callout warn"><span>⚠️</span><div><b>Mọi BA phải đọc &amp; tuân thủ trước khi dùng Claude/KORA với dữ liệu thật</b> — vi phạm bảo mật dữ liệu có thể gây hậu quả pháp lý nghiêm trọng. KORA hỗ trợ: tự nhắc <b>ẩn danh ở bước B0</b>, và <b>không bao giờ</b> đưa token vào chat/git (lưu ở <b>shell env</b>).</div></div>
+      <div class="callout warn"><span>⚠️</span><div><b>Mọi BA phải đọc &amp; tuân thủ trước khi dùng Claude/Claude AI với dữ liệu thật</b> — vi phạm bảo mật dữ liệu có thể gây hậu quả pháp lý nghiêm trọng. Claude AI hỗ trợ: tự nhắc <b>ẩn danh ở bước B0</b>, và <b>không bao giờ</b> đưa token vào chat/git (lưu ở <b>shell env</b>).</div></div>
       <div class="grid2">
         <div class="card"><b>🎯 4 nguyên tắc cốt lõi</b><ul style="margin:8px 0 0;padding-left:18px;color:var(--muted);font-size:13.2px;line-height:1.7">
           <li>Claude là <b>công cụ hỗ trợ</b>, không ra quyết định — BA review &amp; chịu trách nhiệm cuối.</li>
@@ -441,19 +466,19 @@
         <tr><td><span class="pill" style="background:var(--warnbg);color:#f0c674;border:1px solid var(--warnbd)">🟡 VÀNG</span></td><td>Tên KH/nhân viên, email, số hợp đồng, IP nội bộ, dữ liệu tài chính</td><td><b>Ẩn danh trước</b>: <code>[TÊN KH]</code> · <code>[EMAIL]</code> · <code>CONTRACT-001</code> · <code>x.x.x.x</code></td></tr>
         <tr><td><span class="pill r">🔴 ĐỎ</span></td><td>Mật khẩu, API key, CCCD, SĐT thật, tài liệu Confidential, thông tin M&amp;A</td><td><b>NGHIÊM CẤM</b> đưa vào Claude — không có ngoại lệ</td></tr>
       </table>
-      <div class="callout"><span>🚑</span><div><b>Lỡ paste nhầm dữ liệu nhạy cảm?</b> Xóa ngay đoạn chat chứa nó → <b>đổi/thu hồi</b> bí mật đã lộ (mật khẩu / API key / token) → báo người phụ trách bảo mật → ghi nhận sự cố. (Token kết nối của KORA nằm ở shell env, không vào chat/git nên rủi ro thấp hơn.)</div></div>
+      <div class="callout"><span>🚑</span><div><b>Lỡ paste nhầm dữ liệu nhạy cảm?</b> Xóa ngay đoạn chat chứa nó → <b>đổi/thu hồi</b> bí mật đã lộ (mật khẩu / API key / token) → báo người phụ trách bảo mật → ghi nhận sự cố. (Token kết nối của Claude AI nằm ở shell env, không vào chat/git nên rủi ro thấp hơn.)</div></div>
     </div>
 
     <!-- ===================== WORKFLOW ===================== -->
-    <div class="page" id="workflow">
-      <div class="phead"><div class="pl">B · Quy trình</div><h1><span class="em">🔁</span>Quy trình BA &amp; cách KORA tự thực thi</h1></div>
-      <p class="lead">Bám <b>quy trình BA 8 bước</b> để có <b>đầu ra chuẩn</b>; KORA tự ráp các luồng đang chạy của framework vào từng bước và <b>tự trưởng thành theo thời gian</b>.</p>
+    <div class="page hidden" id="workflow">
+      <div class="phead"><div class="pl">B · Quy trình</div><h1><span class="em">🔁</span>Quy trình BA &amp; cách Claude AI tự thực thi</h1></div>
+      <p class="lead">Bám <b>quy trình BA 8 bước</b> để có <b>đầu ra chuẩn</b>; Claude AI tự ráp các luồng đang chạy của framework vào từng bước và <b>tự trưởng thành theo thời gian</b>.</p>
 
-      <div class="card"><b>Cách framework hiện tại vận hành:</b> 4 tầng <b>Nguồn (Connect) → Scan &amp; Tổng hợp (wiki KB) → Cloud KB chung (Confluence/GitHub/SharePoint) → Automation (Schedule/Report/Mail/Alert)</b>. Mỗi bước BA dưới đây được một <code>/kora-*</code> hoặc workflow thực thi — cột "KORA thực thi".</div>
+      <div class="card"><b>Cách framework hiện tại vận hành:</b> 4 tầng <b>Nguồn (Connect) → Scan &amp; Tổng hợp (wiki KB) → Cloud KB chung (Confluence/GitHub/SharePoint) → Automation (Schedule/Report/Mail/Alert)</b>. Mỗi bước BA dưới đây được một <code>/kora-*</code> hoặc workflow thực thi — cột "Claude AI thực thi".</div>
 
       <h2 class="sec">I · Quy trình phát triển feature (8 bước)</h2>
       <table>
-        <tr><th>STT</th><th>Bước</th><th>Trigger</th><th>Mô tả</th><th>Đầu ra</th><th>KORA thực thi</th></tr>
+        <tr><th>STT</th><th>Bước</th><th>Trigger</th><th>Mô tả</th><th>Đầu ra</th><th>Claude AI thực thi</th></tr>
         <tr><td>1</td><td><b>B0 · Tiếp nhận yêu cầu</b></td><td>Meeting / Email yêu cầu</td><td>Thu thập yêu cầu thô từ khách hàng / Product Owner. <b>Ẩn danh dữ liệu nhạy cảm</b> trước khi đưa vào AI.</td><td>Yêu cầu thô đã ẩn danh</td><td><code>/kora-connect</code> + <code>/kora-scan</code> gom nguồn → vault</td></tr>
         <tr><td>2</td><td><b>B1 · Clarify yêu cầu</b></td><td>Yêu cầu còn mơ hồ</td><td>Sinh danh sách câu hỏi làm rõ (group theo Business Rules / Data / UI / Technical); BA bổ sung câu hỏi domain.</td><td>Danh sách câu hỏi clarification</td><td>Hỏi vai trò + domain (1 thẻ) + đánh dấu <code>[CẦN XÁC NHẬN]</code></td></tr>
         <tr><td>3</td><td><b>B2 · Viết User Story + AC</b></td><td>Yêu cầu đã rõ</td><td>"As a… I want… So that…" + Acceptance Criteria Given/When/Then.</td><td>User Story + AC</td><td>prompt <code>role-ba.md</code> → <code>docs/03-features/…</code></td></tr>
@@ -521,7 +546,7 @@
       <div class="callout ok"><span>✅</span><div><b>Vai trò lọc artifact:</b> BA → US/AC/BR/Screen · PO → value/KPI/MoSCoW/PRD · SA → FR/NFR/API/DB · QA → AC/Validation/Test/Edge. ⇒ Luồng phân tích đã <b>tích hợp</b> quy trình BA 8 bước + thư viện 20 prompt → <b>đầu ra chuẩn tự động</b>.</div></div>
 
       <h2 class="sec">III · Quality Gate — 3 tầng review trước khi submit</h2>
-      <p style="color:var(--muted)">Trước khi submit bất kỳ tài liệu nào do Claude hỗ trợ tạo, đi qua <b>Quality Gate 3 tầng</b> — KORA ráp vào <b>Approval Gate</b> + rà soát chốt phiên + <code>.kb/health-report.md</code>:</p>
+      <p style="color:var(--muted)">Trước khi submit bất kỳ tài liệu nào do Claude hỗ trợ tạo, đi qua <b>Quality Gate 3 tầng</b> — Claude AI ráp vào <b>Approval Gate</b> + rà soát chốt phiên + <code>.kb/health-report.md</code>:</p>
       <table>
         <tr><th>Tầng</th><th>Tên</th><th>Người thực hiện</th><th>Thời gian</th></tr>
         <tr><td>1</td><td><b>Accuracy Check</b></td><td>BA tự review</td><td>~5 phút</td></tr>
@@ -570,7 +595,7 @@
     <!-- ===================== FEATURES ===================== -->
     <!-- ===================== INSTALL ===================== -->
     <div class="page" id="install">
-      <div class="phead"><div class="pl">C · Cài đặt</div><h1><span class="em">⚙️</span>Cài đặt, cập nhật &amp; gỡ</h1></div>
+      <div class="phead"><div class="pl">C · Hướng dẫn cài đặt</div><h1><span class="em">⚙️</span>Hướng dẫn cài đặt &amp; chức năng</h1></div>
       <p class="lead">Một bộ cài cho <b>cả Claude CLI và Desktop</b>. Cài skill vào <code>~/.claude</code> + tự tạo project trong <code>Downloads/Knowledge-Base</code> (folder <code>Skill/</code> bên trong).</p>
 
       <h2 class="sec">⚙️ Cài đặt</h2>
@@ -586,7 +611,7 @@
       <div class="callout"><span>👥</span><div><b>Dùng trong Cowork (Desktop/Web):</b> bộ cài tạo sẵn folder <code>Skill/</code> trong project. Bật các lệnh <code>/kora-*</code> bằng cách <b>kéo các file skill trong <code>Skill/</code> vào Cowork</b> rồi bảo Claude <i>"cài skill này"</i>, hoặc vào <b>Customize → Custom Skills</b> để thêm skill tùy chỉnh. (Bản CLI: installer đã đặt sẵn ở <code>~/.claude/commands/</code>.)</div></div>
 
       <h2 class="sec">🔄 Cập nhật (update)</h2>
-      <div class="callout ok"><span>🟢</span><div><b>Cách khuyến nghị — gõ <code>/kora-update</code> trong Claude / Cowork</b> (hoặc nhắn <i>"cập nhật phiên bản"</i> / <i>"kiểm tra phiên bản"</i>). KORA so <code>version.json</code> local với GitHub → hiện <b>nội dung giới thiệu + tóm tắt CHANGELOG</b> → hỏi xác nhận → tự chạy script. <b>Chỉ thay CORE, GIỮ NGUYÊN tri thức</b> của bạn (<code>docs/</code> + vault + config + <code>.env.local</code>). KHÔNG cần ra Terminal. <i>Muốn xem bản đang cài trước → gõ <code>/kora-version</code>.</i></div></div>
+      <div class="callout ok"><span>🟢</span><div><b>Cách khuyến nghị — gõ <code>/kora-update</code> trong Claude / Cowork</b> (hoặc nhắn <i>"cập nhật phiên bản"</i> / <i>"kiểm tra phiên bản"</i>). Claude AI so <code>version.json</code> local với GitHub → hiện <b>nội dung giới thiệu + tóm tắt CHANGELOG</b> → hỏi xác nhận → tự chạy script. <b>Chỉ thay CORE, GIỮ NGUYÊN tri thức</b> của bạn (<code>docs/</code> + vault + config + <code>.env.local</code>). KHÔNG cần ra Terminal. <i>Muốn xem bản đang cài trước → gõ <code>/kora-version</code>.</i></div></div>
       <p style="color:var(--muted)"><b>Cách thủ công (Terminal / CLI)</b> — chạy thẳng bằng bash, cùng kết quả (chỉ thay CORE, giữ tri thức):</p>
       <p style="color:var(--faint);font-size:13.3px;margin:12px 0 5px"><b>① Bản cài skill</b> (managed, <code>~/.claude</code>) — chạy lại đúng lệnh cài = cập nhật:</p>
       <div class="code"><div class="code-head"><span>macOS / Linux (bash)</span><button class="copy">Copy</button></div>
@@ -601,19 +626,17 @@
       <div class="callout"><span>💡</span><div>Xem thay đổi từng bản ở tab <a data-go="release" style="cursor:pointer">Release Note (I)</a>. <code>/kora-update</code> tự đọc CHANGELOG để biết có bước migration không (vd đổi cấu trúc config) rồi làm theo.</div></div>
 
       <h2 class="sec">🗑️ Gỡ cài đặt</h2>
-      <div class="callout ok"><span>🟢</span><div><b>Cách khuyến nghị — gõ <code>/kora-uninstall</code> trong Claude / Cowork</b> (hoặc nhắn <i>"gỡ cài đặt"</i>). KORA chạy script gỡ: xóa skill (<code>~/.claude/commands/kora-*.md</code> + <code>~/.claude/kora-framework</code> + folder <code>Skill/</code>) và nhắc xóa biến <code>export KORA_*</code>. <b>Tri thức trong <code>Knowledge-Base</code> (docs/ + vault) được GIỮ LẠI.</b></div></div>
+      <div class="callout ok"><span>🟢</span><div><b>Cách khuyến nghị — gõ <code>/kora-uninstall</code> trong Claude / Cowork</b> (hoặc nhắn <i>"gỡ cài đặt"</i>). Claude AI chạy script gỡ: xóa skill (<code>~/.claude/commands/kora-*.md</code> + <code>~/.claude/kora-framework</code> + folder <code>Skill/</code>) và nhắc xóa biến <code>export KORA_*</code>. <b>Tri thức trong <code>Knowledge-Base</code> (docs/ + vault) được GIỮ LẠI.</b></div></div>
       <p style="color:var(--muted)"><b>Cách thủ công (Terminal / CLI)</b> — chạy thẳng bằng bash:</p>
       <div class="code"><div class="code-head"><span>macOS / Linux (bash)</span><button class="copy">Copy</button></div>
 <pre><code>bash &lt;(curl -fsSL https://raw.githubusercontent.com/isc-fkit/Kora-Framework/release/uninstall.command)</code></pre></div>
       <div class="code"><div class="code-head"><span>Windows (cmd / PowerShell)</span><button class="copy">Copy</button></div>
 <pre><code>curl -fsSL https://raw.githubusercontent.com/isc-fkit/Kora-Framework/release/uninstall.bat -o "%TEMP%\kora-uninstall.bat" &amp;&amp; "%TEMP%\kora-uninstall.bat"</code></pre></div>
       <p style="color:var(--faint);font-size:13.3px;margin:10px 0 0">Script hỏi gõ <code>yes</code> để xác nhận, và nhắc xóa tay các dòng <code>export KORA_*</code> trong <code>~/.zshrc</code> / <code>~/.bashrc</code> (Windows: biến môi trường) nếu có. Gỡ skill <b>KHÔNG</b> đụng tới tri thức của bạn.</p>
-    </div>
 
-    <!-- ===================== FEATURES ===================== -->
-    <div class="page" id="features">
-      <div class="phead"><div class="pl">D · Chức năng</div><h1><span class="em">🧩</span>Danh sách chức năng &amp; cách vận hành</h1></div>
-      <p class="lead">Sau khi cài (tab C), đây là <b>8 bước thực thi</b> theo thứ tự: <b>1 init → 2 connect → 3 scan → 4 schedule → 4b cảnh báo ticket → 5 report → 6 send-mail → 7 sync → 8 archive</b>.</p>
+      <!-- ↓↓↓ GỘP (v2.10.0): nội dung "Chức năng" (D cũ) gộp vào "Hướng dẫn cài đặt" ↓↓↓ -->
+      <h2 class="sec" style="margin-top:32px">🧩 Chức năng &amp; cách vận hành (8 bước)</h2>
+      <p class="lead">Sau khi cài (mục trên), đây là <b>8 bước thực thi</b> theo thứ tự: <b>1 init → 2 connect → 3 scan → 4 schedule → 4b cảnh báo ticket → 5 report → 6 send-mail → 7 sync → 8 archive</b>.</p>
 
       <h2 class="sec">Các bước thực thi (8 bước)</h2>
       <div class="tl">
@@ -652,7 +675,7 @@
       <div class="callout warn"><span>⏰</span><div><b>MCP KHÔNG chạy được LỊCH NỀN (cron):</b> token connector do <b>app Claude</b> giữ → tiến trình nền (cron/launchd) không gọi được MCP. Dùng MCP cho <b>quét/báo cáo TƯƠNG TÁC</b>; muốn <b>lịch nền 24/7</b> (report/mail/sync tự động) thì kết nối nguồn qua <b>API/token</b>. (Lịch Cowork dùng được MCP nhưng chỉ khi MỞ app + sandbox chặn SMTP → mail qua draft.)</div></div>
       <div class="callout"><span>🏢</span><div><b>Connect HOSTING cần đảm bảo:</b> ① nguồn để SCAN · ② đích PUSH (Confluence / GitHub private / SharePoint) · ③ kênh MAIL (Gmail/Outlook/SMTP). <b>Lịch nền 24/7 → nguồn phải qua API/token</b> (không phải MCP).</div></div>
       <div class="twocol">
-        <div class="card"><b>📧 Gmail (SMTP — tự động gửi)</b><p style="color:var(--muted);font-size:13.3px;margin:6px 0 0">Connect qua <b>API → Gmail SMTP</b>: dùng <b>tài khoản gửi chuyên dụng</b> (KHÔNG phải email cá nhân) + <b>App Password</b> (đã <b>bật 2FA</b>) → điền <code>tools/report-mailer/.env.local</code> → verify <code>send_report.py --check</code>. Người nhận thấy <b>“Kora AI Daily Report &lt;tài khoản&gt;”</b> (đổi qua <code>MAIL_FROM_NAME</code>). <b>TỰ ĐỘNG GỬI</b> (khác Gmail MCP = chỉ tạo nháp).</p></div>
+        <div class="card"><b>📧 Gmail (SMTP — tự động gửi)</b><p style="color:var(--muted);font-size:13.3px;margin:6px 0 0">Connect qua <b>API → Gmail SMTP</b>: dùng <b>tài khoản gửi chuyên dụng</b> (KHÔNG phải email cá nhân) + <b>App Password</b> (đã <b>bật 2FA</b>) → điền <code>tools/report-mailer/.env.local</code> → verify <code>send_report.py --check</code>. Người nhận thấy <b>“Claude AI Daily Report &lt;tài khoản&gt;”</b> (đổi qua <code>MAIL_FROM_NAME</code>). <b>TỰ ĐỘNG GỬI</b> (khác Gmail MCP = chỉ tạo nháp).</p></div>
         <div class="card"><b>📨 Outlook / M365</b><p style="color:var(--muted);font-size:13.3px;margin:6px 0 0">Cần <b>key admin</b> hoặc được <b>set consent</b> (admin consent).</p></div>
       </div>
       <div class="callout warn"><span>🔑</span><div><b>Lưu khóa (token):</b> mặc định vào <b>shell env</b> (<code>~/.zshrc</code>: <code>export KORA_&lt;SRC&gt;_TOKEN=…</code>), <b>KHÔNG rải <code>.env</code></b> trong project. Chỉ tạo <code>.env.local</code> ở 2 ca: <b>archive</b> (key read-only) và <b>lịch sync nền</b> (mỗi nguồn user chọn sync). Token không vào chat / git / config.</div></div>
@@ -686,7 +709,7 @@ khi CHẠY:  scan/get (KHÔNG gác) → reindex → 🔒 cổng → post · repo
       <p style="color:var(--muted)">Task "đặt lịch" từ <code>/kora-send-mail</code> cũng hiện &amp; quản lý ở đây. <b>Cảnh báo lỗi lịch</b> (ticket + email) chỉnh tập trung qua <code>/kora-alert-mail</code> — mục ngay dưới.</p>
 
       <h2 class="sec">4b · 🔔 Cảnh báo sự cố &amp; report ticket qua mail — <code>/kora-alert-mail</code></h2>
-      <p style="color:var(--muted)">Đi kèm Schedule: khi một <b>lịch nền lỗi</b>, KORA không để lỗi trôi âm thầm mà <b>tự tạo ticket issue</b> + <b>gửi email cảnh báo</b> cho người phụ trách. <code>/kora-alert-mail</code> là nơi chỉnh <b>tập trung 1 chỗ</b> cho cơ chế này.</p>
+      <p style="color:var(--muted)">Đi kèm Schedule: khi một <b>lịch nền lỗi</b>, Claude AI không để lỗi trôi âm thầm mà <b>tự tạo ticket issue</b> + <b>gửi email cảnh báo</b> cho người phụ trách. <code>/kora-alert-mail</code> là nơi chỉnh <b>tập trung 1 chỗ</b> cho cơ chế này.</p>
       <div class="flow">lịch nền LỖI  (get/scan · post · report · mail · sync)
         │
         ▼
@@ -709,23 +732,23 @@ khi CHẠY:  scan/get (KHÔNG gác) → reindex → 🔒 cổng → post · repo
       <div class="callout"><span>↔️</span><div><b>Khác <code>/kora-send-mail</code>:</b> <code>/kora-alert-mail</code> = mail <b>CẢNH BÁO SỰ CỐ</b> (tự động khi lịch lỗi) · <code>/kora-send-mail</code> = mail <b>BÁO CÁO TIẾN ĐỘ</b> (chủ động gửi report). Việc GỬI mail cảnh báo nằm trong lượt lịch nền — đã gác <code>KORA_OPS_PW</code>, nên skill này chỉ sửa cấu hình, <b>không cần nhập mật khẩu</b>.</div></div>
 
       <h2 class="sec">5 · 📊 Report — <code>/kora-daily-report</code> <span class="pw">🔒 (Admin permission)</span></h2>
-      <p style="color:var(--muted)">Dashboard tiến độ: năng suất theo <b>NGÀY LÀM VIỆC đã trôi qua</b> (8h = 1 ngày công, bỏ T7/CN — hết "OT nhầm") vs đã log + OT, rủi ro · dự đoán theo <b>chuẩn Cloud</b>; <b>phân tầng + lọc</b> theo project / thành viên / thời gian. Hiện <b>UI inline trong Cowork</b> + file HTML. <b>Kéo dữ liệu live</b> → có <b>cổng mật khẩu vận hành</b> (<code>KORA_OPS_PW</code>).</p>
+      <p style="color:var(--muted)">Dashboard tiến độ: năng suất theo <b>NGÀY LÀM VIỆC đã trôi qua</b> (8h = 1 ngày công, bỏ T7/CN — hết "OT nhầm") vs đã log + OT (âm = đỏ, dương = xanh), <b>độ phức tạp (Complexity ≥7)</b>, rủi ro · dự đoán theo <b>chuẩn Cloud</b>; <b>phân tầng + lọc</b> theo project / thành viên / thời gian. Hiện <b>UI inline trong Cowork</b> + file HTML (lưu theo thư mục ngày). <b>Kéo dữ liệu live</b> → có <b>cổng mật khẩu vận hành</b> (<code>KORA_OPS_PW</code>). 🗣️ <b>Trong Cowork, PM/PO chỉ cần hỏi bằng lời</b> ("cập nhật tiến độ dự án") → tự hỏi dự án → kéo Jira về local + reindex → phân tích → <b>đề xuất GỬI MAIL ngay</b>.</p>
 
       <h2 class="sec">6 · ✉️ Send mail — <code>/kora-send-mail</code></h2>
       <div class="imgframe"><img src="assets/banner-daily-report.jpg" alt="Banner báo cáo tiến độ" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><div class="ph" style="display:none">🖼️ <b>assets/banner-daily-report.jpg</b> — banner header email.</div></div>
-      <p style="color:var(--muted)">Luồng: chọn <b>nguồn Jira đã kết nối</b> → <b>project cần report</b> (<b>FULL-scan</b> lấy status + comment MỚI NHẤT, ghi đè local — task đã Done trên server hết hiện cũ) → <b>người nhận</b> → <b>[Gửi ngay] / [Đặt lịch]</b>. Email có <b>banner header</b> + <b>biểu đồ</b> (table-safe, chống dark-mode) + <b>phân tích AI dạng CARD MÀU theo mục</b> (🔴 rủi ro · 📅 dự đoán · 🎯 hành động · 👥 bảng thành viên tô màu trạng thái). <b>Tự động gửi qua SMTP</b> (Gmail App Password ưu tiên; MCP draft = fallback). Cổng mật khẩu vận hành. <b>Đặt lịch</b> → task hiện ở danh sách <code>/kora-schedule</code> (bật/tắt/xóa).</p>
+      <p style="color:var(--muted)">Luồng: chọn <b>nguồn Jira đã kết nối</b> → <b>project cần report</b> (<b>FULL-scan</b> lấy status + comment MỚI NHẤT, ghi đè local — task đã Done trên server hết hiện cũ) → <b>người nhận</b> → <b>[Gửi ngay] / [Đặt lịch]</b>. Email có <b>banner header</b> + <b>biểu đồ</b> (table-safe, chống dark-mode) + <b>phân tích AI dạng CARD MÀU theo mục</b> (🔴 rủi ro · 📅 dự đoán · 🎯 hành động · 👥 bảng thành viên tô màu trạng thái). <b>Tự động gửi qua Gmail SMTP</b> (App Password) — <b>tách RIÊNG từng người nhận</b> (mỗi mail To = 1 người, không thấy nhau). Banner <b>nhúng CID inline</b> (Content-ID <code>&lt;kora-banner&gt;</code> + inline) → <b>Outlook hiện ảnh NGAY</b>, không phải bấm "tin cậy/tải ảnh". Cổng mật khẩu vận hành. 🖥️ <b>Cowork bị chặn gửi SMTP → bàn giao:</b> Kora xuất <code>reports/kora-send-mail.command</code> để bạn chạy ở <b>Terminal</b> gửi luôn báo cáo vừa tạo (không dead-end). <b>Đặt lịch</b> → task hiện ở <code>/kora-schedule</code> (bật/tắt/xóa).</p>
 
       <h2 class="sec">7 · ☁️ Sync — <code>/kora-sync</code></h2>
-      <p style="color:var(--muted)">Đẩy Knowledge Base lên <b>Confluence / GitHub private / SharePoint</b> — idempotent, có <b>cổng mật khẩu vận hành</b>. Versioning <b>US ↔ Change Request</b>: giữ US cũ, đánh dấu superseded, link CR mới. <b>SharePoint</b> qua Microsoft Graph (app Azure AD; admin consent <code>Sites.ReadWrite.All</code> để chạy nền; verify ở máy thật).</p>
+      <p style="color:var(--muted)">Đẩy Knowledge Base lên <b>Confluence / GitHub private / GitLab / SharePoint</b> — idempotent, có <b>cổng mật khẩu vận hành</b>. (Kết nối API GitHub/GitLab: verify token → <b>liệt kê repo/project để CHỌN</b>, không gõ tay.) Versioning <b>US ↔ Change Request</b>: giữ US cũ, đánh dấu superseded, link CR mới. <b>SharePoint</b> qua Microsoft Graph (app Azure AD; admin consent <code>Sites.ReadWrite.All</code> để chạy nền; verify ở máy thật).</p>
 
       <h2 class="sec">8 · 📦 Archive — <code>/kora-archive</code></h2>
       <p style="color:var(--muted)">Đóng gói KB phân quyền (read-only / read-write) + mật khẩu (chỉ gác HOST tạo gói). HOST đẩy KB lên Cloud → USER import → connect MCP → <code>/kora-schedule</code> kéo về local. Project import luôn <b>hỏi để nắm tri thức</b>. Gói USER tắt report/mail, tự lên lịch get&amp;post. <b>Báo lỗi về người phụ trách:</b> cấu hình email ticket sự cố (<code>scheduler.error_recipients</code>) đi theo gói + ship <b>cred SMTP no-reply</b> → khi lịch của USER lỗi, tự email người phụ trách (HOST). Hỗ trợ đầy đủ <b>Windows · macOS · Linux</b> (đóng gói &amp; import gói USER).</p>
     </div>
 
     <!-- ===================== PROMPTS ===================== -->
-    <div class="page" id="prompts">
+    <div class="page hidden" id="prompts">
       <div class="phead"><div class="pl">E · Prompt &amp; Template</div><h1><span class="em">💬</span>Thư viện 20 Prompt Templates</h1></div>
-      <p class="lead">Mỗi prompt trình bày đầy đủ, <b>sẵn sàng copy-paste</b>. Thay phần <code>[brackets]</code> bằng nội dung thực tế trước khi gửi. Khi bạn yêu cầu phân tích, KORA tự chọn prompt theo <b>vai trò</b> và tự chèn <code>[domain]</code> theo cấu hình.</p>
+      <p class="lead">Mỗi prompt trình bày đầy đủ, <b>sẵn sàng copy-paste</b>. Thay phần <code>[brackets]</code> bằng nội dung thực tế trước khi gửi. Khi bạn yêu cầu phân tích, Claude AI tự chọn prompt theo <b>vai trò</b> và tự chèn <code>[domain]</code> theo cấu hình.</p>
 
       <div class="secbig">Bản đồ vai trò → template</div>
       <table>
@@ -1163,13 +1186,13 @@ Tính năng:
 [Mô tả tính năng]</pre>
       </div>
 
-      <div class="callout ok"><span>🔗</span><div>Khi bạn mở Claude Desktop, tạo project và <b>import source HOST đã export</b>, KORA tự nạp <b>skill workflow + 20 prompt template</b> đi kèm và <b>luôn hỏi để nắm tri thức</b> trước khi phân tích.</div></div>
+      <div class="callout ok"><span>🔗</span><div>Khi bạn mở Claude Desktop, tạo project và <b>import source HOST đã export</b>, Claude AI tự nạp <b>skill workflow + 20 prompt template</b> đi kèm và <b>luôn hỏi để nắm tri thức</b> trước khi phân tích.</div></div>
     </div>
 
     <!-- ===================== EXAMPLES ===================== -->
-    <div class="page" id="examples">
+    <div class="page hidden" id="examples">
       <div class="phead"><div class="pl">F · Ví dụ thực tế</div><h1><span class="em">🎯</span>Ví dụ thực tế theo use case</h1></div>
-      <p class="lead">Các ví dụ end-to-end mô phỏng tình huống thực tế. Mỗi ví dụ gồm <b>Input · Prompt gửi Claude · Output mong đợi</b> — KORA chạy đúng bằng các lệnh <code>/kora-*</code>.</p>
+      <p class="lead">Các ví dụ end-to-end mô phỏng tình huống thực tế. Mỗi ví dụ gồm <b>Input · Prompt gửi Claude · Output mong đợi</b> — Claude AI chạy đúng bằng các lệnh <code>/kora-*</code>.</p>
 
       <div class="subh"><span class="rn">I.</span> Phân tích yêu cầu mơ hồ từ email khách hàng</div>
       <p class="uctx">Tình huống: Khách hàng gửi email 3 dòng, BA cần clarify trước khi viết User Story.</p>
@@ -1196,10 +1219,10 @@ AC: Given logged in as Sales Manager | When open Dashboard | Then see today's re
 OUT OF SCOPE (Phase 1): Drill-down chi tiết từng deal.</td></tr>
       </table>
 
-      <div class="subh"><span class="rn">III.</span> Pipeline KORA — phân tích Feature từ file tài liệu (DTQC)</div>
-      <p class="uctx">Tình huống: BA có sẵn file DTQC/đặc tả từ khách hàng, cần phân tích &amp; viết tài liệu đầy đủ — KORA chạy pipeline thật từ đầu đến cuối:</p>
+      <div class="subh"><span class="rn">III.</span> Pipeline Claude AI — phân tích Feature từ file tài liệu (DTQC)</div>
+      <p class="uctx">Tình huống: BA có sẵn file DTQC/đặc tả từ khách hàng, cần phân tích &amp; viết tài liệu đầy đủ — Claude AI chạy pipeline thật từ đầu đến cuối:</p>
       <table>
-        <tr><th>Bước</th><th>Lệnh thực tế (KORA)</th><th>Kết quả mong đợi</th></tr>
+        <tr><th>Bước</th><th>Lệnh thực tế (Claude AI)</th><th>Kết quả mong đợi</th></tr>
         <tr><td>1</td><td>Kéo <code>DTQC-QLHopDong.docx</code> vào chat → <code>/kora-import-files</code></td><td>File nạp vào <code>inbox/</code> (chuẩn hoá normalize)</td></tr>
         <tr><td>2</td><td><code>/kora-scan</code> → tổng hợp + reindex</td><td>Wiki liên kết + <code>.kb/index.json</code> ("Indexed N notes")</td></tr>
         <tr><td>3</td><td>Hỏi vai trò = BA + domain → nạp <code>role-ba.md</code> (Prompt 02)</td><td>10–15 câu hỏi clarification theo từng chức năng</td></tr>
@@ -1243,12 +1266,12 @@ Tài liệu cần review:
       <div class="callout"><span>📎</span><div>Tài liệu chuẩn đi kèm: <code>templates/docs/BRD-template.md</code>, <code>PRD-template.md</code> — ví dụ đã điền: <code>templates/examples/BRD-sample-giahan.md</code>, <code>PRD-sample-giahan.md</code>.</div></div>
 
       <h2 class="sec">Kỹ thuật prompt &amp; Daily checklist</h2>
-      <p style="color:var(--muted)">6 kỹ thuật để prompt hiệu quả hơn — phần lớn KORA đã <b>tự áp</b> qua cổng vai trò/domain &amp; thư viện chuẩn, bạn vẫn nên nắm để chủ động:</p>
+      <p style="color:var(--muted)">6 kỹ thuật để prompt hiệu quả hơn — phần lớn Claude AI đã <b>tự áp</b> qua cổng vai trò/domain &amp; thư viện chuẩn, bạn vẫn nên nắm để chủ động:</p>
       <table>
         <tr><th>#</th><th>Kỹ thuật</th><th>Cách dùng</th></tr>
-        <tr><td>1</td><td><b>Cung cấp đủ Context</b></td><td>Nêu rõ dự án là gì, người dùng là ai, industry nào. <i>KORA nhớ vai trò+domain cả phiên (B0) + đọc KB → không phải paste lại.</i></td></tr>
-        <tr><td>2</td><td><b>Role Prompting</b></td><td>"Đóng vai BA senior 10 năm trong fintech…" → điều chỉnh ngôn ngữ, độ sâu, góc nhìn. <i>KORA tự áp theo vai trò chọn ở B0.</i></td></tr>
-        <tr><td>3</td><td><b>Yêu cầu Format cụ thể</b></td><td>Chỉ định bảng / Mermaid / markdown / JSON + độ dài. <i>KORA tự xuất theo ĐỊNH DẠNG CHUẨN của thư viện.</i></td></tr>
+        <tr><td>1</td><td><b>Cung cấp đủ Context</b></td><td>Nêu rõ dự án là gì, người dùng là ai, industry nào. <i>Claude AI nhớ vai trò+domain cả phiên (B0) + đọc KB → không phải paste lại.</i></td></tr>
+        <tr><td>2</td><td><b>Role Prompting</b></td><td>"Đóng vai BA senior 10 năm trong fintech…" → điều chỉnh ngôn ngữ, độ sâu, góc nhìn. <i>Claude AI tự áp theo vai trò chọn ở B0.</i></td></tr>
+        <tr><td>3</td><td><b>Yêu cầu Format cụ thể</b></td><td>Chỉ định bảng / Mermaid / markdown / JSON + độ dài. <i>Claude AI tự xuất theo ĐỊNH DẠNG CHUẨN của thư viện.</i></td></tr>
         <tr><td>4</td><td><b>Phản biện &amp; Review</b></td><td>"Review tài liệu này, chỉ ra điểm thiếu / mâu thuẫn" — cho Claude tự soát lại output.</td></tr>
         <tr><td>5</td><td><b>Iteration — làm từng bước</b></td><td>Chia nhỏ task, chỉnh dần: "Tốt, thêm edge case cho trường hợp timeout."</td></tr>
         <tr><td>6</td><td><b>Daily Session Checklist</b></td><td>Quy trình 7 bước mỗi phiên (xem card bên dưới).</td></tr>
@@ -1260,12 +1283,12 @@ Tài liệu cần review:
 4. Làm TỪNG phần nhỏ (iteration), không hỏi tất cả 1 lúc
 5. REVIEW output (Quality Gate 3 tầng — tab B)
 6. Tóm tắt cuối phiên + trả lời các [CẦN XÁC NHẬN] còn treo
-7. Ghi tri thức đã duyệt → KORA tự reindex + cập nhật changelog</div>
+7. Ghi tri thức đã duyệt → Claude AI tự reindex + cập nhật changelog</div>
       </div>
     </div>
 
     <!-- ===================== GOOD VS BAD ===================== -->
-    <div class="page" id="good-vs-bad">
+    <div class="page hidden" id="good-vs-bad">
       <div class="phead"><div class="pl">G · Output: Tốt vs Chưa tốt</div><h1><span class="em">✅</span>Output mẫu: Tốt vs Chưa tốt</h1></div>
       <p class="lead">8 artifact quan trọng nhất (AC · US · Validation · Test Case · GAP · Business Rule · NFR · API), mỗi cái có ví dụ output <b>chưa tốt</b> (và lý do) cạnh output <b>tốt</b> (và điểm cần có) — chuẩn để tự đánh giá output Claude của bạn.</p>
 
@@ -1484,11 +1507,11 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
     </div>
 
     <!-- ===================== TROUBLESHOOTING ===================== -->
-    <div class="page" id="troubleshooting">
+    <div class="page hidden" id="troubleshooting">
       <div class="phead"><div class="pl">H · Troubleshooting</div><h1><span class="em">🔧</span>Khắc phục sự cố</h1></div>
       <p class="lead">Triệu chứng → nguyên nhân gốc → cách fix ngay. <b>90% vấn đề đến từ thiếu context</b>, không phải Claude kém — thử thêm context domain / ví dụ cụ thể trước khi kết luận "Claude không làm được".</p>
 
-      <div class="secbig">I · Sự cố vận hành KORA</div>
+      <div class="secbig">I · Sự cố vận hành Claude AI</div>
       <table>
         <tr><th>Triệu chứng</th><th>Nguyên nhân &amp; cách xử lý</th></tr>
         <tr><td>Gmail không gửi được</td><td>Chưa bật 2FA hoặc dùng mật khẩu thường thay vì <b>App Password</b>. → bật 2FA → tạo App Password → điền <code>tools/report-mailer/.env.local</code>.</td></tr>
@@ -1531,7 +1554,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
         <tr><td>Screen Spec thiếu logic</td><td>"Màn hình trong workflow [X]. Business rule: [Y]."</td></tr>
       </table>
 
-      <div class="callout warn"><span>🛑</span><div><b>Khi nào bỏ cuộc &amp; làm thủ công:</b> đã iterate <b>3 lần</b> vẫn chưa đạt · domain quá đặc thù (luật / y tế / tài chính phức tạp) mà bạn không đủ context kiểm tra output · tài liệu <b>đã approve</b> (không sửa bằng Claude khi chưa có approval mới). → KORA tự ghi vào <code>.kb/lessons.md</code>: "Claude chưa xử lý tốt task [X] trong context [Y]" để lần sau không lặp lỗi (tự học, CLAUDE.md §0.3).</div></div>
+      <div class="callout warn"><span>🛑</span><div><b>Khi nào bỏ cuộc &amp; làm thủ công:</b> đã iterate <b>3 lần</b> vẫn chưa đạt · domain quá đặc thù (luật / y tế / tài chính phức tạp) mà bạn không đủ context kiểm tra output · tài liệu <b>đã approve</b> (không sửa bằng Claude khi chưa có approval mới). → Claude AI tự ghi vào <code>.kb/lessons.md</code>: "Claude chưa xử lý tốt task [X] trong context [Y]" để lần sau không lặp lỗi (tự học, CLAUDE.md §0.3).</div></div>
 
       <h2 class="sec">Giới hạn &amp; xử lý Hallucination</h2>
       <p style="color:var(--muted)">Claude là <b>bộ khuếch đại</b>, KHÔNG thay phán đoán con người. Biết <b>khi nào KHÔNG nên</b> dùng Claude độc lập + nhận diện hallucinate:</p>
@@ -1550,19 +1573,19 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
         <tr><td>Output mâu thuẫn context vừa cung cấp</td><td>"Chỉ dựa vào tài liệu tôi paste / KB, không dùng thông tin ngoài"</td></tr>
         <tr><td>Tự bịa tên nhân vật / tổ chức không tồn tại</td><td>Nếu vẫn sai → làm thủ công phần đó</td></tr>
       </table>
-      <div class="callout ok"><span>🛡️</span><div><b>KORA chống hallucinate sẵn:</b> bám tri thức KB + <b>trích nguồn theo file</b> (CLAUDE.md §1); thiếu thông tin → <code>[CẦN XÁC NHẬN]</code> (chuyên môn → <code>[CẦN XÁC NHẬN CHUYÊN MÔN]</code>), <b>không bịa</b>; mọi tri thức phải có trong <code>.kb/source-registry.json</code>.</div></div>
+      <div class="callout ok"><span>🛡️</span><div><b>Claude AI chống hallucinate sẵn:</b> bám tri thức KB + <b>trích nguồn theo file</b> (CLAUDE.md §1); thiếu thông tin → <code>[CẦN XÁC NHẬN]</code> (chuyên môn → <code>[CẦN XÁC NHẬN CHUYÊN MÔN]</code>), <b>không bịa</b>; mọi tri thức phải có trong <code>.kb/source-registry.json</code>.</div></div>
     </div>
 
     <!-- ===================== RELEASE ===================== -->
-    <div class="page" id="release">
+    <div class="page hidden" id="release">
       <div class="phead"><div class="pl">I · Release Note</div><h1><span class="em">🆕</span>Lịch sử phiên bản</h1></div>
       <p class="lead">Lịch sử bản <b>APP</b> (CORE: skills, workflows, tools…). Cập nhật: chạy lại lệnh cài (bash CLI, tab <a data-go="install" style="cursor:pointer">C</a>) — <b>tri thức của bạn được giữ nguyên</b> (DATA không bị đụng).</p>
 
-      <div class="callout ok"><span>🆕</span><div><b>Bản mới nhất (latest): <code>v2.9.9</code> — "Kora-1"</b> · phát hành 2026-06-22. Tổng <b>50 bản</b>; danh sách đầy đủ ở <a href="https://github.com/isc-fkit/Kora-Framework/blob/release/CHANGELOG.md">CHANGELOG.md</a>.</div></div>
+      <div class="callout ok"><span>🆕</span><div><b>Bản mới nhất (latest): <code>v2.9.9</code> — "Claude-1"</b> · phát hành 2026-06-22. Tổng <b>50 bản</b>; danh sách đầy đủ ở <a href="https://github.com/isc-fkit/Kora-Framework/blob/release/CHANGELOG.md">CHANGELOG.md</a>.</div></div>
 
       <div class="card" style="border-color:var(--accent)">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.9.9 — "Kora-1" <span style="display:inline-block;margin-left:6px;padding:2px 9px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;font-size:10.5px;font-weight:800;vertical-align:2px">MỚI NHẤT</span></b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
+          <b style="font-size:16px">v2.9.9 — "Claude-1" <span style="display:inline-block;margin-left:6px;padding:2px 9px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;font-size:10.5px;font-weight:800;vertical-align:2px">MỚI NHẤT</span></b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>📧 Banner email hiện ngay trong Outlook</b>: sửa nhúng ảnh CID — Content-ID bọc ngoặc nhọn <code>&lt;kora-banner&gt;</code> (đúng RFC 2392) + <code>Content-Disposition: inline</code> → hết phải bấm "tin cậy/tải ảnh" cho người nhận lần đầu.</li>
@@ -1571,7 +1594,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
 
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.9.8 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
+          <b style="font-size:16px">v2.9.8 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>🖥️ Cowork hỏi "cập nhật tiến độ" → tự phân tích → gửi mail</b>: PM/PO hỏi bằng lời → tự kéo Jira về local + reindex + phân tích + báo cáo → đề xuất gửi mail.</li>
@@ -1581,7 +1604,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
 
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.9.7 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
+          <b style="font-size:16px">v2.9.7 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>🔌 Kết nối API GitHub & GitLab hoàn chỉnh</b>: sau verify, connect <b>liệt kê repo (GitHub) / project (GitLab) để CHỌN</b> — không gõ tay.</li>
@@ -1591,7 +1614,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
 
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.9.6 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
+          <b style="font-size:16px">v2.9.6 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>📱 Banner email full-width trên mobile</b>: hết khoảng trắng 2 bên trên điện thoại (thêm meta viewport + media query full-bleed); desktop vẫn card 600px căn giữa.</li>
@@ -1601,7 +1624,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
 
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.9.5 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
+          <b style="font-size:16px">v2.9.5 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>🧭 Quét Jira ghi ĐÚNG vault</b>: import_jira nay đọc <code>vault_path</code> từ config project và ghi note vào đúng vault đó (khớp build_report) — hết cảnh ghi nhầm <code>KB-Vault</code> rồi báo cáo đọc rỗng/lệch. Thêm cờ <code>--vault</code>. <i>(Đã lỡ quét vào KB-Vault → quét lại hoặc di chuyển + reindex.)</i></li>
@@ -1610,7 +1633,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
 
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.9.4 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
+          <b style="font-size:16px">v2.9.4 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>🗂️ Hết "Error writing file" khi tạo báo cáo</b>: build_report nay ghi report + đọc config/vault theo <b>thư mục PROJECT</b> đang chạy (cwd) thay vì vị trí script → bản cài chạy trong project tạo đúng <code>reports/</code>, hết lỗi ghi file phân tích AI. Thêm phòng thủ <code>mkdir -p reports</code>.</li>
@@ -1619,7 +1642,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
 
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.9.3 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
+          <b style="font-size:16px">v2.9.3 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>🃏 Hết lỗi thẻ chọn "Invalid tool parameters"</b>: bổ sung hợp đồng schema AskUserQuestion vào CLAUDE.md rule #8 — header ≤12 ký tự, mỗi lựa chọn có mô tả, tối đa 4 (nhiều hơn thì phân trang). Lỗi ở "Gửi ngay hay đặt lịch?" thường do header quá dài.</li>
@@ -1628,7 +1651,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
 
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.9.2 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
+          <b style="font-size:16px">v2.9.2 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>🆕 Report đính kèm luôn MỚI &amp; khác tên</b>: file đính kèm đổi tên có ngày-giờ mỗi lần (<code>progress-report-&lt;ngày-giờ&gt;.html</code>) → client mail không lấy bản cũ; guard chống gửi báo cáo cũ hơn 30' (bắt build lại).</li>
@@ -1639,7 +1662,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
 
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.9.1 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
+          <b style="font-size:16px">v2.9.1 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>🕘 Tên file report gắn NGÀY-GIỜ tạo</b>: file trong thư mục ngày nay đặt tên kèm ngày-giờ — <code>reports/&lt;ngày&gt;/progress-report-&lt;YYYY-MM-DD_HHMM&gt;.html</code> (+ email-body & data). Chạy nhiều lần/ngày = nhiều bản riêng, không ghi đè. Bản <code>-latest</code> ở gốc giữ nguyên cho mailer.</li>
@@ -1648,7 +1671,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
 
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.9.0 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
+          <b style="font-size:16px">v2.9.0 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>🧩 Field Complexity làm TRỌNG TÂM</b>: nạp field Jira "Complexity" (≥7 = phức tạp cao) → section nổi bật (KPI + bar phân bố tô đỏ + bảng issue điểm cao) trong email & dashboard; AI ưu tiên. Cấu hình <code>jira.complexity_field/complexity_high</code>.</li>
@@ -1659,7 +1682,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
 
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.8.9 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
+          <b style="font-size:16px">v2.8.9 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>🕛 Chuẩn mốc tính ngày-công</b>: HÔM NAY chỉ tính vào "ngày làm việc đã hoàn thành" <b>SAU 24:00 (hết ngày)</b>, không phải 17:00. Report bất kỳ lúc nào trong ngày (8:00/12:00/18:00) đều không báo "thiếu 8h" oan cho hôm nay. Mặc định 24h (env <code>KORA_WORKDAY_END_HOUR</code> đổi được).</li>
@@ -1668,7 +1691,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
 
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.8.8 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
+          <b style="font-size:16px">v2.8.8 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>🐞 FIX tính sai năng suất khi report đầu ngày</b> (hôm nay không tính khi ngày chưa xong — chuẩn lại mốc ở v2.8.9).</li>
@@ -1678,7 +1701,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
 
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.8.7 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
+          <b style="font-size:16px">v2.8.7 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>🎯 Giới hạn PHẠM VI báo cáo cho dự án lớn</b>: hỏi <b>[Sprint đang chạy] / [N ngày — mặc định 30] / [Toàn bộ]</b>. <code>build_report --scope sprint|recent|all --recent-days N</code> → không lấy hết.</li>
@@ -1688,7 +1711,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
 
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.8.6 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
+          <b style="font-size:16px">v2.8.6 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>🖼️ Banner email HẾT bị Outlook chặn</b>: nhúng <b>CID inline</b> (Outlook/Gmail hiện ngay, không cần "trust sender") + tối ưu ảnh <b>1.8MB → 547KB</b>; truyền <code>--banner</code> bền (không phụ thuộc cwd).</li>
@@ -1698,7 +1721,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
 
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.8.5 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
+          <b style="font-size:16px">v2.8.5 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>🔄 Lịch nền (report/mail) PULL dữ liệu server TRƯỚC khi build</b> — từ <b>MỌI nguồn Jira API</b> trong scan-list (trước chỉ nguồn đầu tiên). Mỗi nguồn chỉ quét project nó có (list-projects ∩ report.projects), best-effort.</li>
@@ -1708,7 +1731,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
 
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.8.4 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
+          <b style="font-size:16px">v2.8.4 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>🐞 FIX báo cáo Jira chỉ quét được Jira API</b> dù đã connect cả Jira MCP (Atlassian Rovo lưu dưới <code>source_type: atlassian</code> → bị bỏ qua; scan hardcode 1 cấu hình API).</li>
@@ -1719,7 +1742,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
 
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.8.3 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
+          <b style="font-size:16px">v2.8.3 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>🐞 FIX gửi mail báo "thiếu SMTP_USER/SMTP_PASS" dù đã điền <code>.env.local</code></b>: script CORE (bản cài) đọc nhầm file cạnh nó, không phải file trong project.</li>
@@ -1730,10 +1753,10 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
 
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.8.2 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
+          <b style="font-size:16px">v2.8.2 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
-          <li><b>✉️ Tên người gửi tuỳ biến</b> (<code>MAIL_FROM_NAME</code>, mặc định "Kora AI Daily Report") → người nhận thấy <b>"Kora AI Daily Report &lt;tài khoản&gt;"</b> thay vì email trơ.</li>
+          <li><b>✉️ Tên người gửi tuỳ biến</b> (<code>MAIL_FROM_NAME</code>, mặc định "Claude AI Daily Report") → người nhận thấy <b>"Claude AI Daily Report &lt;tài khoản&gt;"</b> thay vì email trơ.</li>
           <li><b>🙅 Bỏ auto-điền email cá nhân</b>: <code>/kora-connect</code> Gmail SMTP nay HỎI <b>tài khoản gửi chuyên dụng</b> (vd ftel.medicare@gmail.com), không nhồi email đăng nhập của bạn.</li>
           <li><b>🧩 <code>.env.local.example</code> chuẩn hơn</b>: tài khoản chuyên dụng + <code>MAIL_FROM_NAME</code>.</li>
         </ul>
@@ -1741,7 +1764,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
 
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.8.1 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
+          <b style="font-size:16px">v2.8.1 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>🎨 Phân tích AI trong email = CARD MÀU theo mục</b> (bỏ chip): 🔴 rủi ro cao · 🟡 vừa · 🟢 tích cực · 👥 thành viên · 📅 dự đoán · 🎯 hành động · 📌 tóm tắt — mỗi mục một màu, dễ quan sát.</li>
@@ -1753,7 +1776,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
 
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.8.0 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
+          <b style="font-size:16px">v2.8.0 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>🤖 Lịch nền tự động trọn vẹn</b>: phân tích AI chạy headless <b>không kẹt prompt</b> (bypass quyền) + tự <b>chèn phân tích AI vào email</b> rồi gửi.</li>
@@ -1766,7 +1789,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
 
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.7.0 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
+          <b style="font-size:16px">v2.7.0 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>✉️ Email báo cáo pro hơn</b>: luôn có banner header (ảnh GitHub) + card + progress + responsive.</li>
@@ -1777,7 +1800,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
 
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.6.0 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
+          <b style="font-size:16px">v2.6.0 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>🆕 <code>/kora-ops-password</code></b>: đặt mật khẩu admin 1 lần (<code>~/.config/kora/ops-pw.env</code>) — có hiệu lực <b>ngay</b>, hết cảnh "set env mà terminal chưa nhận". Bước <b>1b</b> tùy chọn sau init.</li>
@@ -1788,7 +1811,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
 
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.5.5 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
+          <b style="font-size:16px">v2.5.5 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>🐞 <code>/kora-connect</code> đọc đúng config PROJECT</b> (thêm <code>--config</code>) — hết lỗi "unrecognized arguments: --config" / không thấy nguồn đã kết nối.</li>
@@ -1798,7 +1821,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
 
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.5.4 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
+          <b style="font-size:16px">v2.5.4 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>🐞 <code>/kora-version</code> + <code>/kora-update</code> nhận bản mới đúng</b>: đọc <code>version.json</code> theo SHA commit (immutable) thay vì branch-raw bị CDN cache.</li>
@@ -1808,7 +1831,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
 
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.5.3 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
+          <b style="font-size:16px">v2.5.3 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>🐞 Sửa BUG cập nhật</b>: trước đây "cập nhật" chỉ đổi CORE mà không refresh skill ở <code>~/.claude/commands/</code> → fix skill không tới user. Nay updater tự refresh skill.</li>
@@ -1818,7 +1841,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
 
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.5.2 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
+          <b style="font-size:16px">v2.5.2 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>🐞 Quét lại Jira → Obsidian IDEMPOTENT</b>: mỗi issue chỉ 1 file; đổi tiêu đề/đổi loại không còn để lại file rác trùng (dọn file cũ cùng key).</li>
@@ -1828,7 +1851,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
 
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.5.1 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
+          <b style="font-size:16px">v2.5.1 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>🐞 Vá <code>/kora-connect</code></b>: chọn [API] không còn lỗi "Invalid tool parameters" — danh sách nguồn API nay <b>phân trang</b> (≤4 option/thẻ).</li>
@@ -1839,7 +1862,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
 
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.5.0 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
+          <b style="font-size:16px">v2.5.0 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>🆕 <code>/kora-init</code> chọn NHIỀU / TẤT CẢ domain</b> (trước chỉ 1) — rule <b>GỘP</b> từ tất cả domain đã chọn (mỗi domain 1 mục trong <code>domain-rules.md</code>).</li>
@@ -1850,7 +1873,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
 
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.4.0 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
+          <b style="font-size:16px">v2.4.0 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>🆕 SharePoint thành đích/nguồn KB</b> — tool mới <code>tools/sharepoint-sync</code> (Microsoft Graph); <code>/kora-sync</code> đẩy KB lên SharePoint (idempotent) cạnh Confluence/GitHub.</li>
@@ -1862,7 +1885,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
 
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.3.4 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
+          <b style="font-size:16px">v2.3.4 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>🐞 Sửa lỗi installer kéo về bản cũ</b> (archive nhánh bị CDN cache) — nay tải theo <b>SHA commit mới nhất</b> (4 script install/update).</li>
@@ -1873,7 +1896,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
 
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.3.3 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
+          <b style="font-size:16px">v2.3.3 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>Cổng vai trò hỏi theo TÍNH NĂNG</b> (không "1 lần/phiên") — mỗi yêu cầu/tính năng mới → hỏi lại vai trò/domain/template.</li>
@@ -1884,7 +1907,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
 
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.3.2 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
+          <b style="font-size:16px">v2.3.2 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>Windows toàn diện như macOS/Linux</b> — import-kb.bat nhận gói archive USER (marker · key READ · cred báo lỗi · py).</li>
@@ -1897,7 +1920,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
 
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.3.1 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
+          <b style="font-size:16px">v2.3.1 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>Lịch nền chạy LOCAL ngoài sandbox</b> — gọi API + gửi mail được (Cowork sandbox chặn); vá lỗi orchestrator không nạp <code>KORA_OPS_PW</code>.</li>
@@ -1910,7 +1933,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
 
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.3.0 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
+          <b style="font-size:16px">v2.3.0 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>Lịch HĐH chạy đúng NHIỀU MỐC GIỜ + THỨ 2–6</b> trên macOS/Linux/Windows (vá launchd chỉ chạy mốc đầu &amp; schtasks <code>1-5</code> hóa <code>MON,FRI</code>).</li>
@@ -1923,7 +1946,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
 
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.2.0 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-19</span>
+          <b style="font-size:16px">v2.2.0 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-19</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>Knowledge Base đám mây chung (Confluence get &amp; post)</b> — <code>confluence-sync</code>: push/pull idempotent, OAuth 2.0 / token.</li>
@@ -1935,7 +1958,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
 
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.1.0 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-18</span>
+          <b style="font-size:16px">v2.1.0 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-18</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>Cài bằng installer</b> <code>.command</code>/<code>.bat</code> (+ <code>curl|bash</code>) vào <code>~/.claude</code>; chạy lại = cập nhật.</li>
@@ -1947,7 +1970,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
 
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.0.0 — "Kora-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-17</span>
+          <b style="font-size:16px">v2.0.0 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-17</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>Đổi thương hiệu → Kora-Framework</b> + dời repo <code>isc-fkit/Kora-Framework</code>.</li>
@@ -2053,7 +2076,7 @@ Trạng thái: Pass / Fail / Blocked</code></pre></div>
       </table>
 
       <h2 class="sec">V · Project Brief (Claude.ai Projects Instructions)</h2>
-      <p style="color:var(--muted)">Paste vào <b>Project Instructions</b> 1 lần — dùng mãi. (Trong KORA, role prompt + domain rule được nạp tự động; bản này là phương án thủ công khi dùng Claude.ai thuần.)</p>
+      <p style="color:var(--muted)">Paste vào <b>Project Instructions</b> 1 lần — dùng mãi. (Trong Claude AI, role prompt + domain rule được nạp tự động; bản này là phương án thủ công khi dùng Claude.ai thuần.)</p>
       <div class="code"><div class="code-head"><span>Project Brief</span><button class="copy">Copy</button></div>
 <pre><code>Bạn là Business Analyst senior hỗ trợ tôi trong dự án [Tên dự án].
 
@@ -2084,19 +2107,19 @@ Trạng thái: Pass / Fail / Blocked</code></pre></div>
       <p style="color:var(--muted)">Tất cả trong <code>config/factory-config.yaml</code> (DATA, gitignore) — mẫu <code>factory-config.example.yaml</code>. Mọi giá trị động (đường dẫn, domain, vault, lịch, target sync, người nhận mail, banner) — không hardcode. Mã nguồn: <a href="https://github.com/isc-fkit/Kora-Framework">github.com/isc-fkit/Kora-Framework</a>.</p>
 
       <h2 class="sec">VII · Tiêu chuẩn ngành &amp; tài liệu tham khảo</h2>
-      <p style="color:var(--muted)">KORA bám các <b>chuẩn mở</b> khi xây dựng &amp; tài liệu hóa một framework lớn — README, versioning, changelog, commit, cấu hình, license:</p>
+      <p style="color:var(--muted)">Claude AI bám các <b>chuẩn mở</b> khi xây dựng &amp; tài liệu hóa một framework lớn — README, versioning, changelog, commit, cấu hình, license:</p>
       <table>
         <tr><th>Lĩnh vực</th><th>Chuẩn / tài liệu tham khảo</th></tr>
         <tr><td><b>README &amp; cấu trúc tài liệu</b></td><td><a href="https://www.makeareadme.com/" target="_blank" rel="noopener">Make a README</a> · <a href="https://github.com/RichardLitt/standard-readme" target="_blank" rel="noopener">Standard Readme</a> · <a href="https://diataxis.fr/" target="_blank" rel="noopener">Diátaxis</a> (tutorial · how-to · reference · explanation)</td></tr>
-        <tr><td><b>Phiên bản (versioning)</b></td><td><a href="https://semver.org/lang/vi/" target="_blank" rel="noopener">Semantic Versioning 2.0</a> — KORA: <code>vX.Y.Z</code> "Kora-1"</td></tr>
+        <tr><td><b>Phiên bản (versioning)</b></td><td><a href="https://semver.org/lang/vi/" target="_blank" rel="noopener">Semantic Versioning 2.0</a> — Claude AI: <code>vX.Y.Z</code> "Claude-1"</td></tr>
         <tr><td><b>Changelog</b></td><td><a href="https://keepachangelog.com/vi/1.0.0/" target="_blank" rel="noopener">Keep a Changelog</a> — <code>CHANGELOG.md</code> theo bản, kèm migration note</td></tr>
         <tr><td><b>Commit message</b></td><td><a href="https://www.conventionalcommits.org/" target="_blank" rel="noopener">Conventional Commits</a></td></tr>
-        <tr><td><b>Cấu hình ứng dụng</b></td><td><a href="https://12factor.net/" target="_blank" rel="noopener">The Twelve-Factor App</a> — config qua env (KORA: token ở shell env, không hardcode)</td></tr>
+        <tr><td><b>Cấu hình ứng dụng</b></td><td><a href="https://12factor.net/" target="_blank" rel="noopener">The Twelve-Factor App</a> — config qua env (Claude AI: token ở shell env, không hardcode)</td></tr>
         <tr><td><b>Open source &amp; license</b></td><td><a href="https://opensource.guide/" target="_blank" rel="noopener">Open Source Guides</a> · <a href="https://www.contributor-covenant.org/" target="_blank" rel="noopener">Contributor Covenant</a> · <a href="https://choosealicense.com/" target="_blank" rel="noopener">Choose a License</a></td></tr>
       </table>
       <div class="callout"><span>📄</span><div><b>Tài liệu dự án (GitHub Pages / repo):</b> <a href="https://github.com/isc-fkit/Kora-Framework/blob/release/README.md" target="_blank" rel="noopener">README.md</a> · <a href="https://github.com/isc-fkit/Kora-Framework/blob/release/CHANGELOG.md" target="_blank" rel="noopener">CHANGELOG.md</a> · <a href="https://github.com/isc-fkit/Kora-Framework/releases" target="_blank" rel="noopener">Releases</a> · trang giới thiệu này được deploy qua GitHub Pages.</div></div>
 
-      <footer><b>FPT Telecom</b> · KORA AI — Kora-1 · <a href="https://github.com/isc-fkit/Kora-Framework">GitHub</a> · theo Semantic Versioning &amp; Keep a Changelog</footer>
+      <footer><b>FPT Telecom</b> · Claude AI — Claude-1 · <a href="https://github.com/isc-fkit/Kora-Framework">GitHub</a> · theo Semantic Versioning &amp; Keep a Changelog</footer>
     </div>
 
   </main>
@@ -2106,7 +2129,8 @@ Trạng thái: Pass / Fail / Blocked</code></pre></div>
   var pages = Array.prototype.slice.call(document.querySelectorAll('.page'));
   var links = Array.prototype.slice.call(document.querySelectorAll('[data-go]'));
   function go(id){
-    if(!document.getElementById(id)) id = 'home';
+    var t = document.getElementById(id);
+    if(!t || t.classList.contains('hidden')) id = 'home';   // mục ẩn (v2.10.0) → về Trang chủ, không hiện trang trống
     pages.forEach(function(p){ p.classList.toggle('active', p.id===id); });
     document.querySelectorAll('.nav a').forEach(function(a){ a.classList.toggle('active', a.getAttribute('data-go')===id); });
     if(location.hash.slice(1)!==id) history.replaceState(null,'','#'+id);

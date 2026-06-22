@@ -1,13 +1,13 @@
 <div align="center">
 
-# 🦊 KORA AI — Framework
+# 🦊 Claude AI — Framework
 
 ### Bộ não thứ hai tự lớn lên cùng dự án
 
 **Kết nối đa nguồn → Tổng hợp tri thức → Đồng bộ Cloud KB chung → Tự động báo cáo & cảnh báo**
 
-[![Version](https://img.shields.io/badge/version-2.9.9-2f7bff)](./version.json)
-[![Codename](https://img.shields.io/badge/codename-Kora--1-5b9bff)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2.10.0-2f7bff)](./version.json)
+[![Codename](https://img.shields.io/badge/codename-Claude--1-5b9bff)](./CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-444)](#-cài-đặt)
 [![Claude](https://img.shields.io/badge/runs%20in-Claude%20CLI%20%2B%20Desktop-7c5cff)](https://claude.ai/code)
 [![By FPT Telecom](https://img.shields.io/badge/by-FPT%20Telecom-ff7a00)](https://fpt.vn)
@@ -17,7 +17,7 @@
 <a href="#-các-lệnh-kora"><b>📚 Lệnh</b></a> ·
 <a href="#-bảo-mật--khóa-token"><b>🔐 Bảo mật</b></a>
 
-<img src="assets/flow.png" alt="KORA AI — Sơ đồ nguyên lý hoạt động" width="900">
+<img src="assets/flow.png" alt="Claude AI — Sơ đồ nguyên lý hoạt động" width="900">
 
 </div>
 
@@ -196,4 +196,4 @@ landing (`index.html`) → giữ nguyên `version.json`. Xem `RELEASING.md`.
 
 ---
 
-<div align="center"><sub>Made with 🦊 by <b>FPT Telecom</b> · KORA AI — Kora-1</sub></div>
+<div align="center"><sub>Made with 🦊 by <b>FPT Telecom</b> · Claude AI — Claude-1</sub></div>
