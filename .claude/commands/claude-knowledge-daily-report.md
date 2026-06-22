@@ -37,7 +37,7 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
 6. Build dashboard **scope đúng project + phạm vi**: `python3 "$T/progress-report/build_report.py" --projects "<KEYS>"`
    **`--scope <SCOPE> --recent-days <NDAYS>`** (nếu SCOPE≠all — lọc sprint active / N ngày) per
    `workflows/14-progress-report.md` — inline Cowork UI + HTML. Báo cáo hiện **nhãn phạm vi** (vd "Sprint đang chạy").
-- The dashboard MUST include an **🤖 AI analysis** block (workflow 14 — Bước 1.5): issue health
+- The dashboard MUST include an **🤖 AI analysis** block (workflow 14 — Bước 1.5): hạng mục công việc health
   classification (🟢/🟡/🔴), **timeline-slip prediction per active sprint** (with reasoning),
   per-member recommendations, risk-resolution suggestions, and a 1–2 sentence executive summary —
   written by Claude from the data, never made up.

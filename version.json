@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.12.0",
+  "version": "2.12.1",
   "codename": "Claude-1",
-  "released": "2026-06-22",
+  "released": "2026-06-23",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
-  "force": true,
-  "intro": "Kora-Framework v2.12.0 (ĐỔI TÊN SKILL: /kora-* → /claude-knowledge-*): 19 lệnh đổi tiền tố — /kora-scan→/claude-knowledge-scan, /kora-connect→/claude-knowledge-connect, /kora-send-mail→/claude-knowledge-send-mail… Cập nhật sẽ TỰ GỠ lệnh /kora-* cũ và cài /claude-knowledge-* mới (migration sạch). File sinh ra cũng đổi: reports/claude-knowledge-scan.command, .claude-knowledge-user, ~/.config/claude-knowledge/ops-pw.env — đều CÓ backward-compat (đọc cả path cũ nên máy đã đặt mật khẩu/đã import không vỡ). Trang giới thiệu đổi 'Claude AI' → 'Claude Knowledge AI'. GIỮ NGUYÊN: biến KORA_* (mật khẩu/mailer env), thư mục cài ~/.claude/kora-framework, repo isc-fkit/Kora-Framework. Bản QUAN TRỌNG (force) — nên cập nhật để lệnh đồng bộ tên mới."
+  "force": false,
+  "intro": "Kora-Framework v2.12.1 (rõ nghĩa thuật ngữ — bỏ từ 'issue'): thay từ 'issue' (gộp chung Epic/US/Task/Bug gây mơ hồ) bằng 'hạng mục công việc' ('Hạng mục' trong bảng/cột) ở MỌI text hiển thị — trang giới thiệu, báo cáo (dashboard + email), hướng dẫn, CLI. 'ticket issue' (sự cố lịch) → 'ticket sự cố'; 'issue-type/issue-link' → 'loại/liên kết hạng mục'. GIỮ NGUYÊN field/API Jira (issuetype, jira_issue_type, /rest/api/2/issue), biến code, config key ticket_issue. Thuần đổi chữ, không đổi logic."
 }

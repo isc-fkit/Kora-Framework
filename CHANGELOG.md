@@ -10,6 +10,18 @@
 
 ---
 
+## v2.12.1 "Claude-1" — 2026-06-23
+
+**Rõ nghĩa thuật ngữ — bỏ từ "issue" trong text hiển thị.** Quét Jira gồm Epic / User Story / Task / Bug; gộp chung gọi "issue" gây mơ hồ.
+
+- **"issue" → "hạng mục công việc"** ("Hạng mục" rút gọn trong bảng/cột) ở MỌI text người đọc: trang giới thiệu landing,
+  báo cáo (dashboard HTML + thân email: cột, KPI, biểu đồ, AI-prompt), hướng dẫn (CLAUDE.md, workflows, skill), CLI.
+- **Phân biệt nghĩa khác:** "ticket issue / issue ticket" (sự cố lịch nền) → **"ticket sự cố"**; "issue-type" →
+  "loại hạng mục công việc"; "issue-link" → "liên kết hạng mục".
+- **GIỮ NGUYÊN (code/API, không phải text):** field Jira `issuetype` · `jira_issue_type` · `/rest/api/2/issue` ·
+  biến/hàm code (`issues`, `issue_group`…) · config key `scheduler.ticket_issue` · MCP `…JiraIssue…`.
+- Thuần đổi chữ, KHÔNG đổi logic. Máy đã cài: gõ **"cập nhật phiên bản"**.
+
 ## v2.12.0 "Claude-1" — 2026-06-22
 
 **ĐỔI TÊN SKILL `/kora-*` → `/claude-knowledge-*` (19 lệnh) + thương hiệu landing "Claude Knowledge AI".** ⚠️ Bản `force`.

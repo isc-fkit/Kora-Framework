@@ -24,7 +24,7 @@ python3 tools/kb-sync/version_mark.py --root . --dry-run   # liệt kê cặp ph
 ```
 ✋ confirm → `python3 tools/kb-sync/version_mark.py --root . --apply` (giữ US cũ + `superseded` +
 banner + link CR; thêm cạnh `supersedes`). Rồi reindex: `python3 tools/kb-indexer/build_index.py --root .`.
-> Đồ thị thiếu `link_type` (quét bằng bản cũ) → chỉ nhận theo issue-type; nhắc user **quét lại nguồn** cho đủ.
+> Đồ thị thiếu `link_type` (quét bằng bản cũ) → chỉ nhận theo loại hạng mục công việc; nhắc user **quét lại nguồn** cho đủ.
 
 ## Bước 4 — Xem trước (Gate 2)
 ```

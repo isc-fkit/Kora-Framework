@@ -13,7 +13,7 @@ Mỗi lần chạy gọi `orchestrator.py --run <id>` — script Python thuần 
 
 ## orchestrator.py — chu trình 1 lượt
 SCAN nguồn (lỗi thì **skip + ghi log**) → reindex → **POST lên Confluence chung** → đánh dấu
-độ mới → sinh report → gửi mail (chỉ **HOST**) → **có lỗi thì tạo TICKET ISSUE + email** danh
+độ mới → sinh report → gửi mail (chỉ **HOST**) → **có lỗi thì tạo TICKET SỰ CỐ + email** danh
 sách nhận. Không fail im; exit 0/2/1 = ok/partial/failed. Ghi `reports/scheduler-logs/last-run-<id>.json`.
 
 ## schedule.py — đăng ký / liệt kê / sửa / gỡ

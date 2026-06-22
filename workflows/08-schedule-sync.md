@@ -55,7 +55,7 @@
    (`schedule.py edit`), **bật/tắt** bằng `schedule.py enable|disable --id <slug>` (tắt = gỡ artifact OS
    nhưng GIỮ trong danh sách → bật lại được), gỡ hẳn bằng `schedule.py remove --id <slug>`. Log ở `reports/scheduler-logs/`.
 
-> Lỗi khi chạy nền: orchestrator **skip nguồn lỗi + ghi log**, cuối lượt **tạo ticket issue**
+> Lỗi khi chạy nền: orchestrator **skip nguồn lỗi + ghi log**, cuối lượt **tạo ticket sự cố**
 > (`scheduler.ticket_issue.target` = confluence|jira) **và email** `scheduler.error_recipients`
 > (rỗng → `reports.email.to`). Idempotent theo ngày, có `.lock` chống chồng lượt.
 
@@ -70,8 +70,8 @@
 
 - **Chạy tại máy bạn khi app Claude đang mở** — KHÔNG phải cron đám mây chạy 24/7.
 - **Đặt 9h mà 9h máy tắt / app đóng?** → task **chạy bù NGAY lần mở app kế tiếp** (vd 10h);
-  không sót gì vì `--since` lấy mọi issue cập nhật **kể từ lần đồng bộ trước**.
-- **Chỉ lấy MỚI:** mỗi lần chạy `import_jira.py --since` chỉ kéo issue tạo/sửa từ mốc lần
+  không sót gì vì `--since` lấy mọi hạng mục công việc cập nhật **kể từ lần đồng bộ trước**.
+- **Chỉ lấy MỚI:** mỗi lần chạy `import_jira.py --since` chỉ kéo hạng mục công việc tạo/sửa từ mốc lần
   trước rồi merge vào vault — không quét lại từ đầu.
 - Cron tính theo **giờ địa phương** của máy.
 - Mạng: chạy ở máy user nên dùng mạng/VPN của user → tới được cả Jira nội bộ
@@ -80,7 +80,7 @@
 
 ## Bước 1 — Hỏi tần suất
 
-> "Bạn muốn tự động lấy issue mới/cập nhật từ Jira bao lâu một lần?"
+> "Bạn muốn tự động lấy hạng mục công việc mới/cập nhật từ Jira bao lâu một lần?"
 > - [A] Mỗi sáng (vd 8:00) — khuyến nghị
 > - [B] Mỗi giờ làm việc
 > - [C] Hằng tuần (thứ Hai)
@@ -93,8 +93,8 @@ Gọi `mcp__scheduled-tasks__create_scheduled_task` với:
 - `prompt`: nội dung để phiên tự động chạy, đại ý:
 
   > "Chạy đồng bộ Jira tăng dần cho project này: vào `tools/jira-to-obsidian`,
-  > chạy `python3 import_jira.py --since`. Đọc kết quả, nếu có issue mới/cập nhật thì
-  > tóm tắt ngắn gọn (bao nhiêu issue, thuộc project/epic nào) và báo cho tôi.
+  > chạy `python3 import_jira.py --since`. Đọc kết quả, nếu có hạng mục công việc mới/cập nhật thì
+  > tóm tắt ngắn gọn (bao nhiêu hạng mục công việc, thuộc project/epic nào) và báo cho tôi.
   > KHÔNG ghi vào KB chính — chỉ cập nhật vault raw + relation graph. Có gì đáng chú ý
   > (vd story mới chưa có AC) thì nêu để tôi xử lý sau."
 
@@ -109,7 +109,7 @@ Mỗi nguồn = một file cấu hình riêng + một scheduled task riêng:
 - Mốc `--since` tách riêng theo host (`last-import-<host>.txt`) → 2 nguồn KHÔNG đè nhau;
   notes mỗi project ở thư mục riêng; quét full giờ cũng **merge** an toàn, không xoá nguồn kia.
 - ⚠️ **Tránh 2 Jira trùng MÃ project** (vd cả hai đều có `PROJ`): node graph định danh theo mã
-  issue → trùng mã sẽ đè nhau. Đặt `PROJECT_KEYS` không giao nhau giữa các nguồn.
+  hạng mục công việc → trùng mã sẽ đè nhau. Đặt `PROJECT_KEYS` không giao nhau giữa các nguồn.
 
 ## Xử lý lỗi khi chạy nền
 

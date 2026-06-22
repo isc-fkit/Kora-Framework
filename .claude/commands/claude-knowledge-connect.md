@@ -125,4 +125,4 @@ ESC hoặc [← Huỷ] = dừng, **KHÔNG ghi gì** vào `connections:`.
 Kết thúc — **KHÔNG dead-end** (verify xong phải dẫn user đi tiếp, đừng dừng im): báo (các) nguồn/sub-service đã
 kết nối, rồi đề xuất bước kế (AskUserQuestion, **item đầu = QUÉT NGAY**): **[A] Quét & lấy dữ liệu ngay
 (`/claude-knowledge-scan`)** — SharePoint: *search thư mục (path) → chọn folder → get data về vault*; Outlook: *search email
-→ get*; Jira/Confluence: lấy issue/trang · **[B] Kết nối nguồn khác** · **[C] Đặt lịch đồng bộ** · **[D] Dừng**.
+→ get*; Jira/Confluence: lấy hạng mục công việc/trang · **[B] Kết nối nguồn khác** · **[C] Đặt lịch đồng bộ** · **[D] Dừng**.

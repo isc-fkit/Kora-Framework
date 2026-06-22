@@ -97,7 +97,7 @@ Jira:
 - Sub-task
 - Comment
 - Attachment metadata
-- Linked issue
+- Linked hạng mục công việc
 
 File:
 - DOCX
@@ -161,7 +161,7 @@ inbox/normalized/
 
 Nhiệm vụ:
 
-Tự phân loại tài liệu hoặc issue thành:
+Tự phân loại tài liệu hoặc hạng mục công việc thành:
 
 ```text
 - Project
@@ -599,7 +599,7 @@ File:
 Mục tiêu:
 
 * Trace mọi tri thức về nguồn gốc.
-* Biết rule nào lấy từ Jira issue nào.
+* Biết rule nào lấy từ Jira hạng mục công việc nào.
 * Biết tài liệu nào sinh ra feature nào.
 * Biết lần import nào đã được approve.
 
@@ -688,7 +688,7 @@ Luồng:
 3. Lấy project.
 4. Lấy board nếu có.
 5. Lấy Epic / Story / Task / Bug / Sub-task.
-6. Lấy parent, linked issue, comments, attachment metadata.
+6. Lấy parent, hạng mục công việc liên kết, comments, attachment metadata.
 7. Normalize.
 8. Ghi vào inbox/raw và inbox/normalized.
 9. Tạo raw Obsidian notes.
@@ -711,7 +711,7 @@ Luồng:
 
 ```text
 1. Đọc raw source.
-2. Phân loại issue/document.
+2. Phân loại hạng mục công việc/document.
 3. Group theo feature candidate.
 4. Trích xuất requirement candidate.
 5. Trích xuất business rule candidate.
@@ -864,7 +864,7 @@ Format:
 
 ### Changed
 
-- Cập nhật business rule BR-HK-001 từ Jira issue PROJ-102.
+- Cập nhật business rule BR-HK-001 từ Jira hạng mục công việc PROJ-102.
 - Tạo acceptance criteria AC-HK-001.
 - Cập nhật relation graph.
 

@@ -34,7 +34,7 @@
 | "báo cáo tiến độ", "report tiến độ", "tiến độ dự án", "cập nhật tiến độ", "sinh báo cáo" (kể cả khi **PM/PO hỏi bằng lời** trong Cowork) | Confirm → **HỎI DỰ ÁN NÀO trước** (AskUserQuestion — liệt kê project từ nguồn Jira đã kết nối: API `--list-projects` / MCP `getVisibleJiraProjects`; multi-select) → **CỔNG MẬT KHẨU `KORA_OPS_PW`** (báo cáo kéo dữ liệu live; sai → DỪNG) → chạy `workflows/14-progress-report.md`: **tự LÀM MỚI — chỉ kéo các mục MỚI/cập nhật của (các) project đã chọn** (Cloud `*.atlassian.net`/MCP → kéo về vault + reindex; self-host → kiểm tra độ mới) → phân tích AI → sinh dashboard → **UI inline Cowork** + file HTML → **đề xuất gửi mail** ([Gửi ngay]/[Đặt lịch]/[Dừng]). Gửi: tự dùng **Gmail SMTP nếu đã setup**; **Cowork sandbox chặn SMTP → BÀN GIAO: xuất lệnh bash (`reports/claude-knowledge-send-mail.command`) cho user chạy ở TERMINAL gửi tiếp** (report đã build sẵn ở local — terminal chỉ gửi), KHÔNG bắt gõ lại lệnh. Terminal CLI: SMTP gửi thẳng. |
 | "đặt lịch báo cáo", "lịch báo cáo tiến độ" | Confirm → `workflows/08-schedule-sync.md` **Mục B**: tạo lịch 8:00 tự làm mới→report; có **tùy chọn tự gửi email** (cổng mật khẩu `send_report.py --check` + danh sách người nhận sửa được) (✋ confirm trước khi tạo scheduled task). |
 | "sửa danh sách email báo cáo", "thêm/bớt người nhận mail", "bật/tắt auto gửi mail" | Confirm → cập nhật `reports.email` (to / enabled) trong `config/factory-config.yaml`; lịch tự dùng list mới, KHÔNG cần tạo lại task (WF08 Mục B → mục "Sửa danh sách"). |
-| "sửa mail cảnh báo sự cố", "đổi người nhận mail issue ticket", "cấu hình mail lỗi lịch", "bật/tắt mail cảnh báo" | Confirm → `/claude-knowledge-alert-mail`: sửa `scheduler.error_recipients` (+ `scheduler.error_email.enabled` + `scheduler.ticket_issue`). **OVERRIDE người nhận mail sự cố cho MỌI lịch đang chạy** — orchestrator đọc config LÚC CHẠY → KHÔNG cần tạo lại lịch nào. KHÁC `/claude-knowledge-send-mail` (mail báo cáo). Chỉ SỬA config → **KHÔNG cần cổng** (việc GỬI nằm trong lượt lịch đã gác `KORA_OPS_PW`). |
+| "sửa mail cảnh báo sự cố", "đổi người nhận mail ticket sự cố", "cấu hình mail lỗi lịch", "bật/tắt mail cảnh báo" | Confirm → `/claude-knowledge-alert-mail`: sửa `scheduler.error_recipients` (+ `scheduler.error_email.enabled` + `scheduler.ticket_issue`). **OVERRIDE người nhận mail sự cố cho MỌI lịch đang chạy** — orchestrator đọc config LÚC CHẠY → KHÔNG cần tạo lại lịch nào. KHÁC `/claude-knowledge-send-mail` (mail báo cáo). Chỉ SỬA config → **KHÔNG cần cổng** (việc GỬI nằm trong lượt lịch đã gác `KORA_OPS_PW`). |
 | "tiến hóa KB", "dọn dẹp KB", "kiểm tra sức khỏe KB" | Confirm → chạy `workflows/09-evolve.md` |
 | Gửi file PDF/DOCX/**ảnh** (PNG/JPG)/zip Obsidian | Confirm → chạy `workflows/02-import-files.md` |
 | Nêu một vấn đề / yêu cầu / thay đổi nghiệp vụ | **TỰ ĐỘNG** phân tích (Tầng A — xem §0.1), không cần lệnh → confirm trước khi ghi |
@@ -321,7 +321,7 @@ User nêu vấn đề (ngôn ngữ tự nhiên)
   Cấu hình ở `confluence:` / `cloud_kb:`. Token chỉ ở `.env.local` (đã gitignore).
 - **Lịch cấp HĐH (`tools/kora-scheduler/`).** `schedule.py` đăng ký launchd/cron/schtasks; `orchestrator.py`
   chạy nền (scan→post→report→mail→ticket). Khác lịch Cowork (chỉ khi mở app). Registry `schedules.json` (gitignore).
-  Lỗi lịch → tạo **ticket issue** + email (`scheduler.ticket_issue` / `scheduler.error_recipients`).
+  Lỗi lịch → tạo **ticket sự cố** + email (`scheduler.ticket_issue` / `scheduler.error_recipients`).
 - **Phát hành vs deploy landing (xem `RELEASING.md`).** Repo vừa là landing (GitHub Pages tự
   deploy mỗi lần push) vừa là app base. Tín hiệu "có bản app mới" là **`version.json`**:
   - Sửa CORE muốn app đã cài nhận được → **TĂNG `version.json`** + ghi `CHANGELOG.md` (kèm bước
@@ -337,15 +337,15 @@ User nêu vấn đề (ngôn ngữ tự nhiên)
 - **`docs/07-research/` và `.kb/rules.md` là CORE** (đi kèm app, ship sẵn) — KHÔNG lưu tri thức
   riêng của bạn vào đó (sẽ bị ghi đè khi update, không nằm trong gói export). Tri thức của bạn
   vào `docs/01…08`, vault `*_Brain/`, `inbox/`.
-- **Đa nguồn:** đừng để 2 Jira trùng mã project (node graph theo mã issue, trùng sẽ đè).
-- **`--since` theo giờ máy:** lệch timezone lớn với Jira Cloud có thể sót/trùng vài issue ở ranh
-  giới — định kỳ **quét full** một lần cho chắc. Issue bị xoá trên Jira KHÔNG tự mất khỏi vault.
+- **Đa nguồn:** đừng để 2 Jira trùng mã project (node graph theo mã hạng mục, trùng sẽ đè).
+- **`--since` theo giờ máy:** lệch timezone lớn với Jira Cloud có thể sót/trùng vài hạng mục công việc ở ranh
+  giới — định kỳ **quét full** một lần cho chắc. Hạng mục công việc bị xoá trên Jira KHÔNG tự mất khỏi vault.
 - **Import dời máy** dành cho máy có **base sạch**; bung lên instance đang có dữ liệu sẽ merge
   (vault được thay sạch, nhưng `.kb`/`docs` thì gộp).
-- **Versioning US↔Change-Request (`/claude-knowledge-sync`):** nhận diện CR qua **issue-link Jira** (`supersedes`,
-  `clones`, `relates`…) hoặc **issue type** `Change Request` — bộ này tùy biến trong `sync.versioning`.
+- **Versioning US↔Change-Request (`/claude-knowledge-sync`):** nhận diện CR qua **liên kết hạng mục Jira** (`supersedes`,
+  `clones`, `relates`…) hoặc **loại hạng mục công việc** `Change Request` — bộ này tùy biến trong `sync.versioning`.
   US cũ được **GIỮ** + đánh dấu `superseded` + link CR (KHÔNG xoá, KHÔNG nhân bản trên target). Vault quét
-  bằng bản cũ (đồ thị thiếu `link_type`) chỉ nhận theo issue-type → nên **quét lại nguồn** cho đủ.
+  bằng bản cũ (đồ thị thiếu `link_type`) chỉ nhận theo loại hạng mục công việc → nên **quét lại nguồn** cho đủ.
 - **Lịch nền:** scan/get (kéo tri thức về) **KHÔNG gác**; chỉ **post/report/mail/sync** cần `KORA_OPS_PW`. Vì
   cron/launchd không có shell env → đặt mật khẩu ở `~/.config/claude-knowledge/ops-pw.env` (Windows `%USERPROFILE%\.claude-knowledge\ops-pw.env`),
   nội dung `KORA_OPS_PW=<mk>`, chmod 600 — `orchestrator.py` **TỰ nạp** lúc chạy (không cần wrapper). Thiếu → lịch

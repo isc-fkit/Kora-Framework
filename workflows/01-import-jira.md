@@ -2,7 +2,7 @@
 
 > Spec gốc: `tools/jira-to-obsidian/CLAUDE_CODE_JIRA_TO_OBSIDIAN_SETUP.md` (Bước 1→7).
 > Script đã viết sẵn: `tools/jira-to-obsidian/import_jira.py` — KHÔNG cần viết lại,
-> chỉ cấu hình và chạy. Muốn quét RIÊNG 1 vài issue → dùng `workflows/01b-import-jira-single.md`.
+> chỉ cấu hình và chạy. Muốn quét RIÊNG 1 vài hạng mục công việc → dùng `workflows/01b-import-jira-single.md`.
 >
 > **Lưu ý (đã vá 2026-06-13):** script tự tìm `.env.local` và vault theo **vị trí FILE script**,
 > KHÔNG theo thư mục đang đứng (cwd). Nhờ vậy chạy từ bất kỳ cwd nào cũng nạp đúng config + ghi
@@ -121,17 +121,17 @@ ràng (mã + tên project) và cho user CHỌN bằng AskUserQuestion:
   và (nếu nhiều project) "Vài project chính".
 - User chọn xong → ghi đúng các mã đã chọn vào `PROJECT_KEYS` trong `.env.local`
   (cách nhau dấu phẩy). Chọn ≥2 project → bật `GROUP_BY_PROJECT=true`.
-- Project rất lớn (hàng nghìn issue) → báo trước "sẽ lâu + vault lớn, nên chạy nền".
+- Project rất lớn (hàng nghìn hạng mục công việc) → báo trước "sẽ lâu + vault lớn, nên chạy nền".
 
 > Ví dụ: `--test` thấy N project (PROJ1, PROJ2, PROJ3…) → hiện cho user tick chọn → chỉ
-> quét đúng cái đã chọn (vd PROJ1 = vài nghìn issue).
+> quét đúng cái đã chọn (vd PROJ1 = vài nghìn hạng mục công việc).
 
 ## Bước 4 — Chạy import
 
 - Bước 3 chạy được trong sandbox → Claude tự chạy `python3 "<TOOL_DIR>/import_jira.py"`
   (đường dẫn tuyệt đối, không cần `cd`; tự động hoàn toàn).
   **Tường thuật console cho user:** script in tiến độ từng project
-  (`Đang quét project FA — → 2347 issues`...). Claude phải hiển thị lại các dòng này
+  (`Đang quét project FA — → 2347 hạng mục công việc`...). Claude phải hiển thị lại các dòng này
   trong chat (nguyên văn hoặc tóm tắt theo thời gian thực từng project) để user biết
   hệ thống đang quét gì — không chạy im lặng. Quét xong báo dòng cuối:
   `Obsidian Vault đã tạo tại: <path>` → rồi **HIỆN KẾT QUẢ NGAY** (Bước 5): bảng số lượng
@@ -211,19 +211,19 @@ Khi sandbox không chạy được (lỗi mạng), KHÔNG dừng luồng setup l
 Script tự tạo trong vault: notes Project/Epic/Story/Task/Bug/Sub-task có backlink,
 `_system/relation-graph.json`, `_system/source-registry.json`, `00_Index/Jira-Knowledge-Base.md`.
 
-> 📦 **CÀO HẾT field (mặc định):** mỗi note lấy **TẤT CẢ field** của issue — gồm priority,
+> 📦 **CÀO HẾT field (mặc định):** mỗi note lấy **TẤT CẢ field** của hạng mục công việc — gồm priority,
 > labels, components, assignee/reporter, created/updated, resolution, sprint, story points và
 > **MỌI custom field** (tên hiển thị người-đọc, lấy từ `/rest/api/2/field`) — ở mục `## Tất cả
 > field (đầy đủ)`, cộng comment + metadata đính kèm (tên/size/link). Rich-text Cloud (ADF) được
 > flatten cho dễ đọc. **Sprint** hiện kèm trạng thái + ngày (`Sprint 3 (active, 2026-06-01 →
 > 2026-06-14)`, parse được cả chuỗi serialize của Jira Server); **thời gian** (ước tính/đã log/còn
 > lại + start/end/due) render dạng đọc được (`8h`, `2d`). Muốn nhẹ (chỉ field cốt lõi) → đặt `JIRA_FETCH_ALL_FIELDS=false` trong
-> `.env.local`. Lưu ý: cào hết ⇒ payload lớn hơn cho project nghìn issue → nên chạy nền.
+> `.env.local`. Lưu ý: cào hết ⇒ payload lớn hơn cho project nghìn hạng mục công việc → nên chạy nền.
 
 ## Bước 5 — Báo cáo + Approval Gate
 
 1. **Hiện NGAY bảng kết quả** (tiếng Việt): đếm theo loại — Epics / User Stories / Tasks /
-   Bugs / Sub-tasks + **tổng issue** + đường dẫn vault. Lấy số từ dòng script in ra, hoặc
+   Bugs / Sub-tasks + **tổng hạng mục công việc** + đường dẫn vault. Lấy số từ dòng script in ra, hoặc
    đếm file `.md` trong vault. Nêu thêm: cái gì thiếu parent (ở `08_RawIssues`), điểm đáng chú ý.
 2. **Đây là RAW KB** — chưa phải tri thức chính thức. Hỏi user **bằng AskUserQuestion (4 lựa chọn)**:
    - **[A] Phân loại thành tri thức ngay** (chạy `workflows/03-request.md` chế độ classify-batch) — khuyến nghị.
@@ -246,8 +246,8 @@ Script tự tạo trong vault: notes Project/Epic/Story/Task/Bug/Sub-task có ba
 - Không sửa `.env.local` trừ khi user yêu cầu.
 - Không suy diễn Business Rule chính thức từ Jira raw trong bước import.
 - Import lại (re-run): script ghi đè note theo `jira_key`, không nhân bản.
-- **Lấy dữ liệu MỚI (request mới / issue vừa cập nhật)** mà không quét lại từ đầu:
-  `python3 import_jira.py --since` — chỉ kéo issue `updated >=` mốc lần quét trước
+- **Lấy dữ liệu MỚI (request mới / hạng mục công việc vừa cập nhật)** mà không quét lại từ đầu:
+  `python3 import_jira.py --since` — chỉ kéo hạng mục công việc `updated >=` mốc lần quét trước
   (lưu ở `_system/last-import.txt`), merge vào vault, cập nhật relation graph + registry.
   Lần quét full đầu tiên tự ghi mốc; từ đó về sau dùng `--since` để đồng bộ tăng dần.
   Đây là cách khuyến nghị cho lịch quét định kỳ (có thể đặt scheduled task chạy `--since`).

@@ -179,10 +179,10 @@ Script phải thực hiện:
 2. Kết nối Jira bằng `Authorization: Bearer $JIRA_PAT`.
 3. Lấy danh sách project user có quyền xem.
 4. Với mỗi project:
-   - quét toàn bộ issue bằng JQL;
+   - quét toàn bộ hạng mục công việc bằng JQL;
    - lấy Epic, Story, Task, Bug, Sub-task;
    - lấy parent;
-   - lấy linked issues;
+   - lấy hạng mục công việc liên kết;
    - lấy comments;
    - lấy attachment metadata;
    - lấy custom field nếu có.
@@ -235,7 +235,7 @@ Tên file phải:
 
 ### 6.4 YAML frontmatter bắt buộc
 
-Mỗi issue note cần có:
+Mỗi hạng mục công việc note cần có:
 
 ```yaml
 ---
@@ -250,12 +250,12 @@ imported_at: 2026-06-13T00:00:00
 ---
 ```
 
-### 6.5 Nội dung Markdown cho issue
+### 6.5 Nội dung Markdown cho hạng mục công việc
 
-Mỗi issue note cần có các section:
+Mỗi hạng mục công việc note cần có các section:
 
 ```markdown
-# PROJ-102 — Tên issue
+# PROJ-102 — Tên hạng mục công việc
 
 ## Metadata
 
@@ -267,7 +267,7 @@ Mỗi issue note cần có các section:
 
 ## Parent
 
-## Linked Issues
+## Linked Hạng mục công việc
 
 ## Attachments Metadata
 
@@ -356,7 +356,7 @@ Kết quả terminal mong đợi:
 Đang lấy danh sách project...
 Tìm thấy X project.
 Đang quét project PROJ — MyApp
-  → 128 issues
+  → 128 hạng mục công việc
 
 Hoàn tất.
 Obsidian Vault đã tạo tại: /path/to/Project_Name_Brain
@@ -394,7 +394,7 @@ Kiểm tra:
 - các project đã được tạo note;
 - epic có link đến story;
 - story có link đến parent;
-- linked issue có backlink;
+- hạng mục công việc liên kết có backlink;
 - `_system/relation-graph.json` tồn tại;
 - `_system/source-registry.json` tồn tại.
 
@@ -412,7 +412,7 @@ Hoàn thành khi có đủ:
 [ ] Có note Project
 [ ] Có note Epic
 [ ] Có note Story / Task / Bug / Sub-task
-[ ] Có backlink giữa các issue
+[ ] Có backlink giữa các hạng mục công việc
 [ ] Có `relation-graph.json`
 [ ] Có `source-registry.json`
 [ ] Có `00_Index/Jira-Knowledge-Base.md`
@@ -479,7 +479,7 @@ Khi làm việc trên repo này, Claude Code phải tuân thủ:
 5. Không commit output raw nếu user chưa duyệt.
 6. Nếu Jira API lỗi, báo rõ lỗi và gợi ý kiểm tra quyền.
 7. Nếu thiếu custom field Acceptance Criteria, vẫn import description/comment raw.
-8. Nếu không xác định được Epic/Parent, giữ issue trong `08_RawIssues`.
+8. Nếu không xác định được Epic/Parent, giữ hạng mục công việc trong `08_RawIssues`.
 9. Không tự suy diễn Business Rule chính thức từ Jira raw trong bước import.
 10. Chỉ tạo raw Obsidian KB ở bước này.
 

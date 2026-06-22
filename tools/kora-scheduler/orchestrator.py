@@ -169,7 +169,7 @@ def ops_gate() -> bool:
 
 # ───────────────────────────── ticket issue ────────────────────────────────
 def create_ticket(cfg, title, body_md):
-    """Tạo ticket issue khi lịch lỗi. target: confluence | jira | none. Trả (created, url|err)."""
+    """Tạo ticket sự cố khi lịch lỗi. target: confluence | jira | none. Trả (created, url|err)."""
     target = (cfg.get("scheduler.ticket_issue.target") or "confluence").lower()
     if target == "none" or (cfg.get("scheduler.ticket_issue.enabled") or "true") in ("false", "False"):
         return False, "ticket_issue tắt"
@@ -518,13 +518,13 @@ def _ai_analysis(cfg, log_dir):
         "Bạn là trợ lý phân tích tiến độ dự án. Đọc JSON tiến độ ở cuối và viết phân tích CHI TIẾT (tiếng Việt) "
         "cho quản lý, dùng markdown — MỖI MỤC bắt đầu bằng '## ' theo ĐÚNG thứ tự sau:\n"
         "## 🔴 Rủi ro cao (blocker)\n"
-        "   - <mã issue> — <vấn đề> (<assignee>): <tác động> → <đề xuất xử lý>\n"
+        "   - <mã hạng mục> — <vấn đề> (<assignee>): <tác động> → <đề xuất xử lý>\n"
         "## 🟡 Rủi ro vừa / Cần theo dõi\n"
         "   - tương tự nhưng mức nhẹ hơn\n"
         "## 🟢 Điểm tích cực\n"
         "   - thành tựu, velocity tốt, hạng mục đã sạch lỗi (kèm SỐ)\n"
         "## 🧩 Độ phức tạp (TRỌNG TÂM)\n"
-        "   - đọc `complexity` trong JSON: nêu issue PHỨC TẠP CAO (điểm >= ngưỡng, số càng lớn càng phức tạp) — "
+        "   - đọc `complexity` trong JSON: nêu hạng mục PHỨC TẠP CAO (điểm >= ngưỡng, số càng lớn càng phức tạp) — "
         "ai phụ trách, rủi ro/đề xuất ưu tiên review + nguồn lực cho nhóm điểm cao\n"
         "## 👥 Phân tích theo thành viên\n"
         "   Một BẢNG markdown: | Thành viên | Tổng | Done | Đang làm | Ghi chú |\n"
@@ -537,7 +537,7 @@ def _ai_analysis(cfg, log_dir):
         "   2–3 câu cho lãnh đạo.\n\n"
         "QUY ƯỚC: 8h = 1 ngày công; bỏ Thứ 7/CN; so với 'expected_so_far' (số NGÀY LÀM VIỆC ĐÃ trôi qua) — log đủ "
         "8h/ngày là ĐÚNG TIẾN ĐỘ, KHÔNG phải OT; duedate tính ĐẾN HẾT NGÀY (start 15 / due 16 = 1 ngày). Trích số "
-        "liệu CỤ THỂ (mã issue, tên người, số giờ/ngày) từ JSON — TUYỆT ĐỐI không nói chung chung.\n\n"
+        "liệu CỤ THỂ (mã hạng mục, tên người, số giờ/ngày) từ JSON — TUYỆT ĐỐI không nói chung chung.\n\n"
         + data.read_text(encoding='utf-8')[:9000])
     # Bypass quyền → headless/cron KHÔNG kẹt prompt (bật/tắt qua config; mặc định bật).
     skip = (cfg.get("scheduler.ai_risk_analysis.skip_permissions") or "true").strip().lower() != "false"

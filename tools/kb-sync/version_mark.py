@@ -229,7 +229,7 @@ def main():
         return 0
 
     if not any(e.get("link_type") for e in graph.get("edges", [])):
-        print("⚠️  Đồ thị chưa có 'link_type' (vault quét bằng bản cũ) — chỉ nhận diện theo issue-type. "
+        print("⚠️  Đồ thị chưa có 'link_type' (vault quét bằng bản cũ) — chỉ nhận diện theo loại hạng mục công việc. "
               "Nên quét lại nguồn để đầy đủ.", file=sys.stderr)
 
     changed = 0

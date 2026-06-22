@@ -93,7 +93,7 @@
   .content{padding:0 46px 90px;max-width:none;min-width:0}
   .page{display:none;animation:fade .24s ease}
   .page.active{display:block}
-  /* ẨN TẠM (v2.12.0) — xem khối <!-- HIDDEN-SECTIONS --> gần <body> để biết mục nào ẩn + cách bật lại */
+  /* ẨN TẠM (v2.12.1) — xem khối <!-- HIDDEN-SECTIONS --> gần <body> để biết mục nào ẩn + cách bật lại */
   .page.hidden,.nav a.hidden,.hc.hidden,.btn.hidden{display:none!important}
   @keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
 
@@ -270,7 +270,7 @@
 </style>
 </head>
 <body>
-<!-- ============================ HIDDEN-SECTIONS (v2.12.0) ============================
+<!-- ============================ HIDDEN-SECTIONS (v2.12.1) ============================
   MỤC ĐANG ẨN TẠM (vẫn còn nguyên trong file, chỉ ẩn bằng class "hidden"):
     1. workflow         — "Quy trình BA"
     2. prompts          — "Prompt & Template"
@@ -294,7 +294,7 @@
     <div class="brand" data-go="home" title="Trang chủ">
       <span class="brandmark" aria-hidden="true">K</span>
       <span class="org">FPT TELECOM</span>
-      <div class="fw">Claude Knowledge AI<span>v2.12.0 · Claude-1</span></div>
+      <div class="fw">Claude Knowledge AI<span>v2.12.1 · Claude-1</span></div>
     </div>
     <nav class="nav">
       <div class="grp">Tổng quan</div>
@@ -320,7 +320,7 @@
     <!-- ===================== HOME ===================== -->
     <div class="page" id="home">
       <header class="hero">
-        <span class="badge">FPT Telecom · Claude Knowledge AI · v2.12.0 · &ldquo;Claude-1&rdquo;</span>
+        <span class="badge">FPT Telecom · Claude Knowledge AI · v2.12.1 · &ldquo;Claude-1&rdquo;</span>
         <h1>Claude Knowledge AI — Sơ đồ nguyên lý hoạt động</h1>
         <p class="sub">Trợ lý tri thức tự lớn lên cùng dự án: hợp nhất tri thức phân tán, nối tri thức local của nhân viên với <b>Knowledge Base</b> chung (trên Cloud), và tự động hóa đồng bộ — báo cáo — cảnh báo.</p>
         <div class="pipe">
@@ -354,7 +354,7 @@
     <!-- ===================== INTRODUCTION ===================== -->
     <div class="page" id="introduction">
       <div class="phead"><div class="pl">A · Giới thiệu</div><h1><span class="em">📘</span>Claude Knowledge AI là gì?</h1></div>
-      <p class="intro-lead">Trong mọi dự án, tri thức nằm <b>rải rác khắp nơi</b> — issue trên Jira, trang Confluence, code GitHub/GitLab, file SharePoint, email Outlook/Gmail — và phần nhiều chỉ tồn tại trong <b>trí nhớ của vài người</b>. <b>Claude Knowledge AI Framework</b> gom những mảnh rời rạc ấy lại và <b>kết nối thành một kho tri thức (Knowledge Base) sống</b> mà cả đội cùng tra cứu được, thay vì mỗi người giữ một mảnh.</p>
+      <p class="intro-lead">Trong mọi dự án, tri thức nằm <b>rải rác khắp nơi</b> — hạng mục công việc trên Jira, trang Confluence, code GitHub/GitLab, file SharePoint, email Outlook/Gmail — và phần nhiều chỉ tồn tại trong <b>trí nhớ của vài người</b>. <b>Claude Knowledge AI Framework</b> gom những mảnh rời rạc ấy lại và <b>kết nối thành một kho tri thức (Knowledge Base) sống</b> mà cả đội cùng tra cứu được, thay vì mỗi người giữ một mảnh.</p>
 
       <div class="intro-steps">
         <div class="intro-step">
@@ -363,7 +363,7 @@
         </div>
         <div class="intro-step">
           <div class="intro-num">2</div>
-          <div><h3>Đây là gì</h3><p>Nói gọn: nó biến mớ dữ liệu phân tán thành một <b>bộ nhớ sống, có cấu trúc và truy ngược được nguồn gốc</b> — mỗi mẩu tri thức đều biết mình <b>đến từ đâu</b> (issue / tài liệu nào), <b>liên quan tới điều gì</b>, và <b>tự lớn lên</b> theo dự án thay vì cũ dần rồi thất lạc.</p></div>
+          <div><h3>Đây là gì</h3><p>Nói gọn: nó biến mớ dữ liệu phân tán thành một <b>bộ nhớ sống, có cấu trúc và truy ngược được nguồn gốc</b> — mỗi mẩu tri thức đều biết mình <b>đến từ đâu</b> (hạng mục công việc / tài liệu nào), <b>liên quan tới điều gì</b>, và <b>tự lớn lên</b> theo dự án thay vì cũ dần rồi thất lạc.</p></div>
         </div>
         <div class="intro-step">
           <div class="intro-num">3</div>
@@ -426,7 +426,7 @@
           <div class="tco"><div class="a3">
             <div class="abox"><b>⏰ Schedule Sync</b><ul><li>Tạo / sửa / xóa · bật–tắt</li><li>Chọn scan &amp; post list</li><li>Đặt thời gian &amp; tần suất</li><li>Tự vận hành theo lịch</li></ul></div>
             <div class="abox"><b>📊 Daily Report &amp; AI</b><ul><li>Đọc dữ liệu mới nhất</li><li>Phân tích tiến độ · OT</li><li>Nhận diện rủi ro · dự đoán</li><li>Tạo báo cáo thông minh</li></ul></div>
-            <div class="abox"><b>✉️ Mail &amp; Alert</b><ul><li>Gửi mail theo lịch</li><li>Lỗi schedule / sync / report</li><li>→ ticket issue + email (<code>/claude-knowledge-alert-mail</code>)</li></ul></div>
+            <div class="abox"><b>✉️ Mail &amp; Alert</b><ul><li>Gửi mail theo lịch</li><li>Lỗi schedule / sync / report</li><li>→ ticket sự cố + email (<code>/claude-knowledge-alert-mail</code>)</li></ul></div>
           </div></div>
         </div>
         <div class="roles">
@@ -669,7 +669,7 @@
 <pre><code>curl -fsSL https://raw.githubusercontent.com/isc-fkit/Kora-Framework/release/uninstall.bat -o "%TEMP%\claude-knowledge-uninstall.bat" &amp;&amp; "%TEMP%\claude-knowledge-uninstall.bat"</code></pre></div>
       <p style="color:var(--faint);font-size:13.3px;margin:10px 0 0">Script hỏi gõ <code>yes</code> để xác nhận, và nhắc xóa tay các dòng <code>export KORA_*</code> trong <code>~/.zshrc</code> / <code>~/.bashrc</code> (Windows: biến môi trường) nếu có. Gỡ skill <b>KHÔNG</b> đụng tới tri thức của bạn.</p>
 
-      <!-- ↓↓↓ GỘP (v2.12.0): nội dung "Chức năng" (D cũ) gộp vào "Hướng dẫn cài đặt" ↓↓↓ -->
+      <!-- ↓↓↓ GỘP (v2.12.1): nội dung "Chức năng" (D cũ) gộp vào "Hướng dẫn cài đặt" ↓↓↓ -->
       <h2 class="sec" style="margin-top:32px">🧩 Chức năng &amp; cách vận hành (8 bước)</h2>
       <p class="lead">Sau khi cài (mục trên), đây là <b>8 bước thực thi</b> theo thứ tự: <b>1 init → 2 connect → 3 scan → 4 schedule → 4b cảnh báo ticket → 5 report → 6 send-mail → 7 sync → 8 archive</b>.</p>
 
@@ -680,7 +680,7 @@
         <div class="step"><div class="node">🔌</div><div class="body"><div class="t"><span class="num">2</span>Connect <code>/claude-knowledge-connect</code></div><p>Kết nối nguồn (Jira / Confluence / GitHub / Microsoft 365…); MCP &amp; API tính riêng.</p></div></div>
         <div class="step"><div class="node">🔎</div><div class="body"><div class="t"><span class="num">3</span>Scan <code>/claude-knowledge-scan</code> · <code>/claude-knowledge-import-files</code></div><p>Quét nguồn (cào hết field) → tổng hợp wiki liên kết; nạp PDF / DOCX / ảnh.</p></div></div>
         <div class="step"><div class="node">⏰</div><div class="body"><div class="t"><span class="num">4</span>Schedule <code>/claude-knowledge-schedule</code> <span class="pw">🔒 (Admin permission)</span></div><p>Lịch HĐH chạy LOCAL (cả khi đóng app, gọi API/mail được): scan KHÔNG gác · report/mail/sync cần mật khẩu. Nhiều mốc giờ + Thứ 2–6; quản lý HĐH &amp; Cowork — bật/tắt/sửa/xóa.</p></div></div>
-        <div class="step"><div class="node">🔔</div><div class="body"><div class="t"><span class="num">4b</span>Report ticket issue qua mail <code>/claude-knowledge-alert-mail</code></div><p>Đi kèm Schedule: lịch nền lỗi → tự tạo ticket issue + gửi email cảnh báo; chỉnh người nhận / bật–tắt / nơi tạo ticket tập trung 1 nơi (OVERRIDE mọi lịch).</p></div></div>
+        <div class="step"><div class="node">🔔</div><div class="body"><div class="t"><span class="num">4b</span>Report ticket sự cố qua mail <code>/claude-knowledge-alert-mail</code></div><p>Đi kèm Schedule: lịch nền lỗi → tự tạo ticket sự cố + gửi email cảnh báo; chỉnh người nhận / bật–tắt / nơi tạo ticket tập trung 1 nơi (OVERRIDE mọi lịch).</p></div></div>
         <div class="step"><div class="node">📊</div><div class="body"><div class="t"><span class="num">5</span>Report <code>/claude-knowledge-daily-report</code> <span class="pw">🔒 (Admin permission)</span></div><p>Dashboard tiến độ (giờ công / OT, rủi ro, dự đoán) — phân tầng + lọc đa chiều. Kéo dữ liệu live → cần mật khẩu vận hành.</p></div></div>
         <div class="step"><div class="node">✉️</div><div class="body"><div class="t"><span class="num">6</span>Send mail <code>/claude-knowledge-send-mail</code> <span class="pw">🔒 (Admin permission)</span></div><p>Chọn Jira → project → người nhận → gửi ngay / đặt lịch; email có banner header + phân tích AI.</p></div></div>
         <div class="step"><div class="node">☁️</div><div class="body"><div class="t"><span class="num">7</span>Sync <code>/claude-knowledge-sync</code> <span class="pw">🔒 (Admin permission)</span></div><p>Đẩy Knowledge Base lên Confluence / GitHub private / <b>SharePoint</b> — idempotent + versioning US ↔ Change Request.</p></div></div>
@@ -744,13 +744,13 @@ khi CHẠY:  scan/get (KHÔNG gác) → reindex → 🔒 cổng → post · repo
       <p style="color:var(--muted)">Task "đặt lịch" từ <code>/claude-knowledge-send-mail</code> cũng hiện &amp; quản lý ở đây. <b>Cảnh báo lỗi lịch</b> (ticket + email) chỉnh tập trung qua <code>/claude-knowledge-alert-mail</code> — mục ngay dưới.</p>
 
       <h2 class="sec">4b · 🔔 Cảnh báo sự cố &amp; report ticket qua mail — <code>/claude-knowledge-alert-mail</code></h2>
-      <p style="color:var(--muted)">Đi kèm Schedule: khi một <b>lịch nền lỗi</b>, Claude Knowledge AI không để lỗi trôi âm thầm mà <b>tự tạo ticket issue</b> + <b>gửi email cảnh báo</b> cho người phụ trách. <code>/claude-knowledge-alert-mail</code> là nơi chỉnh <b>tập trung 1 chỗ</b> cho cơ chế này.</p>
+      <p style="color:var(--muted)">Đi kèm Schedule: khi một <b>lịch nền lỗi</b>, Claude Knowledge AI không để lỗi trôi âm thầm mà <b>tự tạo ticket sự cố</b> + <b>gửi email cảnh báo</b> cho người phụ trách. <code>/claude-knowledge-alert-mail</code> là nơi chỉnh <b>tập trung 1 chỗ</b> cho cơ chế này.</p>
       <div class="flow">lịch nền LỖI  (get/scan · post · report · mail · sync)
         │
         ▼
    🔔 orchestrator phát hiện sự cố  →  kích hoạt cảnh báo
         │
-        ├─▶  🎫 Tạo TICKET ISSUE  (Confluence / Jira / tắt)
+        ├─▶  🎫 Tạo TICKET SỰ CỐ  (Confluence / Jira / tắt)
         └─▶  ✉️ Gửi EMAIL cảnh báo  (tới người phụ trách)</div>
       <div class="grid2">
         <div class="card"><b>⚙️ Chỉnh được gì</b><ul style="margin:8px 0 0;padding-left:18px;color:var(--muted);font-size:13.2px;line-height:1.65">
@@ -1709,7 +1709,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
           <b style="font-size:16px">v2.9.0 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-22</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
-          <li><b>🧩 Field Complexity làm TRỌNG TÂM</b>: nạp field Jira "Complexity" (≥7 = phức tạp cao) → section nổi bật (KPI + bar phân bố tô đỏ + bảng issue điểm cao) trong email & dashboard; AI ưu tiên. Cấu hình <code>jira.complexity_field/complexity_high</code>.</li>
+          <li><b>🧩 Field Complexity làm TRỌNG TÂM</b>: nạp field Jira "Complexity" (≥7 = phức tạp cao) → section nổi bật (KPI + bar phân bố tô đỏ + bảng hạng mục công việc điểm cao) trong email & dashboard; AI ưu tiên. Cấu hình <code>jira.complexity_field/complexity_high</code>.</li>
           <li><b>🔌 Lịch nguồn Jira MCP — không báo lỗi cụt</b>: cho CHỌN [A] kết nối API + lịch HĐH nền 24/7 / [B] lịch Cowork. Landing nói rõ vì sao MCP không chạy nền.</li>
           <li><b>🐞 FIX task send-mail không hiện trong list</b>: <code>schedule.py</code> luôn lưu registry dù cài HĐH lỗi + list gộp cả 2 nguồn + verify. <b>🗂️ Report lưu theo thư mục ngày</b> <code>reports/&lt;ngày&gt;/</code>.</li>
         </ul>
@@ -1740,7 +1740,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>🎯 Giới hạn PHẠM VI báo cáo cho dự án lớn</b>: hỏi <b>[Sprint đang chạy] / [N ngày — mặc định 30] / [Toàn bộ]</b>. <code>build_report --scope sprint|recent|all --recent-days N</code> → không lấy hết.</li>
-          <li><b>⚡ Scan nhẹ theo phạm vi</b>: scope≠all → bound <code>updated &gt;= -Nd</code> (dự án ngàn issue không pull hết). Lịch nền nhớ phạm vi (<code>--report-scope</code>) + áp mỗi lượt.</li>
+          <li><b>⚡ Scan nhẹ theo phạm vi</b>: scope≠all → bound <code>updated &gt;= -Nd</code> (dự án ngàn hạng mục công việc không pull hết). Lịch nền nhớ phạm vi (<code>--report-scope</code>) + áp mỗi lượt.</li>
         </ul>
       </div>
 
@@ -1804,7 +1804,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>🎨 Phân tích AI trong email = CARD MÀU theo mục</b> (bỏ chip): 🔴 rủi ro cao · 🟡 vừa · 🟢 tích cực · 👥 thành viên · 📅 dự đoán · 🎯 hành động · 📌 tóm tắt — mỗi mục một màu, dễ quan sát.</li>
           <li><b>📊 Bảng thành viên tô màu cột trạng thái</b> (Done=xanh lá · In Review=xanh dương · In Progress=cam · Test=tím) — email-safe.</li>
-          <li><b>🧠 Phân tích chi tiết hơn</b>: mỗi rủi ro kèm mã issue · người · tác động · đề xuất từng bước; dự đoán trượt theo ngày làm việc.</li>
+          <li><b>🧠 Phân tích chi tiết hơn</b>: mỗi rủi ro kèm mã hạng mục · người · tác động · đề xuất từng bước; dự đoán trượt theo ngày làm việc.</li>
           <li><b>🔗 Renderer dùng chung</b> (build_report <code>--inject-ai</code>) cho cả lịch nền & gửi mail tay → đồng nhất.</li>
         </ul>
       </div>
@@ -1879,7 +1879,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
           <b style="font-size:16px">v2.5.2 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-21</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
-          <li><b>🐞 Quét lại Jira → Obsidian IDEMPOTENT</b>: mỗi issue chỉ 1 file; đổi tiêu đề/đổi loại không còn để lại file rác trùng (dọn file cũ cùng key).</li>
+          <li><b>🐞 Quét lại Jira → Obsidian IDEMPOTENT</b>: mỗi hạng mục công việc chỉ 1 file; đổi tiêu đề/đổi loại không còn để lại file rác trùng (dọn file cũ cùng key).</li>
           <li><b><code>/claude-knowledge-connect</code> MCP</b>: nhắc gọi <code>/mcp</code> trước (Claude Code/Desktop) để kết nối + authorize server, rồi mới verify.</li>
         </ul>
       </div>
@@ -2048,7 +2048,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
         <tr><td><code>/claude-knowledge-sync</code></td><td>Đẩy Knowledge Base lên Confluence / GitHub private / SharePoint</td><td>🔒 (Admin permission)</td></tr>
         <tr><td><code>/claude-knowledge-send-mail</code></td><td>Gửi báo cáo, ngay / đặt lịch</td><td>🔒 (Admin permission)</td></tr>
         <tr><td><code>/claude-knowledge-schedule</code></td><td>Lịch HĐH (local): scan → report → mail → sync; quản lý HĐH+Cowork</td><td>🔒 (post/report/mail/sync · scan KHÔNG cần)</td></tr>
-        <tr><td><code>/claude-knowledge-alert-mail</code></td><td>Mail cảnh báo sự cố (issue ticket) — override mọi lịch</td><td>—</td></tr>
+        <tr><td><code>/claude-knowledge-alert-mail</code></td><td>Mail cảnh báo sự cố (ticket sự cố) — override mọi lịch</td><td>—</td></tr>
         <tr><td><code>/claude-knowledge-daily-report</code></td><td>Báo cáo tiến độ (lọc, theo thời gian) — kéo dữ liệu live</td><td>🔒 (Admin permission)</td></tr>
         <tr><td><code>/claude-knowledge-archive</code></td><td>Đóng gói Knowledge Base phân quyền + mật khẩu</td><td>🔑 Archive</td></tr>
         <tr><td><code>/claude-knowledge-export-docs</code></td><td>Xuất DOCX / PDF theo doc template</td><td>—</td></tr>
@@ -2165,7 +2165,7 @@ Trạng thái: Pass / Fail / Blocked</code></pre></div>
   var links = Array.prototype.slice.call(document.querySelectorAll('[data-go]'));
   function go(id){
     var t = document.getElementById(id);
-    if(!t || t.classList.contains('hidden')) id = 'home';   // mục ẩn (v2.12.0) → về Trang chủ, không hiện trang trống
+    if(!t || t.classList.contains('hidden')) id = 'home';   // mục ẩn (v2.12.1) → về Trang chủ, không hiện trang trống
     pages.forEach(function(p){ p.classList.toggle('active', p.id===id); });
     document.querySelectorAll('.nav a').forEach(function(a){ a.classList.toggle('active', a.getAttribute('data-go')===id); });
     if(location.hash.slice(1)!==id) history.replaceState(null,'','#'+id);

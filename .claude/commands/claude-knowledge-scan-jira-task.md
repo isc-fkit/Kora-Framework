@@ -3,9 +3,9 @@ description: Scan & import a single Jira task or epic by key. Example: /claude-k
 argument-hint: <JIRA-KEY> (e.g. PROJ-102)
 ---
 
-The user invoked `/claude-knowledge-scan-jira-task $ARGUMENTS` — scan one Jira issue by key.
+The user invoked `/claude-knowledge-scan-jira-task $ARGUMENTS` — scan one Jira hạng mục công việc by key.
 
-Issue key: **$ARGUMENTS**
+Hạng mục công việc key: **$ARGUMENTS**
 
 - If the key above is empty → ask the user for it (AskUserQuestion: a few suggestions + an "Other"
   field); do NOT invent a key.

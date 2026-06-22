@@ -222,8 +222,8 @@ def _status_breakdown(items, smap):
 
 def apply_scope(issues, scope, recent_days):
     """Giới hạn PHẠM VI báo cáo (dự án lớn không lấy hết) — trả (issues_lọc, nhãn).
-    sprint = chỉ issue trong SPRINT ĐANG CHẠY (fallback N ngày gần đây nếu không có sprint active);
-    recent = issue có 'updated' trong N ngày; all/rỗng = toàn bộ. KHÔNG trả rỗng khi vault có data."""
+    sprint = chỉ hạng mục công việc trong SPRINT ĐANG CHẠY (fallback N ngày gần đây nếu không có sprint active);
+    recent = hạng mục công việc có 'updated' trong N ngày; all/rỗng = toàn bộ. KHÔNG trả rỗng khi vault có data."""
     if scope in ("all", "", None):
         return issues, "Toàn bộ"
     cutoff = (date.today() - timedelta(days=max(1, int(recent_days or 30)))).isoformat()
@@ -247,7 +247,7 @@ def compute(issues, smap, today, complexity_high=7, qc_members=None):
     grp = _status_breakdown(issues, smap)
     by_type = {}
     for i in issues:
-        by_type[i.get("type", "issue")] = by_type.get(i.get("type", "issue"), 0) + 1
+        by_type[i.get("type", "hạng mục")] = by_type.get(i.get("type", "hạng mục"), 0) + 1
     tsum = _time_sum(issues)
     tsum["pct_logged"] = pct(tsum["spent_s"], tsum["estimate_s"])
 
@@ -267,7 +267,7 @@ def compute(issues, smap, today, complexity_high=7, qc_members=None):
                 "key": i.get("jira_key"), "summary": i.get("_summary", ""),
                 "assignee": i.get("assignee", "—"), "status": i.get("status", ""),
                 "group": issue_group(i, smap),
-                "project": i.get("project", "—"), "type": i.get("type", "issue"),
+                "project": i.get("project", "—"), "type": i.get("type", "hạng mục"),
                 "spent_s": int(i.get("time_spent_s") or 0), "est_s": int(i.get("time_estimate_s") or 0),
                 "story_points": i.get("story_points", ""),
             } for i in items], key=lambda x: x["group"]),
@@ -396,7 +396,7 @@ def compute(issues, smap, today, complexity_high=7, qc_members=None):
         if not i.get("time_estimate_s"):
             no_est.append({"key": i.get("jira_key"), "summary": i.get("_summary", "")})
 
-    # 🧩 ĐỘ PHỨC TẠP (Complexity) — TRỌNG TÂM: phân bố điểm + issue phức tạp cao (>= ngưỡng, mặc định 7)
+    # 🧩 ĐỘ PHỨC TẠP (Complexity) — TRỌNG TÂM: phân bố điểm + hạng mục phức tạp cao (>= ngưỡng, mặc định 7)
     complexity_dist, cx_pairs = {}, []
     for i in issues:
         cv = i.get("complexity")
@@ -469,7 +469,7 @@ def svg_donut(segments, size=132):
     return (f'<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">'
             f'<svg width="{size}" height="{size}" viewBox="0 0 {size} {size}">{"".join(arcs)}'
             f'<text x="{cx}" y="{cy - 1}" text-anchor="middle" font-size="23" font-weight="800" fill="{PAL["ink"]}">{total}</text>'
-            f'<text x="{cx}" y="{cy + 15}" text-anchor="middle" font-size="10" fill="{PAL["mut"]}">issue</text></svg>'
+            f'<text x="{cx}" y="{cy + 15}" text-anchor="middle" font-size="10" fill="{PAL["mut"]}">hạng mục</text></svg>'
             f'<div>{legend}</div></div>')
 
 
@@ -496,7 +496,7 @@ def svg_bars(rows, color, maxn=8, w=360):
 def render_fragment(m, vault):
     t = m["time"]
     cards = "".join([
-        kpi("Tổng issue", m["total"], color="ink"),
+        kpi("Tổng hạng mục", m["total"], color="ink"),
         kpi("Hoàn thành", f'{m["pct_done"]}%', f'{m["by_status_group"]["done"]}/{m["total"]}', "green"),
         kpi("Ước tính", human_seconds(t["estimate_s"]), color="blue"),
         kpi("Đã log", human_seconds(t["spent_s"]), f'{t["pct_logged"]}% ước tính', "teal"),
@@ -711,16 +711,16 @@ def render_fragment(m, vault):
             f'<td style="text-align:center;color:#fff;background:#d23b3b;font-weight:800">{x["complexity"]}</td>'
             f'<td>{esc(x["assignee"])}</td><td>{esc(x["status"])}</td></tr>'
             for x in cxm.get("high", [])[:30])
-        chtbl = (f'<table class="pr-t"><thead><tr><th>Issue</th><th>Tóm tắt</th><th>Điểm</th><th>Người</th><th>Trạng thái</th></tr></thead><tbody>{chrows}</tbody></table>'
-                 if chrows else '<div class="pr-mut">Không có issue ≥ ngưỡng phức tạp cao.</div>')
+        chtbl = (f'<table class="pr-t"><thead><tr><th>Hạng mục</th><th>Tóm tắt</th><th>Điểm</th><th>Người</th><th>Trạng thái</th></tr></thead><tbody>{chrows}</tbody></table>'
+                 if chrows else '<div class="pr-mut">Không có hạng mục công việc ≥ ngưỡng phức tạp cao.</div>')
         cx_section = (f'<h2>🧩 Độ phức tạp (Complexity) — trọng tâm</h2><div class="pr-card">'
                       f'<p style="margin:0 0 8px"><b style="color:#d23b3b;font-size:18px">{cxm.get("high_count", 0)}</b> '
-                      f'issue PHỨC TẠP CAO (điểm ≥ {cthr}) / {cxm.get("total_scored", 0)} issue có điểm · cao nhất '
+                      f'hạng mục PHỨC TẠP CAO (điểm ≥ {cthr}) / {cxm.get("total_scored", 0)} hạng mục công việc có điểm · cao nhất '
                       f'<b>{cxm.get("max", 0)}</b>. Số càng lớn càng phức tạp → ưu tiên review &amp; nguồn lực.</p>'
                       f'{cbars}{chtbl}</div>')
     return f"""{style}<div class="pr">
 <h1>📊 Báo cáo tiến độ dự án</h1>
-<div class="pr-sub">{_scope} · Vault: {esc(os.path.basename(vault.rstrip('/')))} · cập nhật {esc(gen)} (giờ UTC) · {m['total']} issue</div>
+<div class="pr-sub">{_scope} · Vault: {esc(os.path.basename(vault.rstrip('/')))} · cập nhật {esc(gen)} (giờ UTC) · {m['total']} hạng mục công việc</div>
 {stale}
 {note}
 {filter_bar}
@@ -794,7 +794,7 @@ def _ebar(label, value, maxv, color, suffix=""):
 
 _TYPE_LABELS = {"epic": "Epic", "story": "User Story", "user_story": "User Story",
                 "task": "Task", "sub-task": "Sub-task", "subtask": "Sub-task",
-                "bug": "Bug", "request": "Request", "issue": "Issue"}
+                "bug": "Bug", "request": "Request", "issue": "Hạng mục công việc"}
 
 
 def _type_label(t):
@@ -813,7 +813,7 @@ def render_email_body(m, vault, banner_url=""):
         + (f' · {esc(x["project"])}' if x.get("project") not in (None, "", "—") else "")
         + f')</span> — {esc(x["assignee"])}</li>'
         for x in risks["overdue"][:6])
-    od = od or '<li style="margin:3px 0;color:#5b7a4f">Không có issue quá hạn 👍</li>'
+    od = od or '<li style="margin:3px 0;color:#5b7a4f">Không có hạng mục công việc quá hạn 👍</li>'
     gen = m["generated_at"][:16].replace("T", " ")
     sp = lambda k: 100 * g[k] / tot
     # Phạm vi báo cáo = theo DỰ ÁN (lọc node rỗng 1 lần → dùng cho cả scope + tiering, nhất quán).
@@ -878,7 +878,7 @@ def render_email_body(m, vault, banner_url=""):
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e6eaf0;border-radius:10px;overflow:hidden">
         <tr style="background:{EPAL['chip']}">
           <td style="padding:7px 9px;font-size:11px;color:{EPAL['mut']};text-transform:uppercase;letter-spacing:.03em">Dự án</td>
-          <td style="padding:7px 9px;font-size:11px;color:{EPAL['mut']};text-align:center">Issue</td>
+          <td style="padding:7px 9px;font-size:11px;color:{EPAL['mut']};text-align:center">Hạng mục</td>
           <td style="padding:7px 9px;font-size:11px;color:{EPAL['mut']};text-align:center">% xong</td>
           <td style="padding:7px 9px;font-size:11px;color:{EPAL['mut']};text-align:right">Đã log / Ước tính</td>
           <td style="padding:7px 9px;font-size:11px;color:{EPAL['mut']};text-align:right">Còn lại</td>
@@ -921,7 +921,7 @@ def render_email_body(m, vault, banner_url=""):
         <tr style="background:{EPAL['chip']}">
           <td style="padding:7px 9px;font-size:11px;color:{EPAL['mut']};text-transform:uppercase">Người</td>
           <td style="padding:7px 9px;font-size:11px;color:{EPAL['mut']};text-align:center">Vai trò</td>
-          <td style="padding:7px 9px;font-size:11px;color:{EPAL['mut']};text-align:center">Issue</td>
+          <td style="padding:7px 9px;font-size:11px;color:{EPAL['mut']};text-align:center">Hạng mục</td>
           <td style="padding:7px 9px;font-size:11px;color:{EPAL['green']};text-align:center">Done</td>
           <td style="padding:7px 9px;font-size:11px;color:{EPAL['blue2']};text-align:center">Đang làm</td>
           <td style="padding:7px 9px;font-size:11px;color:{EPAL['mut']};text-align:right">Đã log (giờ·ngày)</td>
@@ -935,7 +935,7 @@ def render_email_body(m, vault, banner_url=""):
     if m["active_sprints"]:
         srows = "".join(
             f'<div style="font-size:12.5px;color:#33405a;margin:3px 0;line-height:1.5">▸ <b style="color:{EPAL["ink"]}">{esc(s["name"])}</b> — '
-            f'{s["total"]} issue · <b style="color:{EPAL["green"]}">{s["pct_done"]}%</b> xong'
+            f'{s["total"]} hạng mục công việc · <b style="color:{EPAL["green"]}">{s["pct_done"]}%</b> xong'
             + (f' · hết hạn <b>{esc(str(s["end"])[:10])}</b>' if s.get("end") else '') + '</div>'
             for s in m["active_sprints"][:5])
         spr_block = (f'<tr><td class="kpad" style="padding:6px 22px 2px">'
@@ -959,14 +959,14 @@ def render_email_body(m, vault, banner_url=""):
                     f'<div style="font-size:11.5px;color:{EPAL["mut"]};text-transform:uppercase;letter-spacing:.04em;margin:14px 0 4px">Khối lượng theo người</div>'
                     f'<table role="presentation" width="100%" cellpadding="0" cellspacing="0">{asg_rows}</table>'
                     f'{proj_chart}</td></tr>')
-    # 🧩 ĐỘ PHỨC TẠP — TRỌNG TÂM (card tím nổi bật): KPI + phân bố điểm + bảng issue phức tạp cao (≥ngưỡng)
+    # 🧩 ĐỘ PHỨC TẠP — TRỌNG TÂM (card tím nổi bật): KPI + phân bố điểm + bảng hạng mục phức tạp cao (≥ngưỡng)
     cx = m.get("complexity", {})
     cx_block = ""
     if cx.get("field_present"):
         thr = cx.get("high_threshold", 7)
         dist = cx.get("dist", {})
         dmax = max(dist.values()) if dist else 1
-        bars = "".join(_ebar(f"Điểm {k}", v, dmax, (EPAL["red"] if int(k) >= thr else EPAL["blue2"]), suffix=" issue")
+        bars = "".join(_ebar(f"Điểm {k}", v, dmax, (EPAL["red"] if int(k) >= thr else EPAL["blue2"]), suffix=" hạng mục")
                        for k, v in sorted(dist.items(), key=lambda kv: -int(kv[0])))
         hrows = ""
         for x in cx.get("high", [])[:15]:
@@ -978,20 +978,20 @@ def render_email_body(m, vault, banner_url=""):
                       f'<td style="padding:6px 9px;font-size:12px;color:#39465c;border-top:1px solid #ece7f8">{esc(x["status"])}</td>'
                       f'</tr>')
         htable = (f'<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e0d8f3;border-radius:10px;overflow:hidden;margin-top:8px">'
-                  f'<tr style="background:#efe9fb"><td style="padding:6px 9px;font-size:11px;color:#5a32a3">Issue</td>'
+                  f'<tr style="background:#efe9fb"><td style="padding:6px 9px;font-size:11px;color:#5a32a3">Hạng mục</td>'
                   f'<td style="padding:6px 9px;font-size:11px;color:#5a32a3">Tóm tắt</td>'
                   f'<td style="padding:6px 9px;font-size:11px;color:#5a32a3;text-align:center">Điểm</td>'
                   f'<td style="padding:6px 9px;font-size:11px;color:#5a32a3">Người</td>'
                   f'<td style="padding:6px 9px;font-size:11px;color:#5a32a3">Trạng thái</td></tr>{hrows}</table>'
-                  if hrows else f'<div style="font-size:12.5px;color:{EPAL["mut"]};margin-top:6px">Không có issue nào ≥ {thr} (phức tạp cao).</div>')
+                  if hrows else f'<div style="font-size:12.5px;color:{EPAL["mut"]};margin-top:6px">Không có hạng mục công việc nào ≥ {thr} (phức tạp cao).</div>')
         cx_block = (
             f'<tr><td class="kpad" style="padding:10px 22px 2px">'
             f'<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#f6f3fe" style="background-color:#f6f3fe;border:1.5px solid #cdbff0;border-left:5px solid #6b46c1;border-radius:10px">'
             f'<tr><td style="padding:12px 15px">'
             f'<div style="font-size:13.5px;font-weight:800;color:#553399">🧩 ĐỘ PHỨC TẠP (Complexity) — TRỌNG TÂM</div>'
             f'<div style="font-size:12.5px;color:#5a4b78;margin:4px 0 8px">'
-            f'<b style="color:{EPAL["red"]};font-size:15px">{cx.get("high_count", 0)}</b> issue PHỨC TẠP CAO (điểm ≥ {thr}) '
-            f'/ {cx.get("total_scored", 0)} issue có điểm · cao nhất <b>{cx.get("max", 0)}</b>. '
+            f'<b style="color:{EPAL["red"]};font-size:15px">{cx.get("high_count", 0)}</b> hạng mục PHỨC TẠP CAO (điểm ≥ {thr}) '
+            f'/ {cx.get("total_scored", 0)} hạng mục công việc có điểm · cao nhất <b>{cx.get("max", 0)}</b>. '
             f'<i>Số càng lớn càng phức tạp — ưu tiên nguồn lực &amp; review cho nhóm điểm cao.</i></div>'
             f'<div style="font-size:11px;color:#7a6a9a;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Phân bố điểm (đỏ = ≥{thr})</div>'
             f'<table role="presentation" width="100%" cellpadding="0" cellspacing="0">{bars}</table>'
@@ -1020,18 +1020,18 @@ def render_email_body(m, vault, banner_url=""):
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#fff3e0" style="background-color:#fff3e0;border:1.5px solid #ffb74d;border-left:5px solid #f57c00;border-radius:10px">
       <tr><td style="padding:12px 15px">
         <div style="font-size:13.5px;color:#9a3b00;font-weight:800;line-height:1.5">📎 Mở FILE ĐÍNH KÈM để xem DASHBOARD CHI TIẾT</div>
-        <div style="font-size:12.5px;color:#8a4b00;line-height:1.6;margin-top:3px">Email này là bản TÓM TẮT. Nhấn mở <b>file HTML đính kèm</b> để xem <b>dashboard tương tác</b>: lọc theo <b>project / người phụ trách</b>, biểu đồ & drill-down từng issue · sprint.</div>
+        <div style="font-size:12.5px;color:#8a4b00;line-height:1.6;margin-top:3px">Email này là bản TÓM TẮT. Nhấn mở <b>file HTML đính kèm</b> để xem <b>dashboard tương tác</b>: lọc theo <b>project / người phụ trách</b>, biểu đồ & drill-down từng hạng mục công việc · sprint.</div>
       </td></tr>
     </table></td></tr>
   <tr><td class="kpad" style="padding:14px 17px 2px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
-    {_ecard("Tổng số issue", m['total'], "issue")}{_ecard("Đã hoàn thành", g['done'], "issue")}{_ecard("Còn lại", m['total'] - g['done'], "issue", True)}
+    {_ecard("Tổng số hạng mục", m['total'], "hạng mục")}{_ecard("Đã hoàn thành", g['done'], "hạng mục")}{_ecard("Còn lại", m['total'] - g['done'], "hạng mục", True)}
   </tr></table></td></tr>
   <tr><td class="kpad" style="padding:8px 22px">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#e9edf3;border-radius:999px;overflow:hidden"><tr style="height:12px">
       <td width="{sp('done'):.0f}%" bgcolor="{EPAL['green']}"></td><td bgcolor="#e9edf3"></td></tr></table>
     <table role="presentation" width="100%" style="margin-top:7px"><tr>
       <td style="font-size:12.5px;color:{EPAL['mut']}">Tiến độ hoàn thành</td>
-      <td style="font-size:12.5px;text-align:right;color:#39465c"><b style="color:{EPAL['green']}">{m['pct_done']}%</b> · còn lại {m['total'] - g['done']} issue · <span style="color:{EPAL['amber']}">đang làm {g['in_progress']}</span></td>
+      <td style="font-size:12.5px;text-align:right;color:#39465c"><b style="color:{EPAL['green']}">{m['pct_done']}%</b> · còn lại {m['total'] - g['done']} hạng mục công việc · <span style="color:{EPAL['amber']}">đang làm {g['in_progress']}</span></td>
     </tr></table></td></tr>
   {cx_block}
   {charts_block}
@@ -1053,7 +1053,7 @@ def render_email_body(m, vault, banner_url=""):
     <div style="font-size:12.5px;color:{EPAL['mut']};line-height:1.6">(Claude điền phân tích chi tiết khi gửi: mức rủi ro · dự đoán trượt timeline + lý do · đề xuất từng bước · theo từng thành viên · tổng kết điều hành.)</div>
     <!--KR-AI-END--></td></tr>
   <tr><td class="kpad" style="padding:8px 22px 16px">
-    <div style="font-size:13px;color:#33405a;line-height:1.7">Để xem chi tiết từng issue / sprint / thành viên (có bộ lọc), vui lòng mở <b>Dashboard đính kèm</b>. Mọi thông tin cần hỗ trợ, vui lòng liên hệ đầu mối bên dưới.</div>
+    <div style="font-size:13px;color:#33405a;line-height:1.7">Để xem chi tiết từng hạng mục công việc / sprint / thành viên (có bộ lọc), vui lòng mở <b>Dashboard đính kèm</b>. Mọi thông tin cần hỗ trợ, vui lòng liên hệ đầu mối bên dưới.</div>
     <div style="font-size:13.5px;color:{EPAL['ink']};font-weight:700;margin-top:10px">Trân trọng!</div></td></tr>
   <tr><td class="kfoot" bgcolor="#0b2a5e" style="background:linear-gradient(135deg,#0b2a5e,#15428f);background-color:#0b2a5e;padding:16px 22px;text-align:center">
     <div style="color:#ffffff;font-size:13px;font-weight:700">KORA AI · Trợ lý tiến độ dự án — FPT Telecom</div>
@@ -1340,7 +1340,7 @@ def main():
     print(f"  - Email body (gửi mail): {ebody_latest}")
     print(f"  - Dashboard mới nhất: {latest_p}")
     print(f"  - Dữ liệu (UI Cowork inline): {json_p}")
-    print(f"Tổng: {m['total']} issue · {m['pct_done']}% done · "
+    print(f"Tổng: {m['total']} hạng mục công việc · {m['pct_done']}% done · "
           f"{len(m['active_sprints'])} sprint active · log {human_seconds(m['time']['spent_s'])}/"
           f"{human_seconds(m['time']['estimate_s'])}")
 

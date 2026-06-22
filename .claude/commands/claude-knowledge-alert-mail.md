@@ -1,11 +1,11 @@
 ---
-description: Configure the INCIDENT alert email — recipients + on/off for the issue-ticket mail that scheduled (background) flows send when a run fails. Editing here OVERRIDES all running schedules (read at run time, no need to recreate any schedule). Also sets where incident tickets go (Confluence/Jira/none). Different from /claude-knowledge-send-mail (which sends the progress report).
+description: Configure the INCIDENT alert email — recipients + on/off for the incident-ticket mail that scheduled (background) flows send when a run fails. Editing here OVERRIDES all running schedules (read at run time, no need to recreate any schedule). Also sets where incident tickets go (Confluence/Jira/none). Different from /claude-knowledge-send-mail (which sends the progress report).
 ---
 
-The user invoked `/claude-knowledge-alert-mail` — cấu hình **EMAIL CẢNH BÁO SỰ CỐ (issue ticket)** của lịch nền.
+The user invoked `/claude-knowledge-alert-mail` — cấu hình **EMAIL CẢNH BÁO SỰ CỐ (ticket sự cố)** của lịch nền.
 
 > 🎯 Đây là mail orchestrator **tự gửi khi một lịch nền LỖI** (scan/get · post · report · mail · sync thất
-> bại) — kèm việc tạo **ticket issue**. KHÁC `/claude-knowledge-send-mail` (mail BÁO CÁO tiến độ) và `reports.email`.
+> bại) — kèm việc tạo **ticket sự cố**. KHÁC `/claude-knowledge-send-mail` (mail BÁO CÁO tiến độ) và `reports.email`.
 > ⭐ **Sửa ở đây = OVERRIDE cho TẤT CẢ lịch đang chạy.** Orchestrator đọc `config/factory-config.yaml`
 > **lúc chạy** nên KHÔNG cần tạo lại lịch nào — lần chạy kế của MỌI lịch tự dùng người nhận/thiết lập mới.
 

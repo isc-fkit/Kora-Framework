@@ -924,7 +924,7 @@ def run_single(jql):
         FIELD_MAP = fetch_field_map()
     issues = fetch_by_jql(jql)
     if not issues:
-        die("Không tìm thấy issue nào khớp. Kiểm tra key/JQL và quyền xem.")
+        die("Không tìm thấy hạng mục công việc nào khớp. Kiểm tra key/JQL và quyền xem.")
     run_from_issues(issues)
 
 
@@ -1025,7 +1025,7 @@ def _emit_command(args) -> str:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--test", action="store_true", help="Chỉ test kết nối")
-    ap.add_argument("--keys", help="Quét riêng các issue, vd: PROJ-102,PROJ-105")
+    ap.add_argument("--keys", help="Quét riêng các hạng mục công việc, vd: PROJ-102,PROJ-105")
     ap.add_argument("--jql", help='Quét theo JQL, vd: "parent = PROJ-101"')
     ap.add_argument("--since", nargs="?", const="__last__",
                     help='Chỉ quét issue MỚI/CẬP NHẬT. --since 2026-06-01 theo ngày; '
@@ -1073,7 +1073,7 @@ def main():
                 pass
         issues = load_mcp_issues(args.from_mcp)
         if not issues:
-            die(f"Không có issue nào trong file {args.from_mcp}.")
+            die(f"Không có hạng mục công việc nào trong file {args.from_mcp}.")
         print(f"Nạp {len(issues)} issue từ MCP file → vault...")
         run_from_issues(issues)
         save_last_import()
@@ -1107,7 +1107,7 @@ def main():
         scope = ""
         if PROJECT_KEYS:
             scope = "project in (" + ",".join(PROJECT_KEYS) + ") AND "
-        print(f"Quét issue cập nhật từ {since}...")
+        print(f"Quét hạng mục công việc cập nhật từ {since}...")
         run_single(f'{scope}updated >= "{since}" ORDER BY updated ASC')
         save_last_import()
         mark_daily_success()

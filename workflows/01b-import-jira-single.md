@@ -1,6 +1,6 @@
 # Workflow 01b — Quét RIÊNG task/epic/story Jira (trigger: "quét task <KEY>")
 
-> Dùng khi user chỉ muốn lấy 1 hoặc vài issue cụ thể (vd vừa có story mới trên Jira)
+> Dùng khi user chỉ muốn lấy 1 hoặc vài hạng mục công việc cụ thể (vd vừa có story mới trên Jira)
 > thay vì quét lại cả project. Script dùng chung `tools/jira-to-obsidian/import_jira.py`
 > với tham số `--keys` hoặc `--jql`.
 
@@ -10,15 +10,15 @@ Từ tin nhắn user, rút ra danh sách key (vd `PROJ-102`, `PROJ-102,PROJ-105`
 Nếu user mô tả mơ hồ → hỏi rõ:
 
 > "Bạn muốn quét theo cách nào?"
-> - [A] Theo mã issue — liệt kê key, cách nhau dấu phẩy (vd PROJ-102,PROJ-105)
-> - [B] Theo điều kiện — vd "tất cả issue trong epic PROJ-101" → Claude dịch thành JQL,
+> - [A] Theo mã hạng mục — liệt kê key, cách nhau dấu phẩy (vd PROJ-102,PROJ-105)
+> - [B] Theo điều kiện — vd "tất cả hạng mục công việc trong epic PROJ-101" → Claude dịch thành JQL,
 >   đọc lại cho user xác nhận
 > - [C] **Lấy cái MỚI từ lần quét trước** (request/issue mới tạo hoặc vừa cập nhật trên
 >   Jira/Atlassian) → dùng chế độ incremental: `python3 import_jira.py --since`
 >   (tự đọc mốc thời gian lần quét cuối ở `_system/last-import.txt`). Muốn chỉ định mốc:
->   `--since 2026-06-01`. Chỉ quét issue thay đổi → nhanh, merge vào vault, không quét lại toàn bộ.
+>   `--since 2026-06-01`. Chỉ quét hạng mục công việc thay đổi → nhanh, merge vào vault, không quét lại toàn bộ.
 
-**Confirm trước khi chạy**: "Tôi sẽ quét N issue: ... — đúng không?"
+**Confirm trước khi chạy**: "Tôi sẽ quét N hạng mục công việc: ... — đúng không?"
 
 ## Bước 2 — Chọn nguồn + kiểm tra cấu hình
 
@@ -43,21 +43,21 @@ python3 import_jira.py --keys PROJ-102,PROJ-105
 python3 import_jira.py --jql "parent = PROJ-101"
 ```
 
-Script chỉ tạo/cập nhật note của các issue đó (kèm epic/parent được nhắc đến trong
+Script chỉ tạo/cập nhật note của các hạng mục công việc đó (kèm epic/parent được nhắc đến trong
 backlink) và **merge** vào `_system/relation-graph.json` + `source-registry.json`
 hiện có — không đụng các note khác.
 
 ## Bước 4 — Báo cáo + hỏi bước tiếp
 
-1. Tóm tắt: đã quét những issue nào, trạng thái, thuộc epic nào, note nằm ở đâu.
+1. Tóm tắt: đã quét những hạng mục công việc nào, trạng thái, thuộc epic nào, note nằm ở đâu.
 2. Hỏi user:
-   - [A] Phân tích ngay các issue này thành tri thức (BR/AC/feature) → `workflows/03-request.md`
+   - [A] Phân tích ngay các hạng mục công việc này thành tri thức (BR/AC/feature) → `workflows/03-request.md`
    - [B] Chỉ lưu raw, xử lý sau
 3. Merge graph/registry vào `.kb/` (đánh dấu `status: raw`) → chạy
-   `python3 tools/kb-indexer/build_index.py --root .` (Windows: `py`) để index phản ánh issue vừa quét
+   `python3 tools/kb-indexer/build_index.py --root .` (Windows: `py`) để index phản ánh hạng mục công việc vừa quét
    (auto-phân tích tra được ngay) → ghi changelog.
 
 ## Guardrails
 
-Như workflow 01: không in token, issue raw chưa phải tri thức chính thức,
+Như workflow 01: không in token, hạng mục công việc raw chưa phải tri thức chính thức,
 không suy diễn BR khi chưa phân tích + duyệt.

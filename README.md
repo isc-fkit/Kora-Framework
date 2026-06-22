@@ -6,7 +6,7 @@
 
 **Kết nối đa nguồn → Tổng hợp tri thức → Đồng bộ Cloud KB chung → Tự động báo cáo & cảnh báo**
 
-[![Version](https://img.shields.io/badge/version-2.12.0-2f7bff)](./version.json)
+[![Version](https://img.shields.io/badge/version-2.12.1-2f7bff)](./version.json)
 [![Codename](https://img.shields.io/badge/codename-Claude--1-5b9bff)](./CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-444)](#-cài-đặt)
 [![Claude](https://img.shields.io/badge/runs%20in-Claude%20CLI%20%2B%20Desktop-7c5cff)](https://claude.ai/code)
@@ -49,7 +49,7 @@ lời thường; mọi bước AI tự chạy, **bạn chỉ confirm**.
 | 🔌 **Kết nối đa nguồn** | Jira (Cloud/Server), Confluence, GitHub, GitLab, SharePoint, Outlook, Gmail — qua **MCP** hoặc **API** (OAuth 2.0 / PAT). API và MCP tính riêng. |
 | 🔎 **Scan & tổng hợp** | Quét cào hết field (kể cả comment) → chuẩn hóa → loại trùng lặp → dựng **wiki liên kết** mỗi project; tùy chọn đào sâu thành feature / BR / AC. |
 | ☁️ **Đồng bộ Cloud KB** | Đẩy/kéo **idempotent** lên Confluence chung và **GitHub private** (git push). Versioning US ↔ Change-Request (giữ bản cũ, đánh dấu superseded, link bản mới). |
-| 📊 **Báo cáo tiến độ** | Dashboard nhiều project × thành viên × loại issue, **lọc chi tiết**, phân tích **giờ công chuẩn vs đã log + OT**, cảnh báo rủi ro — nhìn sơ là nắm tình hình. |
+| 📊 **Báo cáo tiến độ** | Dashboard nhiều project × thành viên × loại hạng mục công việc, **lọc chi tiết**, phân tích **giờ công chuẩn vs đã log + OT**, cảnh báo rủi ro — nhìn sơ là nắm tình hình. |
 | ✉️ **Mail & cảnh báo** | Gửi báo cáo (Gmail / Outlook / SMTP) có banner; lỗi lịch tự bắn ticket + email. |
 | ⏰ **Lịch cấp HĐH** | launchd / cron / schtasks — chạy đúng giờ **kể cả khi đóng app**. |
 | 📝 **Template động** | Prompt + tài liệu (BRD/PRD…) tự điều chỉnh theo **vai trò (BA/PO/SA/QA)** và **domain** đang chọn. |

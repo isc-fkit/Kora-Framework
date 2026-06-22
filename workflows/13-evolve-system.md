@@ -10,7 +10,7 @@
 + fallback "chủ repo trên máy mới chưa có `.maintainer` → hỏi xác nhận rồi tạo"). Một nguồn sự thật —
 guard không lệch nhau.
 - Không phải maintainer → DỪNG, nói nhẹ: *"Lệnh 'tiến hóa hệ thống' là của người DUY TRÌ app. Bạn đang
-  dùng bản đã cài — góp ý thì gửi GitHub Issues, hoặc gõ **'cập nhật phiên bản'** để lấy bản mới."*
+  dùng bản đã cài — góp ý thì gửi GitHub Hạng mục công việc, hoặc gõ **'cập nhật phiên bản'** để lấy bản mới."*
 - Là maintainer → tiếp Bước 1.
 
 ## Bước 1 — Thu tín hiệu
@@ -18,7 +18,7 @@ guard không lệch nhau.
 Đọc và tổng hợp:
 - `.kb/system-lessons.md` — bài học TẦNG QUY TRÌNH tích lũy (khác `.kb/lessons.md` là tầng tri thức).
 - `CHANGELOG.md` — đã sửa gì ở các bản trước (tránh lặp).
-- Bug/feedback user báo gần đây trong phiên + GitHub Issues nếu có.
+- Bug/feedback user báo gần đây trong phiên + GitHub Hạng mục công việc nếu có.
 
 ## Bước 2 — Review đối kháng (cơ chế đã chứng minh)
 

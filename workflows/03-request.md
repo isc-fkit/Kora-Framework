@@ -42,7 +42,7 @@ follow-up CÙNG tính năng đó**; sang tính năng/yêu cầu mới → **hỏ
 3. **Vault là tri thức — phải dùng kể cả khi `.kb` chưa lập chỉ mục.** Nếu index
    trống/mỏng nhưng vault (`vault_path` trong config) có dữ liệu Jira đã quét:
    - Grep trực tiếp trong vault theo từ khóa của yêu cầu (tên tính năng, màn hình,
-     mã issue...) trên cả các thư mục project (`PROJ_MyApp/...`).
+     mã hạng mục...) trên cả các thư mục project (`PROJ_MyApp/...`).
    - Đọc các note khớp (epic/story/task liên quan) làm ngữ cảnh trả lời,
      trích nguồn dạng `vault/PROJ_MyApp/03_UserStories/PROJ-123_....md (nguồn raw Jira,
      chưa duyệt)`.

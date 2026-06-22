@@ -206,12 +206,12 @@ scheduler:                # LỊCH cấp HỆ ĐIỀU HÀNH — chạy đúng gi
   user_os: TODO           # macos | linux | windows — phát hiện lúc register
   python: auto            # auto | <đường dẫn tuyệt đối> — cron KHÔNG có PATH nên resolve tuyệt đối
   log_dir: reports/scheduler-logs
-  # Mail CẢNH BÁO SỰ CỐ (issue ticket) khi lịch nền lỗi — cấu hình tập trung qua /claude-knowledge-alert-mail.
+  # Mail CẢNH BÁO SỰ CỐ (ticket sự cố) khi lịch nền lỗi — cấu hình tập trung qua /claude-knowledge-alert-mail.
   error_recipients: []    # người nhận mail sự cố. != rỗng → OVERRIDE người nhận của MỌI lịch (đọc lúc chạy); rỗng = dùng email từng lịch → fallback reports.email.to
   error_email:
     enabled: true         # bật/tắt GỬI mail sự cố cho mọi lịch (tắt vẫn có thể tạo ticket)
   ticket_issue:
-    enabled: true         # lỗi trong lịch → tạo ticket issue
+    enabled: true         # lỗi trong lịch → tạo ticket sự cố
     target: confluence    # confluence | jira | none
     space_key: ""         # nếu target=confluence
     jira_project: ""      # nếu target=jira
