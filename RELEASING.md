@@ -27,6 +27,12 @@ với app. App đã cài chỉ đọc `version.json`, không quan tâm Pages.
 
 ---
 
+> ⚠️ **SỬA `install.command` → PHẢI đóng gói lại `install.command.zip`.** Nút tải macOS trên landing trỏ tới
+> **`install.command.zip`** (zip giữ exec bit khi tải qua trình duyệt). Sửa installer mà QUÊN cập nhật zip → user tải
+> zip CŨ → cài lỗi (vd skill đổi tên `kora-*`→`claude-knowledge-*` nhưng zip cũ vẫn `cp kora-*.md` → "Không thấy skill").
+> Lệnh: `chmod +x install.command && rm -f install.command.zip && zip -q install.command.zip install.command` →
+> kiểm tra `zipinfo install.command.zip` thấy `-rwxr-xr-x`. (Windows tải `install.bat` trực tiếp + curl one-liner luôn current.)
+
 ## A. Chỉ sửa landing page (index.html / ảnh / chữ giới thiệu)
 
 1. Sửa `index.html` (hoặc asset landing).
