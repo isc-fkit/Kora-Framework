@@ -10,6 +10,17 @@
 
 ---
 
+## v2.9.6 "Kora-1" — 2026-06-22
+
+- **📱 Banner email FULL-WIDTH trên mobile (hết khoảng trắng 2 bên).** Thân email thiếu `<meta viewport>` nên trên
+  điện thoại không kích hoạt responsive → banner co lại, dư trắng. Nay thêm `meta viewport` + mở rộng
+  `@media (max-width:600px)`: card (`.kcard`) + banner (`.kbanner`) **full-bleed sát mép** (bỏ padding 2 bên của
+  `.kbody`, bỏ bo góc) — text bên trong vẫn có lề. Desktop (≥600px) GIỮ card 600px căn giữa, bo góc. ✅ Preview 375px/720px.
+- **✉️ Gửi report nhiều người → TÁCH riêng từng email.** `send_report.py --split`: mỗi người nhận **một mail riêng**
+  (To = chính họ, không thấy nhau), tái dùng 1 kết nối SMTP, **một người lỗi vẫn gửi người khác** + báo ai fail.
+  `kora-send-mail` + lịch nền (orchestrator) tự dùng `--split`. Không `--split` → giữ hành vi cũ (1 mail nhiều địa chỉ).
+- Thuần **CORE**, KHÔNG migration DATA. Máy đã cài: gõ **"cập nhật phiên bản"**.
+
 ## v2.9.5 "Kora-1" — 2026-06-22
 
 - **🧭 Quét Jira ghi ĐÚNG vault (hết lệch "KB-Vault" ↔ report).** `import_jira.py` trước đây **không đọc

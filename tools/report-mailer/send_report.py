@@ -80,6 +80,9 @@ def main():
     ap.add_argument("--body", default="", help="Nội dung text thuần (fallback).")
     ap.add_argument("--attach", action="append", default=[], help="File đính kèm thêm (lặp lại được).")
     ap.add_argument("--no-attach-html", action="store_true", help="Chỉ nhúng HTML, không đính kèm file.")
+    ap.add_argument("--split", action="store_true",
+                    help="Gửi RIÊNG từng người nhận (mỗi mail To = 1 người, không thấy nhau). "
+                         "Mặc định: 1 mail nhiều địa chỉ.")
     ap.add_argument("--stale-after-min", dest="stale_after_min", type=int, default=30,
                     help="Chặn gửi báo cáo CŨ: nếu --html-file cũ hơn N phút → DỪNG (báo build lại). "
                          "0 = tắt kiểm tra. Mặc định 30.")
@@ -248,25 +251,51 @@ def main():
         msg.add_attachment(p.read_bytes(), maintype=maintype, subtype=subtype, filename=fname)
 
     all_rcpt = to + cc + bcc
+
+    def _deliver(s):
+        """Gửi qua kết nối SMTP đã login. Trả (sent, failed). --split → mỗi người 1 mail riêng
+        (tái dùng kết nối, 1 người lỗi KHÔNG làm hỏng cả lượt)."""
+        if not args.split:
+            s.send_message(msg, from_addr=mail_from, to_addrs=all_rcpt)
+            return list(all_rcpt), []
+        sent, failed = [], []
+        if "Cc" in msg:
+            del msg["Cc"]   # split → mỗi mail chỉ 1 người, bỏ Cc
+        for addr in all_rcpt:
+            del msg["To"]
+            msg["To"] = addr
+            try:
+                s.send_message(msg, from_addr=mail_from, to_addrs=[addr])
+                sent.append(addr)
+            except Exception as e:  # noqa: BLE001 — 1 người lỗi vẫn gửi tiếp người khác
+                failed.append((addr, str(e)))
+        return sent, failed
+
     try:
         if security == "ssl":
             with smtplib.SMTP_SSL(host, port, context=ssl.create_default_context(), timeout=30) as s:
                 s.login(user, pw)
-                s.send_message(msg, from_addr=mail_from, to_addrs=all_rcpt)
+                sent, failed = _deliver(s)
         else:  # starttls (mặc định, cổng 587)
             with smtplib.SMTP(host, port, timeout=30) as s:
                 s.ehlo()
                 s.starttls(context=ssl.create_default_context())
                 s.ehlo()
                 s.login(user, pw)
-                s.send_message(msg, from_addr=mail_from, to_addrs=all_rcpt)
+                sent, failed = _deliver(s)
     except smtplib.SMTPAuthenticationError:
         die("Xác thực SMTP thất bại. Gmail: phải dùng App Password (bật 2FA rồi tạo tại "
             "https://myaccount.google.com/apppasswords), KHÔNG dùng mật khẩu Gmail thường.")
     except Exception as e:  # noqa: BLE001 — báo gọn cho user non-tech
         die(f"Gửi mail lỗi: {e}")
 
-    print(f"✅ Đã gửi tới: {', '.join(all_rcpt)} | host={host}:{port} | from={mail_from}")
+    if args.split:
+        print(f"✅ Đã gửi {len(sent)} email RIÊNG (mỗi người 1 mail) tới: {', '.join(sent)} "
+              f"| host={host}:{port} | from={mail_from}")
+        if failed:
+            print("⚠️  Gửi LỖI cho: " + "; ".join(f"{a} ({e})" for a, e in failed), file=sys.stderr)
+    else:
+        print(f"✅ Đã gửi tới: {', '.join(all_rcpt)} | host={host}:{port} | from={mail_from}")
 
 
 if __name__ == "__main__":

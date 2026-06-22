@@ -415,7 +415,8 @@ def main():
                     rc2, o2, e2 = run_tool(MAILER, ["--to", ",".join(recips), "--subject", subj,
                                                     "--html-file", "reports/email-body-latest.html",
                                                     "--no-attach-html", "--banner", str(BANNER_PNG),
-                                                    "--attach", "reports/progress-report-latest.html"],
+                                                    "--attach", "reports/progress-report-latest.html",
+                                                    "--split"],   # mỗi người nhận 1 mail riêng
                                            extra_env={"KORA_MAILER_ENV": str(MAILER_ENV)})
                     if rc2 != 0:
                         run_errors.append({"step": "email", "reason": (e2 or o2)[:300]})

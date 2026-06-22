@@ -776,7 +776,7 @@ def render_email_body(m, vault, banner_url=""):
     _sl = m.get("scope_label", "")
     if _sl and not _sl.startswith("Toàn bộ"):
         scope = f"{scope} · {esc(_sl)}"
-    banner_row = (f'<tr><td style="padding:0;line-height:0"><img src="{banner_url}" '
+    banner_row = (f'<tr><td style="padding:0;line-height:0"><img class="kbanner" src="{banner_url}" '
                   f'alt="Cập nhật tiến độ dự án mỗi ngày" width="600" style="display:block;width:100%;'
                   f'max-width:600px;height:auto;border:0"></td></tr>') if banner_url else ""
     # ── Năng suất & giờ công + lưu ý logtime theo loại ──
@@ -937,10 +937,11 @@ def render_email_body(m, vault, banner_url=""):
             f'<table role="presentation" width="100%" cellpadding="0" cellspacing="0">{bars}</table>'
             f'{htable}</td></tr></table></td></tr>')
     return f"""<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light only"><meta name="supported-color-schemes" content="light only">
 <style>
 :root{{color-scheme:light only;supported-color-schemes:light only}}
-@media only screen and (max-width:600px){{.kc{{display:block!important;width:100%!important;box-sizing:border-box}}.kpad{{padding:16px!important}}}}
+@media only screen and (max-width:600px){{.kc{{display:block!important;width:100%!important;box-sizing:border-box}}.kpad{{padding:16px!important}}.kbody{{padding-left:0!important;padding-right:0!important}}.kcard{{border-radius:0!important}}.kbanner{{width:100%!important;max-width:100%!important;height:auto!important}}}}
 @media (prefers-color-scheme:dark){{
   .kbody,.kbody td,.kbody div,.kbody span,.kbody b,.kbody li,.kbody strong{{color:{EPAL['ink']}!important}}
   .kcard{{background:#ffffff!important;background-color:#ffffff!important}}

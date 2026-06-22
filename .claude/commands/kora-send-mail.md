@@ -51,8 +51,9 @@ The user invoked `/kora-send-mail` — gửi email báo cáo tiến độ. **CÓ
           Người nhận thấy *Kora AI Daily Report &lt;…&gt;*.
         - ✋ confirm → `KORA_MAILER_ENV="$PWD/tools/report-mailer/.env.local" python3 "$T/report-mailer/send_report.py" --to "<list>"
           --subject "<chủ đề>" --html-file reports/email-body-latest.html --no-attach-html --banner "$T/../assets/banner-daily-report.jpg"
-          --attach reports/progress-report-latest.html` → **GỬI THẲNG** (banner **nhúng CID inline** → Outlook hết chặn; body =
-          BÁO CÁO ĐẦY ĐỦ; dashboard tương tác đính kèm). Tool in `ℹ️ Banner: nhúng CID …`. Báo "đã gửi tới <list>".
+          --attach reports/progress-report-latest.html --split` → **GỬI THẲNG** (banner **nhúng CID inline** → Outlook hết
+          chặn; body = BÁO CÁO ĐẦY ĐỦ; dashboard tương tác đính kèm). **`--split` = gửi RIÊNG từng người** (mỗi mail To =
+          1 người, không thấy nhau; 1 người lỗi vẫn gửi người khác). Tool in `ℹ️ Banner: nhúng CID …`. Báo "đã gửi tới <list>".
           > ⏱️ **build_report PHẢI chạy NGAY TRƯỚC** lệnh này (Bước c). send_report có **guard chống gửi bản cũ**: nếu
           > `email-body-latest.html` cũ hơn **30 phút** → DỪNG, báo "build lại". File đính kèm tự đổi **tên có ngày-giờ**
           > (`progress-report-<YYYY-MM-DD_HHMM>.html`) nên mỗi mail một bản KHÁC, client không lấy lại bản cũ cùng tên.
