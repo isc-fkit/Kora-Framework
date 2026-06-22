@@ -98,6 +98,10 @@ Hai tầng hành động — **ĐỌC thì tự chạy, GHI thì mới confirm**
   + `.kb/lessons.md` → phát hiện **xung đột / tác động / lỗ hổng** → trình bày bằng tiếng
   Việt kèm trích nguồn theo file. Không bao giờ hỏi "bạn có muốn tôi phân tích không" —
   cứ phân tích luôn, rồi mới hỏi confirm để GHI.
+  - 📑 **ĐẦU RA = TÀI LIỆU CHUẨN, ĐẦY ĐỦ (TỰ FILL TEMPLATE).** Câu trả lời phân tích phải **chuẩn hóa, chi tiết, rõ
+    ràng như một bài phân tích khoa học** — **tự động điền theo template** (`ba-prompt-library.md` + doc template theo
+    vai trò), KHÔNG cần user yêu cầu format. BẮT BUỘC có mục **⚠️ KIỂM TRA XUNG ĐỘT** (đối chiếu domain-rules + KB +
+    lessons) và **🛡️ RỦI RO & GIẢM THIỂU**, cùng truy vết KB đầy đủ vòng đời (rule 🧬). Cấu trúc chi tiết: `workflows/03-request.md` Bước 3.
   - **NGOẠI LỆ — cổng Vai trò/Domain/Template (HỎI khi có YÊU CẦU MỚI về một tính năng):** mỗi khi user
     nêu một **yêu cầu/tính năng MỚI** (không phải follow-up của tính năng đang phân tích), hỏi nhanh 1 thẻ
     **vai trò (PO/BA/SA/QA/…) → domain → có dùng prompt mẫu + doc template không** (xem

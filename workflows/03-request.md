@@ -71,14 +71,31 @@ Xác định (chạy theo chuỗi prompt trên):
 - Mâu thuẫn với tri thức hiện có? (nêu rõ, không tự chọn bên đúng)
 - Thiếu thông tin gì → câu hỏi `[CẦN XÁC NHẬN]` (đúng theo prompt **02**, nhóm Business Rules/Data/UI/Technical).
 
-## Bước 3 — Trình bày bằng ngôn ngữ tự nhiên
+## Bước 3 — Trình bày như một TÀI LIỆU CHUẨN, ĐẦY ĐỦ (TỰ FILL TEMPLATE)
 
-Trả lời user theo cấu trúc (văn xuôi, không thuật ngữ kỹ thuật thừa):
+> 📑 **Câu trả lời phân tích KHÔNG phải vài gạch đầu dòng** — phải là **một tài liệu CHUẨN HÓA, chi tiết, rõ ràng,
+> đầy đủ như một bài phân tích khoa học**, **TỰ ĐỘNG ĐIỀN theo template** (`templates/prompts/ba-prompt-library.md` +
+> doc template theo vai trò chọn ở Bước 0) — **user KHÔNG cần yêu cầu format**. Mỗi mục **trích NGUỒN theo file**;
+> thiếu nguồn → `[CẦN XÁC NHẬN]` (chuyên môn → `[CẦN XÁC NHẬN CHUYÊN MÔN]`), KHÔNG bịa.
 
-1. Tôi hiểu yêu cầu của bạn là...
-2. Theo tri thức hiện có (trích nguồn file)... liên quan đến các tính năng...
-3. Đề xuất của tôi: mục tiêu, luồng chính, rule nghiệp vụ, tiêu chí nghiệm thu.
-4. Các điểm cần bạn xác nhận: ...
+Cấu trúc BẮT BUỘC (theo thứ tự — đủ chiều sâu để dùng làm tài liệu chính thức; phần Tóm tắt vẫn dễ hiểu cho non-tech):
+
+1. **Tóm tắt điều hành** — hiểu yêu cầu là gì · phạm vi · mục tiêu · vai trò/domain đang áp.
+2. **Bối cảnh & tri thức liên quan** — **truy vết KB ĐẦY ĐỦ vòng đời** (US gốc → Change Request → bugfix → trạng thái
+   approved/chưa approved/superseded; theo rule 🧬 CLAUDE.md) · feature/project liên quan + **phụ thuộc CHÉO** (relation graph).
+3. **Phân tích chi tiết** (chạy theo chuỗi prompt Bước 2, lọc theo vai trò): Feature Tree (MoSCoW) · User Story ·
+   Acceptance Criteria (Given/When/Then) · Business Rules · FR/NFR · Validation/Error · Flow (chính + phụ + ngoại lệ) ·
+   (theo vai trò) URD/PRD/SRS · Screen/UX · API/DB · Test/Edge — **mỗi artifact theo ĐỊNH DẠNG CHUẨN** của ba-prompt-library.
+4. **⚠️ KIỂM TRA XUNG ĐỘT (conflict check) — BẮT BUỘC:** đối chiếu yêu cầu với `config/domain-rules.md` + KB hiện có +
+   `.kb/lessons.md`; liệt kê **TỪNG** xung đột (BR vs BR · AC chồng · mâu thuẫn dữ liệu · lệch giữa các project) + mức độ +
+   hướng xử lý — **KHÔNG tự chọn bên đúng**, nêu ra để user quyết.
+5. **🛡️ RỦI RO & GIẢM THIỂU:** rủi ro nghiệp vụ / kỹ thuật / dữ liệu / bảo mật / tuân thủ; mỗi rủi ro ghi **khả năng ×
+   tác động** + **biện pháp giảm thiểu** + tác động chéo project (bảng khi cần).
+6. **Tiêu chí nghiệm thu & Definition of Done (AC/DoD).**
+7. **❓ Điểm cần xác nhận** — gom toàn bộ `[CẦN XÁC NHẬN]` (đúng nhóm prompt **02**: Business Rules / Data / UI / Technical).
+8. **Khuyến nghị & bước kế.**
+
+Viết có **tiêu đề mục rõ ràng**, dùng **bảng** khi so sánh/liệt kê, đủ chi tiết & chuẩn hóa như tài liệu BA/SA chính thức.
 
 ✋ **GATE 1** — chờ user confirm / chỉnh sửa. Lặp lại bước này đến khi chốt.
 

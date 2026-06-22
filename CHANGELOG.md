@@ -10,6 +10,17 @@
 
 ---
 
+## v2.12.21 "Claude-1" — 2026-06-23
+
+**Nâng chuẩn ĐẦU RA PHÂN TÍCH: tài liệu chuẩn đầy đủ, tự fill template, có conflict-check + rủi ro.**
+
+- `workflows/03-request.md` **Bước 3** viết lại: câu trả lời phân tích KHÔNG còn vài gạch đầu dòng — phải là **tài
+  liệu CHUẨN HÓA, chi tiết, đầy đủ như bài phân tích khoa học**, **TỰ ĐỘNG điền theo template** (`ba-prompt-library.md`
+  + doc template theo vai trò Bước 0). Cấu trúc bắt buộc 8 mục: Tóm tắt điều hành → Bối cảnh & truy vết KB → Phân
+  tích chi tiết (Feature Tree/US/AC/BR/FR-NFR/Validation/Flow/…) → **⚠️ KIỂM TRA XUNG ĐỘT** → **🛡️ RỦI RO & GIẢM
+  THIỂU** → AC/DoD → `[CẦN XÁC NHẬN]` → Khuyến nghị. Mỗi mục trích nguồn theo file.
+- CLAUDE.md §0.1 Tầng A nhấn: đầu ra = tài liệu chuẩn tự-fill-template + conflict + rủi ro (user KHÔNG cần yêu cầu format).
+
 ## v2.12.20 "Claude-1" — 2026-06-23
 
 **Đổi 'KORA AI' → 'Claude AI' trong email + rule truy vết Knowledge Base đầy đủ vòng đời.**
