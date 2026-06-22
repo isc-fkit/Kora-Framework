@@ -375,7 +375,7 @@ def remove_windows(sid, native, cron=None):
 
 
 INSTALL_FAIL_HINT = ("CHƯA cài được vào HĐH — lịch đã LƯU nhưng để enabled=false. "
-                     "Thử lại 'enable --id <id>', hoặc dùng cơ chế Cowork trong /kora-schedule làm fallback.")
+                     "Thử lại 'enable --id <id>', hoặc dùng cơ chế Cowork trong /claude-knowledge-schedule làm fallback.")
 
 
 def _os_install(osname, sid, cron, native):

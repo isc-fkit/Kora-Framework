@@ -41,4 +41,4 @@ python3 tools/sharepoint-sync/sync_sharepoint.py --pull
   **máy thật** (hoặc qua lịch HĐH launchd/cron). `--push --dry-run` chạy offline được (chỉ đọc local + map).
 - Map idempotent: `<vault>/_system/sharepoint/sharepoint-map-<host>-<site>.json`.
 - File đẩy lên là **raw `.md`** (thư viện hỗ trợ Markdown document) — không convert.
-- Trong lịch nền (`/kora-schedule`) token `sharepoint:<site>` ở scan/post; `sharepoint` ở sync-targets.
+- Trong lịch nền (`/claude-knowledge-schedule`) token `sharepoint:<site>` ở scan/post; `sharepoint` ở sync-targets.

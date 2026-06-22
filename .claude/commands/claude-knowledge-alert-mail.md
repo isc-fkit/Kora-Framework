@@ -1,11 +1,11 @@
 ---
-description: Configure the INCIDENT alert email — recipients + on/off for the issue-ticket mail that scheduled (background) flows send when a run fails. Editing here OVERRIDES all running schedules (read at run time, no need to recreate any schedule). Also sets where incident tickets go (Confluence/Jira/none). Different from /kora-send-mail (which sends the progress report).
+description: Configure the INCIDENT alert email — recipients + on/off for the issue-ticket mail that scheduled (background) flows send when a run fails. Editing here OVERRIDES all running schedules (read at run time, no need to recreate any schedule). Also sets where incident tickets go (Confluence/Jira/none). Different from /claude-knowledge-send-mail (which sends the progress report).
 ---
 
-The user invoked `/kora-alert-mail` — cấu hình **EMAIL CẢNH BÁO SỰ CỐ (issue ticket)** của lịch nền.
+The user invoked `/claude-knowledge-alert-mail` — cấu hình **EMAIL CẢNH BÁO SỰ CỐ (issue ticket)** của lịch nền.
 
 > 🎯 Đây là mail orchestrator **tự gửi khi một lịch nền LỖI** (scan/get · post · report · mail · sync thất
-> bại) — kèm việc tạo **ticket issue**. KHÁC `/kora-send-mail` (mail BÁO CÁO tiến độ) và `reports.email`.
+> bại) — kèm việc tạo **ticket issue**. KHÁC `/claude-knowledge-send-mail` (mail BÁO CÁO tiến độ) và `reports.email`.
 > ⭐ **Sửa ở đây = OVERRIDE cho TẤT CẢ lịch đang chạy.** Orchestrator đọc `config/factory-config.yaml`
 > **lúc chạy** nên KHÔNG cần tạo lại lịch nào — lần chạy kế của MỌI lịch tự dùng người nhận/thiết lập mới.
 
@@ -46,11 +46,11 @@ Password). **Bí mật CHỈ ở `.env.local`** — KHÔNG hỏi/nhập password
 
 ### Sau khi ghi
 Báo user: *"Đã cập nhật — áp dụng cho MỌI lịch nền từ lần chạy kế (không cần tạo lại lịch nào)."* Rồi đề xuất
-bước kế (AskUserQuestion): **[Xem/sửa lịch — `/kora-schedule`]** · **[Gửi thử cảnh báo]** · **[Dừng]**.
+bước kế (AskUserQuestion): **[Xem/sửa lịch — `/claude-knowledge-schedule`]** · **[Gửi thử cảnh báo]** · **[Dừng]**.
 
 > 📌 **Override & runtime:** `scheduler.error_recipients` (khi != rỗng) **đè** người nhận của TỪNG lịch cho mail
 > sự cố; thứ tự: **override → người nhận của lịch → `reports.email.to`**. Lịch nền đọc config lúc chạy → áp
 > NGAY cho mọi lịch, KHÔNG cần tạo lại.
 > 🔒 **Không cần cổng `KORA_OPS_PW`:** skill này chỉ **SỬA config** (không gửi gì). Việc GỬI mail sự cố nằm
 > TRONG lượt lịch nền — đã qua cổng `KORA_OPS_PW`. (Lịch nền chỉ gửi được **SMTP**.)
-> Windows: `python3` → `py`. Gói USER (`.kora-user`) vẫn cấu hình được (lịch get&post của user cũng cảnh báo lỗi).
+> Windows: `python3` → `py`. Gói USER (`.claude-knowledge-user`) vẫn cấu hình được (lịch get&post của user cũng cảnh báo lỗi).

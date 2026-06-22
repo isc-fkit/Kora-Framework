@@ -2,7 +2,7 @@
 description: Schedule + MANAGE automatic get→report→mail and optional KB sync. Lists & manages BOTH OS-level schedules (disk, run when app closed) AND Cowork scheduled tasks (RAM+disk, run when app open) — list/enable/disable/edit/delete each — plus customize report email recipients. Sync step is password-gated (operations password).
 ---
 
-The user invoked `/kora-schedule`. Follow `workflows/08-schedule-sync.md` for full detail.
+The user invoked `/claude-knowledge-schedule`. Follow `workflows/08-schedule-sync.md` for full detail.
 Skill này **quản lý ĐẦY ĐỦ cả 2 loại lịch** — lịch HĐH (`schedule.py`, lưu ở disk `schedules.json`) **và**
 lịch Cowork (`mcp__scheduled-tasks__*`, service giữ ở RAM + registry trên disk) — và **tùy chỉnh gửi mail**
 (`reports.email` trong config). Tất cả vào ở **Bước 2** dưới đây.
@@ -19,7 +19,7 @@ lịch Cowork (`mcp__scheduled-tasks__*`, service giữ ở RAM + registry trên
   TỰ ĐỘNG bypass quyền** `--dangerously-skip-permissions` rồi **CHÈN vào email** → mail → lỗi thì tạo ticket). Chạy
   đúng giờ kể cả khi app đóng — **không kẹt prompt, không cần người bấm** (bypass tắt qua `scheduler.ai_risk_analysis.skip_permissions`).
   - 🔑 **Một-lần cho lịch nền CÓ report/mail/sync:** vì launchd/cron không có shell env, đặt mật khẩu
-    vận hành vào **`~/.config/kora/ops-pw.env`** (Windows: `%USERPROFILE%\.kora\ops-pw.env`), nội dung
+    vận hành vào **`~/.config/claude-knowledge/ops-pw.env`** (Windows: `%USERPROFILE%\.claude-knowledge\ops-pw.env`), nội dung
     `KORA_OPS_PW=<mật khẩu vận hành>`, rồi `chmod 600`. `orchestrator.py` TỰ nạp lúc chạy → cổng mới qua được.
     THIẾU file → lịch nền **vẫn chạy SCAN** (kéo tri thức về) nhưng **bỏ post/report/mail/sync** + ghi log.
 - **[Cowork — chạy khi MỞ app]** → `mcp__scheduled-tasks__create_scheduled_task`. **CHỈ cho việc nhẹ không gọi
@@ -30,18 +30,18 @@ lịch Cowork (`mcp__scheduled-tasks__*`, service giữ ở RAM + registry trên
 > mật khẩu.** Vì vậy mật khẩu quyết định bạn tạo được lịch loại nào:
 
 1. **Kiểm mật khẩu** (KHÔNG in, KHÔNG lưu chat — rule secret):
-   - Có `KORA_OPS_PW` (env) **hoặc** file `~/.config/kora/ops-pw.env` → `python3 tools/archive-gate/verify_ops_password.py` (exit 0 = đúng).
+   - Có `KORA_OPS_PW` (env) **hoặc** file `~/.config/claude-knowledge/ops-pw.env` → `python3 tools/archive-gate/verify_ops_password.py` (exit 0 = đúng).
    - Thiếu → hỏi user nhập mật khẩu vận hành → chạy `KORA_OPS_PW="<nhập>" python3 tools/archive-gate/verify_ops_password.py` (KHÔNG echo).
 2. **Phân luồng theo kết quả:**
    - ❌ **Sai/không có** → chỉ mở **LUỒNG SCAN-ONLY** (Bước 3A): đặt lịch **kéo tri thức mới về** từ nguồn đã chọn.
-     KHÔNG cho cấu hình report/mail/sync (báo: "report/mail/sync cần mật khẩu vận hành; đặt vào `~/.config/kora/ops-pw.env` để mở").
+     KHÔNG cho cấu hình report/mail/sync (báo: "report/mail/sync cần mật khẩu vận hành; đặt vào `~/.config/claude-knowledge/ops-pw.env` để mở").
    - ✅ **Đúng** → mở **LUỒNG ĐẦY ĐỦ** (Bước 3B): scan + chọn **Jira→project tạo report** + **mail người nhận** +
      **thời gian/tần suất** + **email ticket sự cố** (+ tùy chọn sync). Nhắc tạo `ops-pw.env` để lịch NỀN cũng qua cổng.
 > (Quản lý ở Bước 2 — liệt kê/sửa/xóa — KHÔNG cần mật khẩu; cổng chỉ chặn việc TẠO lịch có outward + lúc CHẠY nền.)
 
 ### Bước 2 — Hành động (AskUserQuestion): **[Liệt kê & quản lý]** / **[Tạo mới]** / **[Tùy chỉnh gửi mail]**
 
-**[Liệt kê & quản lý]** → **BẮT BUỘC chạy CẢ 2 lệnh** rồi hợp nhất (đừng bỏ sót — task từ `/kora-send-mail [Đặt lịch]`
+**[Liệt kê & quản lý]** → **BẮT BUỘC chạy CẢ 2 lệnh** rồi hợp nhất (đừng bỏ sót — task từ `/claude-knowledge-send-mail [Đặt lịch]`
 nằm ở **HĐH** `schedules.json`; nếu chỉ chạy 1 lệnh sẽ "không thấy"), gắn nhãn engine + cột **ENABLED**:
 - **Lịch HĐH (disk — chạy cả khi ĐÓNG app):** `python3 tools/kora-scheduler/schedule.py list`
   (registry `tools/kora-scheduler/schedules.json`).
@@ -91,7 +91,7 @@ Với MỖI task → AskUserQuestion quản lý **theo loại engine**:
 > Thiếu mật khẩu lúc nền chạy → vẫn SCAN, chỉ bỏ post/report/mail/sync (cảnh báo, không fail cứng).
 
 #### Bước 3A — LUỒNG SCAN-ONLY (không có/sai mật khẩu)
-1. **Nguồn để GET** — chọn scan-list từ `connections:` (multi-select, **[Chọn tất cả]**), giống `/kora-scan`.
+1. **Nguồn để GET** — chọn scan-list từ `connections:` (multi-select, **[Chọn tất cả]**), giống `/claude-knowledge-scan`.
    Token: `jira:<env>`, `confluence:<space>`, **`github:<owner/repo>`** (KÉO KB host về local — vd máy USER pull
    KB chung từ GitHub private), **`sharepoint:<site>`**. SCAN không cần mật khẩu.
 2. **Tiền kiểm CONNECTION** (mục §C dưới) + **Thời gian/tần suất** (mục §T dưới).
@@ -109,7 +109,7 @@ Với MỖI task → AskUserQuestion quản lý **theo loại engine**:
    - **Người nhận mail sự cố** → ghi `scheduler.error_recipients` (rỗng = dùng `reports.email.to`). Thêm/bớt như Bước 2b.
    - **Nơi tạo ticket** → `scheduler.ticket_issue.target` = **[Confluence] / [Jira] / [Không]** (+ space/jira_project nếu cần).
    - ⚙️ Đây là **cấu hình CHUNG** (đọc lúc chạy) → áp cho **MỌI lịch** và **được ship sẵn trong archive/export**
-     (xem `/kora-alert-mail` + `workflows/15-archive.md`): gói **USER** khi lỗi sẽ tự gửi mail ticket cho **người phụ trách** này.
+     (xem `/claude-knowledge-alert-mail` + `workflows/15-archive.md`): gói **USER** khi lỗi sẽ tự gửi mail ticket cho **người phụ trách** này.
 6. **Tiền kiểm CONNECTION** (§C) + **(tùy chọn) Sync** — đẩy KB lên target (`--sync-targets confluence,github,sharepoint`), có cổng.
    > 🔌 **Nguồn scan là MCP-only** → **KHÔNG dead-end**: AskUserQuestion **[A]** kết nối Jira qua API + lịch HĐH nền 24/7
    > (khuyến nghị) · **[B]** lịch **Cowork** (`create_scheduled_task`, chạy khi mở app). (cron không gọi được MCP — token do app giữ.)
@@ -124,7 +124,7 @@ Với MỖI task → AskUserQuestion quản lý **theo loại engine**:
 
 #### §C — Tiền kiểm CONNECTION (bắt buộc cho lịch HĐH)
 - Mỗi nguồn trong scan-list phải có **credential chạy nền** (PAT/API token/OAuth còn refresh). Chỉ OAuth tương
-  tác mà thiếu PAT → **từ chối tạo lịch**, mời `/kora-connect` cấp PAT. Kiểm bằng `check_connection.py --check <id>`.
+  tác mà thiếu PAT → **từ chối tạo lịch**, mời `/claude-knowledge-connect` cấp PAT. Kiểm bằng `check_connection.py --check <id>`.
 
 #### Fallback / Cowork
 - **Cài HĐH lỗi:** `register` in `⚠️ … CHƯA cài được vào HĐH`, lưu `enabled=false` (`list` hiện `⚠️CHƯA-CÀI-HĐH`).
@@ -132,7 +132,7 @@ Với MỖI task → AskUserQuestion quản lý **theo loại engine**:
 - Cowork → `create_scheduled_task` (`notifyOnCompletion:true`).
 
 ### Cấu hình kết nối
-Skill này KHÔNG tự kết nối nguồn — dùng `/kora-connect`. Chỉ ĐỌC `connections:` để hiện danh sách.
+Skill này KHÔNG tự kết nối nguồn — dùng `/claude-knowledge-connect`. Chỉ ĐỌC `connections:` để hiện danh sách.
 
 > Sửa danh sách email/scan/post: orchestrator + task ĐỌC config/registry lúc chạy → chỉ cần sửa
 > `reports.email` / scan-list / post-list là lịch tự dùng giá trị mới, KHÔNG cần tạo lại task (trừ khi đổi giờ/tần suất).

@@ -6,7 +6,7 @@
 
 **Kết nối đa nguồn → Tổng hợp tri thức → Đồng bộ Cloud KB chung → Tự động báo cáo & cảnh báo**
 
-[![Version](https://img.shields.io/badge/version-2.11.0-2f7bff)](./version.json)
+[![Version](https://img.shields.io/badge/version-2.12.0-2f7bff)](./version.json)
 [![Codename](https://img.shields.io/badge/codename-Claude--1-5b9bff)](./CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-444)](#-cài-đặt)
 [![Claude](https://img.shields.io/badge/runs%20in-Claude%20CLI%20%2B%20Desktop-7c5cff)](https://claude.ai/code)
@@ -34,7 +34,7 @@ lời thường; mọi bước AI tự chạy, **bạn chỉ confirm**.
 - [Nguyên lý hoạt động](#-nguyên-lý-hoạt-động)
 - [Cài đặt](#-cài-đặt)
 - [Hành trình sử dụng](#-hành-trình-sử-dụng)
-- [Các lệnh /kora-*](#-các-lệnh-kora)
+- [Các lệnh /claude-knowledge-*](#-các-lệnh-kora)
 - [Template phân tích theo vai trò](#-template-phân-tích-theo-vai-trò)
 - [Bảo mật & khóa (token)](#-bảo-mật--khóa-token)
 - [Bàn giao & đồng bộ](#-bàn-giao--đồng-bộ)
@@ -85,7 +85,7 @@ curl -fsSL https://raw.githubusercontent.com/isc-fkit/Kora-Framework/release/ins
 > **System Settings → Privacy & Security → Open Anyway**. Khi cài, **cấp quyền** truy cập thư mục
 > project + chạy script + các Connector cần dùng.
 
-Chạy lại cùng lệnh = **cập nhật**. Gỡ: `/kora-uninstall` (hoặc `uninstall.command` / `uninstall.bat`).
+Chạy lại cùng lệnh = **cập nhật**. Gỡ: `/claude-knowledge-uninstall` (hoặc `uninstall.command` / `uninstall.bat`).
 
 ## 🚀 Hành trình sử dụng
 
@@ -93,40 +93,40 @@ Chạy lại cùng lệnh = **cập nhật**. Gỡ: `/kora-uninstall` (hoặc `u
 setup → init → connect → scan → schedule → mail → archive
 ```
 
-1. **`/kora-init`** — chọn domain (một / nhiều / tất cả → rule GỘP), tên project, vault.
-   - *(tùy chọn)* **`/kora-ops-password`** — đặt mật khẩu admin 1 lần (cho lịch nền + report/mail/sync).
-2. **`/kora-connect`** — kết nối nguồn (MCP/API); xem nguồn đã kết nối.
-3. **`/kora-scan`** — quét & tổng hợp (scan-all hoặc chọn project).
-4. **`/kora-sync`** — đẩy KB lên Confluence / GitHub private (có cổng mật khẩu).
-5. **`/kora-schedule`** — lịch nền: get → mật khẩu → report → mail → (tùy chọn) sync.
-6. **`/kora-send-mail`** — gửi báo cáo, gửi ngay hoặc đặt lịch.
-7. **`/kora-archive`** — đóng gói bàn giao có phân quyền.
+1. **`/claude-knowledge-init`** — chọn domain (một / nhiều / tất cả → rule GỘP), tên project, vault.
+   - *(tùy chọn)* **`/claude-knowledge-ops-password`** — đặt mật khẩu admin 1 lần (cho lịch nền + report/mail/sync).
+2. **`/claude-knowledge-connect`** — kết nối nguồn (MCP/API); xem nguồn đã kết nối.
+3. **`/claude-knowledge-scan`** — quét & tổng hợp (scan-all hoặc chọn project).
+4. **`/claude-knowledge-sync`** — đẩy KB lên Confluence / GitHub private (có cổng mật khẩu).
+5. **`/claude-knowledge-schedule`** — lịch nền: get → mật khẩu → report → mail → (tùy chọn) sync.
+6. **`/claude-knowledge-send-mail`** — gửi báo cáo, gửi ngay hoặc đặt lịch.
+7. **`/claude-knowledge-archive`** — đóng gói bàn giao có phân quyền.
 
-## 📚 Các lệnh /kora-*
+## 📚 Các lệnh /claude-knowledge-*
 
 > 👥 **Dùng trong Cowork (Claude Desktop/Web):** bộ cài tạo sẵn folder **`Skill/`** trong thư mục
-> project. Để bật các lệnh `/kora-*`: **kéo các file skill trong `Skill/` vào Cowork** rồi bảo Claude
+> project. Để bật các lệnh `/claude-knowledge-*`: **kéo các file skill trong `Skill/` vào Cowork** rồi bảo Claude
 > *"cài skill này"*, **hoặc** vào **Customize → Custom Skills** để thêm skill tùy chỉnh. (Bản CLI:
 > installer đã đặt sẵn ở `~/.claude/commands/`, bỏ qua bước này.)
 
 | Lệnh | Việc | Gác mật khẩu |
 |---|---|:--:|
-| `/kora-init` | Khởi tạo dự án (domain, rule, project, vault) | |
-| `/kora-ops-password` | Đặt mật khẩu admin 1 lần (`~/.config/kora/ops-pw.env`) — mở cổng sync/mail/report/lịch | |
-| `/kora-connect` | Kết nối nguồn / xem nguồn đã kết nối | |
-| `/kora-scan` | Quét & nạp tri thức + tổng hợp wiki | |
-| `/kora-scan-jira-task` | Quét 1 task/epic Jira theo mã | |
-| `/kora-import-files` | Nạp PDF / DOCX / ảnh / zip Obsidian | |
-| `/kora-sync` | Đẩy KB lên Confluence / GitHub private (versioning) | 🔒 |
-| `/kora-send-mail` | Gửi báo cáo (Gmail/Outlook/SMTP), ngay/đặt lịch | 🔒 |
-| `/kora-schedule` | Lịch cấp HĐH: get → report → mail → (tùy chọn) sync | 🔒¹ |
-| `/kora-daily-report` | Báo cáo tiến độ (chọn project, lọc, theo thời gian) | |
-| `/kora-archive` | Đóng gói KB phân quyền + mật khẩu để bàn giao | 🔑² |
-| `/kora-export-docs` | Xuất tài liệu DOCX / PDF theo doc template | |
-| `/kora-export-knowledge-base` | Xuất toàn bộ KB ra zip (sao lưu / dời máy) | |
-| `/kora-evolve` | Dọn / tiến hóa / kiểm tra sức khỏe KB | |
-| `/kora-version` | Xem phiên bản đang cài + so với bản mới nhất (chỉ đọc) | |
-| `/kora-update` · `/kora-uninstall` | Cập nhật app/skill · Gỡ skill | |
+| `/claude-knowledge-init` | Khởi tạo dự án (domain, rule, project, vault) | |
+| `/claude-knowledge-ops-password` | Đặt mật khẩu admin 1 lần (`~/.config/claude-knowledge/ops-pw.env`) — mở cổng sync/mail/report/lịch | |
+| `/claude-knowledge-connect` | Kết nối nguồn / xem nguồn đã kết nối | |
+| `/claude-knowledge-scan` | Quét & nạp tri thức + tổng hợp wiki | |
+| `/claude-knowledge-scan-jira-task` | Quét 1 task/epic Jira theo mã | |
+| `/claude-knowledge-import-files` | Nạp PDF / DOCX / ảnh / zip Obsidian | |
+| `/claude-knowledge-sync` | Đẩy KB lên Confluence / GitHub private (versioning) | 🔒 |
+| `/claude-knowledge-send-mail` | Gửi báo cáo (Gmail/Outlook/SMTP), ngay/đặt lịch | 🔒 |
+| `/claude-knowledge-schedule` | Lịch cấp HĐH: get → report → mail → (tùy chọn) sync | 🔒¹ |
+| `/claude-knowledge-daily-report` | Báo cáo tiến độ (chọn project, lọc, theo thời gian) | |
+| `/claude-knowledge-archive` | Đóng gói KB phân quyền + mật khẩu để bàn giao | 🔑² |
+| `/claude-knowledge-export-docs` | Xuất tài liệu DOCX / PDF theo doc template | |
+| `/claude-knowledge-export-knowledge-base` | Xuất toàn bộ KB ra zip (sao lưu / dời máy) | |
+| `/claude-knowledge-evolve` | Dọn / tiến hóa / kiểm tra sức khỏe KB | |
+| `/claude-knowledge-version` | Xem phiên bản đang cài + so với bản mới nhất (chỉ đọc) | |
+| `/claude-knowledge-update` · `/claude-knowledge-uninstall` | Cập nhật app/skill · Gỡ skill | |
 
 <sub>¹ bước **sync** trong lịch gác bằng `KORA_OPS_PW`. ² archive gác bằng mật khẩu riêng, chỉ chặn HOST tạo gói.</sub>
 
@@ -152,19 +152,19 @@ Bản đồ: `templates/prompts/_index.md` · output mẫu đã điền: `templa
   user chọn auto-sync mới có `.env.local` riêng — cron/launchd không đọc shell tương tác).
 - Token **KHÔNG** vào chat / log / git / config. github-sync bơm PAT qua `GIT_CONFIG_*` (không vào
   `.git/config`/argv). Hai cổng mật khẩu tách biệt: **archive** (HOST tạo gói) và **ops** `KORA_OPS_PW`
-  (sync / mail / sync-trong-lịch). `/kora-export` **không** gác.
+  (sync / mail / sync-trong-lịch). `/claude-knowledge-export-*` **không** gác.
 
 ## 📦 Bàn giao & đồng bộ
 
-HOST đẩy KB lên **GitHub private / Confluence** → `/kora-archive` ship gói USER (key đọc + tắt
+HOST đẩy KB lên **GitHub private / Confluence** → `/claude-knowledge-archive` ship gói USER (key đọc + tắt
 report/mail). USER mở **Claude Desktop** → tạo project → **import gói host export** → connect MCP tới
-nguồn đó → `/kora-schedule` tạo lịch **kéo (pull)** → đúng giờ tự đồng bộ KB về local. Project import
+nguồn đó → `/claude-knowledge-schedule` tạo lịch **kéo (pull)** → đúng giờ tự đồng bộ KB về local. Project import
 luôn **hỏi để nắm tri thức** trước khi trả lời (tránh lạc đề).
 
 ## 🗂️ Cấu trúc dự án
 
 ```text
-.claude/commands/     # Skill /kora-* (markdown)
+.claude/commands/     # Skill /claude-knowledge-* (markdown)
 workflows/            # Kịch bản step-by-step cho từng luồng
 config/               # domain presets, rule, factory-config, ops-pw.sha256
 templates/            # prompts/ (theo vai trò) · docs/ (BRD/PRD) · examples/
@@ -191,7 +191,7 @@ Mọi giá trị **động** (đường dẫn, domain, vault, lịch, target syn
 ## 🤝 Đóng góp
 
 Repo vừa là **landing** (GitHub Pages tự deploy mỗi push) vừa là **app base**. Sửa CORE muốn app đã cài
-nhận được → **tăng `version.json` + ghi `CHANGELOG.md`** → push (`/kora-release` cho maintainer). Chỉ sửa
+nhận được → **tăng `version.json` + ghi `CHANGELOG.md`** → push (`/claude-knowledge-release` cho maintainer). Chỉ sửa
 landing (`index.html`) → giữ nguyên `version.json`. Xem `RELEASING.md`.
 
 ---

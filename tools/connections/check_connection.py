@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 check_connection.py — Đọc SỔ ĐĂNG KÝ kết nối (config/factory-config.yaml > connections)
-và kiểm tra trạng thái từng nguồn. Helper dùng chung cho /kora-connect, /kora-scan, /kora-schedule.
+và kiểm tra trạng thái từng nguồn. Helper dùng chung cho /claude-knowledge-connect, /claude-knowledge-scan, /claude-knowledge-schedule.
 
 KHÔNG in token ra log. Chỉ dùng thư viện chuẩn Python 3.
 
@@ -37,7 +37,7 @@ TIMEOUT = 30
 def resolve_config(arg: str = "") -> Path:
     """Chọn factory-config.yaml ĐÚNG project. Tool có thể chạy từ CORE (~/.claude/kora-framework/tools)
     cho 1 project ở thư mục khác → KHÔNG được đọc CORE config. Ưu tiên tồn-tại-đầu-tiên:
-    --config → cwd/config/factory-config.yaml (PROJECT — /kora-connect chạy ở thư mục project) → REPO_ROOT (dev)."""
+    --config → cwd/config/factory-config.yaml (PROJECT — /claude-knowledge-connect chạy ở thư mục project) → REPO_ROOT (dev)."""
     cands = []
     if arg:
         cands.append(Path(arg).expanduser())
@@ -175,7 +175,7 @@ def probe_api(entry: dict):
     probe = probe.replace("GET ", "").strip()
     token, email = resolve_token(entry)
     if not token:
-        return "error", "Thiếu token (chưa set env var / .env). Chạy /kora-connect."
+        return "error", "Thiếu token (chưa set env var / .env). Chạy /claude-knowledge-connect."
     if not base:
         return "error", "Thiếu base_url trong entry."
 
@@ -222,7 +222,7 @@ def list_repos(entry: dict):
     st = entry.get("source_type", "")
     token, _ = resolve_token(entry)
     if not token:
-        print(json.dumps({"error": "Thiếu token (chưa set env var / .env). Chạy /kora-connect."}, ensure_ascii=False))
+        print(json.dumps({"error": "Thiếu token (chưa set env var / .env). Chạy /claude-knowledge-connect."}, ensure_ascii=False))
         sys.exit(1)
     base = entry.get("base_url") or ""
     try:
@@ -230,7 +230,7 @@ def list_repos(entry: dict):
             url = (_gh_api(base) + "/user/repos?per_page=100&sort=updated"
                    "&affiliation=owner,collaborator,organization_member")
             _code, body = http_get(url, {"Accept": "application/vnd.github+json",
-                                         "Authorization": f"Bearer {token}", "User-Agent": "kora-connect"})
+                                         "Authorization": f"Bearer {token}", "User-Agent": "claude-knowledge-connect"})
             data = json.loads(body)
             out = [{"full_name": r.get("full_name"), "private": r.get("private"),
                     "default_branch": r.get("default_branch")} for r in data if isinstance(r, dict)]
@@ -278,7 +278,7 @@ def main():
             print(json.dumps(conns, ensure_ascii=False, indent=2))
             return
         if not conns:
-            print("ℹ️  Chưa có kết nối nào. Chạy /kora-connect để thêm.")
+            print("ℹ️  Chưa có kết nối nào. Chạy /claude-knowledge-connect để thêm.")
             return
         print(f"{'ID':30} {'METHOD':6} {'SOURCE_TYPE':12} {'STATUS':11} BASE_URL / DOMAIN")
         for c in conns:

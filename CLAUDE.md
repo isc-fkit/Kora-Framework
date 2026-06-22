@@ -23,28 +23,28 @@
 | User nhắn | Claude làm gì |
 |---|---|
 | `@khởi tạo dự án` (hoặc "setup factory", "cài đặt hệ thống") | Confirm → chạy `workflows/00-setup.md` **từng bước, MỖI bước DỪNG hỏi user** (AskUserQuestion/câu thường) rồi mới sang bước kế — KHÔNG tự chọn thay user, KHÔNG chạy lướt |
-| "quét jira" / "lấy dữ liệu mới" / "quét dữ liệu" (toàn bộ project) | Confirm → chạy `workflows/01-import-jira.md` (Bước 0: **chọn nguồn/domain** — Server nội bộ hay Atlassian Cloud — rồi mới quét). **Cowork (sandbox chặn mạng):** nguồn **MCP** quét THẲNG trong chat; nguồn **API** in marker `NETWORK_UNREACHABLE` → **BÀN GIAO**: ghi sẵn `reports/kora-scan.command` (`import_jira.py --emit-command`, token KHÔNG in) cho user chạy `bash reports/kora-scan.command` ở **Terminal** (không bắt gõ lại lệnh). Terminal CLI: quét thẳng. |
+| "quét jira" / "lấy dữ liệu mới" / "quét dữ liệu" (toàn bộ project) | Confirm → chạy `workflows/01-import-jira.md` (Bước 0: **chọn nguồn/domain** — Server nội bộ hay Atlassian Cloud — rồi mới quét). **Cowork (sandbox chặn mạng):** nguồn **MCP** quét THẲNG trong chat; nguồn **API** in marker `NETWORK_UNREACHABLE` → **BÀN GIAO**: ghi sẵn `reports/claude-knowledge-scan.command` (`import_jira.py --emit-command`, token KHÔNG in) cho user chạy `bash reports/claude-knowledge-scan.command` ở **Terminal** (không bắt gõ lại lệnh). Terminal CLI: quét thẳng. |
 | "quét task <KEY>" / "quét epic <KEY>" (vd `quét task PROJ-102`) | Confirm → chạy `workflows/01b-import-jira-single.md` |
-| "kết nối nguồn", "connect", "thêm Jira/GitHub/GitLab/Confluence/SharePoint" | Confirm → `/kora-connect`: chọn **MCP/API** → nguồn (API ưu tiên **OAuth 2.0**; API vs MCP tính RIÊNG) → verify → ghi `connections:`. |
+| "kết nối nguồn", "connect", "thêm Jira/GitHub/GitLab/Confluence/SharePoint" | Confirm → `/claude-knowledge-connect`: chọn **MCP/API** → nguồn (API ưu tiên **OAuth 2.0**; API vs MCP tính RIÊNG) → verify → ghi `connections:`. |
 | "đẩy lên Confluence", "đồng bộ KB chung", "post tri thức", "sync cloud KB" | Confirm → `tools/confluence-sync/sync_confluence.py --push` (headless) / MCP Atlassian (tương tác); `--pull` để kéo về. `permission: read_only` → chỉ pull. |
-| "đồng bộ KB", "sync tri thức", "đẩy KB lên GitHub/Confluence/SharePoint", "sync lên repo" | Confirm → `/kora-sync` (`workflows/16-sync.md`): chọn target [Confluence / GitHub / SharePoint] (multi-select) → **CỔNG MẬT KHẨU `KORA_OPS_PW`** → `tools/kb-sync/version_mark.py` (US↔Change-Request) → `--dry-run` → đẩy **idempotent** (không nhân bản, chỉ mới/đổi). SharePoint qua Microsoft Graph (app Azure AD; admin consent `Sites.ReadWrite.All` để chạy nền). KHÔNG áp cho export. |
-| "đặt mật khẩu admin", "đặt mật khẩu vận hành", "set ops password", "cấu hình KORA_OPS_PW" | Confirm → `/kora-ops-password`: đặt `KORA_OPS_PW` MỘT LẦN vào `~/.config/kora/ops-pw.env` (chmod 600) → `verify_ops_password.py` đọc **ngay lúc chạy** (không cần `source`) cho mọi cổng sync/mail/report/lịch. **KHÔNG nhận mật khẩu qua chat/card** (user nhập qua terminal `read -s` / tự sửa file). |
-| "gửi mail báo cáo", "email tiến độ cho team", "gửi report qua mail" | Confirm → `/kora-send-mail`: chọn **nguồn Jira đã kết nối → project → người nhận → [Gửi ngay / Đặt lịch]**. Gửi ngay qua **cổng `KORA_OPS_PW`** → quét Jira → report → gửi (banner + AI). Đặt lịch → task vào danh sách `/kora-schedule` (bật/tắt/xóa). |
-| "đặt lịch quét jira", "tự động đồng bộ", "lên lịch sync", "đặt lịch đẩy Confluence" | Confirm → `workflows/08-schedule-sync.md` / `/kora-schedule`: **liệt kê & quản lý** lịch hiện có (**bật/tắt active-inactive · xóa · sửa**) + tạo mới. Lịch khi chạy: **get/scan (KHÔNG gác) → reindex → cổng `KORA_OPS_PW` → post → report → mail → (tùy chọn) sync** — cổng sai/thiếu thì VẪN get/scan, chỉ bỏ post/report/mail/sync. **Bước 1.5 của `/kora-schedule` hỏi mật khẩu để phân luồng: không có → chỉ tạo lịch SCAN; có → đầy đủ report/mail/ticket** (✋ confirm trước khi tạo). |
-| "báo cáo tiến độ", "report tiến độ", "tiến độ dự án", "cập nhật tiến độ", "sinh báo cáo" (kể cả khi **PM/PO hỏi bằng lời** trong Cowork) | Confirm → **HỎI DỰ ÁN NÀO trước** (AskUserQuestion — liệt kê project từ nguồn Jira đã kết nối: API `--list-projects` / MCP `getVisibleJiraProjects`; multi-select) → **CỔNG MẬT KHẨU `KORA_OPS_PW`** (báo cáo kéo dữ liệu live; sai → DỪNG) → chạy `workflows/14-progress-report.md`: **tự LÀM MỚI — chỉ kéo các mục MỚI/cập nhật của (các) project đã chọn** (Cloud `*.atlassian.net`/MCP → kéo về vault + reindex; self-host → kiểm tra độ mới) → phân tích AI → sinh dashboard → **UI inline Cowork** + file HTML → **đề xuất gửi mail** ([Gửi ngay]/[Đặt lịch]/[Dừng]). Gửi: tự dùng **Gmail SMTP nếu đã setup**; **Cowork sandbox chặn SMTP → BÀN GIAO: xuất lệnh bash (`reports/kora-send-mail.command`) cho user chạy ở TERMINAL gửi tiếp** (report đã build sẵn ở local — terminal chỉ gửi), KHÔNG bắt gõ lại lệnh. Terminal CLI: SMTP gửi thẳng. |
+| "đồng bộ KB", "sync tri thức", "đẩy KB lên GitHub/Confluence/SharePoint", "sync lên repo" | Confirm → `/claude-knowledge-sync` (`workflows/16-sync.md`): chọn target [Confluence / GitHub / SharePoint] (multi-select) → **CỔNG MẬT KHẨU `KORA_OPS_PW`** → `tools/kb-sync/version_mark.py` (US↔Change-Request) → `--dry-run` → đẩy **idempotent** (không nhân bản, chỉ mới/đổi). SharePoint qua Microsoft Graph (app Azure AD; admin consent `Sites.ReadWrite.All` để chạy nền). KHÔNG áp cho export. |
+| "đặt mật khẩu admin", "đặt mật khẩu vận hành", "set ops password", "cấu hình KORA_OPS_PW" | Confirm → `/claude-knowledge-ops-password`: đặt `KORA_OPS_PW` MỘT LẦN vào `~/.config/claude-knowledge/ops-pw.env` (chmod 600) → `verify_ops_password.py` đọc **ngay lúc chạy** (không cần `source`) cho mọi cổng sync/mail/report/lịch. **KHÔNG nhận mật khẩu qua chat/card** (user nhập qua terminal `read -s` / tự sửa file). |
+| "gửi mail báo cáo", "email tiến độ cho team", "gửi report qua mail" | Confirm → `/claude-knowledge-send-mail`: chọn **nguồn Jira đã kết nối → project → người nhận → [Gửi ngay / Đặt lịch]**. Gửi ngay qua **cổng `KORA_OPS_PW`** → quét Jira → report → gửi (banner + AI). Đặt lịch → task vào danh sách `/claude-knowledge-schedule` (bật/tắt/xóa). |
+| "đặt lịch quét jira", "tự động đồng bộ", "lên lịch sync", "đặt lịch đẩy Confluence" | Confirm → `workflows/08-schedule-sync.md` / `/claude-knowledge-schedule`: **liệt kê & quản lý** lịch hiện có (**bật/tắt active-inactive · xóa · sửa**) + tạo mới. Lịch khi chạy: **get/scan (KHÔNG gác) → reindex → cổng `KORA_OPS_PW` → post → report → mail → (tùy chọn) sync** — cổng sai/thiếu thì VẪN get/scan, chỉ bỏ post/report/mail/sync. **Bước 1.5 của `/claude-knowledge-schedule` hỏi mật khẩu để phân luồng: không có → chỉ tạo lịch SCAN; có → đầy đủ report/mail/ticket** (✋ confirm trước khi tạo). |
+| "báo cáo tiến độ", "report tiến độ", "tiến độ dự án", "cập nhật tiến độ", "sinh báo cáo" (kể cả khi **PM/PO hỏi bằng lời** trong Cowork) | Confirm → **HỎI DỰ ÁN NÀO trước** (AskUserQuestion — liệt kê project từ nguồn Jira đã kết nối: API `--list-projects` / MCP `getVisibleJiraProjects`; multi-select) → **CỔNG MẬT KHẨU `KORA_OPS_PW`** (báo cáo kéo dữ liệu live; sai → DỪNG) → chạy `workflows/14-progress-report.md`: **tự LÀM MỚI — chỉ kéo các mục MỚI/cập nhật của (các) project đã chọn** (Cloud `*.atlassian.net`/MCP → kéo về vault + reindex; self-host → kiểm tra độ mới) → phân tích AI → sinh dashboard → **UI inline Cowork** + file HTML → **đề xuất gửi mail** ([Gửi ngay]/[Đặt lịch]/[Dừng]). Gửi: tự dùng **Gmail SMTP nếu đã setup**; **Cowork sandbox chặn SMTP → BÀN GIAO: xuất lệnh bash (`reports/claude-knowledge-send-mail.command`) cho user chạy ở TERMINAL gửi tiếp** (report đã build sẵn ở local — terminal chỉ gửi), KHÔNG bắt gõ lại lệnh. Terminal CLI: SMTP gửi thẳng. |
 | "đặt lịch báo cáo", "lịch báo cáo tiến độ" | Confirm → `workflows/08-schedule-sync.md` **Mục B**: tạo lịch 8:00 tự làm mới→report; có **tùy chọn tự gửi email** (cổng mật khẩu `send_report.py --check` + danh sách người nhận sửa được) (✋ confirm trước khi tạo scheduled task). |
 | "sửa danh sách email báo cáo", "thêm/bớt người nhận mail", "bật/tắt auto gửi mail" | Confirm → cập nhật `reports.email` (to / enabled) trong `config/factory-config.yaml`; lịch tự dùng list mới, KHÔNG cần tạo lại task (WF08 Mục B → mục "Sửa danh sách"). |
-| "sửa mail cảnh báo sự cố", "đổi người nhận mail issue ticket", "cấu hình mail lỗi lịch", "bật/tắt mail cảnh báo" | Confirm → `/kora-alert-mail`: sửa `scheduler.error_recipients` (+ `scheduler.error_email.enabled` + `scheduler.ticket_issue`). **OVERRIDE người nhận mail sự cố cho MỌI lịch đang chạy** — orchestrator đọc config LÚC CHẠY → KHÔNG cần tạo lại lịch nào. KHÁC `/kora-send-mail` (mail báo cáo). Chỉ SỬA config → **KHÔNG cần cổng** (việc GỬI nằm trong lượt lịch đã gác `KORA_OPS_PW`). |
+| "sửa mail cảnh báo sự cố", "đổi người nhận mail issue ticket", "cấu hình mail lỗi lịch", "bật/tắt mail cảnh báo" | Confirm → `/claude-knowledge-alert-mail`: sửa `scheduler.error_recipients` (+ `scheduler.error_email.enabled` + `scheduler.ticket_issue`). **OVERRIDE người nhận mail sự cố cho MỌI lịch đang chạy** — orchestrator đọc config LÚC CHẠY → KHÔNG cần tạo lại lịch nào. KHÁC `/claude-knowledge-send-mail` (mail báo cáo). Chỉ SỬA config → **KHÔNG cần cổng** (việc GỬI nằm trong lượt lịch đã gác `KORA_OPS_PW`). |
 | "tiến hóa KB", "dọn dẹp KB", "kiểm tra sức khỏe KB" | Confirm → chạy `workflows/09-evolve.md` |
 | Gửi file PDF/DOCX/**ảnh** (PNG/JPG)/zip Obsidian | Confirm → chạy `workflows/02-import-files.md` |
 | Nêu một vấn đề / yêu cầu / thay đổi nghiệp vụ | **TỰ ĐỘNG** phân tích (Tầng A — xem §0.1), không cần lệnh → confirm trước khi ghi |
 | "xuất tài liệu", "export docx/pdf" | Confirm → chạy `workflows/06-export-docs.md` |
 | "đổi domain", "sửa rule" | Confirm → chạy `workflows/00-setup.md` mục B (chỉ phần domain/rules) |
-| "đang cài bản nào", "xem phiên bản đang cài", "phiên bản hiện tại / đang dùng", "version đang cài", `/kora-version` | **CHỈ ĐỌC** → `/kora-version`: đọc `~/.claude/kora-framework/version.json` (fallback `./version.json`) hiện bản đang cài + so với bản mới nhất trên GitHub (gợi ý `/kora-update` nếu cũ). KHÔNG cập nhật, KHÔNG ghi gì. (Khác "cập nhật phiên bản" = WF10 đi tải/ghi đè.) |
+| "đang cài bản nào", "xem phiên bản đang cài", "phiên bản hiện tại / đang dùng", "version đang cài", `/claude-knowledge-version` | **CHỈ ĐỌC** → `/claude-knowledge-version`: đọc `~/.claude/kora-framework/version.json` (fallback `./version.json`) hiện bản đang cài + so với bản mới nhất trên GitHub (gợi ý `/claude-knowledge-update` nếu cũ). KHÔNG cập nhật, KHÔNG ghi gì. (Khác "cập nhật phiên bản" = WF10 đi tải/ghi đè.) |
 | "cập nhật phiên bản", "cập nhật ứng dụng / app", "lên bản mới nhất", "có bản mới không", "kiểm tra phiên bản" | **= Cập nhật CHƯƠNG TRÌNH (app) lên bản phát hành mới nhất** → chạy `workflows/10-update.md` (giữ nguyên tri thức). **TUYỆT ĐỐI KHÔNG** hỏi lại "bạn muốn cập nhật cái gì" — chạy thẳng WF10 (WF10 tự confirm trước khi tải/ghi đè). **Chỉ khi** user gõ **"cập nhật" TRƠ** (không có tân ngữ) mới hỏi 1 câu phân biệt: *"Cập nhật ứng dụng lên bản mới, hay cập nhật tri thức/nội dung?"* |
 | "sao lưu", "xuất tri thức", "chuyển/dời máy" | Confirm → chạy `workflows/11-export-import.md` mục A (export) |
 | "nhập tri thức", "khôi phục", đưa file `kora-kb-*.zip` / `kora-archive-*.zip` | Confirm → chạy `workflows/11-export-import.md` mục B (import) — nhận cả gói sao lưu lẫn gói archive |
-| "đóng gói bàn giao", "archive", "handover", "đóng gói cho user dùng" | Confirm → `workflows/15-archive.md` (`/kora-archive`): **cổng mật khẩu** → chọn USER/HOST + read-only/read-write → ship key READ → `kora-archive-*.zip`. Gói USER tắt report/mail, tự lên lịch get&post. |
+| "đóng gói bàn giao", "archive", "handover", "đóng gói cho user dùng" | Confirm → `workflows/15-archive.md` (`/claude-knowledge-archive`): **cổng mật khẩu** → chọn USER/HOST + read-only/read-write → ship key READ → `kora-archive-*.zip`. Gói USER tắt report/mail, tự lên lịch get&post. |
 | "phát hành", "release", "lên version", "ra bản mới" | **CHỈ người duy trì app** — `workflows/12-release.md` Bước 0 kiểm tra file `.maintainer`. Máy user thường (không có `.maintainer`) → KHÔNG chạy, giải thích đây là lệnh của tác giả + gợi ý **"cập nhật phiên bản"** / **"sao lưu"** |
 | "tiến hóa hệ thống", "rà soát workflow", "cải tiến quy trình" | **CHỈ người duy trì app** (guard `.maintainer`) → `workflows/13-evolve-system.md`: review đối kháng workflow/rule → đề xuất sửa → release. User thường → giải thích + gợi ý gửi phản hồi. **Phân biệt với WF09:** "tiến hóa" + KB/tri thức/feature → WF09 (mọi user); + workflow/rule/quy trình/hệ thống → WF13 (maintainer); chỉ "tiến hóa" trơ → hỏi rõ "KB hay hệ thống?" |
 
@@ -127,19 +127,19 @@ Mục tiêu: user KHÔNG cần thuộc lệnh nào — chỉ nói bằng lời t
    đẩy/đồng bộ Confluence, đặt lịch, sửa code, export, đổi config, **và từng bước trong setup** — BẮT BUỘC trình bày
    "sẽ làm gì" rồi DỪNG hỏi user, **chờ user đồng ý mới làm**. KHÔNG tự suy diễn user đã đồng ý,
    KHÔNG tự quyết thay user, KHÔNG chạy lướt nhiều thao tác liền nhau.
-   **Cổng mật khẩu vận hành (`KORA_OPS_PW`):** `/kora-sync`, `/kora-send-mail`, `/kora-daily-report` (báo
-   cáo kéo dữ liệu live), và **bước PHÁT RA NGOÀI** của `/kora-schedule` (**post · report · mail · sync** —
+   **Cổng mật khẩu vận hành (`KORA_OPS_PW`):** `/claude-knowledge-sync`, `/claude-knowledge-send-mail`, `/claude-knowledge-daily-report` (báo
+   cáo kéo dữ liệu live), và **bước PHÁT RA NGOÀI** của `/claude-knowledge-schedule` (**post · report · mail · sync** —
    KHÔNG gồm scan/get) PHẢI qua `tools/archive-gate/verify_ops_password.py` (exit 0) TRƯỚC khi đẩy/gửi — mật khẩu
    do CHỦ REPO đặt (hash trên repo framework), **KHÔNG hỏi qua card, KHÔNG in**. Cổng sai/thiếu ở lịch nền → **vẫn
-   chạy scan/get** (kéo tri thức về), chỉ bỏ post/report/mail/sync + cảnh báo. `/kora-export` và `/kora-export-docs`
-   **TUYỆT ĐỐI không** dùng cổng này. **Đặt 1 lần bằng `/kora-ops-password`** → lưu `~/.config/kora/ops-pw.env`
+   chạy scan/get** (kéo tri thức về), chỉ bỏ post/report/mail/sync + cảnh báo. `/claude-knowledge-export-*` và `/claude-knowledge-export-docs`
+   **TUYỆT ĐỐI không** dùng cổng này. **Đặt 1 lần bằng `/claude-knowledge-ops-password`** → lưu `~/.config/claude-knowledge/ops-pw.env`
    (chmod 600); `verify_ops_password.py` đọc env **HOẶC** file đó lúc chạy → có hiệu lực ngay, không cần `source`.
 3. **Trình bày bằng ngôn ngữ tự nhiên trước.** Khi phân tích xong, trả lời user bằng
    tiếng Việt dễ hiểu (không dán file thô), rồi mới hỏi confirm để ghi vào `.md`.
 4. **Không bịa tri thức.** Thiếu thông tin → đánh dấu `[CẦN XÁC NHẬN]`.
    Tri thức chuyên môn (ngưỡng y tế, quy định pháp lý...) chưa có nguồn → `[CẦN XÁC NHẬN CHUYÊN MÔN]`.
 5. **Trace được nguồn.** Mọi tri thức phải có mặt trong `.kb/source-registry.json`.
-6. **Không lưu secret — KEY mặc định ở SHELL ENV, KHÔNG rải `.env` trong project.** Khi `/kora-connect`
+6. **Không lưu secret — KEY mặc định ở SHELL ENV, KHÔNG rải `.env` trong project.** Khi `/claude-knowledge-connect`
    lấy token, **GHI vào biến môi trường `~/.zshrc` / `~/.bashrc`** (`export KORA_<SRC>_TOKEN=...`,
    theo `$SHELL`) rồi nhắc `source` — các tool đọc qua `os.getenv`. **KHÔNG tạo file `.env.local` trong
    project** trừ **2 NGOẠI LỆ**: (a) **archive** ship đúng **1 `.env.local` read-only** (key đọc KB chung)
@@ -232,7 +232,7 @@ Claude phải đọc `config/domain-rules.md` trước mỗi phiên phân tích 
 | `tools/github-sync/` | Tool đẩy/kéo KB ↔ repo GitHub riêng tư (git push/pull qua PAT, idempotent, token ở `.env.local`) |
 | `tools/sharepoint-sync/` | Tool đẩy/kéo KB ↔ SharePoint document library (Microsoft Graph; auth client-credentials/device-flow; idempotent map+etag) |
 | `tools/kb-synth/` | Tổng hợp NHẸ: dựng trang `_wiki/<Project>-Wiki.md` liên kết cho mỗi project (sau scan) |
-| `tools/kb-sync/` | `version_mark.py` — đánh dấu US cũ ↔ Change-Request trước khi /kora-sync đẩy |
+| `tools/kb-sync/` | `version_mark.py` — đánh dấu US cũ ↔ Change-Request trước khi /claude-knowledge-sync đẩy |
 | `tools/archive-gate/` | Cổng mật khẩu: `verify_password.py` (archive) + `verify_ops_password.py` (sync/mail/lịch-sync, env `KORA_OPS_PW`) |
 | `tools/kora-scheduler/` | Lịch cấp HĐH (launchd/cron/schtasks) + orchestrator chạy nền (get→cổng→report→mail→sync) |
 | `templates/` | Template mọi loại tài liệu |
@@ -299,21 +299,21 @@ User nêu vấn đề (ngôn ngữ tự nhiên)
   bản template đi kèm repo là `config/factory-config.example.yaml` và `config/domain-presets/`.
   **Khi setup, nếu thiếu `config/factory-config.yaml` → copy từ `config/factory-config.example.yaml`**
   rồi điền giá trị (đừng tạo từ đầu).
-- **Gói HOST vs USER (marker `.kora-user`).** Máy có file `.kora-user` (gitignore, do `import-kb` tạo
-  khi nhận gói archive USER) = **máy NGƯỜI DÙNG**: TẮT báo cáo/gửi mail (WF14, WF08 Mục B, `/kora-daily-report`
+- **Gói HOST vs USER (marker `.claude-knowledge-user`).** Máy có file `.claude-knowledge-user` (gitignore, do `import-kb` tạo
+  khi nhận gói archive USER) = **máy NGƯỜI DÙNG**: TẮT báo cáo/gửi mail (WF14, WF08 Mục B, `/claude-knowledge-daily-report`
   tự chặn), CHỈ đồng bộ KB chung (get & post; read-only thì 1 chiều get). Máy HOST (không marker) đầy đủ.
   Quyền push là **CAPABILITY** (có/không key write trong `tools/confluence-sync/.env.local`), không phải cờ.
-- **Bàn giao → đồng bộ tự động (host đẩy KB lên cloud, user kéo về local).** HOST `/kora-sync` đẩy KB lên
-  **GitHub private**, **Confluence chung** và/hoặc **SharePoint** (cổng `KORA_OPS_PW`), rồi `/kora-archive` ship gói USER
-  (key READ + `.kora-user`). USER (máy base sạch): mở **Claude Desktop** → tạo project → **import source
-  host export** → mở **/kora-schedule** tạo lịch nền **kéo (pull) đồng bộ** với nguồn `confluence:<space>` /
+- **Bàn giao → đồng bộ tự động (host đẩy KB lên cloud, user kéo về local).** HOST `/claude-knowledge-sync` đẩy KB lên
+  **GitHub private**, **Confluence chung** và/hoặc **SharePoint** (cổng `KORA_OPS_PW`), rồi `/claude-knowledge-archive` ship gói USER
+  (key READ + `.claude-knowledge-user`). USER (máy base sạch): mở **Claude Desktop** → tạo project → **import source
+  host export** → mở **/claude-knowledge-schedule** tạo lịch nền **kéo (pull) đồng bộ** với nguồn `confluence:<space>` /
   **`github:<owner/repo>`** / **`sharepoint:<site>`** → đúng giờ tự kéo tri thức mới về **local knowledge**.
   (Lịch nền pull GitHub/SharePoint là tiến trình HĐH; sandbox Cowork chặn API nên không chạy nền trong app.)
 - **Mật khẩu ARCHIVE chỉ gác HOST tạo gói** (`verify_password.py` trong `archive-kb.command`) — **KHÔNG**
   hỏi lại khi user cài/import (`import-kb.command` không gọi cổng). Mật khẩu VẬN HÀNH (`KORA_OPS_PW`,
   `verify_ops_password.py`) mới gác sync/mail/**báo cáo** + **bước post/report/mail/sync của lịch nền** (scan/get KHÔNG gác) — khác hẳn mật khẩu archive.
 - **Project IMPORT luôn HỎI để nắm tri thức trước khi trả lời.** Khi mở 1 project vừa import KB (có
-  `.kora-user` hoặc vault/docs đã có dữ liệu nhưng phiên chưa nạp), TRƯỚC khi trả lời câu hỏi nghiệp vụ,
+  `.claude-knowledge-user` hoặc vault/docs đã có dữ liệu nhưng phiên chưa nạp), TRƯỚC khi trả lời câu hỏi nghiệp vụ,
   đọc `.kb/index.json` + vault và **hỏi 1–2 câu làm rõ phạm vi/feature đang nói tới** để bám đúng tri
   thức — TRÁNH trả lời chung chung/lạc đề. (Áp cùng Tầng A; nếu KB đủ rõ thì khỏi hỏi.)
 - **KB ĐÁM MÂY CHUNG (Confluence).** Gom tri thức → đẩy lên 1 Confluence chung qua `tools/confluence-sync/`
@@ -342,12 +342,12 @@ User nêu vấn đề (ngôn ngữ tự nhiên)
   giới — định kỳ **quét full** một lần cho chắc. Issue bị xoá trên Jira KHÔNG tự mất khỏi vault.
 - **Import dời máy** dành cho máy có **base sạch**; bung lên instance đang có dữ liệu sẽ merge
   (vault được thay sạch, nhưng `.kb`/`docs` thì gộp).
-- **Versioning US↔Change-Request (`/kora-sync`):** nhận diện CR qua **issue-link Jira** (`supersedes`,
+- **Versioning US↔Change-Request (`/claude-knowledge-sync`):** nhận diện CR qua **issue-link Jira** (`supersedes`,
   `clones`, `relates`…) hoặc **issue type** `Change Request` — bộ này tùy biến trong `sync.versioning`.
   US cũ được **GIỮ** + đánh dấu `superseded` + link CR (KHÔNG xoá, KHÔNG nhân bản trên target). Vault quét
   bằng bản cũ (đồ thị thiếu `link_type`) chỉ nhận theo issue-type → nên **quét lại nguồn** cho đủ.
 - **Lịch nền:** scan/get (kéo tri thức về) **KHÔNG gác**; chỉ **post/report/mail/sync** cần `KORA_OPS_PW`. Vì
-  cron/launchd không có shell env → đặt mật khẩu ở `~/.config/kora/ops-pw.env` (Windows `%USERPROFILE%\.kora\ops-pw.env`),
+  cron/launchd không có shell env → đặt mật khẩu ở `~/.config/claude-knowledge/ops-pw.env` (Windows `%USERPROFILE%\.claude-knowledge\ops-pw.env`),
   nội dung `KORA_OPS_PW=<mk>`, chmod 600 — `orchestrator.py` **TỰ nạp** lúc chạy (không cần wrapper). Thiếu → lịch
   **vẫn chạy scan**, chỉ bỏ post/report/mail/sync, chỉ cảnh báo, không fail cứng. **Lỗi lượt nền → tạo ticket
   (`scheduler.ticket_issue`) + email người phụ trách (`scheduler.error_recipients`)** — cấu hình này **ship sẵn

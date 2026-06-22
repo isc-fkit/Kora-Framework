@@ -19,7 +19,7 @@ echo "================================================================"
 echo "  Gỡ Kora-Framework skills khỏi ~/.claude"
 echo "================================================================"
 echo "Sẽ xóa:"
-echo "  - $DEST_CMD/kora-*.md"
+echo "  - $DEST_CMD/claude-knowledge-*.md"
 echo "  - $DEST_CORE/"
 echo "  - $SKILL_DIR/  (chỉ skill — tri thức trong Knowledge-Base được giữ)"
 echo ""
@@ -28,10 +28,10 @@ if [ -t 0 ]; then
   [ "${ans:-}" = "yes" ] || { echo "Đã hủy."; exit 0; }
 fi
 
-rm -f "$DEST_CMD"/kora-*.md 2>/dev/null || true
+rm -f "$DEST_CMD"/kora-*.md "$DEST_CMD"/claude-knowledge-*.md 2>/dev/null || true
 rm -rf "$DEST_CORE" 2>/dev/null || true
 rm -rf "$SKILL_DIR" 2>/dev/null || true
-rmdir "$DL_BASE/Knowledge-Base" 2>/dev/null || true   # chỉ xóa nếu rỗng (chừa tri thức nếu đã /kora-init)
+rmdir "$DL_BASE/Knowledge-Base" 2>/dev/null || true   # chỉ xóa nếu rỗng (chừa tri thức nếu đã /claude-knowledge-init)
 rm -rf "$DL_BASE/Kora-Skills" "$DL_BASE/Kora-Skills.zip" 2>/dev/null || true   # dọn folder cũ nếu còn sót
 echo ""
 echo "✅ Đã gỡ skill Kora."

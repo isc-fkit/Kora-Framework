@@ -2,7 +2,7 @@
 description: Export knowledge to DOCX/PDF for human readers.
 ---
 
-The user invoked `/kora-export-docs` — an explicit command to export documents.
+The user invoked `/claude-knowledge-export-docs` — an explicit command to export documents.
 
 Read and execute `workflows/06-export-docs.md` following `CLAUDE.md`:
 

@@ -1,9 +1,9 @@
-# Workflow 16 — Sync KB lên target đã kết nối (`/kora-sync`)
+# Workflow 16 — Sync KB lên target đã kết nối (`/claude-knowledge-sync`)
 
 > Đẩy tri thức cục bộ (vault + `docs/` + trang `_wiki` tổng hợp) lên **Confluence chung**, **repo
 > GitHub riêng tư** và/hoặc **SharePoint** (document library). Idempotent (KHÔNG nhân bản, chỉ mới/đổi) + versioning US↔Change-Request.
 > **CÓ CỔNG MẬT KHẨU vận hành (`KORA_OPS_PW`).** Mỗi bước GHI đều DỪNG hỏi confirm (Approval Gate).
-> Gói USER (`.kora-user`) chỉ đồng bộ KB chung theo cấu hình — vẫn áp cổng mật khẩu.
+> Gói USER (`.claude-knowledge-user`) chỉ đồng bộ KB chung theo cấu hình — vẫn áp cổng mật khẩu.
 
 ## Bước 1 — Chọn target
 Đọc `confluence.enabled` / `github.enabled` / `gitlab.enabled` / `sharepoint.enabled` (và `.env.local` tương ứng).
@@ -16,7 +16,7 @@ Hướng dẫn user đặt biến môi trường `KORA_OPS_PW` (**KHÔNG hỏi q
 KORA_OPS_PW="…" python3 tools/archive-gate/verify_ops_password.py
 ```
 Exit `0` → tiếp. Khác `0` → **DỪNG** ("Sai mật khẩu — không đồng bộ"), không làm gì gated.
-(Chạy nền/headless không hỏi được → mật khẩu nằm ở `~/.config/kora/ops-pw.env` chmod 600.)
+(Chạy nền/headless không hỏi được → mật khẩu nằm ở `~/.config/claude-knowledge/ops-pw.env` chmod 600.)
 
 ## Bước 3 — Đánh dấu phiên bản US↔Change-Request
 ```
@@ -89,4 +89,4 @@ Cùng cơ chế bảo mật/gương-1-chiều như GitHub; token bơm qua `GIT_C
 verify/đẩy SharePoint chạy ở **máy thật** (hoặc lịch HĐH). Token KHÔNG vào chat/git/config.
 
 ## Bước kế (AskUserQuestion)
-**[A]** Đặt lịch tự sync (`/kora-schedule`) · **[B]** Gửi báo cáo (`/kora-send-mail`) · **[C]** Dừng.
+**[A]** Đặt lịch tự sync (`/claude-knowledge-schedule`) · **[B]** Gửi báo cáo (`/claude-knowledge-send-mail`) · **[C]** Dừng.

@@ -2,10 +2,10 @@
 # archive-kb.command — ĐÓNG GÓI KB có PHÂN QUYỀN + mật khẩu để bàn giao cho user khác.
 #
 # Khác export-kb (sao lưu thuần): có CỔNG MẬT KHẨU, ship key READ-ONLY cloud-KB, và đánh
-# dấu gói là HOST hay USER. Gói = thư mục 'kora-archive/' { manifest.json, data/, .env.local
+# dấu gói là HOST hay USER. Gói = thư mục 'claude-knowledge-archive/' { manifest.json, data/, .env.local
 # (chỉ key READ), markers/package.type }.
 #
-# Skill /kora-archive truyền lựa chọn qua BIẾN MÔI TRƯỜNG (Claude điều phối):
+# Skill /claude-knowledge-archive truyền lựa chọn qua BIẾN MÔI TRƯỜNG (Claude điều phối):
 #   KORA_ARCHIVE_PW         mật khẩu (hoặc nhập qua stdin)         [bắt buộc]
 #   KORA_PKG_TYPE           user | host                            [mặc định user]
 #   KORA_PKG_PERMISSION     read-only | read-write                 [mặc định read-only]
@@ -48,9 +48,9 @@ echo "  ARCHIVE bàn giao — Kora-Framework"
 echo "  Project: $PROJECT | Loại: $PKG_TYPE ($PKG_PERM) | v$VERSION"
 echo "================================================================"
 
-# --- Dựng staging kora-archive/ ---------------------------------------------
+# --- Dựng staging claude-knowledge-archive/ ---------------------------------------------
 TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/akb-archive.XXXXXX")"; trap 'rm -rf "$TMP_DIR"' EXIT
-STAGE="$TMP_DIR/kora-archive"; mkdir -p "$STAGE/data" "$STAGE/markers"
+STAGE="$TMP_DIR/claude-knowledge-archive"; mkdir -p "$STAGE/data" "$STAGE/markers"
 
 stage_copy() { # $1 = path tương đối repo root
   local rel="$1"; [ -e "$REPO_ROOT/$rel" ] || return 0
@@ -127,9 +127,9 @@ cat > "$STAGE/manifest.json" <<EOF
 EOF
 printf '%s\n' "$PKG_TYPE" > "$STAGE/markers/package.type"
 
-# --- Zip cả thư mục kora-archive/ -------------------------------------------
+# --- Zip cả thư mục claude-knowledge-archive/ -------------------------------------------
 [ -f "$ZIP_PATH" ] && rm -f "$ZIP_PATH"
-( cd "$TMP_DIR" && zip -q -r "$ZIP_PATH" kora-archive ) || die "Đóng gói thất bại."
+( cd "$TMP_DIR" && zip -q -r "$ZIP_PATH" claude-knowledge-archive ) || die "Đóng gói thất bại."
 
 SIZE="$(du -h "$ZIP_PATH" | awk '{print $1}')"
 echo ""

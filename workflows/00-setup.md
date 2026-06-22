@@ -33,7 +33,7 @@
 > luôn có), **(2) tên project**. Mọi thứ khác DÙNG MẶC ĐỊNH, KHÔNG hỏi trừ khi user chủ động muốn đổi:
 > vault = `<Tên>_Brain/` trong project · cấu trúc thư mục mặc định · Obsidian tùy chọn.
 > Mục tiêu xong setup trong **~2 câu hỏi**. Phần **CÀO SÂU nhiều bước, phân tích kỹ CHỈ dành cho
-> `workflows/03-request.md` (phân tích yêu cầu)** — KHÔNG phải setup. (Khi gọi từ `/kora-scan` ở chế độ
+> `workflows/03-request.md` (phân tích yêu cầu)** — KHÔNG phải setup. (Khi gọi từ `/claude-knowledge-scan` ở chế độ
 > AUTO thì còn nhanh hơn: domain mặc định `generic`, chỉ hỏi nơi lưu.)
 
 ## Bước 0 — Dựng project (CHỈ khi folder CHƯA phải project Kora)
@@ -41,9 +41,9 @@
 > Áp dụng khi cài qua **installer** (skill ở `~/.claude`, chưa có project). Nếu folder hiện tại ĐÃ
 > là project Kora (có `config/factory-config.yaml` hoặc `config/domain-presets/`) → **bỏ qua Bước 0**.
 >
-> ⚡ **Chế độ AUTO (khi gọi từ `/kora-scan`):** dựng project KHÔNG hỏi từng bước — domain/rule **mặc
+> ⚡ **Chế độ AUTO (khi gọi từ `/claude-knowledge-scan`):** dựng project KHÔNG hỏi từng bước — domain/rule **mặc
 > định `generic`** (đổi sau bằng *"đổi domain"*), skill folder + vault + config TỰ tạo; **CHỈ hỏi nơi
-> lưu trữ** nếu chưa có. Gõ `/kora-init` trực tiếp thì vẫn đi từng bước (Bước 1–6) như thường.
+> lưu trữ** nếu chưa có. Gõ `/claude-knowledge-init` trực tiếp thì vẫn đi từng bước (Bước 1–6) như thường.
 
 **Phát hiện scaffold:** thiếu `config/factory-config.yaml` **và** thiếu `config/domain-presets/` **và**
 có `~/.claude/kora-framework/`. Khi đó dựng **project GỌN** ngay trong folder hiện tại:
@@ -55,8 +55,8 @@ có `~/.claude/kora-framework/`. Khi đó dựng **project GỌN** ngay trong fo
    `domain-presets/` → `config/domain-presets/`.
 3. Tạo `CLAUDE.md` ở gốc project với **đúng 1 dòng**: `@~/.claude/kora-framework/CLAUDE.md`
    (để Cowork nạp rule orchestrator khi mở folder). **KHÔNG copy cả CLAUDE.md.**
-4. **Skill RIÊNG cho project:** tạo `.claude/commands/` trong project + copy `~/.claude/commands/kora-*.md`
-   vào → mở project trong Cowork là **load skill theo path**; `/kora-update` sẽ refresh skill mới vào ĐÂY.
+4. **Skill RIÊNG cho project:** tạo `.claude/commands/` trong project + copy `~/.claude/commands/claude-knowledge-*.md`
+   vào → mở project trong Cowork là **load skill theo path**; `/claude-knowledge-update` sẽ refresh skill mới vào ĐÂY.
 5. **CORE dùng chung** (KHÔNG copy vào project): workflows/tools/templates ở `~/.claude/kora-framework/`.
    Lệnh chỉ mục dùng đường dẫn chung: `python3 ~/.claude/kora-framework/tools/kb-indexer/build_index.py --root .`.
 6. Vault `<Tên>_Brain/` dựng ở **Bước 4** (sau khi có tên project ở Bước 3).
@@ -65,7 +65,7 @@ Xong scaffold → tiếp **Bước 0b**.
 
 ## Bước 0b — Tự kéo domain phổ biến + rule (LUÔN chạy, IM LẶNG, không hỏi)
 
-Mỗi lần `/kora-init`, TRƯỚC khi hỏi domain, **tự làm mới bộ preset** để user luôn có đủ domain phổ
+Mỗi lần `/claude-knowledge-init`, TRƯỚC khi hỏi domain, **tự làm mới bộ preset** để user luôn có đủ domain phổ
 biến (KHÔNG hỏi phần này — rule "tự chạy" chỉ áp cho bước copy preset này):
 
 1. **Làm mới `config/domain-presets/`** từ CORE `~/.claude/kora-framework/config/domain-presets/`
@@ -192,10 +192,10 @@ Hành động:
 
 > ℹ️ **Init GỌN NHẸ — KHÔNG nạp nguồn / token / lịch ở đây.** Việc nạp tri thức và kết nối
 > nguồn đã chuyển sang các skill riêng, chạy SAU init khi cần (không ép lúc khởi tạo):
-> - `/kora-scan`, `/kora-scan-jira-task` — nạp Jira (chọn kết nối **MCP** hoặc **API** ngay trong skill đó).
-> - `/kora-import-files` — nạp PDF / DOCX / ảnh.
-> - `/kora-schedule` — đặt lịch + cấu hình kết nối nguồn (token API ghi vào `~/.zshrc` / `~/.bashrc`).
-> - `/kora-daily-report` — báo cáo (chọn project, lọc thành viên, kéo dữ liệu theo khoảng thời gian).
+> - `/claude-knowledge-scan`, `/claude-knowledge-scan-jira-task` — nạp Jira (chọn kết nối **MCP** hoặc **API** ngay trong skill đó).
+> - `/claude-knowledge-import-files` — nạp PDF / DOCX / ảnh.
+> - `/claude-knowledge-schedule` — đặt lịch + cấu hình kết nối nguồn (token API ghi vào `~/.zshrc` / `~/.bashrc`).
+> - `/claude-knowledge-daily-report` — báo cáo (chọn project, lọc thành viên, kéo dữ liệu theo khoảng thời gian).
 
 ## Bước 5 — Tổng kết & kích hoạt
 
@@ -212,17 +212,17 @@ Hành động:
 4. In tổng kết cho user (ngôn ngữ tự nhiên):
    - Domain + số rule đang áp dụng
    - Vault ở đâu, bao nhiêu note
-   - Nhắc: nạp tri thức bằng skill SAU init (`/kora-connect`, `/kora-scan`, `/kora-import-files`).
+   - Nhắc: nạp tri thức bằng skill SAU init (`/claude-knowledge-connect`, `/claude-knowledge-scan`, `/claude-knowledge-import-files`).
 5. Kết bằng hướng dẫn dùng:
 
 > "Setup xong! Từ giờ bạn chỉ cần **nhắn vấn đề hoặc yêu cầu** bằng lời thường,
 > tôi sẽ tự phân tích dựa trên tri thức hiện có và chỉ hỏi bạn khi cần xác nhận.
-> Lệnh tắt: `/kora-connect`, `/kora-scan`, `/kora-import-files`, `/kora-daily-report`, `/kora-schedule`,
-> `/kora-export-docs`, `/kora-evolve`. Gõ `/` để xem đủ danh sách lệnh."
+> Lệnh tắt: `/claude-knowledge-connect`, `/claude-knowledge-scan`, `/claude-knowledge-import-files`, `/claude-knowledge-daily-report`, `/claude-knowledge-schedule`,
+> `/claude-knowledge-export-docs`, `/claude-knowledge-evolve`. Gõ `/` để xem đủ danh sách lệnh."
 
 6. **Đề xuất bước kế (§0.4) — → dùng AskUserQuestion** (1–3 lựa chọn hợp lý theo những gì vừa
-   setup) để user chỉ việc bấm, KHÔNG phải tự nhớ lệnh. Ví dụ: `[A] /kora-scan nạp tri thức ·
-   [B] /kora-import-files nạp tài liệu · [C] Nêu một yêu cầu để phân tích · [D] Dừng ở đây`.
+   setup) để user chỉ việc bấm, KHÔNG phải tự nhớ lệnh. Ví dụ: `[A] /claude-knowledge-scan nạp tri thức ·
+   [B] /claude-knowledge-import-files nạp tài liệu · [C] Nêu một yêu cầu để phân tích · [D] Dừng ở đây`.
 
 ---
 

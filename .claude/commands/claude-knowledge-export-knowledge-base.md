@@ -2,7 +2,7 @@
 description: Export the entire knowledge base to a zip — for backup, moving machines, or handover.
 ---
 
-The user invoked `/kora-export-knowledge-base` — export all knowledge to a zip.
+The user invoked `/claude-knowledge-export-knowledge-base` — export all knowledge to a zip.
 
 Read and execute `workflows/11-export-import.md` **section A (export)** following `CLAUDE.md`:
 
@@ -13,4 +13,4 @@ Read and execute `workflows/11-export-import.md` **section A (export)** followin
 
 > 🔓 **KHÔNG cổng mật khẩu — export thuần.** Luồng này TUYỆT ĐỐI không dùng `KORA_OPS_PW` /
 > `verify_ops_password.py` và không có bước sync/gửi-mail nào. Cần phân quyền + mật khẩu để bàn giao →
-> dùng `/kora-archive` (riêng).
+> dùng `/claude-knowledge-archive` (riêng).

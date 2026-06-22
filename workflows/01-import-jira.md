@@ -86,7 +86,7 @@ Chưa có → hướng dẫn cài theo OS.
 > 2. Sandbox lỗi mạng (timeout / DNS / bị chặn — tool in marker **`NETWORK_UNREACHABLE`** ở
 >    stderr) → KHÔNG retry vô ích, KHÔNG kết luận "Jira hỏng". Giải thích: sandbox của Claude
 >    (vd Cowork) có thể không ra được domain này dù domain public. Chuyển sang **chế độ user
->    tự chạy** (Bước 4 → "Chế độ user_terminal": ghi sẵn `reports/kora-scan.command` cho user chạy ở Terminal).
+>    tự chạy** (Bước 4 → "Chế độ user_terminal": ghi sẵn `reports/claude-knowledge-scan.command` cho user chạy ở Terminal).
 > 3. **Sinh lệnh theo OS của user** (xác định từ context phiên làm việc; không chắc
 >    thì hỏi 1 câu: macOS / Windows / Linux). Điền `<TOOL_DIR>` = **đường dẫn tuyệt đối
 >    THẬT của máy này** tới `tools/jira-to-obsidian` (lấy từ project root hiện tại — Claude
@@ -154,10 +154,10 @@ Khi sandbox không chạy được (lỗi mạng), KHÔNG dừng luồng setup l
 1. Hoàn tất mọi cấu hình trước (`.env.local` đầy đủ).
 2. **Bàn giao cho user chạy ở Terminal — 2 cách, cùng kết quả:**
 
-   **2a. Ghi sẵn file lệnh `reports/kora-scan.command` (TIỆN, giống bàn giao gửi mail v2.9.8):**
+   **2a. Ghi sẵn file lệnh `reports/claude-knowledge-scan.command` (TIỆN, giống bàn giao gửi mail v2.9.8):**
    - Lấy lệnh đã resolve abs-path: `python3 "<TOOL_DIR>/import_jira.py" --emit-command <args định quét: --jql/--since/--keys/--per-project>` → in 1 dòng `JIRA_ENV_FILE=<abs> python3 "<abs import_jira.py>" …` (token KHÔNG in).
-   - `mkdir -p reports` → ghi `reports/kora-scan.command`: dòng đầu `#!/bin/bash`, rồi `cd "<PROJECT tuyệt đối>"`, rồi (các) dòng lệnh từ `--emit-command` (nhiều nguồn API → gộp nhiều dòng) → `chmod +x reports/kora-scan.command`. Windows: ghi `reports\kora-scan.bat` (bỏ shebang, `cd /d "<project>"`, đổi `python3`→`py`).
-   - Báo user **chạy bằng `bash`** (KHÔNG double-click): `bash "reports/kora-scan.command"`.
+   - `mkdir -p reports` → ghi `reports/claude-knowledge-scan.command`: dòng đầu `#!/bin/bash`, rồi `cd "<PROJECT tuyệt đối>"`, rồi (các) dòng lệnh từ `--emit-command` (nhiều nguồn API → gộp nhiều dòng) → `chmod +x reports/claude-knowledge-scan.command`. Windows: ghi `reports\claude-knowledge-scan.bat` (bỏ shebang, `cd /d "<project>"`, đổi `python3`→`py`).
+   - Báo user **chạy bằng `bash`** (KHÔNG double-click): `bash "reports/claude-knowledge-scan.command"`.
      > ⚠️ **Chỉ chạy bằng `bash <file>`** — double-click `.command` trong Finder mới bị macOS Gatekeeper chặn; gọi qua `bash` thì LUÔN chạy. (Trước đây bỏ file vì sợ user double-click — nay hướng dẫn rõ chạy bằng bash nên an toàn.)
 
    **2b. Hoặc khối lệnh copy-paste** (nếu user thích dán tay) — **MỘT khối hoàn chỉnh, đường dẫn TUYỆT ĐỐI THẬT của máy này**.
@@ -237,7 +237,7 @@ Script tự tạo trong vault: notes Project/Epic/Story/Task/Bug/Sub-task có ba
    NGAY dữ liệu vault vừa quét, để auto-phân tích (Tầng A) có dữ liệu tra cứu, khỏi grep chay.
 5. **Cập nhật sổ kết nối:** nếu nguồn Jira này có entry trong `connections:`, cập nhật
    `status: connected` + `last_checked: <ISO local>` cho đúng entry (`jira_*__api`/`__mcp`) để
-   `/kora-scan` và `/kora-schedule` thấy trạng thái mới.
+   `/claude-knowledge-scan` và `/claude-knowledge-schedule` thấy trạng thái mới.
 6. Ghi changelog.
 
 ## Guardrails riêng

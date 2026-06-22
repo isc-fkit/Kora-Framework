@@ -36,11 +36,11 @@ set "SRC="
 for /d %%D in ("%TMP%\*") do set "SRC=%%D"
 if not defined SRC (echo [LOI] Khong thay thu muc nguon. & goto end)
 
-echo Cai lenh /kora-* ...
-del /q "%DEST_CMD%\kora-*.md" 2>nul
-copy /y "%SRC%\.claude\commands\kora-*.md" "%DEST_CMD%\" >nul
+echo Cai lenh /claude-knowledge-* ...
+del /q "%DEST_CMD%\kora-*.md" "%DEST_CMD%\claude-knowledge-*.md" 2>nul
+copy /y "%SRC%\.claude\commands\claude-knowledge-*.md" "%DEST_CMD%\" >nul
 REM Skill chi-duy-tri (maintainer-only) - khong cai cho nguoi dung thuong.
-del /q "%DEST_CMD%\kora-release.md" 2>nul
+del /q "%DEST_CMD%\claude-knowledge-release.md" 2>nul
 
 echo Cai workflows ho tro ...
 for %%d in (workflows scripts templates config tools) do (
@@ -53,7 +53,7 @@ REM Workflow chi-duy-tri - go khoi ban cai nguoi dung.
 del /q "%DEST_CORE%\workflows\12-release.md" 2>nul
 del /q "%DEST_CORE%\workflows\13-evolve-system.md" 2>nul
 if exist "%SRC%\CLAUDE.md" copy /y "%SRC%\CLAUDE.md" "%DEST_CORE%\" >nul
-REM version.json + CHANGELOG -> de /kora-version /kora-update doc ban da cai.
+REM version.json + CHANGELOG -> de /claude-knowledge-version /claude-knowledge-update doc ban da cai.
 if exist "%SRC%\version.json" copy /y "%SRC%\version.json" "%DEST_CORE%\" >nul
 if exist "%SRC%\CHANGELOG.md" copy /y "%SRC%\CHANGELOG.md" "%DEST_CORE%\" >nul
 
@@ -69,8 +69,8 @@ set "ROOT=%DLBASE%\Knowledge-Base"
 if defined KORA_PROJECT set "ROOT=%KORA_PROJECT%"
 set "SKILL_DIR=%ROOT%\Skill"
 if not exist "%SKILL_DIR%" mkdir "%SKILL_DIR%"
-del /q "%SKILL_DIR%\kora-*.md" 2>nul
-copy /y "%DEST_CMD%\kora-*.md" "%SKILL_DIR%\" >nul 2>nul
+del /q "%SKILL_DIR%\kora-*.md" "%SKILL_DIR%\claude-knowledge-*.md" 2>nul
+copy /y "%DEST_CMD%\claude-knowledge-*.md" "%SKILL_DIR%\" >nul 2>nul
 
 REM Khoi tao cau truc project GON ngay trong ROOT (chi khi CHUA phai project Kora -> tranh de tri thuc)
 if not exist "%ROOT%\config\factory-config.yaml" if not exist "%ROOT%\config\domain-presets" (
@@ -94,8 +94,8 @@ echo.
 echo [OK] Da cai skills Kora + domain preset (gom Healthcare/Y te, Retail, Manufacturing...) vao ~/.claude.
 echo      Project da khoi tao san: %ROOT%
 echo      Folder skill (upload vao Cowork): %SKILL_DIR%
-echo      Claude Code (CLI): mo  %ROOT%  -^> go  /kora-init (dat domain/ten) roi /kora-scan.
-echo      Claude Cowork (App): upload kora-*.md trong  %SKILL_DIR%  vao Skills -^> mo  %ROOT%  -^> go /kora-init.
+echo      Claude Code (CLI): mo  %ROOT%  -^> go  /claude-knowledge-init (dat domain/ten) roi /claude-knowledge-scan.
+echo      Claude Cowork (App): upload claude-knowledge-*.md trong  %SKILL_DIR%  vao Skills -^> mo  %ROOT%  -^> go /claude-knowledge-init.
 echo      Cap nhat: chay lai file nay (skill moi tu keo ve, tri thuc giu nguyen).  Go: chay uninstall.bat.
 :end
 echo.

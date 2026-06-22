@@ -1,7 +1,7 @@
 @echo off
 REM ============================================================================
 REM archive-kb.bat - DONG GOI KB co PHAN QUYEN + mat khau de ban giao cho user.
-REM Goi = thu muc 'kora-archive\' { manifest.json, data\, .env.local (key READ), markers\ }.
+REM Goi = thu muc 'claude-knowledge-archive\' { manifest.json, data\, .env.local (key READ), markers\ }.
 REM Bien moi truong (Claude dieu phoi): KORA_ARCHIVE_PW, KORA_PKG_TYPE, KORA_PKG_PERMISSION,
 REM   KORA_CLOUD_READ_BASE_URL, KORA_CLOUD_READ_USER, KORA_CLOUD_READ_TOKEN, KORA_CLOUD_SPACE.
 REM ============================================================================
@@ -56,7 +56,7 @@ echo   Project: %PROJECT% ^| Loai: %KORA_PKG_TYPE% (%KORA_PKG_PERMISSION%) ^| v%
 echo ================================================================
 
 set "STAGEP=%TEMP%\akb-archive-%RANDOM%%RANDOM%"
-set "STAGE=%STAGEP%\kora-archive"
+set "STAGE=%STAGEP%\claude-knowledge-archive"
 mkdir "%STAGE%\data" 2>nul
 mkdir "%STAGE%\markers" 2>nul
 
@@ -144,7 +144,7 @@ echo %KORA_PKG_TYPE%> "%STAGE%\markers\package.type"
 echo Dang dong goi...
 if exist "%ZIP_PATH%" del /q "%ZIP_PATH%"
 pushd "%STAGEP%"
-tar -a -c -f "%ZIP_PATH%" kora-archive || (popd & echo [LOI] Dong goi that bai. & goto :clean)
+tar -a -c -f "%ZIP_PATH%" claude-knowledge-archive || (popd & echo [LOI] Dong goi that bai. & goto :clean)
 popd
 
 echo.

@@ -22,11 +22,11 @@ Lệnh "phát hành" KHÔNG dành cho user đã cài app — chỉ chủ repo. K
 > 🔒 **Bảo vệ kép:** dù có lỡ chạy tiếp, `git push` vẫn cần quyền đẩy lên repo gốc — user thường
 > KHÔNG có quyền → push thất bại an toàn, không đụng được repo gốc.
 >
-> 📦 **KHÔNG phát hành cho người dùng:** `kora-release.md` (skill) + `workflows/12-release.md` +
+> 📦 **KHÔNG phát hành cho người dùng:** `claude-knowledge-release.md` (skill) + `workflows/12-release.md` +
 > `workflows/13-evolve-system.md` bị **installer/update TỰ LOẠI** khỏi bản cài (`install.command`/`.bat`,
 > `scripts/update.command`) — chỉ tồn tại trên repo của người duy trì. Người dùng thường không thấy lệnh phát hành.
 
-## Bước 0b — HỎI 3 câu trước khi làm (qua `/kora-release`)
+## Bước 0b — HỎI 3 câu trước khi làm (qua `/claude-knowledge-release`)
 
 1. **Có phát hành version MỚI không?** → [Có — bump] (Luồng B/Bước 2B) / [Không — chỉ push landing/code] (Luồng A/Bước 2A).
 2. **Push lên nhánh nào?** → [release] (mặc định) / [main] / [Other].

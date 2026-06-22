@@ -25,14 +25,14 @@
 > 🔒 **CỔNG MẬT KHẨU gác bước PHÁT RA NGOÀI — KHÔNG gác scan/get.** Orchestrator: chạy **scan/get + reindex
 > trước (không cần mật khẩu)**, rồi `verify_ops_password.py` (env `KORA_OPS_PW`) mới mở **post/report/mail/sync**.
 > Sai/thiếu → **vẫn scan/get**, chỉ bỏ post/report/mail/sync (ghi log + cảnh báo, không fail cứng). ⇒ Lịch nền có
-> outward PHẢI có mật khẩu ở `~/.config/kora/ops-pw.env` (Windows `%USERPROFILE%\.kora\ops-pw.env`), nội dung
+> outward PHẢI có mật khẩu ở `~/.config/claude-knowledge/ops-pw.env` (Windows `%USERPROFILE%\.claude-knowledge\ops-pw.env`), nội dung
 > `KORA_OPS_PW=<mk>`, chmod 600 — `orchestrator.py` **TỰ nạp** lúc chạy (không cần wrapper). KHÁC mật khẩu archive.
 
 1. **Tiền kiểm:** mỗi nguồn trong scan/post-list phải có credential **chạy nền được**
    (PAT/API token/OAuth còn refresh) — cron không mở trình duyệt. Kiểm bằng
    `python3 tools/connections/check_connection.py --check <id>`.
    > 🔌 **Nguồn chỉ-MCP (vd Atlassian Rovo) — KHÔNG dead-end:** MCP do APP Claude giữ token → tiến trình nền (cron/launchd)
-   > KHÔNG gọi được MCP. **AskUserQuestion 2 lựa chọn:** **[A]** kết nối Jira đó qua **API** (`/kora-connect`) rồi đặt lịch
+   > KHÔNG gọi được MCP. **AskUserQuestion 2 lựa chọn:** **[A]** kết nối Jira đó qua **API** (`/claude-knowledge-connect`) rồi đặt lịch
    > **HĐH nền 24/7** (auto-mail SMTP — khuyến nghị) · **[B]** tạo **lịch Cowork** (`mcp__scheduled-tasks__create_scheduled_task`,
    > chạy khi MỞ app, dùng MCP; sandbox chặn SMTP → mail qua draft). Đừng chỉ "báo lỗi rồi dừng".
 2. **Hỏi (THÂN THIỆN — KHÔNG bắt gõ cron):**
@@ -124,18 +124,18 @@ Báo user: lịch đã đặt, chạy lúc nào, đồng bộ kiểu gì, đổi
 
 ## Mục B — Đặt lịch BÁO CÁO tiến độ (trigger: "đặt lịch báo cáo")
 
-> 🥇 **CÁCH KHUYẾN NGHỊ — lịch HĐH (quản lý được ở `/kora-schedule`).** Để lịch báo cáo+mail **hiện trong
-> danh sách `/kora-schedule`, SỬA và XÓA được** (đúng yêu cầu quản lý), đăng ký qua **Mục A-HĐH** với
+> 🥇 **CÁCH KHUYẾN NGHỊ — lịch HĐH (quản lý được ở `/claude-knowledge-schedule`).** Để lịch báo cáo+mail **hiện trong
+> danh sách `/claude-knowledge-schedule`, SỬA và XÓA được** (đúng yêu cầu quản lý), đăng ký qua **Mục A-HĐH** với
 > `--report-projects` + `--email` (chạy cả khi đóng app, cùng `schedules.json`, cùng cổng `KORA_OPS_PW`):
 > `schedule.py register --id <slug> --times "08:00" --days mon-fri --scan <jira-id> --report-projects "<KEYS>"
 > --mail-provider smtp --email "<list>"`. ⚠️ **`--scan <jira-id>` BẮT BUỘC là nguồn chứa `<KEYS>`** → mỗi lượt lịch
 > SCAN nguồn đó (lấy data mới nhất) → reindex → report **scope đúng `<KEYS>`** (orchestrator tự truyền `--projects`) → mail.
-> Đây là cùng đường mà `/kora-send-mail` → [Đặt lịch] dùng. Hỗ trợ
+> Đây là cùng đường mà `/claude-knowledge-send-mail` → [Đặt lịch] dùng. Hỗ trợ
 > **nhiều mốc giờ** + **[Mỗi ngày]/[Thứ 2–6]**; bật/tắt/sửa/xóa bằng `schedule.py enable|disable|edit|remove`.
 
 **Cách thay thế (chỉ khi app mở) — Cowork scheduled task qua `/schedule`:** chạy trọn chu trình mỗi ngày —
 **kéo dữ liệu → sinh report tiến độ (workflow 14) → (tùy chọn) tự gửi email**. Task chạy LOCAL khi máy thức
-và hiện trong panel "Scheduled tasks" của Cowork. **Vẫn quản lý được ở `/kora-schedule` Bước 2 mục B**:
+và hiện trong panel "Scheduled tasks" của Cowork. **Vẫn quản lý được ở `/claude-knowledge-schedule` Bước 2 mục B**:
 bật/tắt/sửa giờ/sửa prompt qua `update_scheduled_task`; xóa hẳn = sửa registry `scheduled-tasks.json` + restart
 (MCP không có hàm delete). ✋ Automation thường trực → **confirm trước khi tạo**.
 
@@ -181,7 +181,7 @@ giá trị mới — KHÔNG phải sửa/tạo lại task** (đáp ứng "thêm/
 > ⏰ Chạy bù khi mở app (như lịch sync). Lịch nền có thể thiếu MCP/connector → đã có nhánh "báo cũ +
 > hướng dẫn" / "thiếu creds → báo, không fail" để không bao giờ fail im lặng.
 >
-> 🗂 **Quản lý task Cowork (RAM + disk) — `/kora-schedule` Bước 2 mục B làm được:**
+> 🗂 **Quản lý task Cowork (RAM + disk) — `/claude-knowledge-schedule` Bước 2 mục B làm được:**
 > - **Bật/Tắt · Sửa giờ · Sửa prompt** → `mcp__scheduled-tasks__update_scheduled_task`
 >   (`{taskId, enabled}` / `{cronExpression}` / `{prompt}`) — ghi thẳng service, KHÔNG cần restart.
 > - **Xóa hẳn** (MCP KHÔNG có hàm delete) → xóa entry trong registry

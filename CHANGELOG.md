@@ -10,6 +10,24 @@
 
 ---
 
+## v2.12.0 "Claude-1" — 2026-06-22
+
+**ĐỔI TÊN SKILL `/kora-*` → `/claude-knowledge-*` (19 lệnh) + thương hiệu landing "Claude Knowledge AI".** ⚠️ Bản `force`.
+
+- **19 skill đổi tên + file:** `kora-scan`→`claude-knowledge-scan`, `kora-connect`→`claude-knowledge-connect`,
+  `kora-send-mail`→`claude-knowledge-send-mail`, `kora-daily-report`, `kora-schedule`, `kora-sync`, `kora-ops-password`,
+  `kora-version`, `kora-update`, `kora-archive`, `kora-alert-mail`, `kora-init`, `kora-evolve`, `kora-uninstall`,
+  `kora-import-files`, `kora-export-docs`, `kora-export-knowledge-base`, `kora-scan-jira-task`, `kora-release`. Mọi tham
+  chiếu trong CLAUDE.md, workflows, tool hints, installer đổi theo.
+- **Migration sạch:** `install`/`update` TỰ GỠ `kora-*.md` cũ rồi cài `claude-knowledge-*.md`; `uninstall` gỡ cả hai.
+- **File sinh ra đổi theo + backward-compat:** `reports/claude-knowledge-scan.command` · `reports/claude-knowledge-send-mail.command` ·
+  marker `.claude-knowledge-user` · `~/.config/claude-knowledge/ops-pw.env`. `verify_ops_password.py` + `orchestrator.py`
+  đọc **cả path mới lẫn cũ** (máy đã đặt `KORA_OPS_PW`/đã import gói cũ KHÔNG vỡ); `import-kb` nhận cả `kora-archive/` cũ.
+- **Landing:** "Claude AI" → "Claude Knowledge AI" (40+ chỗ); mô tả lệnh cập nhật tên mới.
+- **GIỮ NGUYÊN (không phải skill):** biến `KORA_*` (env mật khẩu/mailer), thư mục cài `~/.claude/kora-framework/`,
+  `tools/kora-scheduler/`, repo `isc-fkit/Kora-Framework`, tên file zip `kora-archive-*.zip`/`kora-kb-*.zip`.
+- Máy đã cài: gõ **"cập nhật phiên bản"** → tự đổi sang lệnh `/claude-knowledge-*`.
+
 ## v2.11.0 "Claude-1" — 2026-06-22
 
 **Báo cáo phân biệt vai trò QC ↔ Dev — QC report bug, không logtime, hết bị tính "thiếu giờ" sai + hết bị sót.**

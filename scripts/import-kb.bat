@@ -3,7 +3,7 @@ REM ============================================================================
 REM import-kb.bat - NHAP tri thuc (DATA) tren may da cai ban app sach (Windows).
 REM   Ho tro 2 loai goi (NGANG voi import-kb.command tren macOS/Linux):
 REM     - SAO LUU (export-kb): kora-kb-*.zip / genesis1-kb-*.zip - DATA phang + manifest.json.
-REM     - ARCHIVE ban giao (archive-kb): kora-archive-*.zip - co thu muc 'kora-archive\'
+REM     - ARCHIVE ban giao (archive-kb): kora-archive-*.zip - co thu muc 'claude-knowledge-archive\'
 REM       gom data\, manifest.json (package_type/permission), .env.local (key READ),
 REM       notify-smtp.env (cred bao loi), markers\.
 REM Cach dung:  scripts\import-kb.bat [duong-dan-file.zip]
@@ -47,11 +47,16 @@ mkdir "%TMP_DIR%" 2>nul
 echo Dang giai nen...
 tar -xf "%ZIP_IN%" -C "%TMP_DIR%" || (echo [LOI] Giai nen that bai (file co the hong). & goto :clean)
 
-REM --- Nhan dien loai goi: ARCHIVE (co kora-archive\) hay SAO LUU phang ---
+REM --- Nhan dien loai goi: ARCHIVE (co claude-knowledge-archive\) hay SAO LUU phang ---
 set "ARCHIVE_MODE=0"
 set "PKG_ROOT=%TMP_DIR%"
 set "DATA_SRC=%TMP_DIR%"
-if exist "%TMP_DIR%\kora-archive\manifest.json" (
+if exist "%TMP_DIR%\claude-knowledge-archive\manifest.json" (
+  set "ARCHIVE_MODE=1"
+  set "PKG_ROOT=%TMP_DIR%\claude-knowledge-archive"
+  set "DATA_SRC=%TMP_DIR%\claude-knowledge-archive\data"
+) else if exist "%TMP_DIR%\kora-archive\manifest.json" (
+  REM backward-compat: goi archive tao TRUOC khi doi ten
   set "ARCHIVE_MODE=1"
   set "PKG_ROOT=%TMP_DIR%\kora-archive"
   set "DATA_SRC=%TMP_DIR%\kora-archive\data"
@@ -96,7 +101,7 @@ if exist "%CFG%" (
   echo Da cap nhat vault_path trong config: %MANIFEST_VAULT%
 )
 
-REM --- Goi USER: dat key READ + cred bao loi + danh dau .kora-user ---
+REM --- Goi USER: dat key READ + cred bao loi + danh dau .claude-knowledge-user ---
 if "%ARCHIVE_MODE%"=="1" if /i "%PKG_TYPE%"=="user" (
   if exist "%PKG_ROOT%\.env.local" (
     mkdir "%REPO_ROOT%\tools\confluence-sync" 2>nul
@@ -116,8 +121,8 @@ if "%ARCHIVE_MODE%"=="1" if /i "%PKG_TYPE%"=="user" (
   (
     echo package=user
     echo imported_at=%DATE% %TIME%
-  ) > "%REPO_ROOT%\.kora-user"
-  echo [OK] Da tao .kora-user - may nay la GOI NGUOI DUNG: TAT bao cao/gui mail; chi get^&post KB chung.
+  ) > "%REPO_ROOT%\.claude-knowledge-user"
+  echo [OK] Da tao .claude-knowledge-user - may nay la GOI NGUOI DUNG: TAT bao cao/gui mail; chi get^&post KB chung.
 )
 
 REM --- Dung lai index (py > python3 > python) ---

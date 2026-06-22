@@ -2,22 +2,22 @@
 description: Generate a progress report. Choose one or more projects (multi-select), filter by members, pull data for a chosen time range from the sources, then build the dashboard. Password-gated (operations password) since it pulls live data.
 ---
 
-The user invoked `/kora-daily-report` — build a progress report.
+The user invoked `/claude-knowledge-daily-report` — build a progress report.
 
-> 🚫 **Guard gói USER:** nếu có file `.kora-user` ở gốc project (hoặc `package.type: user` trong config)
+> 🚫 **Guard gói USER:** nếu có file `.claude-knowledge-user` ở gốc project (hoặc `package.type: user` trong config)
 > → đây là máy NGƯỜI DÙNG, KHÔNG có báo cáo/gửi mail (chỉ HOST mới có). Báo nhẹ: *"Báo cáo & gửi mail
 > chỉ chạy ở máy HOST. Máy này chỉ đồng bộ KB chung (get & post)."* rồi DỪNG, KHÔNG sinh report.
 
 **Chọn NGUỒN → PROJECT (chi tiết, AskUserQuestion).** Resolve path tool (bản cài ở CORE):
 `T=tools; [ -e "$T/connections/check_connection.py" ] || T="$HOME/.claude/kora-framework/tools"`.
 1. 🔒 **CỔNG MẬT KHẨU vận hành (`KORA_OPS_PW`)** TRƯỚC — báo cáo kéo dữ liệu live nên PHẢI qua cổng:
-   `python3 "$T/archive-gate/verify_ops_password.py"` (đọc env **HOẶC** `~/.config/kora/ops-pw.env` — đặt 1 lần bằng
-   `/kora-ops-password`; **KHÔNG hỏi qua card, KHÔNG in**). Exit ≠ 0 → **DỪNG**, không kéo, không sinh report.
+   `python3 "$T/archive-gate/verify_ops_password.py"` (đọc env **HOẶC** `~/.config/claude-knowledge/ops-pw.env` — đặt 1 lần bằng
+   `/claude-knowledge-ops-password`; **KHÔNG hỏi qua card, KHÔNG in**). Exit ≠ 0 → **DỪNG**, không kéo, không sinh report.
 2. **Chọn NGUỒN Jira (CÓ THỂ NHIỀU)** từ `connections:`: `python3 "$T/connections/check_connection.py" --list --json
    --config "$PWD/config/factory-config.yaml"` → lọc entry **Jira-capable**: `source_type ∈ {jira_server, jira_cloud,
    atlassian}` (**`atlassian` = Atlassian Rovo CÓ Jira**). AskUserQuestion **multi-select** — hiện kèm `method` (API/MCP)
    + `base_url` (phân biệt nhiều domain) — cho chọn **1 HOẶC NHIỀU** nguồn (lẫn API + MCP, nhiều domain đều được). Không
-   nguồn Jira nào → mời `/kora-connect`.
+   nguồn Jira nào → mời `/claude-knowledge-connect`.
 2b. **Chọn PHẠM VI báo cáo (quan trọng với DỰ ÁN LỚN — không lấy hết)** — AskUserQuestion:
    **[Sprint đang chạy] (khuyến nghị) / [N ngày gần đây — mặc định 30, ô "Other" tự nhập] / [Toàn bộ]**.
    → đặt `SCOPE` ∈ `sprint|recent|all`, `NDAYS` (mặc định 30). `SCOPE≠all` → **bound scan** (nhẹ) + lọc report.
@@ -43,8 +43,8 @@ The user invoked `/kora-daily-report` — build a progress report.
   written by Claude from the data, never made up.
 - **Sau khi sinh report → đề xuất bước kế (AskUserQuestion, schema rule #8 — header ≤12 ký tự vd "Bước kế"):
   [Gửi mail ngay] / [Đặt lịch hằng ngày] / [Dừng].**
-  - **[Gửi mail ngay]** → đi luồng GỬI của `/kora-send-mail` ([Gửi ngay]): cổng `KORA_OPS_PW` → chọn người nhận
+  - **[Gửi mail ngay]** → đi luồng GỬI của `/claude-knowledge-send-mail` ([Gửi ngay]): cổng `KORA_OPS_PW` → chọn người nhận
     (`reports.email.to`) → **tự dùng Gmail SMTP nếu đã setup** → gửi. **Cowork sandbox chặn SMTP → BÀN GIAO bash cho
-    terminal** (xem kora-send-mail "BÀN GIAO TERMINAL"): KHÔNG dead-end, KHÔNG bắt mở lại lệnh.
+    terminal** (xem claude-knowledge-send-mail "BÀN GIAO TERMINAL"): KHÔNG dead-end, KHÔNG bắt mở lại lệnh.
   - **[Đặt lịch hằng ngày]** → tạo **Cowork scheduled task qua `/schedule`** (theo `workflows/08-schedule-sync.md`
     Mục B) chạy mỗi ngày: **kéo dữ liệu → sinh report → tự gửi email** tới `reports.email.to` (gửi mail qua cổng `send_report.py --check`).

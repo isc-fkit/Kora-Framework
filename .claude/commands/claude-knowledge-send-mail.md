@@ -2,13 +2,13 @@
 description: Send a progress-report email to chosen recipients — now or on a schedule. PRIORITIZES automatic SMTP send (Gmail via App Password), not manual drafts. Scans the chosen Jira project for latest data, builds the report (banner + cards + charts), then sends. Password-gated (operations password); only this gated entry can send mail.
 ---
 
-The user invoked `/kora-send-mail` — gửi email báo cáo tiến độ. **CÓ CỔNG MẬT KHẨU vận hành
+The user invoked `/claude-knowledge-send-mail` — gửi email báo cáo tiến độ. **CÓ CỔNG MẬT KHẨU vận hành
 (`KORA_OPS_PW`)** — phải qua cổng mới vào được phần này.
 
 **Luồng (đúng thứ tự — chọn nguồn → người nhận → gửi):**
 1. **Chọn nguồn Jira đã kết nối (CÓ THỂ NHIỀU):** `check_connection.py --list --json` → lọc entry **Jira-capable**
    `source_type ∈ {jira_server, jira_cloud, **atlassian**}` (**`atlassian` = Atlassian Rovo CÓ Jira**). AskUserQuestion
-   **multi-select** (kèm `method` API/MCP + `base_url` để phân biệt domain) — chọn **1 HOẶC NHIỀU** Jira. (Chưa có → `/kora-connect`.)
+   **multi-select** (kèm `method` API/MCP + `base_url` để phân biệt domain) — chọn **1 HOẶC NHIỀU** Jira. (Chưa có → `/claude-knowledge-connect`.)
 2. **Chọn project trong (mỗi) Jira đó — THEO `method`:** API → `import_jira.py --list-projects` (env nguồn đó); MCP
    (`atlassian`/`jira_cloud`) → `getVisibleJiraProjects` → AskUserQuestion **multi-select project** (+ **[Chọn tất cả]**).
 2b. **Chọn PHẠM VI báo cáo (dự án LỚN — không lấy hết):** AskUserQuestion **[Sprint đang chạy] / [N ngày gần đây —
@@ -20,7 +20,7 @@ The user invoked `/kora-send-mail` — gửi email báo cáo tiến độ. **CÓ
    vd "Gửi/Lịch", mỗi option có `description`, `multiSelect:false` — xem CLAUDE.md rule #8; header dài → `Invalid tool parameters`).
    - **[Gửi ngay]:**
      a. **CỔNG MẬT KHẨU vận hành `KORA_OPS_PW`** → `python3 tools/archive-gate/verify_ops_password.py`
-        (đọc env **HOẶC** `~/.config/kora/ops-pw.env` — đặt 1 lần bằng `/kora-ops-password`; **KHÔNG hỏi qua card, KHÔNG in**). Exit ≠ 0 → **DỪNG**.
+        (đọc env **HOẶC** `~/.config/claude-knowledge/ops-pw.env` — đặt 1 lần bằng `/claude-knowledge-ops-password`; **KHÔNG hỏi qua card, KHÔNG in**). Exit ≠ 0 → **DỪNG**.
      b. **Kênh gửi — ƯU TIÊN TỰ ĐỘNG GỬI:** AskUserQuestion **[Gửi tự động (SMTP / Gmail App Password) — khuyến nghị]**
         / **[Tạo nháp gửi tay (MCP)]**. Gmail **dùng App Password qua SMTP** = auto-send (KHÔNG phải draft). Mặc định auto.
      c. **FULL-SCAN MỚI NHẤT — VỚI MỖI nguồn đã chọn, route theo `method` (vòng lặp, GHI ĐÈ, tích lũy CÙNG vault):**
@@ -60,15 +60,15 @@ The user invoked `/kora-send-mail` — gửi email báo cáo tiến độ. **CÓ
         - 🖥️ **BÀN GIAO TERMINAL khi Cowork chặn SMTP (KHÔNG dead-end) — fallback CHÍNH:** đọc stderr của `send_report.py`:
           - **`SMTP_UNREACHABLE`** (Cowork sandbox chặn mạng SMTP) → báo cáo ĐÃ build xong ở `reports/` (local thật). **Lấy
             lệnh bàn giao** = chạy lại CÙNG lệnh trên + cờ `--emit-command` (KHÔNG gửi, in 1 dòng lệnh path tuyệt đối) →
-            **ghi file chạy được**: macOS/Linux `reports/kora-send-mail.command` (thêm dòng đầu `#!/bin/bash` + `chmod +x`),
-            Windows `reports/kora-send-mail.bat`. Báo user RÕ: *"Cowork bị hạn chế gửi Gmail SMTP. Báo cáo đã tạo xong. Mở
-            **Terminal** chạy: `bash "reports/kora-send-mail.command"` (hoặc dán lệnh hiện ra) → gửi luôn báo cáo vừa tạo —
+            **ghi file chạy được**: macOS/Linux `reports/claude-knowledge-send-mail.command` (thêm dòng đầu `#!/bin/bash` + `chmod +x`),
+            Windows `reports/claude-knowledge-send-mail.bat`. Báo user RÕ: *"Cowork bị hạn chế gửi Gmail SMTP. Báo cáo đã tạo xong. Mở
+            **Terminal** chạy: `bash "reports/claude-knowledge-send-mail.command"` (hoặc dán lệnh hiện ra) → gửi luôn báo cáo vừa tạo —
             terminal CHỈ gửi, không build lại."* (Đây là cách "tiếp tục việc dang dở ở Cowork, gửi mail luôn".)
           - **`SMTP_AUTH_FAILED`** → KHÔNG bàn giao vô ích; nhắc **sửa App Password** (16 ký tự) trong `tools/report-mailer/.env.local` rồi gửi lại.
         - **[Tạo nháp] = fallback PHỤ** (chỉ khi user chủ động chọn): tạo NHÁP Gmail/Outlook qua MCP → user bấm gửi.
    - **[Đặt lịch]:**
      a0. **Nếu nguồn Jira đã chọn là MCP-only** (method=mcp, vd `atlassian`/`jira_cloud` MCP) → **KHÔNG dead-end:**
-        AskUserQuestion **[A]** kết nối Jira qua **API** (`/kora-connect`) rồi lịch HĐH nền 24/7 (auto-mail SMTP — khuyến
+        AskUserQuestion **[A]** kết nối Jira qua **API** (`/claude-knowledge-connect`) rồi lịch HĐH nền 24/7 (auto-mail SMTP — khuyến
         nghị) · **[B]** lịch **Cowork** (`mcp__scheduled-tasks__create_scheduled_task`, chạy khi mở app, mail draft). (Lý
         do: cron không gọi được MCP — token do app giữ.)
      a. **Provider** (lịch NỀN chỉ gửi **SMTP**).
@@ -80,7 +80,7 @@ The user invoked `/kora-send-mail` — gửi email báo cáo tiến độ. **CÓ
         --scan <jira-id> --report-projects "<KEYS>" --report-scope <SCOPE> --report-recent-days <NDAYS>
         --mail-provider smtp --email "<list>"` (`post_list` rỗng). Lịch nền tự áp phạm vi này mỗi lần chạy.
         (`--days`: `every` = mỗi ngày · `mon-fri` = thứ 2–6 · hoặc csv `mon,wed,fri`. Power-user vẫn dùng được `--cron`.)
-     e. → **Task xuất hiện trong danh sách `/kora-schedule`** — quản lý tại đó: **Bật/Tắt (active/inactive)**
+     e. → **Task xuất hiện trong danh sách `/claude-knowledge-schedule`** — quản lý tại đó: **Bật/Tắt (active/inactive)**
         (`schedule.py enable|disable --id <slug>`) hoặc **Xóa** (`remove`). Nếu in `⚠️CHƯA-CÀI-HĐH` →
         lịch đã LƯU nhưng chưa cài được vào HĐH (enabled=false); thử `enable` lại hoặc dùng cơ chế **Cowork** làm fallback.
      f. **VERIFY (bắt buộc):** sau register, chạy `python3 "$T/kora-scheduler/schedule.py" list` → xác nhận `id` vừa tạo
@@ -88,4 +88,4 @@ The user invoked `/kora-send-mail` — gửi email báo cáo tiến độ. **CÓ
         cài HĐH lỗi → hết cảnh 'tạo xong mà list không thấy'.)
 
 Chỉ quét Jira tới bước **tạo report + gửi mail** (KHÔNG sync KB). Token/secret chỉ ở `.env.local`.
-Windows: `python3` → `py`. Gói USER (`.kora-user`) → report/mail bị TẮT → chặn tại đây.
+Windows: `python3` → `py`. Gói USER (`.claude-knowledge-user`) → report/mail bị TẮT → chặn tại đây.

@@ -55,7 +55,7 @@ jira:
 # ─────────────────────────────────────────────────────────────────────────────
 # connections: SỔ ĐĂNG KÝ nguồn tri thức đã kết nối. KHÔNG chứa secret — chỉ TRỎ tới
 # nơi secret nằm (env var trong ~/.zshrc / file .env / tên MCP connector).
-# /kora-connect GHI vào đây; /kora-scan và /kora-schedule ĐỌC để liệt kê nguồn.
+# /claude-knowledge-connect GHI vào đây; /claude-knowledge-scan và /claude-knowledge-schedule ĐỌC để liệt kê nguồn.
 # QUY TẮC ID: <source_type>__<method>[__<slug-host>]. Cùng loại nhưng MCP vs API =
 # 2 entry RIÊNG (id khác nhau) → đếm/hiển thị tách biệt.
 #   source_type: jira_server|jira_cloud|confluence|github|gitlab|sharepoint|outlook|gmail|gmail_smtp|m365
@@ -105,7 +105,7 @@ reports:                  # Báo cáo tiến độ (workflow 14) — sinh local 
     method: smtp          # ƯU TIÊN: smtp (TỰ ĐỘNG GỬI qua send_report.py — Gmail dùng App Password, smtp.gmail.com:587). gmail_draft (tạo nháp, bấm tay) = FALLBACK.
     provider: smtp        # smtp (auto-send, gồm Gmail app-password) | gmail | outlook. Gmail app-password → để 'smtp' (auto), KHÔNG phải draft.
     to: []                # danh sách email nhận, vd ["a@x.com","b@y.com"]
-    recipients: []        # danh bạ người nhận lưu sẵn để chọn nhanh trong /kora-send-mail & /kora-schedule
+    recipients: []        # danh bạ người nhận lưu sẵn để chọn nhanh trong /claude-knowledge-send-mail & /claude-knowledge-schedule
     cc: []
     subject: "[Kora] Báo cáo tiến độ {date}"   # {date} thay bằng ngày khi gửi
     banner_url: "https://raw.githubusercontent.com/isc-fkit/Kora-Framework/main/assets/banner-daily-report.jpg"   # banner header email (ảnh PUBLIC: raw GitHub / Pages). Rỗng → build_report tự dùng URL main này.
@@ -180,8 +180,8 @@ sharepoint:               # KB → SharePoint document library qua Microsoft Gra
   # Token: SHAREPOINT_TENANT_ID + SHAREPOINT_CLIENT_ID + SHAREPOINT_CLIENT_SECRET (app-only, admin consent
   # Sites.ReadWrite.All) ở ~/.zshrc (ưu tiên) hoặc tools/sharepoint-sync/.env.local (lịch nền); hoặc --login device-flow.
 
-sync:                     # Cấu hình chung cho /kora-sync (đẩy KB lên target đã kết nối). CÓ CỔNG MẬT KHẨU vận hành.
-  password_required: true # bắt buộc nhập KORA_OPS_PW trước khi đẩy (KHÔNG áp cho /kora-export)
+sync:                     # Cấu hình chung cho /claude-knowledge-sync (đẩy KB lên target đã kết nối). CÓ CỔNG MẬT KHẨU vận hành.
+  password_required: true # bắt buộc nhập KORA_OPS_PW trước khi đẩy (KHÔNG áp cho /claude-knowledge-export-*)
   targets: [confluence, github, sharepoint]   # target khả dụng; chọn lúc chạy
   versioning:             # 1 US cũ có "change request" mới → GIỮ US cũ + đánh dấu superseded + link CR
     cr_link_types: ["supersedes", "is superseded by", "clones", "is cloned by", "relates"]
@@ -206,7 +206,7 @@ scheduler:                # LỊCH cấp HỆ ĐIỀU HÀNH — chạy đúng gi
   user_os: TODO           # macos | linux | windows — phát hiện lúc register
   python: auto            # auto | <đường dẫn tuyệt đối> — cron KHÔNG có PATH nên resolve tuyệt đối
   log_dir: reports/scheduler-logs
-  # Mail CẢNH BÁO SỰ CỐ (issue ticket) khi lịch nền lỗi — cấu hình tập trung qua /kora-alert-mail.
+  # Mail CẢNH BÁO SỰ CỐ (issue ticket) khi lịch nền lỗi — cấu hình tập trung qua /claude-knowledge-alert-mail.
   error_recipients: []    # người nhận mail sự cố. != rỗng → OVERRIDE người nhận của MỌI lịch (đọc lúc chạy); rỗng = dùng email từng lịch → fallback reports.email.to
   error_email:
     enabled: true         # bật/tắt GỬI mail sự cố cho mọi lịch (tắt vẫn có thể tạo ticket)

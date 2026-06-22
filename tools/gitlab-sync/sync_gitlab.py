@@ -101,7 +101,7 @@ def git_env(token: str) -> dict:
     e = dict(os.environ)
     e["GIT_TERMINAL_PROMPT"] = "0"
     e.setdefault("GIT_AUTHOR_NAME", os.getenv("KORA_GITLAB_SYNC_AUTHOR_NAME", "Kora Sync"))
-    e.setdefault("GIT_AUTHOR_EMAIL", os.getenv("KORA_GITLAB_SYNC_AUTHOR_EMAIL", "kora-sync@local"))
+    e.setdefault("GIT_AUTHOR_EMAIL", os.getenv("KORA_GITLAB_SYNC_AUTHOR_EMAIL", "claude-knowledge-sync@local"))
     e["GIT_COMMITTER_NAME"] = e["GIT_AUTHOR_NAME"]
     e["GIT_COMMITTER_EMAIL"] = e["GIT_AUTHOR_EMAIL"]
     if token:

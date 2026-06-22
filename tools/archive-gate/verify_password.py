@@ -23,7 +23,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parents[1]
-SALT = "kora-archive::v1"  # đổi salt = phải tính lại hash trên repo
+SALT = "claude-knowledge-archive::v1"  # đổi salt = phải tính lại hash trên repo
 REMOTE = "https://raw.githubusercontent.com/isc-fkit/Kora-Framework/release/config/archive-pw.sha256"
 LOCAL_FALLBACKS = [
     REPO_ROOT / "config" / "archive-pw.sha256",

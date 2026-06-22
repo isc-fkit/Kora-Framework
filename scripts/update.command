@@ -116,7 +116,7 @@ else
     [ -n "$envp" ] && RSYNC_EXCLUDES+=( --exclude "/$envp" )
   done < <(data_env_files)
   # Maintainer-only (phát hành/tiến hóa hệ thống) — KHÔNG kéo về bản người dùng.
-  RSYNC_EXCLUDES+=( --exclude "/.claude/commands/kora-release.md" --exclude "/workflows/12-release.md" --exclude "/workflows/13-evolve-system.md" )
+  RSYNC_EXCLUDES+=( --exclude "/.claude/commands/claude-knowledge-release.md" --exclude "/workflows/12-release.md" --exclude "/workflows/13-evolve-system.md" )
 
   # rsync ĐÈ (không --delete để không xóa file người dùng ngoài danh sách).
   rsync -a "${RSYNC_EXCLUDES[@]}" "$SRC_DIR"/ "$REPO_ROOT"/ \
@@ -126,19 +126,20 @@ else
   echo "✅ Cập nhật chương trình thành công (tri thức của bạn được giữ nguyên)."
 fi
 
-# --- Refresh SKILL /kora-* vào ~/.claude/commands/ (nơi Claude THỰC SỰ nạp skill) ----------
+# --- Refresh SKILL /claude-knowledge-* vào ~/.claude/commands/ (nơi Claude THỰC SỰ nạp skill) ----------
 # Bản cài managed để CORE ở ~/.claude/kora-framework (=REPO_ROOT) nhưng skill ở ~/.claude/commands;
-# nếu không copy sang đây thì fix skill (vd kora-connect) KHÔNG bao giờ tới user dù CORE đã update.
+# nếu không copy sang đây thì fix skill (vd claude-knowledge-connect) KHÔNG bao giờ tới user dù CORE đã update.
 GLOBAL_CMD="$HOME/.claude/commands"
 SRC_CMD="$REPO_ROOT/.claude/commands"
 if [ -d "$SRC_CMD" ] && [ "$(cd "$SRC_CMD" && pwd)" != "$(cd "$GLOBAL_CMD" 2>/dev/null && pwd || echo _nope_)" ]; then
   mkdir -p "$GLOBAL_CMD"
-  cp "$SRC_CMD"/kora-*.md "$GLOBAL_CMD"/ 2>/dev/null || true
-  rm -f "$GLOBAL_CMD/kora-release.md" 2>/dev/null || true   # maintainer-only — không cài cho user
-  echo "🔄 Đã refresh skill /kora-* vào ~/.claude/commands/."
+  rm -f "$GLOBAL_CMD"/kora-*.md 2>/dev/null || true   # MIGRATION: gỡ lệnh /kora-* CŨ (đã đổi tên → /claude-knowledge-*)
+  cp "$SRC_CMD"/claude-knowledge-*.md "$GLOBAL_CMD"/ 2>/dev/null || true
+  rm -f "$GLOBAL_CMD/claude-knowledge-release.md" 2>/dev/null || true   # maintainer-only — không cài cho user
+  echo "🔄 Đã refresh skill /claude-knowledge-* vào ~/.claude/commands/ (gỡ /kora-* cũ)."
   # Đồng bộ luôn folder Skill/ (upload tay vào Cowork) nếu có.
   for sd in "$HOME/Downloads/Knowledge-Base/Skill" "$REPO_ROOT/Skill"; do
-    [ -d "$sd" ] && { cp "$GLOBAL_CMD"/kora-*.md "$sd"/ 2>/dev/null || true; }
+    [ -d "$sd" ] && { rm -f "$sd"/kora-*.md 2>/dev/null || true; cp "$GLOBAL_CMD"/claude-knowledge-*.md "$sd"/ 2>/dev/null || true; }
   done
 fi
 

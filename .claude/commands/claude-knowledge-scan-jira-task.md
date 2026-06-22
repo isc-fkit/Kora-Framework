@@ -1,9 +1,9 @@
 ---
-description: Scan & import a single Jira task or epic by key. Example: /kora-scan-jira-task PROJ-102
+description: Scan & import a single Jira task or epic by key. Example: /claude-knowledge-scan-jira-task PROJ-102
 argument-hint: <JIRA-KEY> (e.g. PROJ-102)
 ---
 
-The user invoked `/kora-scan-jira-task $ARGUMENTS` — scan one Jira issue by key.
+The user invoked `/claude-knowledge-scan-jira-task $ARGUMENTS` — scan one Jira issue by key.
 
 Issue key: **$ARGUMENTS**
 

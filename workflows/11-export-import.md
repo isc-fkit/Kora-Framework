@@ -4,7 +4,7 @@
 > Trigger IMPORT: "nhập tri thức", "khôi phục", "restore", hoặc đưa file `kora-kb-*.zip` / `kora-archive-*.zip`.
 > (confirm ý định trước). Tri thức = DATA: vault + `.kb` data + nội dung `docs/` + config setup + `inbox/`.
 >
-> 📦 **Bàn giao có phân quyền + mật khẩu?** → dùng `workflows/15-archive.md` (`/kora-archive`) thay vì luồng này.
+> 📦 **Bàn giao có phân quyền + mật khẩu?** → dùng `workflows/15-archive.md` (`/claude-knowledge-archive`) thay vì luồng này.
 > Luồng 11 là **sao lưu/dời máy thuần** (không cổng, không phân quyền). `import-kb` nhận được CẢ hai loại gói.
 
 ## A. EXPORT (máy cũ) — đóng gói tri thức

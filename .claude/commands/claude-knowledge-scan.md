@@ -2,7 +2,7 @@
 description: Scan & import knowledge from your CONNECTED sources. Auto-sets up storage on first scan (only asks where to store); shows the connected sources to pick; scrapes all fields including comments.
 ---
 
-The user invoked `/kora-scan` — scan & import knowledge.
+The user invoked `/claude-knowledge-scan` — scan & import knowledge.
 
 0. **Đảm bảo có NƠI LƯU TRỮ — TỰ ĐỘNG, chỉ HỎI khi chưa có:**
    - Nếu folder hiện tại CHƯA phải project Kora (thiếu `config/factory-config.yaml` hoặc vault) →
@@ -10,21 +10,21 @@ The user invoked `/kora-scan` — scan & import knowledge.
      đường dẫn khác). Đây là câu hỏi DUY NHẤT.
    - Sau khi có nơi lưu → **TỰ ĐỘNG dựng project** (chạy `workflows/00-setup.md` **Bước 0** ở chế độ
      auto): tạo vault + **`.claude/commands/` (folder skill)** + config + **domain/rule MẶC ĐỊNH** (generic;
-     đổi sau bằng *"đổi domain"* / `/kora-init`). **KHÔNG hỏi từng bước domain/rule** — tất cả tự động.
+     đổi sau bằng *"đổi domain"* / `/claude-knowledge-init`). **KHÔNG hỏi từng bước domain/rule** — tất cả tự động.
    - Nếu ĐÃ có project → bỏ qua, sang bước 1.
 
 1. **Đọc nguồn ĐÃ KẾT NỐI:** path tool tự resolve (bản cài ở CORE), đọc **PROJECT config** qua `--config`:
    `T=tools; [ -e "$T/connections/check_connection.py" ] || T="$HOME/.claude/kora-framework/tools"; python3 "$T/connections/check_connection.py" --list --config "$PWD/config/factory-config.yaml"`
    (Windows: `py`) để lấy danh sách từ `connections`. **KHÔNG hiện đoạn giới thiệu "quét Jira".**
-   - **Chưa kết nối nguồn nào** (registry rỗng) → mời chạy **`/kora-connect`**.
+   - **Chưa kết nối nguồn nào** (registry rỗng) → mời chạy **`/claude-knowledge-connect`**.
    - **Có rồi** → hiện **checklist (multi-select)** với item đầu **[✓ Quét tất cả nguồn]** (lấy HẾT),
      rồi từng nguồn kèm trạng thái: `display_name + ✓ connected · checked <thời gian tương đối>`
      (vd *"Jira Cloud (MCP) ✓ · 2h trước", "GitHub (API) ✓ · hôm qua"*). Nguồn `last_checked` quá cũ
      (>24h) / `status≠connected` → `⟳ chưa kiểm tra gần đây`, **kiểm tra lại** (`--check <id>`) trước khi quét.
-     Kèm **[+ Kết nối nguồn mới]** → `/kora-connect`.
+     Kèm **[+ Kết nối nguồn mới]** → `/claude-knowledge-connect`.
    - 🏷️ **Mỗi nguồn HIỆN RÕ phương thức `(MCP)` hay `(API)`.** 🖥️ **Trong Cowork (sandbox CHẶN mạng):** nguồn
      **MCP** (Atlassian Rovo / Microsoft 365) quét **THẲNG trong chat**; nguồn **API** (Jira Server, GitHub/GitLab API)
-     bị chặn mạng → mình **tạo sẵn 1 lệnh ở `reports/kora-scan.command`** để bạn chạy ở **Terminal** (KHÔNG bắt gõ lại
+     bị chặn mạng → mình **tạo sẵn 1 lệnh ở `reports/claude-knowledge-scan.command`** để bạn chạy ở **Terminal** (KHÔNG bắt gõ lại
      lệnh) — xem Bước 2. **Terminal CLI** (không sandbox): quét thẳng mọi nguồn. Gợi ý: trong Cowork, ưu tiên tích các
      nguồn **(MCP)** để quét ngay không cần Terminal.
    - **Chọn 1 nguồn cụ thể** (không phải "tất cả") → kết nối rồi **trả về danh sách project/folder** để
@@ -45,8 +45,8 @@ The user invoked `/kora-scan` — scan & import knowledge.
      **`NETWORK_UNREACHABLE`** ở stderr (sandbox Cowork chặn) → **KHÔNG retry vô ích**, KHÔNG kết luận "nguồn hỏng".
      Thay vào đó **tạo file lệnh** để user chạy ở Terminal local (đúng mạng/VPN):
      1. Lấy lệnh quét đã resolve abs-path: `python3 <import_jira.py> --emit-command <đúng args định quét: --jql/--since/--keys/--per-project>` (Jira). Nguồn pull khác cũng API → thêm dòng `python3 <abs>/github-sync/sync_github.py --pull` / `.../gitlab-sync/sync_gitlab.py --pull`.
-     2. **Ghi `reports/kora-scan.command`** (`mkdir -p reports` trước): dòng đầu `#!/bin/bash`, rồi `cd "<PROJECT tuyệt đối>"`, rồi (các) lệnh ở (1) — **gộp NHIỀU nguồn API vào 1 file**; `chmod +x`. Windows: ghi `reports\kora-scan.bat` (bỏ shebang, `cd /d "<project>"`, dùng `py`).
-     3. Báo user 1 câu: *"Cowork bị chặn mạng nên không quét nguồn API từ đây. Mở **Terminal** chạy: `bash \"reports/kora-scan.command\"` — quét xong gõ **'đã quét xong'** để mình reindex + tổng hợp + (tùy chọn) báo cáo."* Token KHÔNG nằm trong file (chỉ trỏ `JIRA_ENV_FILE`).
+     2. **Ghi `reports/claude-knowledge-scan.command`** (`mkdir -p reports` trước): dòng đầu `#!/bin/bash`, rồi `cd "<PROJECT tuyệt đối>"`, rồi (các) lệnh ở (1) — **gộp NHIỀU nguồn API vào 1 file**; `chmod +x`. Windows: ghi `reports\claude-knowledge-scan.bat` (bỏ shebang, `cd /d "<project>"`, dùng `py`).
+     3. Báo user 1 câu: *"Cowork bị chặn mạng nên không quét nguồn API từ đây. Mở **Terminal** chạy: `bash \"reports/claude-knowledge-scan.command\"` — quét xong gõ **'đã quét xong'** để mình reindex + tổng hợp + (tùy chọn) báo cáo."* Token KHÔNG nằm trong file (chỉ trỏ `JIRA_ENV_FILE`).
      - **Nguồn MCP KHÔNG cần bàn giao** — gọi MCP tool quét thẳng trong Cowork. **Terminal CLI** cũng quét thẳng, bỏ qua bàn giao.
 3. **Tổng hợp NHẸ (tự động, ngay sau khi nạp):** `python3 tools/kb-synth/synthesize.py --root .` → dựng
    trang `_wiki/<Project>-Wiki.md` liên kết cho mỗi project (index theo loại + mục "Quan hệ"). Rồi reindex

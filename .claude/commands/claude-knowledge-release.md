@@ -2,15 +2,15 @@
 description: Maintainer-only. Automate a release — choose version bump + branch scope (default: ĐỒNG BỘ cả 5 nhánh env dev/qc/uat/release/main), bump version.json + CHANGELOG + map index.html labels, then commit/push/ff-merge/tag/GitHub Release. Excluded from end-user installs.
 ---
 
-The user invoked `/kora-release` — automate a release (**MAINTAINER ONLY**; skill này KHÔNG được phát hành
-cho người dùng — installer/update tự loại `kora-release.md` + `workflows/12-release.md` khỏi bản cài).
+The user invoked `/claude-knowledge-release` — automate a release (**MAINTAINER ONLY**; skill này KHÔNG được phát hành
+cho người dùng — installer/update tự loại `claude-knowledge-release.md` + `workflows/12-release.md` khỏi bản cài).
 
 Read and execute `workflows/12-release.md` following `CLAUDE.md`. Drive với AskUserQuestion (mỗi câu 1 thẻ).
 
 ### Bước 0 — Guard (BẮT BUỘC)
 Verify `.maintainer` tồn tại ở repo root **và** `git remote -v` trỏ đúng repo gốc + push được. Nếu KHÔNG →
-**DỪNG NGAY**, nói nhẹ nhàng (KHÔNG bump, KHÔNG sửa CHANGELOG, KHÔNG push); gợi ý `/kora-update` hoặc
-`/kora-export-knowledge-base`. (Bảo vệ kép: dù lỡ chạy tiếp, `git push` vẫn cần quyền repo gốc.)
+**DỪNG NGAY**, nói nhẹ nhàng (KHÔNG bump, KHÔNG sửa CHANGELOG, KHÔNG push); gợi ý `/claude-knowledge-update` hoặc
+`/claude-knowledge-export-knowledge-base`. (Bảo vệ kép: dù lỡ chạy tiếp, `git push` vẫn cần quyền repo gốc.)
 
 ### Bước 1 — HỎI (AskUserQuestion, lần lượt)
 1. **Có phát hành version MỚI không?**
@@ -53,4 +53,4 @@ Push là thao tác công khai → **BẮT BUỘC chờ user đồng ý**. KHÔNG
 Verify **CÙNG `vX.Y.Z`** ở: `version.json.version` · header `CHANGELOG` (`## vX.Y.Z`) · **index.html** (brand sidebar
 + hero badge + callout "Bản mới nhất: vX.Y.Z" + card MỚI NHẤT) · `git tag` · GitHub Release. Đồng thời
 `git ls-remote --heads origin` xác nhận các nhánh đã chọn cùng 1 commit. Sửa mọi lệch.
-Báo: **web (Pages) deployed**; app users nhận qua `/kora-update`. Never push without the gate; keep secrets out of commits.
+Báo: **web (Pages) deployed**; app users nhận qua `/claude-knowledge-update`. Never push without the gate; keep secrets out of commits.

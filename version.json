@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.11.0",
+  "version": "2.12.0",
   "codename": "Claude-1",
   "released": "2026-06-22",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
-  "force": false,
-  "intro": "Kora-Framework v2.11.0 (báo cáo phân biệt vai trò QC ↔ Dev): QC/tester report bug nhưng KHÔNG logtime như dev (hay chỉ join cuối sprint) → trước đây bị tính 'thiếu giờ' sai và còn bị SÓT khỏi bảng người (báo cáo chỉ gom theo assignee). Nay: (1) thêm reporter-của-Bug vào danh sách người — QC không còn bị sót; (2) thêm cột 'Vai trò' (Dev/QC) + 'Bug tạo'; QC KHÔNG áp công thức giờ-công (OT/Thiếu/Năng suất để '—'), đo bằng số Bug tạo; (3) team-capacity chỉ tính Dev (QC không kéo tụt kỳ vọng). Nhận diện QC: config reports.qc_members (ưu tiên) HOẶC tự động (0 logtime + là reporter của Bug). Phân tích AI cũng không gắn cờ 'thiếu giờ' cho QC. Thuần CORE, không migration DATA."
+  "force": true,
+  "intro": "Kora-Framework v2.12.0 (ĐỔI TÊN SKILL: /kora-* → /claude-knowledge-*): 19 lệnh đổi tiền tố — /kora-scan→/claude-knowledge-scan, /kora-connect→/claude-knowledge-connect, /kora-send-mail→/claude-knowledge-send-mail… Cập nhật sẽ TỰ GỠ lệnh /kora-* cũ và cài /claude-knowledge-* mới (migration sạch). File sinh ra cũng đổi: reports/claude-knowledge-scan.command, .claude-knowledge-user, ~/.config/claude-knowledge/ops-pw.env — đều CÓ backward-compat (đọc cả path cũ nên máy đã đặt mật khẩu/đã import không vỡ). Trang giới thiệu đổi 'Claude AI' → 'Claude Knowledge AI'. GIỮ NGUYÊN: biến KORA_* (mật khẩu/mailer env), thư mục cài ~/.claude/kora-framework, repo isc-fkit/Kora-Framework. Bản QUAN TRỌNG (force) — nên cập nhật để lệnh đồng bộ tên mới."
 }

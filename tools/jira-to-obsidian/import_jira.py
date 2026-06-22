@@ -792,7 +792,7 @@ def write_issue(issue, pkey, fname_map, nodes, edges, registry):
         out = ln.get("outwardIssue")
         other = out or ln.get("inwardIssue")
         if other:
-            # GIỮ tên loại link (outward/inward) + chiều → /kora-sync nhận diện CR↔US (versioning).
+            # GIỮ tên loại link (outward/inward) + chiều → /claude-knowledge-sync nhận diện CR↔US (versioning).
             ltype = (ln.get("type") or {}).get("outward" if out else "inward", "related")
             edges.append({"from": key, "to": other["key"], "relation": "linked",
                           "link_type": ltype, "direction": "outward" if out else "inward"})
@@ -1037,7 +1037,7 @@ def main():
     ap.add_argument("--check-fresh", action="store_true",
                     help="In độ mới của vault (last-import vs hôm nay) dạng JSON rồi thoát")
     ap.add_argument("--list-projects", action="store_true",
-                    help="In danh sách project [{key,name}] dạng JSON (cho /kora-scan chọn project)")
+                    help="In danh sách project [{key,name}] dạng JSON (cho /claude-knowledge-scan chọn project)")
     ap.add_argument("--force", action="store_true", help="Bỏ qua guard idempotent-per-day")
     ap.add_argument("--emit-command", action="store_true",
                     help="KHÔNG quét — in 1 DÒNG LỆNH (path tuyệt đối) để chạy ở TERMINAL quét tiếp (bàn giao khi "

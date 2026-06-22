@@ -2,7 +2,7 @@
 description: Clean up, evolve and health-check the knowledge base — dead links, duplicates, conflicts, coverage gaps.
 ---
 
-The user invoked `/kora-evolve` — an explicit command to evolve/clean the **knowledge** base
+The user invoked `/claude-knowledge-evolve` — an explicit command to evolve/clean the **knowledge** base
 (WF09, for all users; NOT WF13 system-evolve).
 
 Read and execute `workflows/09-evolve.md` following `CLAUDE.md`: clean dead links, merge duplicates,

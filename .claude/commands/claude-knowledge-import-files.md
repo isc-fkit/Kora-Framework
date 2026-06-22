@@ -2,7 +2,7 @@
 description: Import documents (PDF/DOCX/images/Obsidian zip) into the knowledge base.
 ---
 
-The user invoked `/kora-import-files` — an explicit command to import documents as knowledge.
+The user invoked `/claude-knowledge-import-files` — an explicit command to import documents as knowledge.
 
 - If no file is attached → ask the user to drag files into chat (PDF / DOCX / PNG / JPG / Obsidian zip),
   then wait for the files.

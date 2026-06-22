@@ -53,7 +53,7 @@ kora-archive-*.zip
 # ===== Đánh dấu máy người duy trì (bật quyền "phát hành") — local-only =====
 .maintainer
 # ===== Đánh dấu gói "user" (tắt report/mail, bật get&post) — local-only =====
-.kora-user
+.claude-knowledge-user
 
 # ===== Rác hệ thống =====
 .DS_Store

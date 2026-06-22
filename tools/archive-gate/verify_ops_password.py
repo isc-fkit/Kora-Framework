@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
 verify_ops_password.py — Cổng MẬT KHẨU VẬN HÀNH cho các luồng GHI/PHÁT ra ngoài:
-  • /kora-sync     — đẩy KB lên Confluence / GitHub
-  • /kora-send-mail — gửi email báo cáo
-  • bước SYNC trong /kora-schedule (lịch tự đẩy)
-KHÔNG áp cho /kora-export (export là thuần, không gác).
+  • /claude-knowledge-sync     — đẩy KB lên Confluence / GitHub
+  • /claude-knowledge-send-mail — gửi email báo cáo
+  • bước SYNC trong /claude-knowledge-schedule (lịch tự đẩy)
+KHÔNG áp cho /claude-knowledge-export-* (export là thuần, không gác).
 
 Tái dùng NGUYÊN cơ chế của verify_password.py (SHA-256 có salt, so khớp hằng-thời-gian
 hmac.compare_digest, hash host trên repo nhánh release để CHỦ REPO đổi mật khẩu từ xa mà
@@ -39,8 +39,10 @@ base.LOCAL_FALLBACKS = [
 def _read_pw_file() -> str:
     """Đọc KORA_OPS_PW từ file (cùng nơi scheduler dùng) → set file là CÓ HIỆU LỰC NGAY trong
     session đang chạy, KHÔNG cần `source ~/.zshrc` / mở terminal mới."""
-    for p in (Path.home() / ".config" / "kora" / "ops-pw.env",
-              Path.home() / ".kora" / "ops-pw.env"):   # Windows: %USERPROFILE%\.kora\ops-pw.env
+    for p in (Path.home() / ".config" / "claude-knowledge" / "ops-pw.env",   # MỚI (claude-knowledge)
+              Path.home() / ".claude-knowledge" / "ops-pw.env",              # Windows mới: %USERPROFILE%\.claude-knowledge\
+              Path.home() / ".config" / "kora" / "ops-pw.env",               # CŨ — backward-compat (máy đặt trước rename)
+              Path.home() / ".kora" / "ops-pw.env"):                         # Windows cũ: %USERPROFILE%\.kora\
         try:
             if not p.exists():
                 continue
@@ -61,7 +63,7 @@ def read_password() -> str:
     pw = os.getenv("KORA_OPS_PW")          # 1) env var (ưu tiên cao nhất)
     if pw:
         return pw.strip()
-    pw = _read_pw_file()                    # 2) file ~/.config/kora/ops-pw.env (tức thời, không cần source)
+    pw = _read_pw_file()                    # 2) file ~/.config/claude-knowledge/ops-pw.env (tức thời, không cần source)
     if pw:
         return pw
     if not sys.stdin.isatty():             # 3) stdin (pipe)

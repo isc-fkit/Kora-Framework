@@ -127,8 +127,10 @@ GATE_SCRIPT = REPO_ROOT / "tools" / "archive-gate" / "verify_ops_password.py"
 # File mật khẩu vận hành cho LỊCH NỀN — vì launchd/cron/schtasks KHÔNG có shell env tương tác.
 # Đặt 1 lần: ghi `KORA_OPS_PW=<mật khẩu>` vào file dưới (chmod 600). orchestrator TỰ nạp lúc chạy.
 OPS_ENV_FILES = [
-    Path.home() / ".config" / "kora" / "ops-pw.env",   # macOS/Linux (khuyến nghị)
-    Path.home() / ".kora" / "ops-pw.env",              # Windows: %USERPROFILE%\.kora\ops-pw.env
+    Path.home() / ".config" / "claude-knowledge" / "ops-pw.env",   # MỚI macOS/Linux (khuyến nghị)
+    Path.home() / ".claude-knowledge" / "ops-pw.env",              # MỚI Windows: %USERPROFILE%\.claude-knowledge\
+    Path.home() / ".config" / "kora" / "ops-pw.env",               # CŨ — backward-compat (máy đặt trước rename)
+    Path.home() / ".kora" / "ops-pw.env",                          # CŨ Windows: %USERPROFILE%\.kora\
 ]
 
 
@@ -160,7 +162,7 @@ def load_ops_env():
 
 def ops_gate() -> bool:
     """Cổng mật khẩu vận hành cho bước GHI/PHÁT ra ngoài (POST/MAIL/SYNC) trong lịch nền.
-    Mật khẩu lấy từ env KORA_OPS_PW (orchestrator tự nạp từ ~/.config/kora/ops-pw.env). KHÔNG in mật khẩu."""
+    Mật khẩu lấy từ env KORA_OPS_PW (orchestrator tự nạp từ ~/.config/claude-knowledge/ops-pw.env). KHÔNG in mật khẩu."""
     rc, _o, _e = run_tool(GATE_SCRIPT, [])
     return rc == 0
 
@@ -232,7 +234,7 @@ def _ticket_jira(cfg, title, body_md):
 
 
 def send_error_email(cfg, schedule, subject, body):
-    """Mail báo SỰ CỐ (issue ticket) khi lịch nền lỗi — cấu hình tập trung qua /kora-alert-mail.
+    """Mail báo SỰ CỐ (issue ticket) khi lịch nền lỗi — cấu hình tập trung qua /claude-knowledge-alert-mail.
 
     OVERRIDE: scheduler.error_recipients (khi != rỗng) ÁP cho MỌI lịch, ĐÈ người nhận của
     từng lịch. Đọc config lúc chạy → sửa 1 lần áp cho mọi lịch, KHÔNG cần tạo lại lịch nào.
@@ -281,7 +283,8 @@ def main():
     lock.write_text(now_iso(), encoding="utf-8")
 
     run_errors, sources, posted = [], [], []
-    is_user_pkg = (cfg.get("package.type") or "host").lower() == "user" or (REPO_ROOT / ".kora-user").exists()
+    is_user_pkg = (cfg.get("package.type") or "host").lower() == "user" or \
+        (REPO_ROOT / ".claude-knowledge-user").exists() or (REPO_ROOT / ".kora-user").exists()  # marker mới + cũ (backward-compat)
     started = now_iso()
     try:
         # 0) CỔNG MẬT KHẨU vận hành — chỉ gác bước GHI/PHÁT RA NGOÀI (post · report · mail · sync).

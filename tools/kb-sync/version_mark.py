@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-version_mark.py — Đánh dấu PHIÊN BẢN US ↔ Change Request trước khi /kora-sync đẩy lên.
+version_mark.py — Đánh dấu PHIÊN BẢN US ↔ Change Request trước khi /claude-knowledge-sync đẩy lên.
 
 Khi 1 User Story cũ có 1 "change request" mới (phát hiện qua issue-link Jira: 'supersedes',
 'clones', 'relates'… HOẶC issue type 'Change Request'), tool này:

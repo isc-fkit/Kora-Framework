@@ -2,7 +2,7 @@
 description: Update the Kora app/skills to the latest release by RUNNING the bash update script on the CLI, keeping your knowledge intact. Do not ask "update what".
 ---
 
-The user invoked `/kora-update` — cập nhật chương trình lên bản mới nhất (giữ nguyên tri thức).
+The user invoked `/claude-knowledge-update` — cập nhật chương trình lên bản mới nhất (giữ nguyên tri thức).
 **Do NOT ask "update what".** Cập nhật phải chạy bằng **bash script trên CLI** — KHÔNG reimplement bằng tay.
 
 1. **Bản project folder** (có `scripts/update.command` + `version.json` trong thư mục): đọc
@@ -10,7 +10,7 @@ The user invoked `/kora-update` — cập nhật chương trình lên bản mớ
    - macOS/Linux: `bash scripts/update.command`
    - Windows: `scripts\update.bat`
    Script kéo bản CORE mới (git pull nếu có `.git`, hoặc tải zip + rsync chỉ CORE), **KHÔNG đụng DATA**.
-   Từ v2.5.3 script còn **tự refresh skill `/kora-*` vào `~/.claude/commands/`** (nơi Claude nạp skill) — nếu
+   Từ v2.5.3 script còn **tự refresh skill `/claude-knowledge-*` vào `~/.claude/commands/`** (nơi Claude nạp skill) — nếu
    không, fix skill sẽ không tới user dù CORE đã update. ⚠️ Bản CŨ (≤2.5.2) chưa có bước này → cần **chạy LẠI
    installer 1 lần** (nhánh 2) để nhận updater mới + skill mới, từ đó `update.command` mới refresh skill đúng.
 2. **Bản cài skill managed** (skill trong `~/.claude`, không có folder project): **chạy lại installer = cập nhật**:

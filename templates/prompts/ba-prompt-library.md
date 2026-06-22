@@ -22,7 +22,7 @@ applies_to: workflows/03-request.md (Bước 0/2/4), templates/prompts/role-*.md
 | (Validation) | Validation + Error msg | 08 / 09 | `04-acceptance-criteria.md` (mục Validation) |
 | (FR/NFR) | Functional / Non-functional | 06 / 07 | `02-claude-context.md` |
 | B3 · Flow | User / Process Flow | 10 / 11 | Mermaid trong feature doc |
-| B4 · Docs | URD / PRD / SRS | 12 / 13 / 14 | `export/` qua `/kora-export-docs` |
+| B4 · Docs | URD / PRD / SRS | 12 / 13 / 14 | `export/` qua `/claude-knowledge-export-docs` |
 | (UX) | Screen Spec / UX | 15 / 16 | `01-user-document.md` |
 | (Dev) | API / Database | 17 / 18 | `02-claude-context.md` |
 | B6 · Test | Test Cases / Edge | 19 / 20 | `07-test-plan.md` |
@@ -49,7 +49,7 @@ applies_to: workflows/03-request.md (Bước 0/2/4), templates/prompts/role-*.md
 - **Prompt 11 — Process Flow (swimlane).** *Output chuẩn:* Mermaid swimlane theo vai trò + điểm handoff + bước phê duyệt (hình thoi) + danh sách rủi ro quy trình.
 
 ## VI. Tài liệu BA
-- **Prompt 12 — URD · Prompt 13 — PRD · Prompt 14 — SRS.** *Output chuẩn:* theo `templates/docs/BRD-template.md` / `PRD-template.md` (cấu trúc mục cố định). Xuất qua `/kora-export-docs` → `export/`.
+- **Prompt 12 — URD · Prompt 13 — PRD · Prompt 14 — SRS.** *Output chuẩn:* theo `templates/docs/BRD-template.md` / `PRD-template.md` (cấu trúc mục cố định). Xuất qua `/claude-knowledge-export-docs` → `export/`.
 
 ## VII. Hỗ trợ UX / UI
 - **Prompt 15 — Screen Spec.** *Output chuẩn:* bảng `| Element | Loại | Label | Placeholder | Validation | Hành động |` + Mục đích màn hình + Navigation + Ghi chú responsive.

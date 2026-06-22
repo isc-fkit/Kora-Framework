@@ -57,13 +57,13 @@ else
   [ -n "$SRC" ] && [ -d "$SRC" ] || die "Không thấy thư mục nguồn sau giải nén."
 fi
 
-# --- 1) Skills → ~/.claude/commands/ (xóa kora-* cũ trước → bỏ skill đã đổi tên/gỡ) ---
-echo "📥 Cài lệnh /kora-* ..."
-rm -f "$DEST_CMD"/kora-*.md 2>/dev/null || true
-cp "$SRC"/.claude/commands/kora-*.md "$DEST_CMD"/ 2>/dev/null || die "Không thấy skill kora-*.md trong nguồn."
+# --- 1) Skills → ~/.claude/commands/ (xóa kora-* CŨ + claude-knowledge-* để cài lại sạch — migration đổi tên) ---
+echo "📥 Cài lệnh /claude-knowledge-* ..."
+rm -f "$DEST_CMD"/kora-*.md "$DEST_CMD"/claude-knowledge-*.md 2>/dev/null || true
+cp "$SRC"/.claude/commands/claude-knowledge-*.md "$DEST_CMD"/ 2>/dev/null || die "Không thấy skill claude-knowledge-*.md trong nguồn."
 # Skill CHỈ-DUY-TRÌ (maintainer-only) — KHÔNG cài cho người dùng thường (phát hành = chỉ người viết repo).
-for ms in kora-release; do rm -f "$DEST_CMD/$ms.md" 2>/dev/null || true; done
-N="$(ls -1 "$DEST_CMD"/kora-*.md 2>/dev/null | wc -l | tr -d ' ')"
+for ms in claude-knowledge-release; do rm -f "$DEST_CMD/$ms.md" 2>/dev/null || true; done
+N="$(ls -1 "$DEST_CMD"/claude-knowledge-*.md 2>/dev/null | wc -l | tr -d ' ')"
 
 # --- 2) CORE hỗ trợ → ~/.claude/kora-framework/ (ẩn, quản lý; KHÔNG phải folder source để sửa) ---
 echo "📥 Cài workflows hỗ trợ ..."
@@ -76,7 +76,7 @@ done
 # Workflow CHỈ-DUY-TRÌ — gỡ khỏi bản cài người dùng (phát hành/tiến hóa hệ thống chỉ ở người viết repo).
 for mw in 12-release.md 13-evolve-system.md; do rm -f "$DEST_CORE/workflows/$mw" 2>/dev/null || true; done
 [ -f "$SRC/CLAUDE.md" ] && cp "$SRC/CLAUDE.md" "$DEST_CORE/" || true
-# version.json + CHANGELOG → để /kora-version /kora-update đọc được bản đã cài.
+# version.json + CHANGELOG → để /claude-knowledge-version /claude-knowledge-update đọc được bản đã cài.
 [ -f "$SRC/version.json" ] && cp "$SRC/version.json" "$DEST_CORE/" || true
 [ -f "$SRC/CHANGELOG.md" ] && cp "$SRC/CHANGELOG.md" "$DEST_CORE/" || true
 # Domain + rule preset đã nằm trong config/ vừa copy (gồm Healthcare/Y tế). Đếm để báo.
@@ -98,8 +98,8 @@ echo "📦 Khởi tạo project tại: $ROOT"
 mkdir -p "$SKILL_DIR"
 
 # Folder skill nằm BÊN TRONG ROOT (để upload tay vào Cowork) — refresh mỗi lần cài/update.
-rm -f "$SKILL_DIR"/kora-*.md 2>/dev/null || true
-cp "$DEST_CMD"/kora-*.md "$SKILL_DIR"/ 2>/dev/null || true
+rm -f "$SKILL_DIR"/kora-*.md "$SKILL_DIR"/claude-knowledge-*.md 2>/dev/null || true
+cp "$DEST_CMD"/claude-knowledge-*.md "$SKILL_DIR"/ 2>/dev/null || true
 
 # Khởi tạo cấu trúc project GỌN ngay trong ROOT — CHỈ khi chưa phải project Kora (tránh đè tri thức).
 if [ ! -f "$ROOT/config/factory-config.yaml" ] && [ ! -d "$ROOT/config/domain-presets" ]; then
@@ -121,8 +121,8 @@ echo ""
 echo "✅ Đã cài Kora-Framework ${VER:+v$VER} — $N skill + $NDOM domain preset (gồm Healthcare/Y tế, Retail, Manufacturing…) vào ~/.claude."
 echo "   📁 Project đã khởi tạo sẵn: $ROOT"
 echo "   📁 Folder skill (upload vào Cowork): $SKILL_DIR"
-echo "   • Claude Code (CLI): mở  $ROOT  → gõ  /kora-init  (đặt domain/tên) rồi  /kora-scan."
-echo "   • Claude Cowork (App): upload các file kora-*.md trong  $SKILL_DIR/  vào mục Skills → mở  $ROOT  → gõ /kora-init."
+echo "   • Claude Code (CLI): mở  $ROOT  → gõ  /claude-knowledge-init  (đặt domain/tên) rồi  /claude-knowledge-scan."
+echo "   • Claude Cowork (App): upload các file claude-knowledge-*.md trong  $SKILL_DIR/  vào mục Skills → mở  $ROOT  → gõ /claude-knowledge-init."
 echo "   Cập nhật: chạy lại file này → skill mới tự kéo vào ~/.claude VÀ $SKILL_DIR/ (tri thức GIỮ NGUYÊN)."
-echo "   Gỡ:       chạy uninstall.command (hoặc /kora-uninstall)."
+echo "   Gỡ:       chạy uninstall.command (hoặc /claude-knowledge-uninstall)."
 pause

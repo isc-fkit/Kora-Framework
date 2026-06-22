@@ -16,7 +16,7 @@ echo ================================================================
 echo   Go Kora-Framework skills khoi ~/.claude
 echo ================================================================
 echo Se xoa:
-echo   - %DEST_CMD%\kora-*.md
+echo   - %DEST_CMD%\claude-knowledge-*.md
 echo   - %DEST_CORE%\
 echo   - %SKILL_DIR%\  (chi skill - tri thuc trong Knowledge-Base duoc giu)
 echo.
@@ -24,7 +24,7 @@ set "ANS="
 set /p ANS="Go 'yes' de xac nhan: "
 if /i not "%ANS%"=="yes" (echo Da huy. & pause & exit /b 0)
 
-del /q "%DEST_CMD%\kora-*.md" 2>nul
+del /q "%DEST_CMD%\kora-*.md" "%DEST_CMD%\claude-knowledge-*.md" 2>nul
 rmdir /s /q "%DEST_CORE%" 2>nul
 rmdir /s /q "%SKILL_DIR%" 2>nul
 rmdir "%DLBASE%\Knowledge-Base" 2>nul

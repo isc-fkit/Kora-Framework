@@ -2,7 +2,7 @@
 description: Connect a knowledge source OR view already-connected sources. Entry asks [Connect new] vs [View connected]; new → choose MCP or API → pick a source that method supports (Jira/GitHub/GitLab/SharePoint via API OAuth 2.0; Gmail SMTP via App Password for auto-send; Atlassian, Gmail draft, Microsoft 365 via MCP), marking sources already connected. API and MCP count separately.
 ---
 
-The user invoked `/kora-connect` — set up a connection to a knowledge source, recorded in the
+The user invoked `/claude-knowledge-connect` — set up a connection to a knowledge source, recorded in the
 `connections:` registry of `config/factory-config.yaml`. Drive **step by step with AskUserQuestion**
 (each a card; STOP and wait). **Bảo mật tuyệt đối:** token/secret CHỈ vào env var (`~/.zshrc`/`~/.bashrc`)
 hoặc file `.env` — **KHÔNG bao giờ in token ra chat / vào `connections:`**. Registry chỉ TRỎ tới nơi
@@ -38,7 +38,7 @@ ESC hoặc [← Huỷ] = dừng, **KHÔNG ghi gì** vào `connections:`.
     verify/quét, đừng dừng ở "đã kết nối M365" rồi thôi): **Microsoft 365** → **[SharePoint] / [Outlook] /
     [Cả hai]**; **Atlassian Rovo** → **[Jira] / [Confluence] / [Cả hai]**. (Gmail là 1 dịch vụ — không hỏi.)
     Mỗi sub-service ghi entry riêng: `source_type` = `sharepoint`/`outlook`/`jira_cloud`/`confluence`, method `mcp`.
-  > 🔁 **Atlassian Rovo phục vụ CẢ Jira:** report/scan (`/kora-daily-report`, `/kora-send-mail`, WF14) coi **cả
+  > 🔁 **Atlassian Rovo phục vụ CẢ Jira:** report/scan (`/claude-knowledge-daily-report`, `/claude-knowledge-send-mail`, WF14) coi **cả
   >   `source_type: atlassian` (entry Rovo gộp)** lẫn `jira_cloud` (đã tách) là **nguồn Jira MCP** — entry `atlassian__mcp`
   >   sẵn có vẫn quét Jira được, KHÔNG cần kết nối lại. Nhiều Jira khác **domain** → mỗi cái 1 entry id riêng
   >   (`__<slug-host>`) + base_url + cred riêng (API: `JIRA_ENV_FILE`/token_env riêng) để quét song song không lẫn.
@@ -81,12 +81,12 @@ ESC hoặc [← Huỷ] = dừng, **KHÔNG ghi gì** vào `connections:`.
      - **Jira Cloud** (`source_type: jira_cloud`, `*.atlassian.net`) → **Basic email:token** (hoặc OAuth):
        `export JIRA_BASE_URL=https://<x>.atlassian.net JIRA_EMAIL=<email> JIRA_PAT=<API token> JIRA_AUTH_MODE=cloud`.
   3b. **CHỈ tạo `.env.local` trong project ở 2 NGOẠI LỆ:**
-     - **Archive** (`/kora-archive`): gói bàn giao ship đúng 1 `.env.local` read-only (key đọc KB chung).
-     - **Lịch sync nền** (`/kora-schedule`): mỗi NGUỒN user chọn auto-sync mới tạo `.env.local` RIÊNG cho
+     - **Archive** (`/claude-knowledge-archive`): gói bàn giao ship đúng 1 `.env.local` read-only (key đọc KB chung).
+     - **Lịch sync nền** (`/claude-knowledge-schedule`): mỗi NGUỒN user chọn auto-sync mới tạo `.env.local` RIÊNG cho
        nguồn đó (vd `tools/jira-to-obsidian/.env.<nguồn>`, `tools/github-sync/.env.local`) vì cron/launchd
        không đọc được shell tương tác. Ngoài 2 ca này → luôn dùng shell env.
   4. **Fallback PAT:** nếu user từ chối OAuth, hoặc nguồn sẽ dùng cho **lịch chạy nền** (cron không mở được
-     trình duyệt) → yêu cầu **PAT/long-lived token** thay vì OAuth (xem cảnh báo headless ở `/kora-schedule`).
+     trình duyệt) → yêu cầu **PAT/long-lived token** thay vì OAuth (xem cảnh báo headless ở `/claude-knowledge-schedule`).
   ▸ **Gmail SMTP (App Password — TỰ ĐỘNG GỬI):** KHÔNG OAuth, KHÔNG MCP — gửi trực tiếp qua SMTP để báo cáo/lịch
      nền **tự bắn mail** (không cần tạo nháp tay).
      1. **HỎI tài khoản gửi CHUYÊN DỤNG** (vd `ftel.medicare@gmail.com`) — **TUYỆT ĐỐI KHÔNG tự điền email cá
@@ -124,5 +124,5 @@ ESC hoặc [← Huỷ] = dừng, **KHÔNG ghi gì** vào `connections:`.
 
 Kết thúc — **KHÔNG dead-end** (verify xong phải dẫn user đi tiếp, đừng dừng im): báo (các) nguồn/sub-service đã
 kết nối, rồi đề xuất bước kế (AskUserQuestion, **item đầu = QUÉT NGAY**): **[A] Quét & lấy dữ liệu ngay
-(`/kora-scan`)** — SharePoint: *search thư mục (path) → chọn folder → get data về vault*; Outlook: *search email
+(`/claude-knowledge-scan`)** — SharePoint: *search thư mục (path) → chọn folder → get data về vault*; Outlook: *search email
 → get*; Jira/Confluence: lấy issue/trang · **[B] Kết nối nguồn khác** · **[C] Đặt lịch đồng bộ** · **[D] Dừng**.

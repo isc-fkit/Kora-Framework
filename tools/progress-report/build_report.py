@@ -1285,7 +1285,7 @@ def main():
         if not issues:
             die(f"Không có note Jira cho project {sorted(keys)} trong vault {vault}.\n"
                 f"   → Project này có thể thuộc một NGUỒN Jira đã kết nối nhưng CHƯA ĐƯỢC QUÉT (vd nguồn MCP/Cloud, "
-                f"hoặc một domain Jira khác). Mở /kora-daily-report → chọn ĐÚNG nguồn chứa project này (multi-select nếu "
+                f"hoặc một domain Jira khác). Mở /claude-knowledge-daily-report → chọn ĐÚNG nguồn chứa project này (multi-select nếu "
                 f"nhiều nguồn) rồi quét lại — KHÔNG phải mất dữ liệu.")
     if not issues:
         die(f"Vault chưa có note Jira nào (source: jira) tại {vault}. Hãy 'quét jira' trước.")

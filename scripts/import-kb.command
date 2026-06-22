@@ -3,7 +3,7 @@
 #
 # Hỗ trợ 2 loại gói:
 #   - SAO LƯU (export-kb): kora-kb-*.zip / genesis1-kb-*.zip — DATA phẳng ở gốc + manifest.json.
-#   - ARCHIVE bàn giao (archive-kb): kora-archive-*.zip — có thư mục 'kora-archive/' gồm
+#   - ARCHIVE bàn giao (archive-kb): kora-archive-*.zip — có thư mục 'claude-knowledge-archive/' gồm
 #     data/, manifest.json (package_type/permission/cloud_kb), .env.local (key READ), markers/.
 #
 # Cách dùng:  scripts/import-kb.command [đường-dẫn-file.zip]
@@ -47,8 +47,12 @@ else
   unzip -q "$ZIP_IN" -d "$TMP_DIR" || die "Giải nén thất bại (file có thể hỏng)."
 fi
 
-# --- Nhận diện loại gói: ARCHIVE (có kora-archive/) hay SAO LƯU phẳng ---------
-if [ -f "$TMP_DIR/kora-archive/manifest.json" ]; then
+# --- Nhận diện loại gói: ARCHIVE (có claude-knowledge-archive/ hoặc kora-archive/ CŨ) hay SAO LƯU phẳng ---------
+if [ -f "$TMP_DIR/claude-knowledge-archive/manifest.json" ]; then
+  PKG_ROOT="$TMP_DIR/claude-knowledge-archive"
+  DATA_SRC="$PKG_ROOT/data"
+  ARCHIVE_MODE=1
+elif [ -f "$TMP_DIR/kora-archive/manifest.json" ]; then   # backward-compat: gói archive tạo TRƯỚC khi đổi tên
   PKG_ROOT="$TMP_DIR/kora-archive"
   DATA_SRC="$PKG_ROOT/data"
   ARCHIVE_MODE=1
@@ -107,7 +111,7 @@ if [ -f "$CFG" ]; then
   fi
 fi
 
-# --- Gói USER: đặt key READ + đánh dấu .kora-user ----------------------------
+# --- Gói USER: đặt key READ + đánh dấu .claude-knowledge-user ----------------------------
 if [ "$ARCHIVE_MODE" = 1 ] && [ "$PKG_TYPE" = "user" ]; then
   if [ -f "$PKG_ROOT/.env.local" ]; then
     mkdir -p "$REPO_ROOT/tools/confluence-sync"
@@ -125,8 +129,8 @@ if [ "$ARCHIVE_MODE" = 1 ] && [ "$PKG_TYPE" = "user" ]; then
     cp "$PKG_ROOT/notify-smtp.env" "$REPO_ROOT/tools/report-mailer/.env.local"
     echo "📨 Đã đặt cred SMTP no-reply báo lỗi vào tools/report-mailer/.env.local → lịch USER lỗi sẽ email người phụ trách."
   fi
-  printf 'package=user\nimported_at=%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$REPO_ROOT/.kora-user"
-  echo "🏷  Đã tạo .kora-user → máy này là GÓI NGƯỜI DÙNG: TẮT báo cáo/gửi mail; chỉ get&post KB chung."
+  printf 'package=user\nimported_at=%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$REPO_ROOT/.claude-knowledge-user"
+  echo "🏷  Đã tạo .claude-knowledge-user → máy này là GÓI NGƯỜI DÙNG: TẮT báo cáo/gửi mail; chỉ get&post KB chung."
   echo ""
   echo "👉 Bước kế (Claude sẽ làm khi bạn mở app): đặt package.type=user + cloud_kb.sync.enabled=true,"
   echo "   reports.email.enabled=false trong config, rồi lên LỊCH get&post (workflows/15-archive.md mục B)."
