@@ -17,7 +17,7 @@ python3 tools/report-mailer/send_report.py --test
 # Gửi báo cáo thật (nhúng + đính kèm HTML):
 python3 tools/report-mailer/send_report.py \
   --to "a@x.com,b@y.com" \
-  --subject "[Kora] Báo cáo tiến độ 2026-06-18" \
+  --subject "Báo cáo tiến độ 2026-06-18" \
   --html-file reports/progress-report-latest.html
 ```
 Windows: thay `python3` bằng `py`.

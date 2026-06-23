@@ -10,6 +10,21 @@
 
 ---
 
+## v2.12.22 "Claude-1" — 2026-06-23
+
+**Báo cáo tiến độ: độ phức tạp đổi sang thang CAM (bỏ đỏ) + vai trò PM không tính giờ-công + email bỏ [Kora].**
+
+- `tools/progress-report/build_report.py` — **🧩 Độ phức tạp KHÔNG còn tô ĐỎ**: 3 chỗ (thanh phân bố, ô điểm
+  trong bảng, số "phức tạp cao") nay dùng **thang màu CAM/hổ phách đậm dần theo điểm** (điểm càng lớn càng đậm).
+  Đỏ hàm ý "lỗi/nguy hiểm" — độ phức tạp cao chỉ là "cần chú ý". Chữ tự đổi trắng/nâu giữ tương phản.
+- `tools/progress-report/build_report.py` — **👤 Thêm vai trò PM** (song song QC): người **tạo Epic/Request/US**
+  thường là PM/PO → **KHÔNG đo bằng giờ-công, KHÔNG cảnh báo "chưa log giờ", không báo OT/thiếu giờ**, loại khỏi
+  tính capacity team. Tự nhận diện (0 logtime + tạo Epic/Request/US + không ôm Task/Bug cần log) **hoặc** ép thủ
+  công qua `reports.pm_members: ["Tên A","Tên B"]`. Badge **PM** hiện ở cả dashboard HTML lẫn email.
+- **📧 Email bỏ thương hiệu "Kora"**: tiêu đề `[Kora] Báo cáo tiến độ {date}` → `Báo cáo tiến độ {date}`; tên
+  người gửi mặc định → **"Báo cáo tiến độ"** (`send_report.py`, `factory-config.example.yaml`,
+  `tools/report-mailer/.env.local.example`, README). Cơ chế banner giữ **CID inline** (đúng cho Outlook).
+
 ## v2.12.21 "Claude-1" — 2026-06-23
 
 **Nâng chuẩn ĐẦU RA PHÂN TÍCH: tài liệu chuẩn đầy đủ, tự fill template, có conflict-check + rủi ro.**

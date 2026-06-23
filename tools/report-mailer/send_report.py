@@ -16,7 +16,7 @@ Ví dụ:
   # Gửi báo cáo thật (nhúng + đính kèm dashboard HTML):
   python3 tools/report-mailer/send_report.py \
       --to "a@x.com,b@y.com" \
-      --subject "[Kora] Báo cáo tiến độ 2026-06-18" \
+      --subject "Báo cáo tiến độ 2026-06-18" \
       --html-file reports/progress-report-latest.html
 """
 import argparse
@@ -40,7 +40,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 
 # Tên người gửi hiển thị mặc định — CẤU HÌNH được qua MAIL_FROM_NAME trong .env.local.
-DEFAULT_FROM_NAME = "Claude AI Daily Report"
+DEFAULT_FROM_NAME = "Báo cáo tiến độ"
 
 
 def load_env(path: Path) -> dict:
@@ -203,17 +203,17 @@ def main():
     attachments = list(args.attach)
 
     if args.test:
-        subject = subject or "[Kora] Test gửi báo cáo (SMTP)"
+        subject = subject or "Test gửi báo cáo (SMTP)"
         text = text or (
-            "Đây là email TEST từ Kora qua SMTP.\n"
-            "Nếu bạn nhận được email này, cấu hình gửi mail đã hoạt động.\n— Kora"
+            "Đây là email TEST qua SMTP.\n"
+            "Nếu bạn nhận được email này, cấu hình gửi mail đã hoạt động."
         )
         html = (
             '<div style="font-family:Arial,Helvetica,sans-serif;line-height:1.55;color:#222">'
-            '<h2 style="color:#0b804b;margin:0 0 8px">✅ Kora — Test SMTP thành công</h2>'
+            '<h2 style="color:#0b804b;margin:0 0 8px">✅ Test SMTP thành công</h2>'
             '<p>Nếu bạn nhận được email này, cấu hình gửi báo cáo qua SMTP đã hoạt động.</p>'
             '<p>Báo cáo thật sẽ gồm dashboard (sprint, assignee, % hoàn thành) và phân tích AI.</p>'
-            '<p style="color:#888;font-size:12px">— Tự động gửi bởi Kora.</p></div>'
+            '<p style="color:#888;font-size:12px">— Tự động gửi.</p></div>'
         )
     else:
         if args.html_file:
@@ -232,8 +232,8 @@ def main():
             html = p.read_text(encoding="utf-8")
             if not args.no_attach_html:
                 attachments.append(str(p))
-        subject = subject or "[Kora] Báo cáo tiến độ"
-        text = text or "Báo cáo tiến độ Kora — xem nội dung email (HTML) hoặc file đính kèm."
+        subject = subject or "Báo cáo tiến độ"
+        text = text or "Báo cáo tiến độ — xem nội dung email (HTML) hoặc file đính kèm."
 
     # Banner header NHÚNG INLINE (cid:kora-banner) → hiện NGAY cả khi client chặn ảnh remote (Outlook "trust sender").
     # Resolve path bền (như KORA_MAILER_ENV): --banner → KORA_BANNER → cạnh CORE (assets) → cwd/assets.

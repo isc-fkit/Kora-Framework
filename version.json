@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.12.21",
+  "version": "2.12.22",
   "codename": "Claude-1",
   "released": "2026-06-23",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.12.21: nâng chuẩn ĐẦU RA PHÂN TÍCH — câu trả lời phải là TÀI LIỆU CHUẨN, đầy đủ, chi tiết như một bài phân tích khoa học, TỰ ĐỘNG fill template (ba-prompt-library + doc template theo vai trò), tuân thủ workflow 03, BẮT BUỘC có mục KIỂM TRA XUNG ĐỘT (conflict) + RỦI RO & GIẢM THIỂU, truy vết KB đầy đủ vòng đời, trích nguồn theo file. User KHÔNG cần yêu cầu format."
+  "intro": "Kora-Framework v2.12.22: BÁO CÁO TIẾN ĐỘ — độ phức tạp dùng thang màu CAM đậm dần theo điểm (bỏ màu ĐỎ gây hiểu nhầm 'lỗi'); thêm VAI TRÒ PM (người tạo Epic/Request/US) — KHÔNG đo bằng giờ-công, KHÔNG cảnh báo 'chưa log giờ', loại khỏi tính capacity team (có thể ép qua reports.pm_members). EMAIL báo cáo bỏ tiền tố [Kora], tên người gửi trung tính 'Báo cáo tiến độ'."
 }

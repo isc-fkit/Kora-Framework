@@ -242,7 +242,7 @@ def apply_scope(issues, scope, recent_days):
     return issues, "Toàn bộ"
 
 
-def compute(issues, smap, today, complexity_high=7, qc_members=None):
+def compute(issues, smap, today, complexity_high=7, qc_members=None, pm_members=None):
     total = len(issues)
     grp = _status_breakdown(issues, smap)
     by_type = {}
@@ -277,39 +277,58 @@ def compute(issues, smap, today, complexity_high=7, qc_members=None):
     # QC (tester) TẠO bug, KHÔNG logtime như dev (hay chỉ join cuối sprint) → KHÔNG đo bằng giờ-công.
     # Vai trò: config reports.qc_members ƯU TIÊN; else auto = 0 logtime + có report Bug + KHÔNG ôm việc khác Bug.
     qc_set = {str(n).strip().lower() for n in (qc_members or []) if str(n).strip()}
+    # PM/PO TẠO Epic/Request/US — KHÔNG logtime như Dev, KHÔNG "chạy hết sprint" theo giờ → KHÔNG đo bằng giờ-công.
+    pm_set = {str(n).strip().lower() for n in (pm_members or []) if str(n).strip()}
+    PM_TYPES = {"epic", "story", "user story", "request", "change request"}
+    LOGW_TYPES = {"task", "sub-task", "subtask", "bug"}   # loại việc THỰC SỰ cần log giờ
     def _is_bug(i):
         return str(i.get("type") or "").lower() == "bug" or str(i.get("jira_issue_type") or "").lower() == "bug"
+    def _is_pm_type(i):
+        return (str(i.get("type") or "").lower() in PM_TYPES
+                or str(i.get("jira_issue_type") or "").lower() in PM_TYPES)
     bugs_reported = {}   # người → SỐ Bug họ TẠO (reporter) — đo năng suất QC thay cho giờ-công
+    pm_reported = {}     # người → SỐ Epic/Request/US họ TẠO (reporter) — dấu hiệu PM/PO, không tính giờ-công
     for i in issues:
         if _is_bug(i):
             rep = str(i.get("reporter") or "").strip()
             if rep:
                 bugs_reported[rep] = bugs_reported.get(rep, 0) + 1
+        if _is_pm_type(i):
+            rep = str(i.get("reporter") or "").strip()
+            if rep:
+                pm_reported[rep] = pm_reported.get(rep, 0) + 1
     who = {}
     for i in issues:
         who.setdefault(i.get("assignee") or "(chưa giao)", []).append(i)
     for rep in bugs_reported:          # QC chỉ-là-reporter (chưa từng được assign) → VẪN vào danh sách người (trước đây bị sót)
+        who.setdefault(rep, [])
+    for rep in pm_reported:            # PM chỉ-là-reporter (tạo Epic/Request/US, không được assign) → VẪN vào danh sách người
         who.setdefault(rep, [])
     by_assignee = []
     for name, items in who.items():
         g = _status_breakdown(items, smap)
         t = _time_sum(items)
         nbug = bugs_reported.get(name, 0)
+        npm = pm_reported.get(name, 0)
         if name in ("(chưa giao)", "—", ""):
             role = "—"
         elif name.lower() in qc_set:
             role = "QC"
+        elif name.lower() in pm_set:
+            role = "PM"
         elif t["spent_s"] == 0 and nbug > 0 and not any(not _is_bug(x) for x in items):
             role = "QC"   # auto: 0 logtime + có tạo bug + không ôm việc nào khác Bug
+        elif t["spent_s"] == 0 and npm > 0 and not any(str(x.get("type") or "").lower() in LOGW_TYPES for x in items):
+            role = "PM"   # auto: 0 logtime + có tạo Epic/Request/US + không ôm Task/Sub-task/Bug cần log
         else:
             role = "Dev"
         by_assignee.append({
             "assignee": name, "role": role, "total": len(items), "todo": g["todo"],
             "in_progress": g["in_progress"], "done": g["done"], "pct_done": pct(g["done"], len(items)),
-            "time": t, "bugs_reported": nbug,
+            "time": t, "bugs_reported": nbug, "pm_reported": npm,
             "story_points": sum(float(i["story_points"]) for i in items if isinstance(i.get("story_points"), (int, float))),
         })
-    by_assignee.sort(key=lambda x: (x["role"] == "QC", -x["total"], x["assignee"]))  # Dev trước, QC sau
+    by_assignee.sort(key=lambda x: ({"Dev": 0, "PM": 1, "QC": 2}.get(x["role"], 3), -x["total"], x["assignee"]))  # Dev → PM → QC
 
     # Theo project (cho dashboard nhiều project / filter theo dự án)
     proj = {}
@@ -376,10 +395,12 @@ def compute(issues, smap, today, complexity_high=7, qc_members=None):
         tt = i.get("type") or "issue"
         logged_by_type[tt] = logged_by_type.get(tt, 0) + int(i.get("time_spent_s") or 0)
         est_by_type[tt] = est_by_type.get(tt, 0) + int(i.get("time_estimate_s") or 0)
+    pm_names = {str(a["assignee"]).strip().lower() for a in by_assignee if a["role"] == "PM"}  # PM không tính log giờ
     work_no_log = [{"key": i.get("jira_key"), "summary": i.get("_summary", ""),
                     "type": i.get("type"), "assignee": i.get("assignee", "—")}
                    for i in issues
                    if (i.get("type") or "") in LOG_TYPES
+                   and str(i.get("assignee") or "").strip().lower() not in pm_names
                    and not int(i.get("time_spent_s") or 0) and issue_group(i, smap) != "done"]
 
     # Rủi ro
@@ -531,8 +552,8 @@ def render_fragment(m, vault):
         sprint_html = '<div class="pr-card pr-mut">Không có sprint đang chạy (active) — kiểm tra field Sprint trên Jira.</div>'
 
     def _ot_cell(a):
-        # QC không đo bằng giờ-công → "—". Quy ước màu: DƯƠNG (OT) = XANH, ÂM (thiếu) = ĐỎ.
-        if a.get("role") == "QC":
+        # QC & PM không đo bằng giờ-công → "—". Quy ước màu: DƯƠNG (OT) = XANH, ÂM (thiếu) = ĐỎ.
+        if a.get("role") in ("QC", "PM"):
             return '<span class="pr-mut">—</span>'
         if a.get("ot_seconds"):
             return f'<span style="color:{PAL["green"]}">+{human_seconds(a["ot_seconds"])}</span>'
@@ -543,6 +564,8 @@ def render_fragment(m, vault):
         r = a.get("role") or "—"
         if r == "QC":
             return f'<span class="pr-pill" style="background:{PAL["orange"]}1a;color:{PAL["orange"]}">QC</span>'
+        if r == "PM":
+            return f'<span class="pr-pill" style="background:{PAL["blue"]}1a;color:{PAL["blue"]}">PM</span>'
         if r == "Dev":
             return '<span class="pr-mut">Dev</span>'
         return '<span class="pr-mut">—</span>'
@@ -699,22 +722,29 @@ def render_fragment(m, vault):
         cthr = cxm.get("high_threshold", 7)
         cdist = cxm.get("dist", {})
         cdmax = max(cdist.values()) if cdist else 1
+        cxmax = cxm.get("max", 0) or 1
+        def cx_color(val):   # độ phức tạp: ĐIỂM CÀNG LỚN màu CAM càng ĐẬM (KHÔNG dùng đỏ — đỏ = lỗi/nguy hiểm)
+            r = max(0.0, min(1.0, (val or 0) / cxmax))
+            lo, hi = (255, 224, 178), (191, 84, 13)   # cam nhạt → cam/hổ phách đậm
+            return "#%02x%02x%02x" % tuple(round(lo[j] + (hi[j] - lo[j]) * r) for j in range(3))
+        def cx_text(val):    # chữ trắng khi nền cam đậm, chữ nâu khi nền nhạt (giữ độ tương phản)
+            return "#fff" if (val or 0) / cxmax >= 0.45 else "#5a3210"
         cbars = "".join(
             f'<div style="display:flex;align-items:center;gap:8px;margin:3px 0">'
             f'<span style="width:62px;font-size:12px;color:#667">Điểm {k}</span>'
             f'<span style="flex:1;height:14px;background:#eceff5;border-radius:4px;overflow:hidden">'
-            f'<span style="display:block;height:14px;width:{round(100 * v / cdmax)}%;background:{"#d23b3b" if int(k) >= cthr else "#2f6fe0"}"></span></span>'
+            f'<span style="display:block;height:14px;width:{round(100 * v / cdmax)}%;background:{cx_color(int(k))}"></span></span>'
             f'<b style="width:58px;font-size:12px;text-align:right">{v}</b></div>'
             for k, v in sorted(cdist.items(), key=lambda kv: -int(kv[0])))
         chrows = "".join(
             f'<tr><td><b>{esc(x["key"])}</b></td><td>{esc((x["summary"] or "")[:70])}</td>'
-            f'<td style="text-align:center;color:#fff;background:#d23b3b;font-weight:800">{x["complexity"]}</td>'
+            f'<td style="text-align:center;color:{cx_text(x["complexity"])};background:{cx_color(x["complexity"])};font-weight:800">{x["complexity"]}</td>'
             f'<td>{esc(x["assignee"])}</td><td>{esc(x["status"])}</td></tr>'
             for x in cxm.get("high", [])[:30])
         chtbl = (f'<table class="pr-t"><thead><tr><th>Hạng mục</th><th>Tóm tắt</th><th>Điểm</th><th>Người</th><th>Trạng thái</th></tr></thead><tbody>{chrows}</tbody></table>'
                  if chrows else '<div class="pr-mut">Không có hạng mục công việc ≥ ngưỡng phức tạp cao.</div>')
         cx_section = (f'<h2>🧩 Độ phức tạp (Complexity) — trọng tâm</h2><div class="pr-card">'
-                      f'<p style="margin:0 0 8px"><b style="color:#d23b3b;font-size:18px">{cxm.get("high_count", 0)}</b> '
+                      f'<p style="margin:0 0 8px"><b style="color:{PAL["orange"]};font-size:18px">{cxm.get("high_count", 0)}</b> '
                       f'hạng mục PHỨC TẠP CAO (điểm ≥ {cthr}) / {cxm.get("total_scored", 0)} hạng mục công việc có điểm · cao nhất '
                       f'<b>{cxm.get("max", 0)}</b>. Số càng lớn càng phức tạp → ưu tiên review &amp; nguồn lực.</p>'
                       f'{cbars}{chtbl}</div>')
@@ -898,13 +928,15 @@ def render_email_body(m, vault, banner_url=""):
         arows = ""
         for a in asg_full:
             is_qc = a.get("role") == "QC"
+            is_pm = a.get("role") == "PM"
             pc = a.get("pct_capacity")
-            if is_qc or pc is None:   # QC không đo bằng giờ-công → "—"
+            if is_qc or is_pm or pc is None:   # QC & PM không đo bằng giờ-công → "—"
                 ns_cell = f'<span style="color:{EPAL["mut"]}">—</span>'
             else:
                 pcol = EPAL["green"] if 80 <= pc <= 120 else (EPAL["red"] if pc > 120 else EPAL["amber"])
                 ns_cell = f'<span style="color:{pcol};font-weight:700">{pc}%</span>'
             role_cell = (f'<span style="color:{EPAL["amber"]};font-weight:700">QC</span>' if is_qc
+                         else f'<span style="color:{EPAL["blue2"]};font-weight:700">PM</span>' if is_pm
                          else f'<span style="color:{EPAL["mut"]}">Dev</span>')
             nbug = a.get("bugs_reported") or 0
             bug_cell = (f'<span style="color:{EPAL["red"]};font-weight:700">{nbug}</span>' if nbug
@@ -934,7 +966,7 @@ def render_email_body(m, vault, banner_url=""):
           <td style="padding:7px 9px;font-size:11px;color:{EPAL['mut']};text-align:center">Bug tạo</td>
         </tr>{arows}
       </table>
-      <div style="font-size:11.5px;color:{EPAL['mut']};margin-top:6px">% NS = năng suất Dev so với kỳ vọng ngày-công đến hôm nay (8h/ngày). <b>QC</b> không logtime → đo bằng <b>Bug tạo</b> (—), không tính giờ-công.</div></td></tr>'''
+      <div style="font-size:11.5px;color:{EPAL['mut']};margin-top:6px">% NS = năng suất Dev so với kỳ vọng ngày-công đến hôm nay (8h/ngày). <b>QC</b> không logtime → đo bằng <b>Bug tạo</b> (—). <b>PM</b> tạo Epic/Request/US → KHÔNG tính giờ-công, không cảnh báo "chưa log".</div></td></tr>'''
     # 🏃 Sprint đang chạy
     spr_block = ""
     if m["active_sprints"]:
@@ -1267,6 +1299,7 @@ def main():
     smap = None
     cfg_path = os.path.join(DATA, "config", "factory-config.yaml")
     qc_members = []   # reports.qc_members: ép vai trò QC (không đo giờ-công). Else auto theo reporter-của-Bug + 0 logtime.
+    pm_members = []   # reports.pm_members: ép vai trò PM (không đo giờ-công). Else auto theo reporter-của-Epic/Request/US + 0 logtime.
     if os.path.exists(cfg_path):
         cfg = open(cfg_path, encoding="utf-8").read()
         if not vault:
@@ -1276,6 +1309,9 @@ def main():
         qm = re.search(r"^\s*qc_members:\s*\[([^\]]*)\]", cfg, re.M)   # inline list ["A","B"] (như to:/recipients:)
         if qm:
             qc_members = [x.strip().strip('"').strip("'") for x in qm.group(1).split(",") if x.strip()]
+        pmm = re.search(r"^\s*pm_members:\s*\[([^\]]*)\]", cfg, re.M)   # inline list ["A","B"]
+        if pmm:
+            pm_members = [x.strip().strip('"').strip("'") for x in pmm.group(1).split(",") if x.strip()]
     if not vault:
         die("Không tìm thấy vault. Truyền --vault <path> hoặc đặt vault_path trong config/factory-config.yaml.")
     if not os.path.isabs(vault):
@@ -1300,7 +1336,7 @@ def main():
         print(f"ℹ️  Phạm vi báo cáo: {scope_label} ({len(issues)} issue).")
 
     today = datetime.now().strftime("%Y-%m-%d")
-    m = compute(issues, smap, today, complexity_high=args.complexity_high, qc_members=qc_members)
+    m = compute(issues, smap, today, complexity_high=args.complexity_high, qc_members=qc_members, pm_members=pm_members)
     m["scope_label"] = scope_label
     stale_after = 1
     if os.path.exists(cfg_path):
