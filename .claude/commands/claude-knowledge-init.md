@@ -1,5 +1,5 @@
 ---
-description: Initialize / set up the Kora knowledge base for this project. Run once to choose domain(s) — one, several, or all — rules, project name and vault.
+description: Initialize / set up the Kora knowledge base for this project. Run once to choose domain(s) — one, several, or all — rules, project name and vault. Triggers (vi): «khởi tạo dự án», «cài đặt hệ thống», «setup factory», «đổi domain», «init KB» → tự gọi skill này khi user nhắn các ý đó (tiếng Việt) trong Cowork.
 ---
 
 The user invoked `/claude-knowledge-init` — an explicit command to set up the project (equivalent to "@khởi tạo dự án"). Do NOT ask whether to run or just inform.

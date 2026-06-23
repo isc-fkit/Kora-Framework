@@ -1,5 +1,5 @@
 ---
-description: Schedule + MANAGE automatic get→report→mail and optional KB sync. Lists & manages BOTH OS-level schedules (disk, run when app closed) AND Cowork scheduled tasks (RAM+disk, run when app open) — list/enable/disable/edit/delete each — plus customize report email recipients. Sync step is password-gated (operations password).
+description: Schedule + MANAGE automatic get→report→mail and optional KB sync. Lists & manages BOTH OS-level schedules (disk, run when app closed) AND Cowork scheduled tasks (RAM+disk, run when app open) — list/enable/disable/edit/delete each — plus customize report email recipients. Sync step is password-gated (operations password). Triggers (vi): «đặt lịch quét jira», «đặt lịch báo cáo», «tự động đồng bộ», «quản lý lịch» → tự gọi skill này khi user nhắn các ý đó (tiếng Việt) trong Cowork.
 ---
 
 The user invoked `/claude-knowledge-schedule`. Follow `workflows/08-schedule-sync.md` for full detail.

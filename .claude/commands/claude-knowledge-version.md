@@ -1,5 +1,5 @@
 ---
-description: Hiện phiên bản Kora-Framework ĐANG CÀI (đọc version.json) + so với bản mới nhất trên GitHub. Chỉ ĐỌC — không cập nhật, không ghi gì.
+description: Hiện phiên bản Kora-Framework ĐANG CÀI (đọc version.json) + so với bản mới nhất trên GitHub. Chỉ ĐỌC — không cập nhật, không ghi gì. Triggers (vi): «đang cài bản nào», «phiên bản hiện tại», «xem version Kora» → tự gọi skill này khi user nhắn các ý đó (tiếng Việt) trong Cowork.
 ---
 
 The user invoked `/claude-knowledge-version` — chỉ **hiển thị phiên bản đang cài** (KHÔNG cập nhật, KHÔNG ghi gì).

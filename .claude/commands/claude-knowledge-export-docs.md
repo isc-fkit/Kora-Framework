@@ -1,5 +1,5 @@
 ---
-description: Export knowledge to DOCX/PDF for human readers.
+description: Export knowledge to DOCX/PDF for human readers. Triggers (vi): «xuất tài liệu», «export docx/pdf», «xuất file Word cho sếp» → tự gọi skill này khi user nhắn các ý đó (tiếng Việt) trong Cowork.
 ---
 
 The user invoked `/claude-knowledge-export-docs` — an explicit command to export documents.

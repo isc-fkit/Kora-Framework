@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.12.22",
+  "version": "2.12.23",
   "codename": "Claude-1",
   "released": "2026-06-23",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.12.22: BÁO CÁO TIẾN ĐỘ — độ phức tạp dùng thang màu CAM đậm dần theo điểm (bỏ màu ĐỎ gây hiểu nhầm 'lỗi'); thêm VAI TRÒ PM (người tạo Epic/Request/US) — KHÔNG đo bằng giờ-công, KHÔNG cảnh báo 'chưa log giờ', loại khỏi tính capacity team (có thể ép qua reports.pm_members). EMAIL báo cáo bỏ tiền tố [Kora], tên người gửi trung tính 'Báo cáo tiến độ'."
+  "intro": "Kora-Framework v2.12.23: Luôn BẮT KEYWORD → THỰC HIỆN đúng skill claude-knowledge* (ưu tiên cao nhất, chạy TRƯỚC cả KB-first) — nhúng trigger tiếng Việt vào description từng skill để Cowork tự kích hoạt đúng. run_command (local-terminal) làm RUNNER CHÍNH ngay từ đầu (sandbox chỉ dự phòng). Luôn TRA KB LOCAL TRƯỚC khi trả lời (KB → Jira → Web)."
 }

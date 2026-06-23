@@ -1,5 +1,5 @@
 ---
-description: Configure the INCIDENT alert email — recipients + on/off for the incident-ticket mail that scheduled (background) flows send when a run fails. Editing here OVERRIDES all running schedules (read at run time, no need to recreate any schedule). Also sets where incident tickets go (Confluence/Jira/none). Different from /claude-knowledge-send-mail (which sends the progress report).
+description: Configure the INCIDENT alert email — recipients + on/off for the incident-ticket mail that scheduled (background) flows send when a run fails. Editing here OVERRIDES all running schedules (read at run time, no need to recreate any schedule). Also sets where incident tickets go (Confluence/Jira/none). Different from /claude-knowledge-send-mail (which sends the progress report). Triggers (vi): «sửa mail cảnh báo sự cố», «đổi người nhận mail ticket sự cố», «cấu hình mail lỗi lịch» → tự gọi skill này khi user nhắn các ý đó (tiếng Việt) trong Cowork.
 ---
 
 The user invoked `/claude-knowledge-alert-mail` — cấu hình **EMAIL CẢNH BÁO SỰ CỐ (ticket sự cố)** của lịch nền.

@@ -1,5 +1,5 @@
 ---
-description: Scan & import a single Jira task or epic by key. Example: /claude-knowledge-scan-jira-task PROJ-102
+description: Scan & import a single Jira task or epic by key. Example: /claude-knowledge-scan-jira-task PROJ-102 Triggers (vi): «quét task <KEY>», «quét epic <KEY>», «quét issue FA-1234» → tự gọi skill này khi user nhắn các ý đó (tiếng Việt) trong Cowork.
 argument-hint: <JIRA-KEY> (e.g. PROJ-102)
 ---
 

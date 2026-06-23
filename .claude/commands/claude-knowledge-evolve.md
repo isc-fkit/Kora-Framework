@@ -1,5 +1,5 @@
 ---
-description: Clean up, evolve and health-check the knowledge base — dead links, duplicates, conflicts, coverage gaps.
+description: Clean up, evolve and health-check the knowledge base — dead links, duplicates, conflicts, coverage gaps. Triggers (vi): «tiến hóa KB», «dọn dẹp KB», «kiểm tra sức khỏe KB», «dead-link», «trùng lặp» → tự gọi skill này khi user nhắn các ý đó (tiếng Việt) trong Cowork.
 ---
 
 The user invoked `/claude-knowledge-evolve` — an explicit command to evolve/clean the **knowledge** base

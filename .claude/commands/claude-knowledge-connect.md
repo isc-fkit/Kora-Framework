@@ -1,5 +1,5 @@
 ---
-description: Connect a knowledge source OR view already-connected sources. Entry asks [Connect new] vs [View connected]; new → choose MCP or API → pick a source that method supports (Jira/GitHub/GitLab/SharePoint via API OAuth 2.0; Gmail SMTP via App Password for auto-send; Atlassian, Gmail draft, Microsoft 365 via MCP), marking sources already connected. API and MCP count separately.
+description: Connect a knowledge source OR view already-connected sources. Entry asks [Connect new] vs [View connected]; new → choose MCP or API → pick a source that method supports (Jira/GitHub/GitLab/SharePoint via API OAuth 2.0; Gmail SMTP via App Password for auto-send; Atlassian, Gmail draft, Microsoft 365 via MCP), marking sources already connected. API and MCP count separately. Triggers (vi): «kết nối nguồn», «thêm Jira/GitHub/Gmail», «connect», «xem nguồn đã kết nối» → tự gọi skill này khi user nhắn các ý đó (tiếng Việt) trong Cowork.
 ---
 
 The user invoked `/claude-knowledge-connect` — set up a connection to a knowledge source, recorded in the

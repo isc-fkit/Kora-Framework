@@ -10,6 +10,26 @@
 
 ---
 
+## v2.12.23 "Claude-1" — 2026-06-23
+
+**Siết 3 đảm bảo nền: luôn bắt keyword → THỰC HIỆN đúng skill (ưu tiên cao nhất) · run_command làm runner CHÍNH · luôn tra KB local trước.**
+
+- `CLAUDE.md` — **🎯 Gate KEYWORD / Ý ĐỊNH (mới, ƯU TIÊN CAO NHẤT — chạy TRƯỚC cả KB-first)**: MỖI tin nhắn → chủ động
+  nhận diện ý định (KHÔNG đòi gõ đúng cú pháp/tên `/claude-knowledge-*`), đối chiếu §0 + `KEYWORDS.md` → khớp việc nào →
+  **BẮT BUỘC THỰC HIỆN đúng skill đó qua Skill tool**, KHÔNG tự làm tay thay skill / KHÔNG diễn giải lại quy trình rồi bỏ
+  qua skill. Skill AN TOÀN (đọc/sinh file local) tự chạy ngay; gated/phá hủy/gửi ra ngoài → confirm 1 câu rồi để skill tự
+  qua cổng. **Lệnh vận hành (quét/báo cáo/đồng bộ/đặt lịch/kết nối/cập nhật…) ĐI NHÁNH SKILL — KHÔNG rơi vào KB-first**;
+  mơ hồ ≥2 skill (hoặc lệnh↔câu hỏi) → hỏi 1 câu làm rõ.
+- `.claude/commands/claude-knowledge-*.md` (18 skill) — **nhúng keyword tiếng Việt vào `description:`** (clause
+  `Triggers (vi): «…»`) để Cowork **tự kích hoạt đúng skill** khi user nói tiếng Việt (vd `daily-report` ← «báo cáo tiến
+  độ», «tiến độ dự án»; `scan` ← «quét jira», «cập nhật dữ liệu mới từ jira»; `update` ← «cập nhật phiên bản»…). Frontmatter giữ 1 dòng.
+- `CLAUDE.md` — **⚡ run_command LUÔN BẬT & ƯU TIÊN**: đổi lead gate → có MCP local-terminal thì dùng làm **runner CHÍNH
+  ngay từ đầu** (không chờ sandbox fail); sandbox chỉ dự phòng khi KHÔNG có `run_command`.
+- `CLAUDE.md` — **📚 Gate KB-FIRST (mới, generalize vào CORE)**: MỌI câu hỏi liên quan dự án → **tra KB local TRƯỚC khi
+  trả lời**, thứ tự cố định **KB local → Jira → Web**; nêu nguồn `[KB]/[Jira]/[Web]`, **KB là thẩm quyền cao nhất** (mâu
+  thuẫn → ưu tiên KB + gợi ý `/claude-knowledge-scan`). Trước đây chỉ có ở template project; nay vào CORE cho mọi user.
+- KHÔNG đổi `install.command` → **không cần đóng gói lại** `install.command.zip`; **không có migration DATA**.
+
 ## v2.12.22 "Claude-1" — 2026-06-23
 
 **Báo cáo tiến độ: độ phức tạp đổi sang thang CAM (bỏ đỏ) + vai trò PM không tính giờ-công + email bỏ [Kora].**

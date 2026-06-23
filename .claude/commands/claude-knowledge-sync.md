@@ -1,5 +1,5 @@
 ---
-description: Sync the synthesized knowledge base UP to your connected targets (Confluence and/or a private GitHub repo). Idempotent — no duplicates, only new/changed — with US↔change-request versioning (keeps the old US, marks it superseded, links the new CR). Password-gated (operations password).
+description: Sync the synthesized knowledge base UP to your connected targets (Confluence and/or a private GitHub repo). Idempotent — no duplicates, only new/changed — with US↔change-request versioning (keeps the old US, marks it superseded, links the new CR). Password-gated (operations password). Triggers (vi): «đồng bộ KB», «sync tri thức», «đẩy KB lên GitHub/Confluence/SharePoint» → tự gọi skill này khi user nhắn các ý đó (tiếng Việt) trong Cowork.
 ---
 
 The user invoked `/claude-knowledge-sync` — đẩy KB cục bộ → target đã kết nối (Confluence chung và/hoặc repo

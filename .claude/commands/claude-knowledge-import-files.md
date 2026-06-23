@@ -1,5 +1,5 @@
 ---
-description: Import documents (PDF/DOCX/images/Obsidian zip) into the knowledge base.
+description: Import documents (PDF/DOCX/images/Obsidian zip) into the knowledge base. Triggers (vi): «nạp tài liệu», «import PDF/DOCX/ảnh», «nhập file vào KB», «nạp Obsidian zip» → tự gọi skill này khi user nhắn các ý đó (tiếng Việt) trong Cowork.
 ---
 
 The user invoked `/claude-knowledge-import-files` — an explicit command to import documents as knowledge.

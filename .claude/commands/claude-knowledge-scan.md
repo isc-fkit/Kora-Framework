@@ -1,5 +1,5 @@
 ---
-description: Scan & import knowledge from your CONNECTED sources. Auto-sets up storage on first scan (only asks where to store); shows the connected sources to pick; scrapes all fields including comments.
+description: Scan & import knowledge from your CONNECTED sources. Auto-sets up storage on first scan (only asks where to store); shows the connected sources to pick; scrapes all fields including comments. Triggers (vi): «quét jira», «lấy dữ liệu mới từ jira», «cập nhật dữ liệu mới từ jira», «quét dữ liệu», «import nguồn» → tự gọi skill này khi user nhắn các ý đó (tiếng Việt) trong Cowork.
 ---
 
 The user invoked `/claude-knowledge-scan` — scan & import knowledge.

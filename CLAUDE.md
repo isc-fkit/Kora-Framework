@@ -15,7 +15,7 @@
 > "đã ổn chưa / còn gì nữa không"** để chắc đúng vấn đề. **Thà hỏi thừa còn hơn làm sai.** (Khác Approval Gate: gate
 > là xác nhận TRƯỚC KHI GHI; rule này là làm rõ Ý ĐỊNH/VẤN ĐỀ. Ngoại lệ: phân tích read-only §0.1 vẫn tự chạy.)
 
-> ⚡ **CÓ `run_command` (MCP local-terminal) → ƯU TIÊN CHẠY MỌI LỆNH QUA NÓ — KHÔNG BÀN GIAO.** Khi MCP tool
+> ⚡ **LUÔN BẬT & ƯU TIÊN `run_command` (MCP local-terminal) → CHẠY MỌI LỆNH QUA NÓ — KHÔNG BÀN GIAO.** Khi MCP tool
 > `run_command` (local-terminal, **chỉ Claude Desktop**) khả dụng, **MẶC ĐỊNH chạy MỌI lệnh/script THẲNG trên máy**
 > (ngoài sandbox) qua nó — quét Jira API/self-host, build_report, send_report (SMTP), cập nhật app (WF10), sync
 > GitHub/Confluence/SharePoint, reindex (`build_index.py`), thao tác file bị sandbox chặn, v.v. **KHÔNG in lệnh bắt
@@ -26,6 +26,27 @@
 > việc API/mạng. ⚠️ Vẫn giữ: **Approval Gate** (lệnh GHI/NẶNG vẫn confirm trước), **cổng `KORA_OPS_PW`** cho post/report/
 > mail/sync, **token KHÔNG in ra chat**, mỗi lệnh `run_command` là **arbitrary-exec** qua permission prompt (opt-in).
 > *(Lịch NỀN vẫn chạy ở OS launchd/cron, KHÔNG qua MCP.)*
+
+> 🎯 **LUÔN BẮT KEYWORD / Ý ĐỊNH → THỰC HIỆN ĐÚNG SKILL (ƯU TIÊN CAO NHẤT, Cowork).** Đây là gate **chạy TRƯỚC TIÊN**
+> cho MỖI tin nhắn — **trước cả KB-first**. **Chủ động nhận diện Ý ĐỊNH** (KHÔNG đòi user gõ đúng cú pháp hay đúng tên
+> `/claude-knowledge-*`), đối chiếu bảng trigger §0 + `KEYWORDS.md` → khớp việc nào → **BẮT BUỘC THỰC HIỆN đúng skill đó
+> qua Skill tool** (`Skill claude-knowledge-X`), **KHÔNG tự làm tay thay skill, KHÔNG diễn giải lại quy trình rồi bỏ qua
+> skill**: skill AN TOÀN (chỉ đọc/sinh file local) tự chạy ngay, skill gated/phá hủy/gửi ra ngoài → confirm 1 câu rồi để
+> skill tự qua cổng của nó (riêng phân tích read-only §0.1 vẫn tự chạy). User nói bằng **lời thường tiếng Việt** ("lấy mấy
+> task mới trên Jira về", "đẩy tri thức lên Confluence", "xuất Word cho sếp", "đang bản nào") vẫn phải khớp ĐÚNG skill.
+> **Lệnh vận hành (quét/báo cáo/đồng bộ/đặt lịch/kết nối/cập nhật…) ĐI NHÁNH SKILL — KHÔNG rơi vào KB-first**; KB-first
+> chỉ cho câu hỏi thông tin thuần. Mơ hồ giữa ≥2 skill (hoặc lệnh↔câu hỏi) → hỏi 1 câu làm rõ. **KHÔNG bỏ sót keyword,
+> KHÔNG bắt user nhớ lệnh.** (Skill `description:` cũng nhúng keyword tiếng Việt để Cowork tự kích hoạt.)
+
+> 📚 **TRA KNOWLEDGE BASE LOCAL TRƯỚC — LUÔN, KHÔNG TRẢ LỜI TỪ TRÍ NHỚ.** MỌI câu hỏi liên quan dự án
+> (feature / US / epic / rule / issue / mã key…) → **BẮT BUỘC tra KB local TRƯỚC khi trả lời**, theo thứ tự cố định
+> **KB local → Jira → Web** (KHÔNG đảo): ① vault tri thức (`vault_path`, các thư mục `*_Brain/`) + `docs/`; ② chỉ mục
+> `.kb/index.json` + `.kb/relation-graph.json` (lần quan hệ; index trống mà vault có dữ liệu → **grep thẳng vault**);
+> ③ KB thiếu → **nói rõ "KB local chưa có dữ liệu về <chủ đề>"** rồi mới sang **Jira** (dữ liệu mới chưa kịp đồng bộ),
+> cuối cùng mới **Web** (kiến thức chung — theo `config/domain-rules.md`, thiếu nguồn → `[CẦN XÁC NHẬN CHUYÊN MÔN]`).
+> Mỗi thông tin nêu rõ NGUỒN `[KB]` / `[Jira]` / `[Web]`; **KB local là thẩm quyền cao nhất** — Jira/Web mâu thuẫn KB →
+> nêu mâu thuẫn, **ưu tiên KB** + đề nghị `/claude-knowledge-scan`. Ngoại lệ DUY NHẤT: câu hỏi rõ ràng KHÔNG thuộc
+> dự án (kiến thức tổng quát) → trả lời bình thường, không cần tra KB. *(Lệnh vận hành đi gate 🎯 ở trên, KHÔNG vào đây.)*
 
 > 🧬 **HỎI VỀ KNOWLEDGE BASE → TRUY VẾT ĐẦY ĐỦ VÒNG ĐỜI, KHÔNG TRẢ LỜI SƠ SÀI.** Khi user hỏi về một feature / US /
 > hạng mục / chủ đề trong KB, **phải truy vết HẾT chuỗi vòng đời + mô tả CHI TIẾT từng mục** (đừng tóm tắt gộp "có N

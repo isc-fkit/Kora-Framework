@@ -1,5 +1,5 @@
 ---
-description: Uninstall the Kora skills by RUNNING the uninstall.command bash script on the CLI (not reimplemented by hand). Knowledge project (docs/vault) is untouched.
+description: Uninstall the Kora skills by RUNNING the uninstall.command bash script on the CLI (not reimplemented by hand). Knowledge project (docs/vault) is untouched. Triggers (vi): «gỡ cài đặt Kora», «uninstall», «xóa skill Kora» → tự gọi skill này khi user nhắn các ý đó (tiếng Việt) trong Cowork.
 ---
 
 The user invoked `/claude-knowledge-uninstall`. Gỡ phải chạy bằng **bash script trên CLI** — KHÔNG xoá tay từng file.

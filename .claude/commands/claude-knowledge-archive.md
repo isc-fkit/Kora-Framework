@@ -1,5 +1,5 @@
 ---
-description: Package the knowledge base into a permissioned, password-gated archive to hand over to other users (read-only or read-write), with read keys bundled and report/mail stripped for user packages.
+description: Package the knowledge base into a permissioned, password-gated archive to hand over to other users (read-only or read-write), with read keys bundled and report/mail stripped for user packages. Triggers (vi): «đóng gói bàn giao», «archive», «handover cho user khác» → tự gọi skill này khi user nhắn các ý đó (tiếng Việt) trong Cowork.
 ---
 
 The user invoked `/claude-knowledge-archive` — đóng gói KB có phân quyền + mật khẩu để bàn giao. Theo

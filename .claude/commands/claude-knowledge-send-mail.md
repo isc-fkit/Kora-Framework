@@ -1,5 +1,5 @@
 ---
-description: Send a progress-report email to chosen recipients — now or on a schedule. PRIORITIZES automatic SMTP send (Gmail via App Password), not manual drafts. Scans the chosen Jira project for latest data, builds the report (banner + cards + charts), then sends. Password-gated (operations password); only this gated entry can send mail.
+description: Send a progress-report email to chosen recipients — now or on a schedule. PRIORITIZES automatic SMTP send (Gmail via App Password), not manual drafts. Scans the chosen Jira project for latest data, builds the report (banner + cards + charts), then sends. Password-gated (operations password); only this gated entry can send mail. Triggers (vi): «gửi mail báo cáo», «email tiến độ cho team», «gửi report qua mail» → tự gọi skill này khi user nhắn các ý đó (tiếng Việt) trong Cowork.
 ---
 
 The user invoked `/claude-knowledge-send-mail` — gửi email báo cáo tiến độ. **CÓ CỔNG MẬT KHẨU vận hành

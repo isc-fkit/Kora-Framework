@@ -1,5 +1,5 @@
 ---
-description: Set the operations/admin password (KORA_OPS_PW) ONCE so all gated flows (sync, send-mail, daily-report, scheduled post/report/mail/sync) work — saved to ~/.config/claude-knowledge/ops-pw.env so it takes effect IMMEDIATELY (no need to source ~/.zshrc). Password is entered by you locally, never via chat.
+description: Set the operations/admin password (KORA_OPS_PW) ONCE so all gated flows (sync, send-mail, daily-report, scheduled post/report/mail/sync) work — saved to ~/.config/claude-knowledge/ops-pw.env so it takes effect IMMEDIATELY (no need to source ~/.zshrc). Password is entered by you locally, never via chat. Triggers (vi): «đặt mật khẩu vận hành», «set ops password», «cấu hình KORA_OPS_PW» → tự gọi skill này khi user nhắn các ý đó (tiếng Việt) trong Cowork.
 ---
 
 The user invoked `/claude-knowledge-ops-password` — đặt **mật khẩu vận hành** (`KORA_OPS_PW`) MỘT LẦN cho mọi cổng:

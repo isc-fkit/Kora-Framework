@@ -1,5 +1,5 @@
 ---
-description: Export the entire knowledge base to a zip — for backup, moving machines, or handover.
+description: Export the entire knowledge base to a zip — for backup, moving machines, or handover. Triggers (vi): «sao lưu KB», «xuất toàn bộ tri thức», «chuyển/dời máy», «backup KB zip» → tự gọi skill này khi user nhắn các ý đó (tiếng Việt) trong Cowork.
 ---
 
 The user invoked `/claude-knowledge-export-knowledge-base` — export all knowledge to a zip.
