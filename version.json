@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.12.23",
+  "version": "2.12.24",
   "codename": "Claude-1",
   "released": "2026-06-23",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.12.23: Luôn BẮT KEYWORD → THỰC HIỆN đúng skill claude-knowledge* (ưu tiên cao nhất, chạy TRƯỚC cả KB-first) — nhúng trigger tiếng Việt vào description từng skill để Cowork tự kích hoạt đúng. run_command (local-terminal) làm RUNNER CHÍNH ngay từ đầu (sandbox chỉ dự phòng). Luôn TRA KB LOCAL TRƯỚC khi trả lời (KB → Jira → Web)."
+  "intro": "Kora-Framework v2.12.24: SỬA tiêu đề email + title ticket lỗi BỎ HẲN [Kora] (orchestrator fallback). Landing: khối 'Quét nguồn NỘI BỘ' (Jira Server) đưa lên ĐẦU phần Connect + thêm lệnh bash có NÚT COPY. Báo cáo HỎI TÊN + VAI TRÒ (PM/QC/Dev) để hiểu context phân tích từng người — PM chỉ ĐIỀU PHỐI, KHÔNG log task → không đo giờ-công, không cảnh báo 'chưa log'."
 }

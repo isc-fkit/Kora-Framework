@@ -34,6 +34,12 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
    Quét xong HẾT các nguồn → reindex **1 lần** `build_index.py --root .`. **Report trên UNION project vừa kéo** (task đã Done/đổi trạng thái sẽ đúng).
    > ⚠️ Nhiều domain **trùng mã project/issue** → vault đè nhau (giới hạn đã biết). Khác mã thì gộp thoải mái.
 5. (Tùy chọn) **filter member** (assignee / team) — multi-select. Hỏi **khoảng thời gian**.
+5b. **VAI TRÒ thành viên (HỎI TÊN + ROLE để hiểu CONTEXT phân tích từng người — workflow 14 Bước 0.6):** AskUserQuestion
+   (multi-select + ô **"Other"** gõ tên chưa có) gán **PM/PO** (CHỈ ĐIỀU PHỐI, tạo Epic/Request/US, **KHÔNG log task**
+   → `reports.pm_members`) và **QC** (tạo Bug → `reports.qc_members`); còn lại **Dev**. Ghi inline list vào
+   `config/factory-config.yaml` mục `reports:` (`pm_members: ["A","B"]` / `qc_members: ["C"]`). Đã có sẵn → chỉ hỏi
+   "đúng chưa / thêm bớt". Để TRỐNG → build_report **tự nhận diện**. ⚠️ **PM KHÔNG đo bằng giờ-công, KHÔNG cảnh báo
+   "chưa log giờ", loại khỏi capacity team** — chỉ đánh giá theo việc điều phối.
 6. Build dashboard **scope đúng project + phạm vi**: `python3 "$T/progress-report/build_report.py" --projects "<KEYS>"`
    **`--scope <SCOPE> --recent-days <NDAYS>`** (nếu SCOPE≠all — lọc sprint active / N ngày) per
    `workflows/14-progress-report.md` — inline Cowork UI + HTML. Báo cáo hiện **nhãn phạm vi** (vd "Sprint đang chạy").

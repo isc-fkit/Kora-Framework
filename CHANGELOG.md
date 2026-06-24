@@ -10,6 +10,21 @@
 
 ---
 
+## v2.12.24 "Claude-1" — 2026-06-23
+
+**Email/ticket bỏ HẲN [Kora] · landing đưa "quét nguồn NỘI BỘ" lên đầu + bash copy · báo cáo hỏi TÊN+VAI TRÒ.**
+
+- **📧 Bỏ `[Kora]` còn sót**: `tools/kora-scheduler/orchestrator.py` — fallback tiêu đề email `[Kora] Báo cáo
+  tiến độ {date}` → `Báo cáo tiến độ {date}`; title ticket sự cố `[Kora] Lịch … lỗi` → `Sự cố lịch … — {date}`.
+  (Đây là chỗ khiến mail nền vẫn hiện `[Kora]` dù config đã sạch.)
+- **🖥️ Landing — quét nguồn NỘI BỘ dễ thấy**: khối hướng dẫn bật MCP `local-terminal` (quét Jira Server self-host
+  thẳng trong Cowork) chuyển lên **ĐẦU** mục `2 · Connect`, kèm **code block có nút Copy** cho lệnh
+  `bash ~/.claude/kora-framework/tools/kora-mcp/setup_macos.command`.
+- **👤 Báo cáo hỏi TÊN + VAI TRÒ** (`workflows/14-progress-report.md` Bước 0.6 + `claude-knowledge-daily-report`):
+  AskUserQuestion gán **PM/PO** (chỉ điều phối, tạo Epic/Request/US, **KHÔNG log task** → `reports.pm_members`) /
+  **QC** (tạo Bug → `reports.qc_members`) / còn lại **Dev** → ghi `config/factory-config.yaml`. PM **KHÔNG đo
+  bằng giờ-công, không cảnh báo "chưa log", loại khỏi capacity team**; để trống → build_report tự nhận diện.
+
 ## v2.12.23 "Claude-1" — 2026-06-23
 
 **Siết 3 đảm bảo nền: luôn bắt keyword → THỰC HIỆN đúng skill (ưu tiên cao nhất) · run_command làm runner CHÍNH · luôn tra KB local trước.**

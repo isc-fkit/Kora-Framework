@@ -294,7 +294,7 @@
     <div class="brand" data-go="home" title="Trang chủ">
       <span class="brandmark" aria-hidden="true">K</span>
       <span class="org">FPT TELECOM</span>
-      <div class="fw">Claude Knowledge AI<span>v2.12.23 · Claude-1</span></div>
+      <div class="fw">Claude Knowledge AI<span>v2.12.24 · Claude-1</span></div>
     </div>
     <nav class="nav">
       <div class="grp">Tổng quan</div>
@@ -320,7 +320,7 @@
     <!-- ===================== HOME ===================== -->
     <div class="page" id="home">
       <header class="hero">
-        <span class="badge">FPT Telecom · Claude Knowledge AI · v2.12.23 · &ldquo;Claude-1&rdquo;</span>
+        <span class="badge">FPT Telecom · Claude Knowledge AI · v2.12.24 · &ldquo;Claude-1&rdquo;</span>
         <h1>Claude Knowledge AI — Sơ đồ nguyên lý hoạt động</h1>
         <p class="sub">Trợ lý tri thức tự lớn lên cùng dự án: hợp nhất tri thức phân tán, nối tri thức local của nhân viên với <b>Knowledge Base</b> chung (trên Cloud), và tự động hóa đồng bộ — báo cáo — cảnh báo.</p>
         <div class="pipe">
@@ -695,6 +695,11 @@
 
       <h2 class="sec">2 · 🔌 Connect — <code>/claude-knowledge-connect</code></h2>
       <p style="color:var(--muted)">Vào đầu hỏi <b>[Kết nối mới] / [Xem nguồn đã kết nối]</b>. Kết nối mới → chọn MCP/API → nguồn hỗ trợ (đánh dấu đã kết nối). API và MCP tính riêng.</p>
+
+      <div class="callout" style="border-color:var(--accent)"><span>⭐</span><div><b>Quét nguồn NỘI BỘ (Jira Server self-host…) THẲNG trong Cowork — KHÔNG cần mở Terminal thủ công mỗi lần:</b> Cowork sandbox chặn mạng nội bộ. Bật <b>MCP <code>local-terminal</code></b> (chỉ <b>Claude Desktop</b>) để Claude chạy lệnh quét THẲNG trên máy thật (đúng VPN/mạng nội bộ, tự lấy token từ <code>~/.zshrc</code>). Các bước: ① <b>thoát Claude</b> (Cmd+Q) → ② chạy lệnh dưới ở Terminal → ③ đặt token nguồn vào <code>~/.zshrc</code> (<code>export JIRA_BASE_URL / JIRA_PAT / JIRA_AUTH_MODE</code> — đúng rule bảo mật, <code>/claude-knowledge-connect</code> cũng ghi vào đây) → ④ mở lại Claude. <b>Opt-in</b>, duyệt từng lệnh. (Nguồn Cloud/MCP quét thẳng sẵn, không cần bước này.)</div></div>
+      <div class="code"><div class="code-head"><span>macOS — bật MCP local-terminal (chạy 1 lần ở Terminal)</span><button class="copy">Copy</button></div>
+<pre><code>bash ~/.claude/kora-framework/tools/kora-mcp/setup_macos.command</code></pre></div>
+
       <table>
         <tr><th>Nguồn</th><th>MCP</th><th>API</th><th>Ghi chú</th></tr>
         <tr><td><svg class="srcico" viewBox="0 0 24 24" fill="#2684FF"><path d="M11.571 11.513H0a5.218 5.218 0 0 0 5.232 5.215h2.13v2.057A5.215 5.215 0 0 0 12.575 24V12.518a1.005 1.005 0 0 0-1.005-1.005zm5.723-5.756H5.736a5.215 5.215 0 0 0 5.215 5.214h2.129v2.058a5.218 5.218 0 0 0 5.215 5.214V6.758a1.001 1.001 0 0 0-1-1.001zM23.013 0H11.455a5.215 5.215 0 0 0 5.215 5.215h2.129v2.057A5.215 5.215 0 0 0 24 12.483V1.005A1.001 1.001 0 0 0 23.013 0z"/></svg>Jira Cloud</td><td class="yes">✓</td><td class="yes">✓</td><td>MCP: Atlassian Rovo · API: OAuth 2.0 / token</td></tr>
@@ -709,7 +714,6 @@
       <div class="callout"><span>🔌</span><div><b>Nguồn MCP phải KẾT NỐI ở Claude web/Desktop TRƯỚC mới hiện ở CLI:</b> MCP do <b>app Claude</b> quản lý OAuth — connector (Atlassian / Microsoft 365 / Gmail) phải được <b>bật + authorize</b> trong <b>Claude web/Desktop → Settings → Connectors</b> (hoặc gõ <code>/mcp</code> trong Claude Code/Desktop). Chỉ khi server <b>connected</b> thì nguồn MCP đó mới <b>xuất hiện &amp; gọi được ở CLI</b> (<code>/claude-knowledge-connect</code>, scan). Chưa kết nối ở app → CLI không thấy. (Nguồn <b>API</b>/token thì kết nối thẳng ở CLI, không cần bước này.)</div></div>
       <div class="callout warn"><span>⏰</span><div><b>MCP KHÔNG chạy được LỊCH NỀN (cron):</b> token connector do <b>app Claude</b> giữ → tiến trình nền (cron/launchd) không gọi được MCP. Dùng MCP cho <b>quét/báo cáo TƯƠNG TÁC</b>; muốn <b>lịch nền 24/7</b> (report/mail/sync tự động) thì kết nối nguồn qua <b>API/token</b>. (Lịch Cowork dùng được MCP nhưng chỉ khi MỞ app + sandbox chặn SMTP → mail qua draft.)</div></div>
       <div class="callout"><span>🏢</span><div><b>Connect HOSTING cần đảm bảo:</b> ① nguồn để SCAN · ② đích PUSH (Confluence / GitHub private / SharePoint) · ③ kênh MAIL (Gmail/Outlook/SMTP). <b>Lịch nền 24/7 → nguồn phải qua API/token</b> (không phải MCP).</div></div>
-      <div class="callout"><span>🖥️</span><div><b>Quét nguồn NỘI BỘ (Jira Server self-host…) THẲNG trong Cowork — không cần Terminal:</b> Cowork sandbox chặn mạng nội bộ, nên nguồn <b>API/self-host</b> mặc định phải bàn giao lệnh ra Terminal. Bật <b>MCP <code>local-terminal</code></b> (chỉ <b>Claude Desktop</b>, không phải web) để skill chạy lệnh quét THẲNG trên máy: <b>thoát Claude</b> → Terminal chạy <code>bash ~/.claude/kora-framework/tools/kora-mcp/setup_macos.command</code> → đặt token nguồn vào <code>~/.zshrc</code> (đúng rule bảo mật — <code>/claude-knowledge-connect</code> cũng ghi vào đây) → mở lại Claude. <b>Opt-in</b> (chạy lệnh local — duyệt từng lần). Nguồn <b>Cloud/MCP</b> thì quét thẳng sẵn, không cần bước này.</div></div>
       <div class="twocol">
         <div class="card"><b>📧 Gmail (SMTP — tự động gửi)</b><p style="color:var(--muted);font-size:13.3px;margin:6px 0 0">Connect qua <b>API → Gmail SMTP</b>: dùng <b>tài khoản gửi chuyên dụng</b> (KHÔNG phải email cá nhân) + <b>App Password</b> (đã <b>bật 2FA</b>) → điền <code>tools/report-mailer/.env.local</code> → verify <code>send_report.py --check</code>. Người nhận thấy <b>“Claude Knowledge AI Daily Report &lt;tài khoản&gt;”</b> (đổi qua <code>MAIL_FROM_NAME</code>). <b>TỰ ĐỘNG GỬI</b> (khác Gmail MCP = chỉ tạo nháp).</p></div>
         <div class="card"><b>📨 Outlook / M365</b><p style="color:var(--muted);font-size:13.3px;margin:6px 0 0">Cần <b>key admin</b> hoặc được <b>set consent</b> (admin consent).</p></div>
@@ -1617,11 +1621,22 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
       <div class="phead"><div class="pl">I · Release Note</div><h1><span class="em">🆕</span>Lịch sử phiên bản</h1></div>
       <p class="lead">Lịch sử bản <b>APP</b> (CORE: skills, workflows, tools…). Cập nhật: chạy lại lệnh cài (bash CLI, tab <a data-go="install" style="cursor:pointer">C</a>) — <b>tri thức của bạn được giữ nguyên</b> (DATA không bị đụng).</p>
 
-      <div class="callout ok"><span>🆕</span><div><b>Bản mới nhất (latest): <code>v2.12.23</code> — "Claude-1"</b> · phát hành 2026-06-23. Danh sách đầy đủ ở <a href="https://github.com/isc-fkit/Kora-Framework/blob/release/CHANGELOG.md">CHANGELOG.md</a>.</div></div>
+      <div class="callout ok"><span>🆕</span><div><b>Bản mới nhất (latest): <code>v2.12.24</code> — "Claude-1"</b> · phát hành 2026-06-23. Danh sách đầy đủ ở <a href="https://github.com/isc-fkit/Kora-Framework/blob/release/CHANGELOG.md">CHANGELOG.md</a>.</div></div>
 
       <div class="card" style="border-color:var(--accent)">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.12.23 — "Claude-1" <span style="display:inline-block;margin-left:6px;padding:2px 9px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;font-size:10.5px;font-weight:800;vertical-align:2px">MỚI NHẤT</span></b><span style="color:var(--faint);font-size:12.5px">2026-06-23</span>
+          <b style="font-size:16px">v2.12.24 — "Claude-1" <span style="display:inline-block;margin-left:6px;padding:2px 9px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;font-size:10.5px;font-weight:800;vertical-align:2px">MỚI NHẤT</span></b><span style="color:var(--faint);font-size:12.5px">2026-06-23</span>
+        </div>
+        <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
+          <li><b>📧 Email/ticket bỏ HẲN <code>[Kora]</code></b>: sửa fallback tiêu đề + title ticket lỗi trong orchestrator (chỗ khiến mail nền vẫn hiện [Kora] dù config đã sạch).</li>
+          <li><b>🖥️ Landing: "quét nguồn NỘI BỘ" lên ĐẦU phần Connect</b> + lệnh bash bật MCP local-terminal có nút Copy.</li>
+          <li><b>👤 Báo cáo HỎI TÊN + VAI TRÒ (PM/QC/Dev)</b> để hiểu context từng người — PM chỉ điều phối, KHÔNG log task → không đo giờ-công.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
+          <b style="font-size:16px">v2.12.23 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-23</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>🎯 Luôn bắt keyword → THỰC HIỆN đúng skill <code>claude-knowledge*</code></b> (ưu tiên cao nhất, trước cả KB-first); nhúng trigger tiếng Việt vào <code>description</code> từng skill → Cowork tự kích hoạt đúng.</li>

@@ -417,7 +417,7 @@ def main():
                     log(f"  (mail provider={provider} cần gửi tương tác qua connector — "
                         f"lịch nền chỉ gửi SMTP → bỏ qua)")
                 elif mail_on and recips and MAILER.exists():
-                    subj = (cfg.get("reports.email.subject") or "[Kora] Báo cáo tiến độ {date}").replace("{date}", today())
+                    subj = (cfg.get("reports.email.subject") or "Báo cáo tiến độ {date}").replace("{date}", today())
                     # report vừa build ở 4) (vài giây trước) → guard --stale-after-min của send_report (mặc định 30')
                     # KHÔNG chặn; nếu build lỗi/bỏ qua thì file -latest cũ → guard CHẶN, không gửi bản cũ. File đính
                     # kèm tự đổi tên có ngày-giờ (progress-report-<stamp>.html) → mỗi mail một bản khác.
@@ -462,7 +462,7 @@ def main():
         # 5) TICKET + ERROR EMAIL nếu có lỗi
         ticket = {"created": False, "url": None}
         if run_errors and not args.dry_run:
-            title = f"[Kora] Lịch {args.run} lỗi {today()}"
+            title = f"Sự cố lịch {args.run} — {today()}"
             body = _incident_body(args.run, run_errors, sources)
             try:
                 created, url = create_ticket(cfg, title, body)
