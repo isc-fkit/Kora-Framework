@@ -270,20 +270,16 @@
 </style>
 </head>
 <body>
-<!-- ============================ HIDDEN-SECTIONS (v2.12.21) ============================
-  MỤC ĐANG ẨN TẠM (vẫn còn nguyên trong file, chỉ ẩn bằng class "hidden"):
-    1. workflow         — "Quy trình BA"
-    2. prompts          — "Prompt & Template"
-    3. examples         — "Ví dụ thực tế"
-    4. good-vs-bad      — "Output: Tốt vs Chưa tốt"
-    5. troubleshooting  — "Troubleshooting"
-    6. release          — "Release Note"
-  CÁCH HIỆN LẠI 1 mục <id>: bỏ chữ "hidden" ở 4 chỗ —
-    .page  : <div class="page hidden" id="<id>">      → <div class="page" id="<id>">
-    nav    : <a class="hidden" data-go="<id>" …>       → <a data-go="<id>" …>
-    home   : <div class="hc hidden" data-go="<id>">    → <div class="hc" data-go="<id>">
-    (hero btn workflow: <span class="btn ghost hidden" …> nếu cần)
-  (Khi user yêu cầu "hiện lại / mở mục", liệt kê danh sách trên rồi bỏ "hidden" theo mục họ chọn.)
+<!-- ============================ HIDDEN-SECTIONS ============================
+  HIỆN TẠI: KHÔNG có mục nào ẩn — đã MỞ LẠI toàn bộ 6 mục Nội dung:
+    workflow ("Quy trình BA") · prompts ("Prompt & Template") · examples ("Ví dụ thực tế")
+    · good-vs-bad ("Output: Tốt vs Chưa tốt") · troubleshooting ("Troubleshooting") · release ("Release Note")
+  CÁCH ẨN lại 1 mục <id>: THÊM chữ "hidden" vào 4 chỗ (đảo lại = bỏ "hidden" để hiện) —
+    .page  : <div class="page" id="<id>">        → <div class="page hidden" id="<id>">
+    nav    : <a data-go="<id>" …>                 → <a class="hidden" data-go="<id>" …>
+    home   : <div class="hc" data-go="<id>">      → <div class="hc hidden" data-go="<id>">
+    (hero btn workflow: <span class="btn ghost" …> → <span class="btn ghost hidden" …> nếu cần)
+  (Khi user yêu cầu "ẩn/hiện mục", liệt kê 6 mục trên rồi thêm/bỏ "hidden" theo mục họ chọn.)
 ============================================================================= -->
 
 <button class="menu-btn" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰ &nbsp;Claude Knowledge AI — Mục lục</button>
@@ -301,13 +297,13 @@
       <a data-go="home" title="Trang chủ"><span class="em">🏠</span><span class="tx">Trang chủ</span></a>
       <div class="grp">Nội dung</div>
       <a data-go="introduction" title="Giới thiệu"><span class="lb">A</span><span class="em">📘</span><span class="tx">Giới thiệu</span></a>
-      <a class="hidden" data-go="workflow" title="Quy trình"><span class="lb">B</span><span class="em">🔁</span><span class="tx">Quy trình</span></a>
+      <a data-go="workflow" title="Quy trình"><span class="lb">B</span><span class="em">🔁</span><span class="tx">Quy trình</span></a>
       <a data-go="install" title="Hướng dẫn cài đặt"><span class="lb">C</span><span class="em">⚙️</span><span class="tx">Hướng dẫn cài đặt</span></a>
-      <a class="hidden" data-go="prompts" title="Prompt &amp; Template"><span class="lb">E</span><span class="em">💬</span><span class="tx">Prompt &amp; Template</span></a>
-      <a class="hidden" data-go="examples" title="Ví dụ thực tế"><span class="lb">F</span><span class="em">🎯</span><span class="tx">Ví dụ thực tế</span></a>
-      <a class="hidden" data-go="good-vs-bad" title="Output: Tốt vs Chưa tốt"><span class="lb">G</span><span class="em">✅</span><span class="tx">Output: Tốt vs Chưa tốt</span></a>
-      <a class="hidden" data-go="troubleshooting" title="Troubleshooting"><span class="lb">H</span><span class="em">🔧</span><span class="tx">Troubleshooting</span></a>
-      <a class="hidden" data-go="release" title="Release Note"><span class="lb">I</span><span class="em">🆕</span><span class="tx">Release Note</span></a>
+      <a data-go="prompts" title="Prompt &amp; Template"><span class="lb">E</span><span class="em">💬</span><span class="tx">Prompt &amp; Template</span></a>
+      <a data-go="examples" title="Ví dụ thực tế"><span class="lb">F</span><span class="em">🎯</span><span class="tx">Ví dụ thực tế</span></a>
+      <a data-go="good-vs-bad" title="Output: Tốt vs Chưa tốt"><span class="lb">G</span><span class="em">✅</span><span class="tx">Output: Tốt vs Chưa tốt</span></a>
+      <a data-go="troubleshooting" title="Troubleshooting"><span class="lb">H</span><span class="em">🔧</span><span class="tx">Troubleshooting</span></a>
+      <a data-go="release" title="Release Note"><span class="lb">I</span><span class="em">🆕</span><span class="tx">Release Note</span></a>
       <a data-go="appendix" title="Phụ lục"><span class="lb">J</span><span class="em">📚</span><span class="tx">Phụ lục</span></a>
     </nav>
     <button class="sb-toggle" id="sbToggle" type="button" aria-label="Thu gọn / mở rộng menu" aria-expanded="true" title="Thu gọn menu">
@@ -332,20 +328,20 @@
         <div style="margin:18px 0 4px;display:flex;gap:10px;flex-wrap:wrap">
           <span class="btn" data-go="introduction">📘 Bắt đầu — Giới thiệu</span>
           <span class="btn ghost" data-go="install">⚙️ Cài đặt</span>
-          <span class="btn ghost hidden" data-go="workflow">🔁 Quy trình</span>
+          <span class="btn ghost" data-go="workflow">🔁 Quy trình</span>
         </div>
         <div class="card"><b>Dành cho MỌI vai trò — không chỉ BA.</b> BA · PO · SA · QA đều dùng được: hỏi <b>vai trò</b> trước → nạp đúng prompt mẫu + doc template theo vai trò &amp; domain. HOST dựng <b>Knowledge Base</b> chung &amp; đẩy lên Cloud; user kéo tri thức về local và phân tích — luôn bám đúng tri thức dự án.</div>
 
         <h2 class="sec" style="margin-top:26px">Nội dung</h2>
         <div class="home-cards">
           <div class="hc" data-go="introduction"><span class="ic">📘</span><div><b>A · Giới thiệu</b><p>Tổng quan · nguyên lý 4 tầng · Responsible AI &amp; bảo mật dữ liệu</p></div></div>
-          <div class="hc hidden" data-go="workflow"><span class="ic">🔁</span><div><b>B · Quy trình</b><p>BA 8 bước · 4 cổng phân tích · Quality Gate 3 tầng</p></div></div>
+          <div class="hc" data-go="workflow"><span class="ic">🔁</span><div><b>B · Quy trình</b><p>BA 8 bước · 4 cổng phân tích · Quality Gate 3 tầng</p></div></div>
           <div class="hc" data-go="install"><span class="ic">⚙️</span><div><b>C · Hướng dẫn cài đặt</b><p>Cài / cập nhật / gỡ + 8 chức năng: init · connect · scan · sync · schedule · mail · archive</p></div></div>
-          <div class="hc hidden" data-go="prompts"><span class="ic">💬</span><div><b>E · Prompt &amp; Template</b><p>20 prompt + template động theo domain/vai trò · kỹ thuật prompt</p></div></div>
-          <div class="hc hidden" data-go="examples"><span class="ic">🎯</span><div><b>F · Ví dụ thực tế</b><p>Use case Input / Prompt / Output</p></div></div>
-          <div class="hc hidden" data-go="good-vs-bad"><span class="ic">✅</span><div><b>G · Output Tốt vs Chưa tốt</b><p>5 bảng so sánh tự đánh giá</p></div></div>
-          <div class="hc hidden" data-go="troubleshooting"><span class="ic">🔧</span><div><b>H · Troubleshooting</b><p>Khắc phục sự cố · giới hạn &amp; hallucination</p></div></div>
-          <div class="hc hidden" data-go="release"><span class="ic">🆕</span><div><b>I · Release Note</b><p>Lịch sử phiên bản &amp; cách cập nhật</p></div></div>
+          <div class="hc" data-go="prompts"><span class="ic">💬</span><div><b>E · Prompt &amp; Template</b><p>20 prompt + template động theo domain/vai trò · kỹ thuật prompt</p></div></div>
+          <div class="hc" data-go="examples"><span class="ic">🎯</span><div><b>F · Ví dụ thực tế</b><p>Use case Input / Prompt / Output</p></div></div>
+          <div class="hc" data-go="good-vs-bad"><span class="ic">✅</span><div><b>G · Output Tốt vs Chưa tốt</b><p>5 bảng so sánh tự đánh giá</p></div></div>
+          <div class="hc" data-go="troubleshooting"><span class="ic">🔧</span><div><b>H · Troubleshooting</b><p>Khắc phục sự cố · giới hạn &amp; hallucination</p></div></div>
+          <div class="hc" data-go="release"><span class="ic">🆕</span><div><b>I · Release Note</b><p>Lịch sử phiên bản &amp; cách cập nhật</p></div></div>
           <div class="hc" data-go="appendix"><span class="ic">📚</span><div><b>J · Phụ lục</b><p>Bảng lệnh · cấu hình · tiêu chuẩn ngành &amp; tham khảo</p></div></div>
         </div>
       </header>
@@ -505,7 +501,7 @@
     </div>
 
     <!-- ===================== WORKFLOW ===================== -->
-    <div class="page hidden" id="workflow">
+    <div class="page" id="workflow">
       <div class="phead"><div class="pl">B · Quy trình</div><h1><span class="em">🔁</span>Quy trình BA &amp; cách Claude Knowledge AI tự thực thi</h1></div>
       <p class="lead">Bám <b>quy trình BA 8 bước</b> để có <b>đầu ra chuẩn</b>; Claude Knowledge AI tự ráp các luồng đang chạy của framework vào từng bước và <b>tự trưởng thành theo thời gian</b>.</p>
 
@@ -786,7 +782,7 @@ khi CHẠY:  scan/get (KHÔNG gác) → reindex → 🔒 cổng → post · repo
     </div>
 
     <!-- ===================== PROMPTS ===================== -->
-    <div class="page hidden" id="prompts">
+    <div class="page" id="prompts">
       <div class="phead"><div class="pl">E · Prompt &amp; Template</div><h1><span class="em">💬</span>Thư viện 20 Prompt Templates</h1></div>
       <p class="lead">Mỗi prompt trình bày đầy đủ, <b>sẵn sàng copy-paste</b>. Thay phần <code>[brackets]</code> bằng nội dung thực tế trước khi gửi. Khi bạn yêu cầu phân tích, Claude Knowledge AI tự chọn prompt theo <b>vai trò</b> và tự chèn <code>[domain]</code> theo cấu hình.</p>
 
@@ -1230,7 +1226,7 @@ Tính năng:
     </div>
 
     <!-- ===================== EXAMPLES ===================== -->
-    <div class="page hidden" id="examples">
+    <div class="page" id="examples">
       <div class="phead"><div class="pl">F · Ví dụ thực tế</div><h1><span class="em">🎯</span>Ví dụ thực tế theo use case</h1></div>
       <p class="lead">Các ví dụ end-to-end mô phỏng tình huống thực tế. Mỗi ví dụ gồm <b>Input · Prompt gửi Claude · Output mong đợi</b> — Claude Knowledge AI chạy đúng bằng các lệnh <code>/claude-knowledge-*</code>.</p>
 
@@ -1328,7 +1324,7 @@ Tài liệu cần review:
     </div>
 
     <!-- ===================== GOOD VS BAD ===================== -->
-    <div class="page hidden" id="good-vs-bad">
+    <div class="page" id="good-vs-bad">
       <div class="phead"><div class="pl">G · Output: Tốt vs Chưa tốt</div><h1><span class="em">✅</span>Output mẫu: Tốt vs Chưa tốt</h1></div>
       <p class="lead">8 artifact quan trọng nhất (AC · US · Validation · Test Case · GAP · Business Rule · NFR · API), mỗi cái có ví dụ output <b>chưa tốt</b> (và lý do) cạnh output <b>tốt</b> (và điểm cần có) — chuẩn để tự đánh giá output Claude của bạn.</p>
 
@@ -1547,7 +1543,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
     </div>
 
     <!-- ===================== TROUBLESHOOTING ===================== -->
-    <div class="page hidden" id="troubleshooting">
+    <div class="page" id="troubleshooting">
       <div class="phead"><div class="pl">H · Troubleshooting</div><h1><span class="em">🔧</span>Khắc phục sự cố</h1></div>
       <p class="lead">Triệu chứng → nguyên nhân gốc → cách fix ngay. <b>90% vấn đề đến từ thiếu context</b>, không phải Claude kém — thử thêm context domain / ví dụ cụ thể trước khi kết luận "Claude không làm được".</p>
 
@@ -1617,7 +1613,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
     </div>
 
     <!-- ===================== RELEASE ===================== -->
-    <div class="page hidden" id="release">
+    <div class="page" id="release">
       <div class="phead"><div class="pl">I · Release Note</div><h1><span class="em">🆕</span>Lịch sử phiên bản</h1></div>
       <p class="lead">Lịch sử bản <b>APP</b> (CORE: skills, workflows, tools…). Cập nhật: chạy lại lệnh cài (bash CLI, tab <a data-go="install" style="cursor:pointer">C</a>) — <b>tri thức của bạn được giữ nguyên</b> (DATA không bị đụng).</p>
 
