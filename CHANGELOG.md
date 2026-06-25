@@ -10,6 +10,18 @@
 
 ---
 
+## v2.12.32 "Claude-1" — 2026-06-25
+
+**Đọc Excel trên SharePoint 365 bằng Microsoft Graph (quyền READ) — đáng tin thay cho read_resource.**
+
+- **🔑 `import_excel.py --graph-item "<driveId>/<itemId>"`**: xin **Graph token** (creds `SHAREPOINT_TENANT_ID/CLIENT_ID/CLIENT_SECRET`
+  — app Azure AD **Sites.Read.All** + admin consent; hoặc device-flow `sync_sharepoint.py --login`; hoặc token thô `MS_GRAPH_TOKEN`)
+  → `GET /drives/{driveId}/items/{itemId}/content` → tải .xlsx thật → parse ô CHUẨN. Honor `HTTPS_PROXY`.
+- **🔎 Lý do**: kiểm thử thực tế cho thấy MCP M365 `read_resource` trên .xlsx trả **text trích xuất lệch cột** và
+  **không có `@microsoft.graph.downloadUrl`** → không nạp ô tin cậy. Nên: **MCP `sharepoint_search` ĐỊNH VỊ file**
+  (lấy driveId/itemId từ URI) → **Graph TẢI** bằng `--graph-item`.
+- App-only Sites.Read.All → chạy được **cả nền**; device-flow → tương tác. Đã cập nhật WF14/daily-report/connect/README.
+
 ## v2.12.31 "Claude-1" — 2026-06-25
 
 **Đọc Excel trên SharePoint 365 qua MCP + tool xuất file mẫu chuyên nghiệp.**

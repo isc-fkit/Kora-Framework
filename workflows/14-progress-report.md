@@ -85,15 +85,17 @@ nguồn — đặt ở đầu lệnh: `JIRA_BASE_URL=<entry.base_url>` (+ `JIRA_
 - **`method: local_file`** (file .xlsx): `python3 "<TOOL_DIR>/excel-to-obsidian/import_excel.py" --file <entry.file_path>
   [--sheet <entry.sheet_name>] --source-id <entry.id> [--project <KEY>] [--map '<json nếu tên cột lạ>']`. Parse bằng thư
   viện chuẩn (zipfile+xml), tự nhận cột Việt/Anh, ghi note `source: excel` vào `07_Imported/<id>/` (ghi đè trọn — idempotent).
-- **`method: mcp` — EXCEL TRÊN SHAREPOINT 365 (ưu tiên, đáng tin):** cần connector **Microsoft 365** đã *connected* trong Claude App.
-  1. `sharepoint_search` `query="<tên file>"` `fileType="xlsx"` → chọn file → lấy URI `file:///{driveId}/{itemId}`.
-  2. `read_resource` URI đó → lấy **`@microsoft.graph.downloadUrl`** (URL tải pre-authenticated, ngắn hạn) + tên sheet nếu cần.
-  3. `python3 "<TOOL_DIR>/excel-to-obsidian/import_excel.py" --from-url "<downloadUrl>" [--sheet <ten>] --source-id <id> [--project <KEY>] [--map …]`
-     → tool TẢI .xlsx thật (honor `HTTPS_PROXY`) rồi parse Ô CHUẨN (không dựa text trích xuất kém tin cậy của read_resource).
-  - **Fallback** (không lấy được downloadUrl): read_resource trả text → Claude chuẩn hoá thành `reports/_sheet-<id>.csv` →
-    `import_excel.py --from-rows reports/_sheet-<id>.csv …`; hoặc user tải file → `--file`.
+- **EXCEL TRÊN SHAREPOINT 365 — ĐỊNH VỊ bằng MCP, TẢI bằng Graph (đáng tin nhất):**
+  1. **MCP `sharepoint_search`** `query="<tên file>" fileType="xlsx"` → chọn file → URI `file:///{driveId}/{itemId}`
+     → **tách `driveId` và `itemId`** từ URI.
+  2. **Tải qua Graph (quyền READ)**: `python3 "<TOOL_DIR>/excel-to-obsidian/import_excel.py" --graph-item "<driveId>/<itemId>"
+     [--sheet <ten>] --map <…> --source-id <id> [--project <KEY>]` → tool xin **Graph token** (creds `SHAREPOINT_*`,
+     app Azure AD **Sites.Read.All**) rồi `GET /drives/{driveId}/items/{itemId}/content` → .xlsx thật → parse ô CHUẨN (honor `HTTPS_PROXY`).
+  > ⚠️ **KHÔNG dùng `read_resource` để lấy ô**: connector M365 trả **text trích xuất (lệch cột), KHÔNG có downloadUrl**.
+  > `read_resource` chỉ để xác nhận file/tên sheet. Đường ĐỌC dữ liệu = **`--graph-item`** (Graph token read).
+  - **Fallback** không có creds Graph: user **tải file về** → `--file`; hoặc (tạm) Claude dựng `reports/_sheet-<id>.csv` từ text read_resource → `--from-rows`.
   - **Google Sheet** (chưa có MCP connector): "Publish to web → CSV" → `import_excel.py --from-url "<csv_url>"`.
-  - token connector do app giữ → **chỉ TƯƠNG TÁC, không chạy nền** (lịch nền cần Graph API token riêng).
+  - **Chỉ TƯƠNG TÁC** trừ khi dùng app-only client-credentials (Sites.Read.All) → khi đó `--graph-item` chạy được cả nền.
 - Sau nạp: reindex `build_index.py --root .`. build_report **tự gộp** note `source: excel` chung với Jira (cùng schema:
   status/assignee/story_points/complexity/time_*; vai trò PM/QC vẫn áp). Cột bắt buộc tối thiểu: **summary** + **status**.
 

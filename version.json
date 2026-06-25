@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.12.31",
+  "version": "2.12.32",
   "codename": "Claude-1",
   "released": "2026-06-25",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.12.31: đọc Excel trên SharePoint 365 qua MCP — thêm import_excel.py --from-url (tải .xlsx/.csv từ URL qua proxy rồi parse ô chuẩn). Luồng: sharepoint_search → read_resource lấy @microsoft.graph.downloadUrl → --from-url. Thêm tool make_sample.py xuất file mẫu chuyên nghiệp (~100 dòng, format Import_Task). Google Sheet: publish-to-web CSV → --from-url. Chỉ tương tác (token connector do app giữ)."
+  "intro": "Kora-Framework v2.12.32: đọc Excel trên SharePoint 365 bằng Microsoft Graph (quyền READ) — thêm import_excel.py --graph-item '<driveId>/<itemId>' (xin Graph token từ creds SHAREPOINT_* app Sites.Read.All → GET /drives/.../content → parse ô CHUẨN). Lý do: connector M365 read_resource trả text lệch cột + không downloadUrl. Luồng: MCP sharepoint_search ĐỊNH VỊ → Graph TẢI. App-only Sites.Read.All chạy được cả nền. Honor HTTPS_PROXY."
 }

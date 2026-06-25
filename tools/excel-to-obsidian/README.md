@@ -16,13 +16,16 @@ python3 tools/excel-to-obsidian/import_excel.py --from-rows reports/_sheet-q2.cs
 python3 tools/excel-to-obsidian/import_excel.py --from-url "<url>" --source-id sp --map '{...}'
 ```
 
-## Excel trên SharePoint 365 (qua MCP, chỉ tương tác)
-Cần connector **Microsoft 365** đã *connected* trong Claude App. Trong Cowork:
-1. `sharepoint_search` `query="<tên file>" fileType="xlsx"` → chọn file → URI `file:///{driveId}/{itemId}`.
-2. `read_resource` URI → lấy **`@microsoft.graph.downloadUrl`** (pre-authenticated, ngắn hạn).
-3. `import_excel.py --from-url "<downloadUrl>" --sheet <ten> --map <map> --source-id <id>` → tải .xlsx thật + parse ô chuẩn.
+## Excel trên SharePoint 365 — định vị bằng MCP, tải bằng Graph (READ)
+1. **Định vị** (MCP Microsoft 365 đã *connected*): `sharepoint_search` `query="<tên file>" fileType="xlsx"` → URI `file:///{driveId}/{itemId}` → tách `driveId`, `itemId`.
+2. **Tải + parse** (Graph quyền READ): `python3 tools/excel-to-obsidian/import_excel.py --graph-item "<driveId>/<itemId>" --sheet <ten> --map <map> --source-id <id>`.
 
-*read_resource trả text trích xuất cho .xlsx (không phải ô) → LUÔN ưu tiên `--from-url` với downloadUrl.* Nền/scheduled cần Graph API token riêng (không dùng MCP).
+**Cần creds Graph** (1 lần): app Azure AD có **Sites.Read.All** (Application) + admin consent → đặt `SHAREPOINT_TENANT_ID` /
+`SHAREPOINT_CLIENT_ID` / `SHAREPOINT_CLIENT_SECRET` ở `~/.zshrc` hoặc `tools/sharepoint-sync/.env.local`
+(hoặc device-flow: `python3 tools/sharepoint-sync/sync_sharepoint.py --login`). App-only Sites.Read.All chạy được cả **nền**.
+
+> ⚠️ **KHÔNG** dùng `read_resource` để lấy ô: connector M365 trả **text trích xuất (lệch cột), KHÔNG có downloadUrl**.
+> read_resource chỉ để xác nhận file/sheet; đường ĐỌC dữ liệu là **`--graph-item`** (Graph token).
 
 ## Google Sheet
 Chưa có MCP connector → **Publish to web → CSV** rồi `--from-url "<csv_url>"`; hoặc tải .xlsx → `--file`.

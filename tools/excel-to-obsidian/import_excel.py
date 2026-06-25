@@ -226,20 +226,19 @@ def read_rows_file(path):
     return (rd.fieldnames or []), rows
 
 
-def download_to_temp(url):
-    """Tải file (.xlsx/.csv/.json) từ URL về temp — cho SharePoint downloadUrl / Google publish-CSV.
-    Honor HTTPS_PROXY; có timeout để KHÔNG treo (mạng công ty). Tự nhận .xlsx (magic PK) vs text.
-    Trả (path_temp, kind) với kind ∈ {'xlsx','csv','json'}."""
+GRAPH = "https://graph.microsoft.com/v1.0"
+LOGIN = "https://login.microsoftonline.com"
+
+
+def _proxy_opener():
+    """Opener honor HTTPS_PROXY (mạng công ty); proxy rỗng → no-proxy rõ ràng. TLS verify giữ bật."""
     proxy = os.getenv("HTTPS_PROXY") or os.getenv("https_proxy")
     ph = urllib.request.ProxyHandler({"https": proxy, "http": proxy}) if proxy else urllib.request.ProxyHandler({})
-    opener = urllib.request.build_opener(ph, urllib.request.HTTPSHandler(context=ssl.create_default_context()))
-    try:
-        with opener.open(url, timeout=120) as resp:
-            data = resp.read()
-    except urllib.error.HTTPError as e:
-        die(f"Tải URL lỗi HTTP {e.code} (downloadUrl có thể đã hết hạn — lấy lại từ read_resource).")
-    except (urllib.error.URLError, TimeoutError, OSError) as e:
-        die(f"Không tải được URL ({e}). Nếu mạng công ty chặn, đặt HTTPS_PROXY=http://proxy.hcm.fpt.vn:80 rồi thử lại.")
+    return urllib.request.build_opener(ph, urllib.request.HTTPSHandler(context=ssl.create_default_context())), bool(proxy)
+
+
+def _save_bytes(data, src="URL"):
+    """Lưu bytes ra temp + tự nhận định dạng theo magic. Trả (path, kind)."""
     if data[:4] == b"PK\x03\x04":          # zip magic → .xlsx
         kind, suffix = "xlsx", ".xlsx"
     else:
@@ -248,8 +247,94 @@ def download_to_temp(url):
     fd, tmp = tempfile.mkstemp(suffix=suffix, prefix="kora-excel-")
     with os.fdopen(fd, "wb") as fh:
         fh.write(data)
-    print(f"ℹ️  Đã tải {len(data)//1024}KB ← URL (định dạng: {kind}{', qua proxy' if proxy else ''})")
+    print(f"ℹ️  Đã tải {len(data)//1024}KB ← {src} (định dạng: {kind})")
     return tmp, kind
+
+
+def download_to_temp(url):
+    """Tải file (.xlsx/.csv/.json) từ URL về temp — SharePoint downloadUrl / Google publish-CSV. Honor proxy + timeout."""
+    opener, _ = _proxy_opener()
+    try:
+        with opener.open(url, timeout=120) as resp:
+            data = resp.read()
+    except urllib.error.HTTPError as e:
+        die(f"Tải URL lỗi HTTP {e.code} (downloadUrl có thể đã hết hạn — lấy lại từ read_resource).")
+    except (urllib.error.URLError, TimeoutError, OSError) as e:
+        die(f"Không tải được URL ({e}). Nếu mạng công ty chặn, đặt HTTPS_PROXY=http://proxy.hcm.fpt.vn:80 rồi thử lại.")
+    return _save_bytes(data, "URL")
+
+
+# ── Microsoft Graph 365 (quyền READ) — tải Excel trên SharePoint/OneDrive về parse ô chuẩn ──
+def _env_or_file(*keys):
+    """Đọc creds từ os.getenv → tools/sharepoint-sync/.env.local (bỏ PASTE_)."""
+    envf = {}
+    p = os.path.join(os.getcwd(), "tools", "sharepoint-sync", ".env.local")
+    if os.path.exists(p):
+        for line in open(p, encoding="utf-8"):
+            s = line.strip()
+            if s and not s.startswith("#") and "=" in s:
+                k, v = s.split("=", 1)
+                envf[k.strip()] = v.strip()
+    for k in keys:
+        v = os.getenv(k) or envf.get(k)
+        if v and not v.strip().startswith("PASTE_"):
+            return v.strip()
+    return None
+
+
+def graph_token():
+    """Lấy Graph access token (READ). Ưu tiên token thô (MS_GRAPH_TOKEN) → app-only client-credentials
+    (SHAREPOINT_TENANT_ID/CLIENT_ID/CLIENT_SECRET, cần admin consent Sites.Read.All) → device-flow token file."""
+    raw = _env_or_file("MS_GRAPH_TOKEN", "GRAPH_TOKEN", "SHAREPOINT_TOKEN")
+    if raw:
+        return raw
+    tenant = _env_or_file("SHAREPOINT_TENANT_ID", "AZURE_TENANT_ID")
+    client = _env_or_file("SHAREPOINT_CLIENT_ID", "AZURE_CLIENT_ID")
+    secret = _env_or_file("SHAREPOINT_CLIENT_SECRET", "AZURE_CLIENT_SECRET")
+    if tenant and client and secret:
+        data = urllib.parse.urlencode({
+            "client_id": client, "client_secret": secret,
+            "scope": "https://graph.microsoft.com/.default", "grant_type": "client_credentials",
+        }).encode("ascii")
+        req = urllib.request.Request(f"{LOGIN}/{tenant}/oauth2/v2.0/token", data=data,
+                                     headers={"Content-Type": "application/x-www-form-urlencoded"})
+        opener, _ = _proxy_opener()
+        try:
+            with opener.open(req, timeout=30) as r:
+                tok = json.loads(r.read().decode("utf-8"))
+        except urllib.error.HTTPError as e:
+            die(f"Lấy Graph token (client-credentials) lỗi HTTP {e.code} — kiểm tra TENANT/CLIENT/SECRET + "
+                "admin consent quyền **Sites.Read.All** (Application).")
+        except (urllib.error.URLError, TimeoutError, OSError) as e:
+            die(f"Không lấy được Graph token ({e}). Đặt HTTPS_PROXY nếu mạng công ty chặn.")
+        if tok.get("access_token"):
+            return tok["access_token"]
+        die(f"Graph không trả access_token: {tok.get('error_description', tok)}")
+    # device-flow token file (sync_sharepoint.py --login)
+    df = os.path.join(os.getcwd(), "tools", "sharepoint-sync", ".oauth-token.json")
+    if os.path.exists(df):
+        t = (json.load(open(df, encoding="utf-8")) or {}).get("access_token")
+        if t:
+            return t
+    die("Chưa cấu hình Graph 365. Đặt **SHAREPOINT_TENANT_ID/CLIENT_ID/CLIENT_SECRET** (app Azure AD có quyền "
+        "**Sites.Read.All** + admin consent) ở ~/.zshrc hoặc tools/sharepoint-sync/.env.local; hoặc chạy device-flow "
+        "`python3 tools/sharepoint-sync/sync_sharepoint.py --login`.")
+
+
+def graph_download(drive_id, item_id):
+    """Tải bytes file qua Graph: GET /drives/{driveId}/items/{itemId}/content (Bearer). Honor proxy."""
+    token = graph_token()
+    url = f"{GRAPH}/drives/{drive_id}/items/{item_id}/content"
+    opener, _ = _proxy_opener()
+    req = urllib.request.Request(url, headers={"Authorization": "Bearer " + token})
+    try:
+        with opener.open(req, timeout=120) as r:
+            data = r.read()
+    except urllib.error.HTTPError as e:
+        die(f"Tải file qua Graph lỗi HTTP {e.code} — token thiếu quyền Sites.Read.All, hoặc driveId/itemId sai.")
+    except (urllib.error.URLError, TimeoutError, OSError) as e:
+        die(f"Không tải được qua Graph ({e}). Đặt HTTPS_PROXY nếu mạng công ty chặn.")
+    return _save_bytes(data, "Graph 365")
 
 
 # ── Mapping header → field ────────────────────────────────────────────────────
@@ -352,14 +437,15 @@ def main():
     ap.add_argument("--sheet", help="Tên sheet (mặc định: sheet đầu).")
     ap.add_argument("--from-rows", dest="from_rows", help="File rows đã chuẩn hoá: .csv hoặc .json (list[dict]).")
     ap.add_argument("--from-url", dest="from_url", help="Tải file .xlsx/.csv/.json từ URL (SharePoint downloadUrl từ read_resource, hoặc Google publish-CSV). Honor HTTPS_PROXY.")
+    ap.add_argument("--graph-item", dest="graph_item", help="Tải Excel trên SharePoint/OneDrive qua Microsoft Graph 365 (quyền READ). Dạng '<driveId>/<itemId>' (lấy từ sharepoint_search). Cần creds SHAREPOINT_* (app Azure AD, Sites.Read.All).")
     ap.add_argument("--map", dest="map_arg", help="Mapping header→field: JSON inline hoặc đường dẫn .json.")
     ap.add_argument("--project", help="Mã project mặc định gán cho mọi dòng (nếu không có cột project).")
     ap.add_argument("--source-id", dest="source_id", help="ID nguồn (mặc định theo tên file). Quyết định thư mục + marker.")
     ap.add_argument("--vault", help="Đường dẫn vault (mặc định đọc vault_path trong config).")
     args = ap.parse_args()
 
-    if not args.file and not args.from_rows and not args.from_url:
-        die("Cần --file <x.xlsx> HOẶC --from-rows <rows.csv|.json> HOẶC --from-url <url>.")
+    if not args.file and not args.from_rows and not args.from_url and not args.graph_item:
+        die("Cần --file <x.xlsx> HOẶC --from-rows <rows.csv|.json> HOẶC --from-url <url> HOẶC --graph-item <driveId>/<itemId>.")
 
     override = {}
     if args.map_arg:
@@ -372,7 +458,14 @@ def main():
             die("--map không phải JSON hợp lệ (cần {\"Tên cột\":\"field\"}).")
 
     tmp_dl = None
-    if args.from_url:
+    if args.graph_item:
+        if "/" not in args.graph_item:
+            die("--graph-item phải dạng '<driveId>/<itemId>' (lấy từ sharepoint_search → URI file:///{driveId}/{itemId}).")
+        drive_id, item_id = args.graph_item.rsplit("/", 1)
+        tmp_dl, kind = graph_download(drive_id, item_id)
+        headers, rows = parse_xlsx(tmp_dl, args.sheet) if kind == "xlsx" else read_rows_file(tmp_dl)
+        default_src = "sharepoint-graph"
+    elif args.from_url:
         tmp_dl, kind = download_to_temp(args.from_url)
         if kind == "xlsx":
             headers, rows = parse_xlsx(tmp_dl, args.sheet)

@@ -58,11 +58,12 @@ ESC hoặc [← Huỷ] = dừng, **KHÔNG ghi gì** vào `connections:`.
   - **[Excel local .xlsx]** → KHÔNG auth: hỏi **đường dẫn file** (AskUserQuestion gợi ý + ô "Other") + **tên sheet** (bỏ trống = sheet đầu)
     → ghi entry `source_type: excel`, `method: local_file`, `file_path`, `sheet_name` (id `excel__local[__<slug>]`). Verify: thử
     `python3 tools/excel-to-obsidian/import_excel.py --file <path> [--sheet …]` chạy được (parse OK) rồi mới ghi.
-  - **[Excel trên SharePoint 365 qua MCP]** → cần connector **Microsoft 365** đã **connected** trong Claude App. Ghi entry
-    `source_type: sheet`/`excel`, `method: mcp`, `creds.kind: mcp_connector`, `connector_name: "microsoft-365"`. Lúc báo cáo:
-    `sharepoint_search` (fileType xlsx) → `read_resource` lấy **`@microsoft.graph.downloadUrl`** → `import_excel.py --from-url
-    "<downloadUrl>"` (tải .xlsx thật + parse ô chuẩn). **Chỉ tương tác** (token do app giữ). Cột tối thiểu **summary + status**;
-    cột lạ → `--map`/`excel.map`.
+  - **[Excel trên SharePoint 365]** → ĐỊNH VỊ bằng MCP **Microsoft 365** (đã *connected* trong Claude App) + TẢI bằng **Graph
+    quyền READ**. Cần app Azure AD có **Sites.Read.All** (+ admin consent) → đặt `SHAREPOINT_TENANT_ID/CLIENT_ID/CLIENT_SECRET`
+    ở `~/.zshrc` hoặc `tools/sharepoint-sync/.env.local` (device-flow: `sync_sharepoint.py --login`). Ghi entry `source_type: sheet`,
+    `method: mcp`. Lúc báo cáo: `sharepoint_search` (fileType xlsx) → URI `file:///{driveId}/{itemId}` → `import_excel.py
+    --graph-item "<driveId>/<itemId>"` (Graph token → tải .xlsx thật + parse ô chuẩn). ⚠️ KHÔNG dùng read_resource lấy ô
+    (trả text lệch cột, không downloadUrl). Cột tối thiểu **summary + status**; cột lạ → `--map`/`excel.map`. App-only Sites.Read.All chạy được cả nền.
   - **[Google Sheet]** (chưa có MCP connector): "Publish to web → CSV" → `import_excel.py --from-url "<csv_url>"`; hoặc tải .xlsx → `--file`.
 
 > 🔖 **Đánh dấu đã kết nối:** đối chiếu với `--list` — nguồn nào ĐÃ có entry `<source_type>__<method>`
