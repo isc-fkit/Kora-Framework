@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.12.28",
+  "version": "2.12.29",
   "codename": "Claude-1",
   "released": "2026-06-25",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
-  "force": false,
-  "intro": "Kora-Framework v2.12.28: BÁO CÁO nhận thêm NGUỒN EXCEL/GOOGLE SHEET (gộp chung với Jira). Tool mới tools/excel-to-obsidian/import_excel.py (chỉ thư viện chuẩn) biến mỗi dòng bảng → note source:excel → build_report gộp như Jira (status/assignee/điểm/độ phức tạp/giờ-công, vai trò PM/QC vẫn áp). Đọc .xlsx local HOẶC Google Sheet/SharePoint qua MCP (Claude lấy rows → --from-rows); tự nhận cột Việt/Anh. Khi gõ 'báo cáo tiến độ', bước Chọn Nguồn nay LIỆT KÊ cả Jira + Excel/Sheet. Chỉ tương tác. Tương thích ngược."
+  "force": true,
+  "intro": "Kora-Framework v2.12.29: SỬA GẤP regression ở scripts/update.command (v2.12.27) khiến CẬP NHẬT thoát sớm KHÔNG tải gì trên macOS — bash 3.2 + set -u + mảng rỗng \"${px[@]}\" = 'unbound variable'. Đổi sang idiom an toàn ${px[@]+...}. (Gồm trọn tính năng nguồn EXCEL/Google Sheet cho báo cáo của v2.12.28.) NÊN cập nhật để lệnh 'cập nhật phiên bản' chạy lại bình thường."
 }

@@ -97,7 +97,8 @@ else
       case "$seen" in *"|$p|"*) continue;; esac
       seen="$seen$p|"
       px=(); [ -n "$p" ] && { px=(-x "$p"); echo "   ↪︎ thử qua proxy: $p" >&2; }
-      if curl -fsSL --connect-timeout "$CT" --max-time "$mt" "${px[@]}" "$@" 2>/dev/null; then return 0; fi
+      # ${px[@]+"${px[@]}"} = idiom AN TOÀN cho mảng RỖNG dưới set -u (bash 3.2 macOS báo "unbound variable" với "${px[@]}").
+      if curl -fsSL --connect-timeout "$CT" --max-time "$mt" ${px[@]+"${px[@]}"} "$@" 2>/dev/null; then return 0; fi
     done < <(_proxies)
     return 1
   }

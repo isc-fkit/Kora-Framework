@@ -10,6 +10,16 @@
 
 ---
 
+## v2.12.29 "Claude-1" — 2026-06-25
+
+**🔴 SỬA GẤP: `scripts/update.command` (v2.12.27) thoát sớm, KHÔNG tải gì trên macOS.**
+
+- **🐞 Nguyên nhân**: hàm `cfetch` mới expand **mảng RỖNG** `"${px[@]}"` dưới `set -u`. macOS dùng **bash 3.2** →
+  mảng rỗng `"${px[@]}"` báo **"unbound variable"** → script chết NGAY sau "Đang tải…", thoát mà không cập nhật.
+- **🔧 Fix**: đổi sang idiom an toàn cho mảng rỗng `${px[@]+"${px[@]}"}` (đã test trên bash 3.2.57 → `cfetch` chạy đúng,
+  resolve tag + tải qua proxy OK). `force:true` để bản cũ được nhắc cập nhật.
+- (Bao gồm trọn tính năng **nguồn Excel/Google Sheet cho báo cáo** của v2.12.28.)
+
 ## v2.12.28 "Claude-1" — 2026-06-25
 
 **Báo cáo nhận thêm nguồn EXCEL / GOOGLE SHEET / SharePoint — GỘP CHUNG với Jira (chỉ tương tác).**
