@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.12.38",
+  "version": "2.12.39",
   "codename": "Claude-1",
   "released": "2026-06-25",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": true,
-  "intro": "Kora-Framework v2.12.38: ÉP CỨNG hỏi nguồn báo cáo (trước đây skill hay tự quét + build mà KHÔNG hỏi). (1) CODE GATE: build_report.py TỪ CHỐI build khi vault có >1 nguồn mà thiếu --source-ids → biến 'skip im lặng' thành DỪNG + buộc hỏi user chọn nguồn (--source-ids all = mọi nguồn cho lịch nền). (2) GIAO THỨC chặn ở ĐẦU skill: chỉ được làm cổng mật khẩu + AskUserQuestion chọn nguồn rồi DỪNG; CẤM đích danh check_connection/sharepoint_search/getVisibleJiraProjects/import_*/build_report/read_resource trước khi user trả lời. Lịch nền (orchestrator) truyền --source-ids all nên không bị chặn. NÊN cập nhật."
+  "intro": "Kora-Framework v2.12.39: ĐẢM BẢO phân tích AI LUÔN có ở CẢ email LẪN dashboard. (1) --inject-ai giờ chèn vào CẢ 3 file: email-body (gửi), email-preview (xem trước), VÀ progress-report dashboard (#kr-ai) — trước đây dashboard không bao giờ được chèn AI. (2) CODE GATE: send_report.py TỪ CHỐI gửi nếu khối AI còn placeholder (chưa --inject-ai) → mail không bao giờ thiếu phân tích AI (bỏ qua: --allow-empty-ai). NÊN cập nhật."
 }

@@ -10,6 +10,16 @@
 
 ---
 
+## v2.12.39 "Claude-1" — 2026-06-25
+
+**ĐẢM BẢO phân tích AI LUÔN có ở CẢ email LẪN dashboard.**
+
+- **🖥️ `--inject-ai` chèn vào CẢ 3 file `-latest`**: `email-body` (gửi) · `email-preview` (xem trước) · **`progress-report`
+  dashboard (`#kr-ai`)**. Trước đây dashboard standalone **KHÔNG bao giờ** được chèn AI (inject chỉ đụng email) → file
+  đính kèm/attach thiếu phân tích. Nay dashboard `#kr-ai` được bọc marker `<!--KR-AI-START/END-->` và inject điền đồng thời.
+- **🔒 CODE GATE (`send_report.py`)**: **TỪ CHỐI gửi** nếu khối AI trong email còn **placeholder** (chưa `--inject-ai`)
+  → mail không bao giờ đi ra mà thiếu phân tích AI thật. Bỏ qua khi cần: `--allow-empty-ai`.
+
 ## v2.12.38 "Claude-1" — 2026-06-25
 
 **ÉP CỨNG hỏi nguồn báo cáo — skill không còn tự quét + build mà bỏ qua câu hỏi chọn nguồn.**

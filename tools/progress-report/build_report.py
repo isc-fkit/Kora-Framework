@@ -694,9 +694,11 @@ def render_fragment(m, vault):
         '<option value="todo">Chưa làm</option><option value="in_progress">Đang làm</option>'
         '<option value="done">Hoàn thành</option></select></div>')
     ai_anchor = ('<section class="pr-card pr-ai" id="kr-ai"><b style="color:#c9b8ff">🤖 Phân tích AI</b>'
+                 '<!--KR-AI-START-->'
                  '<div class="pr-mut" style="margin-top:6px">Khu vực này được Claude điền khi chạy báo cáo: '
                  'phân loại rủi ro theo mức · dự đoán nguy cơ trượt timeline mỗi sprint (kèm lý do) · giải pháp '
-                 'cho từng rủi ro · đề xuất theo từng thành viên · tổng kết điều hành.</div></section>')
+                 'cho từng rủi ro · đề xuất theo từng thành viên · tổng kết điều hành.</div>'
+                 '<!--KR-AI-END--></section>')
     krscript = ('<script>function krV(id){var e=document.getElementById(id);return e?e.value:"";}'
                 'function krFilter(){var a=krV("kr-fa"),s=krV("kr-fs"),p=krV("kr-fp"),t=krV("kr-ft");'
                 'document.querySelectorAll(".pr-row").forEach(function(r){var d=r.dataset;'
@@ -1333,8 +1335,9 @@ def render_ai_cards(md):
 
 
 def inject_ai_into_email(out_dir, md_path):
-    """Đọc file markdown AI → render card màu → thay khối <!--KR-AI--> trong email-body-latest.html
-    VÀ email-preview-latest.html (bản xem trước có banner base64) để cả 2 đồng bộ AI."""
+    """Đọc file markdown AI → render card màu → thay khối <!--KR-AI--> trong CẢ BA file -latest:
+    email-body (gửi) · email-preview (xem trước, banner base64) · progress-report (dashboard #kr-ai) —
+    để phân tích AI LUÔN có ở CẢ email LẪN dashboard."""
     os.makedirs(out_dir, exist_ok=True)   # phòng thủ: không chết vì thiếu thư mục
     email = os.path.join(out_dir, "email-body-latest.html")
     if not os.path.exists(email):
@@ -1342,15 +1345,18 @@ def inject_ai_into_email(out_dir, md_path):
     md = open(md_path, encoding="utf-8").read() if os.path.exists(md_path) else md_path
     block = render_ai_cards(md)
     done = []
-    for fp in (email, os.path.join(out_dir, "email-preview-latest.html")):
+    for fp in (email,
+               os.path.join(out_dir, "email-preview-latest.html"),
+               os.path.join(out_dir, "progress-report-latest.html")):
         if not os.path.exists(fp):
             continue
         txt = open(fp, encoding="utf-8").read()
-        txt = re.sub(r"<!--KR-AI-START-->.*?<!--KR-AI-END-->",
-                     lambda _m: "<!--KR-AI-START-->" + block + "<!--KR-AI-END-->", txt, count=1, flags=re.DOTALL)
-        open(fp, "w", encoding="utf-8").write(txt)
-        done.append(fp)
-    print(f"Đã chèn phân tích AI (card màu) vào {', '.join(done)}")
+        new_txt, n = re.subn(r"<!--KR-AI-START-->.*?<!--KR-AI-END-->",
+                             lambda _m: "<!--KR-AI-START-->" + block + "<!--KR-AI-END-->", txt, count=1, flags=re.DOTALL)
+        if n:
+            open(fp, "w", encoding="utf-8").write(new_txt)
+            done.append(os.path.basename(fp))
+    print(f"Đã chèn phân tích AI (card màu) vào: {', '.join(done)}")
 
 
 def main():

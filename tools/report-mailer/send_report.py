@@ -128,6 +128,8 @@ def main():
     ap.add_argument("--stale-after-min", dest="stale_after_min", type=int, default=30,
                     help="Chặn gửi báo cáo CŨ: nếu --html-file cũ hơn N phút → DỪNG (báo build lại). "
                          "0 = tắt kiểm tra. Mặc định 30.")
+    ap.add_argument("--allow-empty-ai", dest="allow_empty_ai", action="store_true",
+                    help="Bỏ qua guard chặn gửi khi khối AI còn placeholder (mặc định CHẶN — buộc chèn phân tích AI thật trước).")
     ap.add_argument("--banner", help="Ảnh banner nhúng inline (cid:kora-banner). Mặc định assets/banner-daily-report.jpg.")
     ap.add_argument("--test", action="store_true", help="Gửi email test nhỏ (không cần report).")
     ap.add_argument("--check", action="store_true", help="Chỉ kiểm tra cấu hình + đăng nhập SMTP (KHÔNG gửi).")
@@ -278,6 +280,16 @@ def main():
                         f"Hãy chạy build_report.py NGAY TRƯỚC khi gửi (lịch nền/gửi-ngay phải build lại). "
                         f"Bỏ kiểm tra: --stale-after-min 0.")
             html = p.read_text(encoding="utf-8")
+            # GUARD AI: KHÔNG gửi khi khối phân tích AI còn PLACEHOLDER (chưa chạy build_report --inject-ai).
+            # Bảo đảm mail LUÔN có phân tích AI thật. Bỏ kiểm tra: --allow-empty-ai.
+            if not getattr(args, "allow_empty_ai", False):
+                mm = re.search(r"<!--KR-AI-START-->(.*?)<!--KR-AI-END-->", html, re.DOTALL)
+                if mm:
+                    inner = re.sub(r"<[^>]+>", "", mm.group(1)).strip()
+                    if (not inner) or ("Claude điền" in inner) or ("Claude điền" in mm.group(1)):
+                        die("❌ Khối phân tích AI trong email còn PLACEHOLDER (chưa chèn phân tích thật).\n"
+                            "   → Viết reports/ai-analysis-latest.md rồi chạy: build_report.py --inject-ai reports/ai-analysis-latest.md\n"
+                            "   (workflow 14 Bước 1.5). KHÔNG gửi mail thiếu phân tích AI. Bỏ qua: --allow-empty-ai.")
             if not args.no_attach_html:
                 attachments.append(str(p))
         subject = subject or "Báo cáo tiến độ"

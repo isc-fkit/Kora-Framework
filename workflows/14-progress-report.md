@@ -186,10 +186,12 @@ Sinh khối **🤖 Phân tích AI — CỰC KỲ CHI TIẾT** dưới dạng **M
      + SP + done%) → bức tranh tổng; **đề xuất bốc task nào vào sprint KẾ** + **sắp xếp sprint HIỆN TẠI** cho hợp lý; gắn mục
      tiêu **OKR/chiến lược** từ `reports/_okr-latest.txt` (nếu có); viết theo góc **PM dự án** (người đã hỏi ở daily-report 5b/5c).
    - Mọi mục viết **CHI TIẾT + kèm BẢNG số liệu đầy đủ** (theo người/sprint/complexity/quá hạn) — từ DỮ LIỆU, không bịa.
-2. **Render + chèn vào email:** `python3 "$T/progress-report/build_report.py" --inject-ai reports/ai-analysis-latest.md`
-   → tool tự thay khối `<!--KR-AI-->` trong `email-body-latest.html` bằng **CARD MÀU theo mục** + **bảng tô màu cột
-   trạng thái** (Done=xanh lá · In Review=xanh dương · In Progress=cam · Test=tím · Chưa làm=xám). Mỗi mục một màu riêng dễ quan sát.
-3. (a) in inline ở Bước 2 + (b) container `<section id="kr-ai">` của dashboard: dùng **CÙNG nội dung markdown** đó.
+2. **Render + chèn (BẮT BUỘC):** `python3 "$T/progress-report/build_report.py" --inject-ai reports/ai-analysis-latest.md`
+   → tool tự thay khối `<!--KR-AI-->` bằng **CARD MÀU theo mục** + **bảng tô màu cột trạng thái** (Done=xanh lá ·
+   In Review=xanh dương · In Progress=cam · Test=tím · Chưa làm=xám) trong **CẢ 3 file -latest cùng lúc**:
+   `email-body` (gửi) · `email-preview` (xem trước) · `progress-report` (dashboard `#kr-ai`). ⇒ AI **LUÔN có ở cả email LẪN dashboard**.
+   > 🔒 **Backstop:** `send_report.py` **TỪ CHỐI gửi** nếu khối AI còn placeholder (chưa `--inject-ai`) → buộc phải chèn AI thật trước khi gửi (bỏ qua: `--allow-empty-ai`).
+3. Bản inline Cowork (Bước 2) dùng **CÙNG nội dung markdown** đó (dashboard `#kr-ai` đã được `--inject-ai` điền sẵn ở bước 2).
 Mỗi rủi ro nêu đủ: **mức độ → khả năng/DỰ ĐOÁN + lý do bằng số liệu → tác động → PHƯƠNG ÁN ĐỀ XUẤT từng bước + ai làm + khi nào**. Nội dung mỗi mục:
 
 0. **Đối chiếu theo CHUẨN (Cloud / industry best-practice) — nền cho mọi cảnh báo:** so số liệu với mốc
