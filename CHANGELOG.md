@@ -10,6 +10,17 @@
 
 ---
 
+## v2.12.33 "Claude-1" — 2026-06-25
+
+**Thêm cách đọc SharePoint QUA M365 MCP KHÔNG cần Graph token — dùng file CSV.**
+
+- **🟢 Lựa chọn ① (MCP thuần)**: vì `read_resource` trả **text CSV NGUYÊN VẸN** (chỉ .xlsx mới lệch cột), nên để bảng
+  dạng **.csv** trên SharePoint → `sharepoint_search fileType="csv"` → `read_resource` → ghi `reports/_sheet-<id>.csv`
+  → `import_excel.py --from-rows`. KHÔNG cần app Azure AD / token.
+- **🔵 Lựa chọn ② (cho .xlsx)**: giữ `--graph-item` (Graph token Sites.Read.All) — chạy được cả nền.
+- **🆕 `make_sample.py` xuất CSV**: `make_sample.py <out>.csv 100` → file mẫu CSV format Import_Task (upload SharePoint để test cách ①).
+- Cập nhật WF14 mục C / daily-report / connect / README: 2 cách rõ ràng (.xlsx→Graph; MCP thuần→CSV).
+
 ## v2.12.32 "Claude-1" — 2026-06-25
 
 **Đọc Excel trên SharePoint 365 bằng Microsoft Graph (quyền READ) — đáng tin thay cho read_resource.**

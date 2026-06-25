@@ -85,17 +85,19 @@ nguồn — đặt ở đầu lệnh: `JIRA_BASE_URL=<entry.base_url>` (+ `JIRA_
 - **`method: local_file`** (file .xlsx): `python3 "<TOOL_DIR>/excel-to-obsidian/import_excel.py" --file <entry.file_path>
   [--sheet <entry.sheet_name>] --source-id <entry.id> [--project <KEY>] [--map '<json nếu tên cột lạ>']`. Parse bằng thư
   viện chuẩn (zipfile+xml), tự nhận cột Việt/Anh, ghi note `source: excel` vào `07_Imported/<id>/` (ghi đè trọn — idempotent).
-- **EXCEL TRÊN SHAREPOINT 365 — ĐỊNH VỊ bằng MCP, TẢI bằng Graph (đáng tin nhất):**
-  1. **MCP `sharepoint_search`** `query="<tên file>" fileType="xlsx"` → chọn file → URI `file:///{driveId}/{itemId}`
-     → **tách `driveId` và `itemId`** từ URI.
-  2. **Tải qua Graph (quyền READ)**: `python3 "<TOOL_DIR>/excel-to-obsidian/import_excel.py" --graph-item "<driveId>/<itemId>"
-     [--sheet <ten>] --map <…> --source-id <id> [--project <KEY>]` → tool xin **Graph token** (creds `SHAREPOINT_*`,
-     app Azure AD **Sites.Read.All**) rồi `GET /drives/{driveId}/items/{itemId}/content` → .xlsx thật → parse ô CHUẨN (honor `HTTPS_PROXY`).
-  > ⚠️ **KHÔNG dùng `read_resource` để lấy ô**: connector M365 trả **text trích xuất (lệch cột), KHÔNG có downloadUrl**.
-  > `read_resource` chỉ để xác nhận file/tên sheet. Đường ĐỌC dữ liệu = **`--graph-item`** (Graph token read).
-  - **Fallback** không có creds Graph: user **tải file về** → `--file`; hoặc (tạm) Claude dựng `reports/_sheet-<id>.csv` từ text read_resource → `--from-rows`.
-  - **Google Sheet** (chưa có MCP connector): "Publish to web → CSV" → `import_excel.py --from-url "<csv_url>"`.
-  - **Chỉ TƯƠNG TÁC** trừ khi dùng app-only client-credentials (Sites.Read.All) → khi đó `--graph-item` chạy được cả nền.
+- **EXCEL/SHEET TRÊN SHAREPOINT 365 — 2 cách (chọn theo nhu cầu):**
+  **① QUA M365 MCP — DÙNG FILE CSV (KHÔNG cần Graph token, đơn giản nhất):** vì `read_resource` trả **text NGUYÊN VẸN cho file CSV**
+  (chỉ .xlsx mới bị lệch cột). Bước:
+  1. Upload bảng dưới dạng **`.csv`** lên SharePoint (UTF-8). `sharepoint_search` `query="<tên>" fileType="csv"` → chọn file.
+  2. `read_resource` URI → trả **text CSV** → Claude ghi y nguyên ra `reports/_sheet-<id>.csv`.
+  3. `python3 "<TOOL_DIR>/excel-to-obsidian/import_excel.py" --from-rows reports/_sheet-<id>.csv --map <…> --source-id <id> [--project <KEY>]`.
+  - Tạo CSV mẫu: `python3 "<TOOL_DIR>/excel-to-obsidian/make_sample.py" <out>.csv 100`.
+  **② QUA GRAPH (quyền READ) — cho file .XLSX, đáng tin + chạy được nền:** `sharepoint_search fileType="xlsx"` → URI
+  `file:///{driveId}/{itemId}` → `import_excel.py --graph-item "<driveId>/<itemId>"` → xin Graph token (creds `SHAREPOINT_*`,
+  app Azure AD **Sites.Read.All**) → `GET /drives/.../content` → parse ô CHUẨN (honor `HTTPS_PROXY`).
+  > ⚠️ **KHÔNG** dùng `read_resource` để lấy ô của **.xlsx** (text lệch cột, không downloadUrl). Với .xlsx qua MCP → dùng **Graph (②)**;
+  > muốn MCP thuần không token → để file dạng **CSV (①)**.
+  - **Google Sheet**: "Publish to web → CSV" → `import_excel.py --from-url "<csv_url>"`.
 - Sau nạp: reindex `build_index.py --root .`. build_report **tự gộp** note `source: excel` chung với Jira (cùng schema:
   status/assignee/story_points/complexity/time_*; vai trò PM/QC vẫn áp). Cột bắt buộc tối thiểu: **summary** + **status**.
 

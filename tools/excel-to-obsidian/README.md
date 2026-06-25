@@ -16,7 +16,15 @@ python3 tools/excel-to-obsidian/import_excel.py --from-rows reports/_sheet-q2.cs
 python3 tools/excel-to-obsidian/import_excel.py --from-url "<url>" --source-id sp --map '{...}'
 ```
 
-## Excel trên SharePoint 365 — định vị bằng MCP, tải bằng Graph (READ)
+## SharePoint 365 — Cách ① QUA M365 MCP bằng CSV (KHÔNG cần Graph token)
+`read_resource` trả **text nguyên vẹn cho file CSV** (chỉ .xlsx mới lệch cột) → đây là đường MCP đơn giản nhất:
+1. Upload bảng dạng **`.csv`** (UTF-8) lên SharePoint.
+2. `sharepoint_search` `query="<tên>" fileType="csv"` → `read_resource` URI → trả text CSV → ghi ra `reports/_sheet-<id>.csv`.
+3. `python3 tools/excel-to-obsidian/import_excel.py --from-rows reports/_sheet-<id>.csv --map <map> --source-id <id>`.
+
+Tạo CSV mẫu: `python3 tools/excel-to-obsidian/make_sample.py <out>.csv 100` (≥1 dòng, format Import_Task).
+
+## SharePoint 365 — Cách ② cho file .XLSX: định vị bằng MCP, tải bằng Graph (READ)
 1. **Định vị** (MCP Microsoft 365 đã *connected*): `sharepoint_search` `query="<tên file>" fileType="xlsx"` → URI `file:///{driveId}/{itemId}` → tách `driveId`, `itemId`.
 2. **Tải + parse** (Graph quyền READ): `python3 tools/excel-to-obsidian/import_excel.py --graph-item "<driveId>/<itemId>" --sheet <ten> --map <map> --source-id <id>`.
 

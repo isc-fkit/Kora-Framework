@@ -12,6 +12,7 @@ Nạp vào báo cáo:
 """
 import os
 import random
+import csv
 import sys
 import zipfile
 from datetime import date, timedelta
@@ -171,13 +172,25 @@ GUIDE = [["Cột", "Ý nghĩa", "Ghi chú / map → field báo cáo"],
          ["", "Cột gốc Import_Task được giữ nguyên", "Đã thêm STATUS + ACTUAL TIME để báo cáo tiến độ có nghĩa."]]
 
 
+def write_csv(path, rows):
+    os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+    with open(path, "w", encoding="utf-8-sig", newline="") as fh:   # utf-8-sig: Excel/SharePoint mở đúng tiếng Việt
+        csv.writer(fh).writerows(rows)
+
+
 def main():
     out = sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.path.expanduser("~"), "Downloads", "Import_Task_v1.0_sample100.xlsx")
     n = int(sys.argv[2]) if len(sys.argv) > 2 else 100
     rows = gen_rows(n)
-    write_xlsx(out, [("Import", rows), ("Guideline", GUIDE)])
-    print(f"✅ Đã xuất {n} dòng mẫu → {os.path.abspath(out)}")
-    print("   Sheet 'Import' (dữ liệu) + 'Guideline'. Nạp: import_excel.py --file <file> --sheet Import --map <map Import_Task>")
+    if out.lower().endswith(".csv"):
+        # CSV = đường ĐỌC QUA M365 MCP (read_resource trả text nguyên vẹn, không lệch cột như .xlsx).
+        write_csv(out, rows)
+        print(f"✅ Đã xuất {n} dòng mẫu (CSV) → {os.path.abspath(out)}")
+        print("   Upload lên SharePoint → đọc QUA MCP: sharepoint_search fileType csv → read_resource → import_excel.py --from-rows")
+    else:
+        write_xlsx(out, [("Import", rows), ("Guideline", GUIDE)])
+        print(f"✅ Đã xuất {n} dòng mẫu (XLSX) → {os.path.abspath(out)}")
+        print("   Sheet 'Import' + 'Guideline'. Nạp local: import_excel.py --file <file> --sheet Import --map <map Import_Task>")
 
 
 if __name__ == "__main__":
