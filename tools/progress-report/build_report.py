@@ -281,7 +281,7 @@ def compute(issues, smap, today, complexity_high=7, qc_members=None, pm_members=
     qc_set = {str(n).strip().lower() for n in (qc_members or []) if str(n).strip()}
     # PM/PO TẠO Epic/Request/US — KHÔNG logtime như Dev, KHÔNG "chạy hết sprint" theo giờ → KHÔNG đo bằng giờ-công.
     pm_set = {str(n).strip().lower() for n in (pm_members or []) if str(n).strip()}
-    PM_TYPES = {"epic", "story", "user story", "request", "change request"}
+    PM_TYPES = {"epic", "story", "user_story", "user story", "request", "change request"}  # gồm dạng chuẩn hoá "user_story"
     LOGW_TYPES = {"task", "sub-task", "subtask", "bug"}   # loại việc THỰC SỰ cần log giờ
     def _is_bug(i):
         return str(i.get("type") or "").lower() == "bug" or str(i.get("jira_issue_type") or "").lower() == "bug"

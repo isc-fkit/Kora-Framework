@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.12.29",
+  "version": "2.12.30",
   "codename": "Claude-1",
   "released": "2026-06-25",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
-  "force": true,
-  "intro": "Kora-Framework v2.12.29: SỬA GẤP regression ở scripts/update.command (v2.12.27) khiến CẬP NHẬT thoát sớm KHÔNG tải gì trên macOS — bash 3.2 + set -u + mảng rỗng \"${px[@]}\" = 'unbound variable'. Đổi sang idiom an toàn ${px[@]+...}. (Gồm trọn tính năng nguồn EXCEL/Google Sheet cho báo cáo của v2.12.28.) NÊN cập nhật để lệnh 'cập nhật phiên bản' chạy lại bình thường."
+  "force": false,
+  "intro": "Kora-Framework v2.12.30: nhận diện vai trò PM đúng cho cả note đã chuẩn hoá type='user_story' (trước chỉ khớp 'user story'/'story' nên người tạo User Story có thể không hiện vai trò PM trong báo cáo). Phát hiện qua dữ liệu Excel thật (format Import_Task)."
 }

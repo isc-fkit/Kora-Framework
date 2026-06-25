@@ -10,6 +10,15 @@
 
 ---
 
+## v2.12.30 "Claude-1" — 2026-06-25
+
+**Sửa nhận diện vai trò PM cho note type chuẩn hoá `user_story`.**
+
+- `tools/progress-report/build_report.py`: `PM_TYPES` thêm `"user_story"` (trước chỉ có `"story"`/`"user story"`).
+  Note do `import_jira`/`import_excel` chuẩn hoá type = `user_story` (gạch dưới) → trước đây người TẠO User Story
+  không được nhận là **PM** trong báo cáo (bị bỏ khỏi bảng người / tính nhầm). Phát hiện qua dữ liệu Excel thật
+  (format `Import_Task`): "Khánh (PO)" giờ hiện đúng vai trò **PM** (điều phối, không tính giờ-công).
+
 ## v2.12.29 "Claude-1" — 2026-06-25
 
 **🔴 SỬA GẤP: `scripts/update.command` (v2.12.27) thoát sớm, KHÔNG tải gì trên macOS.**
