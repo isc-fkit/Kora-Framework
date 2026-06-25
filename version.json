@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.12.30",
+  "version": "2.12.31",
   "codename": "Claude-1",
   "released": "2026-06-25",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.12.30: nhận diện vai trò PM đúng cho cả note đã chuẩn hoá type='user_story' (trước chỉ khớp 'user story'/'story' nên người tạo User Story có thể không hiện vai trò PM trong báo cáo). Phát hiện qua dữ liệu Excel thật (format Import_Task)."
+  "intro": "Kora-Framework v2.12.31: đọc Excel trên SharePoint 365 qua MCP — thêm import_excel.py --from-url (tải .xlsx/.csv từ URL qua proxy rồi parse ô chuẩn). Luồng: sharepoint_search → read_resource lấy @microsoft.graph.downloadUrl → --from-url. Thêm tool make_sample.py xuất file mẫu chuyên nghiệp (~100 dòng, format Import_Task). Google Sheet: publish-to-web CSV → --from-url. Chỉ tương tác (token connector do app giữ)."
 }

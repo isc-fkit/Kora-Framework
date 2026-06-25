@@ -85,10 +85,15 @@ nguồn — đặt ở đầu lệnh: `JIRA_BASE_URL=<entry.base_url>` (+ `JIRA_
 - **`method: local_file`** (file .xlsx): `python3 "<TOOL_DIR>/excel-to-obsidian/import_excel.py" --file <entry.file_path>
   [--sheet <entry.sheet_name>] --source-id <entry.id> [--project <KEY>] [--map '<json nếu tên cột lạ>']`. Parse bằng thư
   viện chuẩn (zipfile+xml), tự nhận cột Việt/Anh, ghi note `source: excel` vào `07_Imported/<id>/` (ghi đè trọn — idempotent).
-- **`method: mcp`** (Google Sheets/SharePoint/M365 connector đã connected): **Claude LẤY các DÒNG qua connector** →
-  ghi tạm `reports/_sheet-<id>.csv` (header dòng đầu) hoặc `.json` (list[dict]) → `import_excel.py --from-rows
-  reports/_sheet-<id>.csv --source-id <id> [--project <KEY>] [--map …]`. (MCP-connector KHÔNG đọc được ô .xlsx nhị phân →
-  Claude lấy/chuẩn hoá thành rows; token connector do app giữ → **không chạy nền**, chỉ tương tác.)
+- **`method: mcp` — EXCEL TRÊN SHAREPOINT 365 (ưu tiên, đáng tin):** cần connector **Microsoft 365** đã *connected* trong Claude App.
+  1. `sharepoint_search` `query="<tên file>"` `fileType="xlsx"` → chọn file → lấy URI `file:///{driveId}/{itemId}`.
+  2. `read_resource` URI đó → lấy **`@microsoft.graph.downloadUrl`** (URL tải pre-authenticated, ngắn hạn) + tên sheet nếu cần.
+  3. `python3 "<TOOL_DIR>/excel-to-obsidian/import_excel.py" --from-url "<downloadUrl>" [--sheet <ten>] --source-id <id> [--project <KEY>] [--map …]`
+     → tool TẢI .xlsx thật (honor `HTTPS_PROXY`) rồi parse Ô CHUẨN (không dựa text trích xuất kém tin cậy của read_resource).
+  - **Fallback** (không lấy được downloadUrl): read_resource trả text → Claude chuẩn hoá thành `reports/_sheet-<id>.csv` →
+    `import_excel.py --from-rows reports/_sheet-<id>.csv …`; hoặc user tải file → `--file`.
+  - **Google Sheet** (chưa có MCP connector): "Publish to web → CSV" → `import_excel.py --from-url "<csv_url>"`.
+  - token connector do app giữ → **chỉ TƯƠNG TÁC, không chạy nền** (lịch nền cần Graph API token riêng).
 - Sau nạp: reindex `build_index.py --root .`. build_report **tự gộp** note `source: excel` chung với Jira (cùng schema:
   status/assignee/story_points/complexity/time_*; vai trò PM/QC vẫn áp). Cột bắt buộc tối thiểu: **summary** + **status**.
 

@@ -58,10 +58,12 @@ ESC hoặc [← Huỷ] = dừng, **KHÔNG ghi gì** vào `connections:`.
   - **[Excel local .xlsx]** → KHÔNG auth: hỏi **đường dẫn file** (AskUserQuestion gợi ý + ô "Other") + **tên sheet** (bỏ trống = sheet đầu)
     → ghi entry `source_type: excel`, `method: local_file`, `file_path`, `sheet_name` (id `excel__local[__<slug>]`). Verify: thử
     `python3 tools/excel-to-obsidian/import_excel.py --file <path> [--sheet …]` chạy được (parse OK) rồi mới ghi.
-  - **[Google Sheet / SharePoint qua MCP]** → cần connector tương ứng đã **connected** trong Claude App (Google Sheets /
-    SharePoint / Microsoft 365). Ghi entry `source_type: sheet`, `method: mcp`, `creds.kind: mcp_connector`,
-    `connector_name`. Lúc báo cáo, Claude lấy dòng qua connector → `import_excel.py --from-rows` (xem WF14 mục C). **Chỉ chạy
-    tương tác** (token connector do app giữ, không chạy nền). Cột tối thiểu: **summary + status**; cột lạ → khai `excel.map` trong config.
+  - **[Excel trên SharePoint 365 qua MCP]** → cần connector **Microsoft 365** đã **connected** trong Claude App. Ghi entry
+    `source_type: sheet`/`excel`, `method: mcp`, `creds.kind: mcp_connector`, `connector_name: "microsoft-365"`. Lúc báo cáo:
+    `sharepoint_search` (fileType xlsx) → `read_resource` lấy **`@microsoft.graph.downloadUrl`** → `import_excel.py --from-url
+    "<downloadUrl>"` (tải .xlsx thật + parse ô chuẩn). **Chỉ tương tác** (token do app giữ). Cột tối thiểu **summary + status**;
+    cột lạ → `--map`/`excel.map`.
+  - **[Google Sheet]** (chưa có MCP connector): "Publish to web → CSV" → `import_excel.py --from-url "<csv_url>"`; hoặc tải .xlsx → `--file`.
 
 > 🔖 **Đánh dấu đã kết nối:** đối chiếu với `--list` — nguồn nào ĐÃ có entry `<source_type>__<method>`
 > (đúng phương thức đang chọn) thì gắn badge **"✓ đã kết nối"** trên thẻ đó (chọn lại = kiểm tra/cập nhật,

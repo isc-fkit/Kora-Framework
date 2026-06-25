@@ -10,6 +10,21 @@
 
 ---
 
+## v2.12.31 "Claude-1" — 2026-06-25
+
+**Đọc Excel trên SharePoint 365 qua MCP + tool xuất file mẫu chuyên nghiệp.**
+
+- **🔗 `import_excel.py --from-url <url>`**: tải file `.xlsx`/`.csv`/`.json` từ URL (qua `urllib` + `HTTPS_PROXY` +
+  timeout, tự nhận định dạng theo magic `PK`) rồi parse ô CHUẨN. Dùng cho **SharePoint downloadUrl** và **Google publish-CSV**.
+- **🗂️ Luồng SharePoint Excel (MCP, tương tác)**: `sharepoint_search` (fileType xlsx) → `read_resource` lấy
+  **`@microsoft.graph.downloadUrl`** → `import_excel.py --from-url` → tải .xlsx thật + parse ô (KHÔNG dựa text trích xuất
+  kém tin cậy của read_resource). Cần connector **Microsoft 365** connected; chỉ tương tác. Đã cập nhật `workflows/14`
+  mục C + `claude-knowledge-daily-report` + `claude-knowledge-connect` + README.
+- **🆕 `tools/excel-to-obsidian/make_sample.py`**: xuất file mẫu chuyên nghiệp (mặc định ~100 dòng) đúng format
+  `Import_Task` (19 cột gốc + STATUS + ACTUAL TIME) + sheet Guideline; dữ liệu đa dạng (PM/QC/Dev, nhiều division/sprint,
+  complexity 1–10, quá hạn). `python3 tools/excel-to-obsidian/make_sample.py [out.xlsx] [số_dòng]`.
+- Đã kiểm: nạp 100 dòng → báo cáo 102 mục (gộp Jira), vai trò 6 Dev/1 PM/2 QC, complexity cao 38, quá hạn 32; `--from-url` parse được cả xlsx lẫn csv.
+
 ## v2.12.30 "Claude-1" — 2026-06-25
 
 **Sửa nhận diện vai trò PM cho note type chuẩn hoá `user_story`.**

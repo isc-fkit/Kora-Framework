@@ -20,8 +20,12 @@ import csv
 import json
 import os
 import re
+import ssl
 import sys
+import tempfile
 import unicodedata
+import urllib.error
+import urllib.request
 import zipfile
 from datetime import datetime, timedelta, date
 from pathlib import Path
@@ -222,6 +226,32 @@ def read_rows_file(path):
     return (rd.fieldnames or []), rows
 
 
+def download_to_temp(url):
+    """Tải file (.xlsx/.csv/.json) từ URL về temp — cho SharePoint downloadUrl / Google publish-CSV.
+    Honor HTTPS_PROXY; có timeout để KHÔNG treo (mạng công ty). Tự nhận .xlsx (magic PK) vs text.
+    Trả (path_temp, kind) với kind ∈ {'xlsx','csv','json'}."""
+    proxy = os.getenv("HTTPS_PROXY") or os.getenv("https_proxy")
+    ph = urllib.request.ProxyHandler({"https": proxy, "http": proxy}) if proxy else urllib.request.ProxyHandler({})
+    opener = urllib.request.build_opener(ph, urllib.request.HTTPSHandler(context=ssl.create_default_context()))
+    try:
+        with opener.open(url, timeout=120) as resp:
+            data = resp.read()
+    except urllib.error.HTTPError as e:
+        die(f"Tải URL lỗi HTTP {e.code} (downloadUrl có thể đã hết hạn — lấy lại từ read_resource).")
+    except (urllib.error.URLError, TimeoutError, OSError) as e:
+        die(f"Không tải được URL ({e}). Nếu mạng công ty chặn, đặt HTTPS_PROXY=http://proxy.hcm.fpt.vn:80 rồi thử lại.")
+    if data[:4] == b"PK\x03\x04":          # zip magic → .xlsx
+        kind, suffix = "xlsx", ".xlsx"
+    else:
+        head = data.lstrip()[:1]
+        kind, suffix = ("json", ".json") if head in (b"[", b"{") else ("csv", ".csv")
+    fd, tmp = tempfile.mkstemp(suffix=suffix, prefix="kora-excel-")
+    with os.fdopen(fd, "wb") as fh:
+        fh.write(data)
+    print(f"ℹ️  Đã tải {len(data)//1024}KB ← URL (định dạng: {kind}{', qua proxy' if proxy else ''})")
+    return tmp, kind
+
+
 # ── Mapping header → field ────────────────────────────────────────────────────
 def build_field_map(headers, override):
     """Trả dict {field_đích: header_thực}. Ưu tiên override (header→field), rồi synonyms mặc định."""
@@ -321,14 +351,15 @@ def main():
     ap.add_argument("--file", help="Đường dẫn .xlsx local.")
     ap.add_argument("--sheet", help="Tên sheet (mặc định: sheet đầu).")
     ap.add_argument("--from-rows", dest="from_rows", help="File rows đã chuẩn hoá: .csv hoặc .json (list[dict]).")
+    ap.add_argument("--from-url", dest="from_url", help="Tải file .xlsx/.csv/.json từ URL (SharePoint downloadUrl từ read_resource, hoặc Google publish-CSV). Honor HTTPS_PROXY.")
     ap.add_argument("--map", dest="map_arg", help="Mapping header→field: JSON inline hoặc đường dẫn .json.")
     ap.add_argument("--project", help="Mã project mặc định gán cho mọi dòng (nếu không có cột project).")
     ap.add_argument("--source-id", dest="source_id", help="ID nguồn (mặc định theo tên file). Quyết định thư mục + marker.")
     ap.add_argument("--vault", help="Đường dẫn vault (mặc định đọc vault_path trong config).")
     args = ap.parse_args()
 
-    if not args.file and not args.from_rows:
-        die("Cần --file <x.xlsx> HOẶC --from-rows <rows.csv|.json>.")
+    if not args.file and not args.from_rows and not args.from_url:
+        die("Cần --file <x.xlsx> HOẶC --from-rows <rows.csv|.json> HOẶC --from-url <url>.")
 
     override = {}
     if args.map_arg:
@@ -340,7 +371,15 @@ def main():
         except json.JSONDecodeError:
             die("--map không phải JSON hợp lệ (cần {\"Tên cột\":\"field\"}).")
 
-    if args.from_rows:
+    tmp_dl = None
+    if args.from_url:
+        tmp_dl, kind = download_to_temp(args.from_url)
+        if kind == "xlsx":
+            headers, rows = parse_xlsx(tmp_dl, args.sheet)
+        else:
+            headers, rows = read_rows_file(tmp_dl)
+        default_src = "sharepoint-excel"
+    elif args.from_rows:
         headers, rows = read_rows_file(args.from_rows)
         default_src = Path(args.from_rows).stem
     else:
@@ -378,6 +417,12 @@ def main():
     os.makedirs(sysdir, exist_ok=True)
     with open(os.path.join(sysdir, f"last-import-excel-{src_id}.txt"), "w", encoding="utf-8") as fh:
         fh.write(TODAY + "\n")
+
+    if tmp_dl:
+        try:
+            os.remove(tmp_dl)
+        except OSError:
+            pass
 
     print(f"✅ Đã nạp {n} dòng từ nguồn '{src_id}' → {out_dir}")
     print(f"   Vault: {vault}")
