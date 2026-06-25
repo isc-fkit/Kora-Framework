@@ -30,7 +30,8 @@ The user invoked `/claude-knowledge-send-mail` — gửi email báo cáo tiến 
         - **mcp** (`atlassian`/`jira_cloud`): MCP `searchJiraIssuesUsingJql` `project in (<KEYS>)` `fields:["*all"]` →
           `import_jira.py --from-mcp <file> --names <names>` (KHÔNG import_jira API). Chọn MCP thì **bắt buộc** đi nhánh MCP.
         (SCOPE≠all → mỗi `--jql` thêm `AND updated >= -<NDAYS>d` để nhẹ.) Quét hết → reindex `build_index.py --root .` →
-        `python3 "$T/progress-report/build_report.py" --projects "<UNION KEYS>" <--scope <SCOPE> --recent-days <NDAYS> nếu ≠all>`.
+        `python3 "$T/progress-report/build_report.py" --source-ids "<SRC_IDS hoặc all>" --projects "<UNION KEYS>" <--scope <SCOPE> --recent-days <NDAYS> nếu ≠all>`.
+        (build_report **TỪ CHỐI** nếu vault >1 nguồn mà thiếu `--source-ids` → truyền nguồn user đã chọn, hoặc `all` cho tất cả.)
      c2. **PHÂN TÍCH AI + chèn CARD MÀU vào email (BẮT BUỘC trước khi gửi):** viết phân tích theo
         `workflows/14-progress-report.md` Bước 1.5 → **`mkdir -p reports`** (Windows `New-Item -ItemType Directory -Force
         reports`) rồi ghi `reports/ai-analysis-latest.md` (Write cần thư mục cha — thiếu → "Error writing file"; build_report

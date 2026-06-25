@@ -30,6 +30,11 @@ Windows `py`). **Exit ≠ 0 → DỪNG**: không làm mới, không sinh report.
 
 ## Bước 0.5 — LÀM MỚI dữ liệu trước khi report (Pha 2)
 
+> 🛑 **GIAO THỨC: HỎI NGUỒN TRƯỚC, CẤM QUÉT/BUILD TRƯỚC ĐÓ.** Trước khi gọi `check_connection`/`sharepoint_search`/
+> `sharepoint_folder_search`/`getVisibleJiraProjects`/`searchJiraIssuesUsingJql`/`import_*`/`build_report`/`read_resource`,
+> **BẮT BUỘC** đã qua cổng mật khẩu **VÀ** đã `AskUserQuestion` chọn nguồn. KHÔNG "tự đủ dữ liệu rồi build". 🔒 `build_report`
+> TỪ CHỐI nếu vault >1 nguồn mà thiếu `--source-ids`.
+
 > 🎯 **CÂU HỎI ĐẦU TIÊN — chọn NHÓM NGUỒN, multiSelect=true, ĐÚNG 3 NHÓM CỐ ĐỊNH (LUÔN đủ cả 3):**
 > **[Jira] · [SharePoint] · [Local Excel]** (+ **[Tất cả]**).
 > - ⛔ **KHÔNG dựng câu này từ `check_connection`** (đó là bước drill). **KHÔNG** liệt kê nguồn Jira cụ thể ở đây. **KHÔNG** bỏ SharePoint. **KHÔNG** single-select.

@@ -397,7 +397,9 @@ def main():
                     if rc_s != 0:
                         run_errors.append({"step": "report-scan", "source": nm, "reason": (e_s or o_s)[:200]})
                 run_tool(REPO_ROOT / "tools" / "kb-indexer" / "build_index.py", ["--root", "."])
-            rep_args = (["--projects", ",".join(rep_projs)] if rep_projs else [])
+            # Lịch nền = mọi nguồn đã cấu hình (không có UI hỏi) → --source-ids all (qua cổng chặn nguồn của build_report).
+            rep_args = ["--source-ids", "all"]
+            rep_args += (["--projects", ",".join(rep_projs)] if rep_projs else [])
             if scope != "all":
                 rep_args += ["--scope", scope, "--recent-days", str(rdays)]
             rc, out, err = run_tool(REPO_ROOT / "tools" / "progress-report" / "build_report.py", rep_args)

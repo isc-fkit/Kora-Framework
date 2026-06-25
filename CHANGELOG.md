@@ -10,6 +10,19 @@
 
 ---
 
+## v2.12.38 "Claude-1" — 2026-06-25
+
+**ÉP CỨNG hỏi nguồn báo cáo — skill không còn tự quét + build mà bỏ qua câu hỏi chọn nguồn.**
+
+- **🔒 CODE GATE (`build_report.py`)**: vault có **>1 nguồn** mà thiếu `--source-ids` → **TỪ CHỐI build** (die) kèm
+  hướng dẫn. Biến "skip im lặng câu hỏi → build sai/lẫn nguồn" thành **DỪNG + buộc đi hỏi user**. `--source-ids all|*`
+  = mọi nguồn (cho lịch nền). Vault 1 nguồn → không chặn (tương thích ngược). *Đây là chốt chặn thật sau 3 lần siết chữ không ăn.*
+- **🛑 GIAO THỨC chặn ở ĐẦU skill** (`claude-knowledge-daily-report` + workflow 14): hành động hợp lệ duy nhất khi mở
+  skill = cổng mật khẩu → **AskUserQuestion chọn nguồn → DỪNG chờ trả lời**. **CẤM đích danh** `check_connection`,
+  `sharepoint_search`, `sharepoint_folder_search`, `getVisibleJiraProjects`, `searchJiraIssuesUsingJql`, `import_*`,
+  `build_report`, `read_resource` TRƯỚC khi user trả lời. "Đã đủ dữ liệu, build HTML ngay" mà chưa hỏi = LỖI.
+- **⚙️ Lịch nền không bị chặn**: `orchestrator.py` + `send-mail` truyền `--source-ids all`.
+
 ## v2.12.37 "Claude-1" — 2026-06-25
 
 **SỬA câu chọn nguồn báo cáo: SharePoint bị thiếu + tự quét đại file mới nhất.**

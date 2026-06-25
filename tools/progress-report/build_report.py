@@ -1403,8 +1403,26 @@ def main():
         die(f"Vault không tồn tại: {vault}")
 
     issues = load_issues(vault)
-    if args.source_ids:
-        ids = {s.strip() for s in args.source_ids.split(",") if s.strip()}
+    # ── CỔNG CHẶN NGUỒN: vault có >1 nguồn mà KHÔNG chỉ định --source-ids → TỪ CHỐI build ──
+    # Biến "skip im lặng câu hỏi chọn nguồn → build sai/lẫn nguồn" thành DỪNG + buộc đi hỏi user.
+    # `--source-ids all|*` = mọi nguồn (cho lịch nền). Vault 1 nguồn → không chặn (tương thích ngược).
+    available_sources = set()
+    for _i in issues:
+        _src = (_i.get("source") or "jira")
+        available_sources.add("jira" if _src == "jira" else (_i.get("source_id") or "excel"))
+    sid_raw = (args.source_ids or "").strip()
+    if sid_raw.lower() in ("all", "*"):
+        sid_raw = ""   # all = mọi nguồn → bỏ lọc (đã chủ ý chọn tất cả)
+    elif not sid_raw and len(available_sources) > 1:
+        die("❌ Vault có NHIỀU NGUỒN: " + ", ".join(sorted(available_sources)) + ".\n"
+            "   PHẢI truyền --source-ids để báo cáo CHỈ gồm nguồn user đã chọn — vd:\n"
+            "     --source-ids jira            (chỉ Jira)\n"
+            "     --source-ids jira,sp_standup (Jira + 1 import SharePoint)\n"
+            "     --source-ids all             (tất cả nguồn)\n"
+            "   ⛔ KHÔNG build report khi CHƯA hỏi user chọn nguồn: chạy /claude-knowledge-daily-report bước 2 "
+            "(AskUserQuestion 3 nhóm [Jira·SharePoint·Local Excel]) TRƯỚC, rồi truyền --source-ids tương ứng.")
+    if sid_raw:
+        ids = {s.strip() for s in sid_raw.split(",") if s.strip()}
         issues = [i for i in issues
                   if (i.get("source") or "jira") in ids or (i.get("source_id") or "") in ids]
         if not issues:
