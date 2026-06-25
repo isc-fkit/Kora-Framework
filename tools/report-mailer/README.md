@@ -26,3 +26,25 @@ Windows: thay `python3` bằng `py`.
 Danh sách email + bật/tắt nằm ở `config/factory-config.yaml` mục `reports.email`
 (không phải secret). Mật khẩu **chỉ** ở `.env.local`. Workflow đọc `reports.email.to`
 rồi truyền vào `--to`.
+
+## Gmail API fallback (HTTPS 443 qua proxy) — cho mạng chặn SMTP
+Mạng công ty có thể chặn **MỌI cổng SMTP** (587/465/25/2525) nhưng cho proxy CONNECT tới 443.
+Khi đó SMTP gửi không được. Bật fallback để `send_report.py` **tự gửi lại CÙNG email qua Gmail API
+(HTTPS)**, định tuyến qua proxy — giữ nguyên tài khoản gửi, banner CID, đính kèm.
+
+**Bật 1 lần:**
+1. Google Cloud Console: tạo project → bật **Gmail API** → tạo **OAuth client "Desktop app"**
+   (Client ID + Secret). Consent screen nên **Publish** để refresh token không hết hạn sau 7 ngày.
+2. Lấy refresh token:
+   ```bash
+   HTTPS_PROXY=http://proxy.hcm.fpt.vn:80 \
+   python3 tools/report-mailer/gmail_oauth_setup.py --client-id <ID> --client-secret <SECRET>
+   ```
+   → in 3 dòng `export GMAIL_OAUTH_*` để dán vào `~/.zshrc` **hoặc** `.env.local` (bỏ chữ `export`).
+   Lịch nền (cron/launchd) KHÔNG đọc shell → phải để trong `.env.local`. Thêm `HTTPS_PROXY` cùng chỗ.
+3. Kiểm tra: `python3 tools/report-mailer/send_report.py --check` (kiểm cả SMTP lẫn Gmail API),
+   hoặc ép HTTPS: `--check --transport https`.
+
+**Cờ `--transport`:** `auto` (mặc định — SMTP rồi fallback Gmail API khi mạng chặn) ·
+`smtp` (chỉ SMTP) · `https` (ép Gmail API). Lỗi **sai App Password** (`SMTP_AUTH_FAILED`) **KHÔNG**
+fallback (lỗi credential, không phải mạng) — chỉ lỗi **kết nối** SMTP mới chuyển HTTPS.

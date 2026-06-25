@@ -108,6 +108,18 @@ ESC hoặc [← Huỷ] = dừng, **KHÔNG ghi gì** vào `connections:`.
         chạy lại verify là được — **KHÔNG cần `source`** (run_command/script tự đọc). App Password KHÔNG ra chat/card.
      3. `source_type = gmail_smtp`, method = `smtp`, `creds.kind = dotenv` (trỏ `tools/report-mailer/.env.local`).
 
+  ▸ **Gmail API (HTTPS fallback) — cho mạng CHẶN SMTP (firewall công ty):** khi mạng chặn MỌI cổng SMTP
+     (587/465/25/2525) nhưng proxy cho CONNECT 443, gửi mail qua **Gmail API/HTTPS** thay SMTP. `send_report.py`
+     TỰ fallback sang kênh này khi SMTP lỗi kết nối (cùng tài khoản, cùng banner/đính kèm). Cài 1 lần:
+     1. Google Cloud Console: tạo project → bật **Gmail API** → tạo **OAuth client "Desktop app"** (Client ID + Secret).
+        Consent screen NÊN **Publish** để refresh token không hết hạn sau 7 ngày. (ID/Secret KHÔNG ra chat/card.)
+     2. Lấy refresh token (đi qua proxy):
+        `HTTPS_PROXY=http://proxy.hcm.fpt.vn:80 python3 tools/report-mailer/gmail_oauth_setup.py --client-id <ID> --client-secret <SECRET>`
+        → in 3 `export GMAIL_OAUTH_*` để đặt ở **`~/.zshrc`** (ưu tiên) **hoặc** `.env.local` (BẮT BUỘC ở `.env.local`
+        nếu chạy lịch nền cron/launchd — không đọc được shell). Thêm `HTTPS_PROXY` cùng chỗ. (Refresh token KHÔNG ra chat/card.)
+     3. Verify: `python3 tools/report-mailer/send_report.py --check` (kiểm cả SMTP + Gmail API) hoặc `--check --transport https`.
+     4. `source_type = gmail_api`, method = `https`, id `gmail_api__https` (TÁCH khỏi `gmail_smtp__smtp` — API và SMTP tính RIÊNG).
+
 ### Bước 4 — Verify rồi mới GHI (KHÔNG ghi nửa chừng)
 - **API:** chạy `python3 "$T/connections/check_connection.py" --check <id> --config "$PWD/config/factory-config.yaml"` (`T` resolve như Bước 0) → đọc JSON kết quả. *(tool đọc PROJECT config theo `--config`/cwd — KHÔNG phải CORE config.)*
 - **Gmail SMTP:** verify bằng `KORA_MAILER_ENV="$PWD/tools/report-mailer/.env.local" python3 "$T/report-mailer/send_report.py" --check`

@@ -104,6 +104,7 @@ reports:                  # Báo cáo tiến độ (workflow 14) — sinh local 
     enabled: false        # true để bật gửi mail sau khi sinh report
     method: smtp          # ƯU TIÊN: smtp (TỰ ĐỘNG GỬI qua send_report.py — Gmail dùng App Password, smtp.gmail.com:587). gmail_draft (tạo nháp, bấm tay) = FALLBACK.
     provider: smtp        # smtp (auto-send, gồm Gmail app-password) | gmail | outlook. Gmail app-password → để 'smtp' (auto), KHÔNG phải draft.
+    # transport: auto     # (tuỳ chọn) auto|smtp|https — auto = SMTP rồi TỰ fallback Gmail API/HTTPS khi mạng chặn SMTP (cần GMAIL_OAUTH_* + HTTPS_PROXY ở .env.local; xem tools/report-mailer/README.md).
     to: []                # danh sách email nhận, vd ["a@x.com","b@y.com"]
     recipients: []        # danh bạ người nhận lưu sẵn để chọn nhanh trong /claude-knowledge-send-mail & /claude-knowledge-schedule
     cc: []

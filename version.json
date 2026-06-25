@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.12.24",
+  "version": "2.12.25",
   "codename": "Claude-1",
   "released": "2026-06-23",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.12.24: SỬA tiêu đề email + title ticket lỗi BỎ HẲN [Kora] (orchestrator fallback). Landing: khối 'Quét nguồn NỘI BỘ' (Jira Server) đưa lên ĐẦU phần Connect + thêm lệnh bash có NÚT COPY. Báo cáo HỎI TÊN + VAI TRÒ (PM/QC/Dev) để hiểu context phân tích từng người — PM chỉ ĐIỀU PHỐI, KHÔNG log task → không đo giờ-công, không cảnh báo 'chưa log'."
+  "intro": "Kora-Framework v2.12.25: GỬI MAIL tự FALLBACK qua Gmail API/HTTPS khi mạng chặn SMTP (firewall công ty chặn mọi cổng SMTP nhưng cho proxy CONNECT 443). send_report.py thêm cờ --transport auto|smtp|https; khi SMTP lỗi KẾT NỐI → tự gửi lại CÙNG email (banner CID + đính kèm) qua Gmail API định tuyến qua HTTPS_PROXY. Bật 1 lần bằng tools/report-mailer/gmail_oauth_setup.py (chỉ stdlib). Sai App Password KHÔNG fallback; tương thích ngược (không creds Gmail → y như cũ)."
 }

@@ -10,6 +10,23 @@
 
 ---
 
+## v2.12.25 "Claude-1" — 2026-06-23
+
+**Gửi mail tự FALLBACK qua Gmail API/HTTPS khi mạng chặn SMTP (firewall công ty).**
+
+- **🔌 Vấn đề**: mạng công ty (vd FPT) chặn MỌI cổng SMTP (587/465/25/2525) + proxy từ chối CONNECT tới cổng
+  SMTP, nhưng CHO CONNECT tới 443 → đổi cổng SMTP vô ích, chỉ HTTPS đi được.
+- **📧 `tools/report-mailer/send_report.py`**: thêm cờ `--transport auto|smtp|https` (mặc định `auto`). Khi SMTP
+  lỗi **kết nối** → **tự gửi lại CÙNG email qua Gmail API (HTTPS 443)**, định tuyến qua `HTTPS_PROXY`, tái dùng
+  nguyên `msg` (giữ banner CID + đính kèm). **Sai App Password (`SMTP_AUTH_FAILED`) KHÔNG fallback** (lỗi
+  credential, không phải mạng). `--check` kiểm cả SMTP lẫn Gmail API; markers mới `GMAIL_API_UNREACHABLE`/`GMAIL_API_AUTH_FAILED`.
+- **🆕 File mới (chỉ thư viện chuẩn)**: `tools/report-mailer/gmail_api.py` (transport Gmail API qua proxy) +
+  `tools/report-mailer/gmail_oauth_setup.py` (lấy refresh token 1 lần, loopback OAuth, đi qua proxy).
+- **🔑 Bật (1 lần)**: tạo OAuth client "Desktop app" + bật Gmail API ở Google Cloud → chạy `gmail_oauth_setup.py`
+  → đặt `GMAIL_OAUTH_CLIENT_ID/SECRET/REFRESH_TOKEN` + `HTTPS_PROXY` vào `~/.zshrc` (hoặc `.env.local` cho lịch nền).
+  Chi tiết: `tools/report-mailer/README.md`. **Tương thích ngược**: không cấu hình Gmail API → hành vi y như cũ.
+- Phụ: SMTP connect timeout mặc định 30→15s (override `SMTP_TIMEOUT`) để fallback nhanh.
+
 ## v2.12.24 "Claude-1" — 2026-06-23
 
 **Email/ticket bỏ HẲN [Kora] · landing đưa "quét nguồn NỘI BỘ" lên đầu + bash copy · báo cáo hỏi TÊN+VAI TRÒ.**

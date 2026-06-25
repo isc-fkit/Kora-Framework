@@ -205,6 +205,11 @@ Mục tiêu: user KHÔNG cần thuộc lệnh nào — chỉ nói bằng lời t
    trong gói bàn giao; (b) **lịch sync nền** — mỗi NGUỒN user chọn auto-sync mới tạo `.env.local` RIÊNG cho
    nguồn đó (cron/launchd cần file, không đọc được shell tương tác). Token/password **KHÔNG** in ra log/chat,
    **KHÔNG** vào `connections:`/config/git.
+   > 📧 **MAIL — fallback SMTP→HTTPS khi mạng chặn SMTP:** nếu mạng chặn mọi cổng SMTP (firewall công ty) nhưng
+   > proxy cho CONNECT 443, `tools/report-mailer/send_report.py` **tự gửi lại qua Gmail API/HTTPS** (cùng tài khoản,
+   > qua proxy). Bật bằng `tools/report-mailer/gmail_oauth_setup.py` → 3 key `GMAIL_OAUTH_CLIENT_ID/SECRET/REFRESH_TOKEN`
+   > (+ `GMAIL_API_USER`, `HTTPS_PROXY`) theo ĐÚNG rule này: `~/.zshrc` ưu tiên, **`.env.local` BẮT BUỘC nếu chạy lịch nền**
+   > (cron/launchd không đọc shell). **KHÔNG in token.** Lỗi *sai App Password* KHÔNG fallback (chỉ lỗi *kết nối* SMTP mới chuyển HTTPS).
 7. **Mọi thay đổi ghi changelog** vào `.kb/changelog.md` (ngày, source, file, lý do, người duyệt).
 8. **Hỏi bằng THẺ CHỌN — kể cả khi nhập liệu.** Cần user CHỌN giữa phương án rõ ràng (2–4 lựa
    chọn) → dùng AskUserQuestion kèm mô tả.

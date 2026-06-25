@@ -39,6 +39,10 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 
+# Transport FALLBACK qua Gmail API/HTTPS (cùng thư mục) — dùng khi mạng chặn SMTP.
+sys.path.insert(0, str(HERE))
+import gmail_api  # noqa: E402
+
 # Tên người gửi hiển thị mặc định — CẤU HÌNH được qua MAIL_FROM_NAME trong .env.local.
 DEFAULT_FROM_NAME = "Báo cáo tiến độ"
 
@@ -103,6 +107,8 @@ def _emit_command(args, env_path) -> str:
         parts += ["--split"]
     if args.stale_after_min != 30:
         parts += ["--stale-after-min", str(args.stale_after_min)]
+    if getattr(args, "transport", "auto") != "auto":
+        parts += ["--transport", args.transport]
     return " ".join(parts)
 
 
@@ -129,6 +135,9 @@ def main():
     ap.add_argument("--emit-command", action="store_true",
                     help="KHÔNG gửi — in 1 DÒNG LỆNH (path tuyệt đối) để chạy ở TERMINAL gửi tiếp (bàn giao khi "
                          "Cowork sandbox chặn SMTP). Secret KHÔNG in (vẫn ở .env.local).")
+    ap.add_argument("--transport", choices=["auto", "smtp", "https"], default="auto",
+                    help="auto (SMTP → fallback Gmail API/HTTPS khi mạng chặn) | smtp (chỉ SMTP) | "
+                         "https (ép Gmail API/HTTPS). Mặc định auto.")
     args = ap.parse_args()
 
     env_path = resolve_env_path(args.env)
@@ -152,6 +161,18 @@ def main():
     mail_from = cfg("MAIL_FROM") or user
     from_name = cfg("MAIL_FROM_NAME") or DEFAULT_FROM_NAME   # tên hiển thị → "Tên <email>"
 
+    # ── Fallback Gmail API/HTTPS (mạng chặn SMTP) ── (đọc cùng cơ chế cfg: ENV → .env.local)
+    gmail_client_id = cfg("GMAIL_OAUTH_CLIENT_ID")
+    gmail_client_secret = cfg("GMAIL_OAUTH_CLIENT_SECRET")
+    gmail_refresh_token = cfg("GMAIL_OAUTH_REFRESH_TOKEN")
+    gmail_api_user = cfg("GMAIL_API_USER", "me")
+    gmail_creds_ok = bool(gmail_client_id and gmail_client_secret and gmail_refresh_token)
+    https_proxy = cfg("HTTPS_PROXY") or cfg("https_proxy")   # proxy công ty cho CONNECT 443
+    try:
+        smtp_timeout = int(cfg("SMTP_TIMEOUT", "15"))         # ngắn để fallback nhanh; override được
+    except ValueError:
+        smtp_timeout = 15
+
     def _missing_msg():
         if placeholder:
             return ("SMTP_PASS vẫn là placeholder 'PASTE_…' — dán App Password (16 ký tự) THẬT vào "
@@ -163,30 +184,57 @@ def main():
                 "   (Tạo Google App Password: bật 2FA → myaccount.google.com/apppasswords. Script đọc ENV trước rồi file, KHÔNG cần 'source'.)")
 
     if args.check:
-        _src = "ENV (~/.zshrc)" if (os.getenv("SMTP_USER") or os.getenv("SMTP_PASS")) else (f"file {env_path}" if file_exists else "(chưa thấy)")
-        print(f"ℹ️  Nguồn creds SMTP: {_src}  ·  user={user or '(thiếu)'}")
-        if not user or not pw:
-            die(_missing_msg())
-        try:
-            if security == "ssl":
-                with smtplib.SMTP_SSL(host, port, context=ssl.create_default_context(), timeout=30) as s:
-                    s.login(user, pw)
+        proxy_disp = https_proxy or "(không)"
+        # 1) SMTP (bỏ qua nếu --transport https)
+        if args.transport != "https":
+            _src = "ENV (~/.zshrc)" if (os.getenv("SMTP_USER") or os.getenv("SMTP_PASS")) else (f"file {env_path}" if file_exists else "(chưa thấy)")
+            print(f"ℹ️  Nguồn creds SMTP: {_src}  ·  user={user or '(thiếu)'}")
+            if not user or not pw:
+                die(_missing_msg())
+            try:
+                if security == "ssl":
+                    with smtplib.SMTP_SSL(host, port, context=ssl.create_default_context(), timeout=smtp_timeout) as s:
+                        s.login(user, pw)
+                else:
+                    with smtplib.SMTP(host, port, timeout=smtp_timeout) as s:
+                        s.ehlo()
+                        s.starttls(context=ssl.create_default_context())
+                        s.ehlo()
+                        s.login(user, pw)
+            except smtplib.SMTPAuthenticationError:
+                die("Đăng nhập SMTP THẤT BẠI — App Password sai hoặc không thuộc SMTP_USER. Sửa lại .env.local.")
+            except Exception as e:  # noqa: BLE001
+                if args.transport == "smtp" or not gmail_creds_ok:
+                    die(f"Không kết nối được SMTP: {e}")
+                print(f"⚠️  SMTP không tới được ({e}) — nhưng có creds Gmail API/HTTPS để fallback. Kiểm tra tiếp…", file=sys.stderr)
             else:
-                with smtplib.SMTP(host, port, timeout=30) as s:
-                    s.ehlo()
-                    s.starttls(context=ssl.create_default_context())
-                    s.ehlo()
-                    s.login(user, pw)
-        except smtplib.SMTPAuthenticationError:
-            die("Đăng nhập SMTP THẤT BẠI — App Password sai hoặc không thuộc SMTP_USER. Sửa lại .env.local.")
-        except Exception as e:  # noqa: BLE001
-            die(f"Không kết nối được SMTP: {e}")
-        print(f"✅ Cấu hình gửi mail OK — đăng nhập thành công: {user} @ {host}:{port} · "
-              f"gửi dạng \"{from_name} <{mail_from}>\"")
+                print(f"✅ Cấu hình gửi mail OK — đăng nhập SMTP thành công: {user} @ {host}:{port} · "
+                      f"gửi dạng \"{from_name} <{mail_from}>\"")
+        # 2) Gmail API/HTTPS (bỏ qua nếu --transport smtp)
+        if args.transport == "https" and not gmail_creds_ok:
+            die("Thiếu creds Gmail API (GMAIL_OAUTH_CLIENT_ID/SECRET/REFRESH_TOKEN). "
+                "Chạy: python3 tools/report-mailer/gmail_oauth_setup.py")
+        if args.transport != "smtp" and gmail_creds_ok:
+            try:
+                gmail_api.refresh_access_token(gmail_client_id, gmail_client_secret,
+                                               gmail_refresh_token, proxy=https_proxy, timeout=30)
+            except gmail_api.GmailAuthError as e:
+                print("GMAIL_API_AUTH_FAILED", file=sys.stderr)
+                die(f"Creds Gmail API sai/hết hạn: {e}\n   → Chạy lại gmail_oauth_setup.py.")
+            except gmail_api.GmailUnreachableError as e:
+                print("GMAIL_API_UNREACHABLE", file=sys.stderr)
+                die(f"Không tới được Gmail API (proxy={proxy_disp}): {e}")
+            print(f"✅ Gmail API creds OK (token refresh thành công · proxy={proxy_disp})")
+        elif args.transport != "smtp" and not gmail_creds_ok:
+            print("ℹ️  Chưa cấu hình Gmail API fallback (GMAIL_OAUTH_*). "
+                  "Bật: python3 tools/report-mailer/gmail_oauth_setup.py", file=sys.stderr)
         return
 
-    if not user or not pw:
-        die(_missing_msg())
+    smtp_possible = bool(user and pw)
+    if not smtp_possible:
+        # Thiếu SMTP creds: vẫn OK nếu ép https hoặc auto-có-creds-Gmail (sẽ gửi qua Gmail API).
+        if not (args.transport == "https" or (args.transport == "auto" and gmail_creds_ok)):
+            die(_missing_msg())
 
     to = split_addrs(args.to)
     cc = split_addrs(args.cc)
@@ -349,35 +397,84 @@ def main():
                 failed.append((addr, str(e)))
         return sent, failed
 
-    try:
+    def send_via_smtp():
+        """Mở SMTP, login, gửi. RAISE lỗi (không die) để controller quyết fallback."""
         if security == "ssl":
-            with smtplib.SMTP_SSL(host, port, context=ssl.create_default_context(), timeout=30) as s:
+            with smtplib.SMTP_SSL(host, port, context=ssl.create_default_context(), timeout=smtp_timeout) as s:
                 s.login(user, pw)
-                sent, failed = _deliver(s)
-        else:  # starttls (mặc định, cổng 587)
-            with smtplib.SMTP(host, port, timeout=30) as s:
-                s.ehlo()
-                s.starttls(context=ssl.create_default_context())
-                s.ehlo()
-                s.login(user, pw)
-                sent, failed = _deliver(s)
-    except smtplib.SMTPAuthenticationError:
-        print("SMTP_AUTH_FAILED", file=sys.stderr)   # marker máy-đọc: sai App Password → nhắc sửa creds
-        die("Xác thực SMTP thất bại. Gmail: phải dùng App Password (bật 2FA rồi tạo tại "
-            "https://myaccount.google.com/apppasswords), KHÔNG dùng mật khẩu Gmail thường.")
-    except (OSError, smtplib.SMTPConnectError, smtplib.SMTPServerDisconnected, TimeoutError) as e:
-        print("SMTP_UNREACHABLE", file=sys.stderr)   # marker: mạng/sandbox chặn → skill bàn giao bash cho terminal
-        die(f"Không kết nối được SMTP (mạng/sandbox Cowork chặn?): {e}")
-    except Exception as e:  # noqa: BLE001 — báo gọn cho user non-tech
-        die(f"Gửi mail lỗi: {e}")
+                return _deliver(s)
+        with smtplib.SMTP(host, port, timeout=smtp_timeout) as s:   # starttls (mặc định, cổng 587)
+            s.ehlo()
+            s.starttls(context=ssl.create_default_context())
+            s.ehlo()
+            s.login(user, pw)
+            return _deliver(s)
 
+    def send_via_gmail_api():
+        """Gửi qua Gmail API/HTTPS (định tuyến qua proxy). Dùng CHUNG object msg (không dựng lại MIME)."""
+        token = gmail_api.refresh_access_token(gmail_client_id, gmail_client_secret,
+                                               gmail_refresh_token, proxy=https_proxy, timeout=30)
+        approx = len(msg.as_bytes()) * 4 // 3   # base64url ~ +33%
+        if approx > 25 * 1024 * 1024:
+            print(f"⚠️  Email ~{approx // (1024 * 1024)}MB — gần giới hạn Gmail API (~35MB).", file=sys.stderr)
+        if not args.split:
+            if bcc and "Bcc" not in msg:
+                msg["Bcc"] = ", ".join(bcc)   # API lấy người nhận từ HEADER (Gmail tự gỡ Bcc khi gửi)
+            gmail_api.send_message(msg, token, api_user=gmail_api_user, proxy=https_proxy)
+            return list(all_rcpt), []
+        for h in ("Cc", "Bcc"):
+            if h in msg:
+                del msg[h]
+        sent_, failed_ = [], []
+        for addr in all_rcpt:
+            del msg["To"]
+            msg["To"] = addr
+            try:
+                gmail_api.send_message(msg, token, api_user=gmail_api_user, proxy=https_proxy)
+                sent_.append(addr)
+            except Exception as e:  # noqa: BLE001 — 1 người lỗi vẫn gửi tiếp
+                failed_.append((addr, str(e)))
+        return sent_, failed_
+
+    def _gmail_fallback(prefix):
+        try:
+            return send_via_gmail_api()
+        except gmail_api.GmailAuthError as e:
+            print("GMAIL_API_AUTH_FAILED", file=sys.stderr)
+            die(f"{prefix}Gmail API auth lỗi (creds sai/hết hạn): {e}\n   → Chạy lại gmail_oauth_setup.py.")
+        except gmail_api.GmailUnreachableError as e:
+            print("GMAIL_API_UNREACHABLE", file=sys.stderr)
+            die(f"{prefix}Gmail API không tới được (proxy={https_proxy or '(không)'}): {e}")
+
+    transport_used = "smtp"
+    if args.transport == "https" or not smtp_possible:
+        # Ép HTTPS, hoặc auto nhưng thiếu SMTP creds → đi thẳng Gmail API.
+        sent, failed = _gmail_fallback("")
+        transport_used = "https"
+    else:
+        try:
+            sent, failed = send_via_smtp()
+        except smtplib.SMTPAuthenticationError:
+            print("SMTP_AUTH_FAILED", file=sys.stderr)   # marker: sai App Password → KHÔNG fallback (lỗi creds, không phải mạng)
+            die("Xác thực SMTP thất bại. Gmail: phải dùng App Password (bật 2FA rồi tạo tại "
+                "https://myaccount.google.com/apppasswords), KHÔNG dùng mật khẩu Gmail thường.")
+        except (OSError, smtplib.SMTPConnectError, smtplib.SMTPServerDisconnected, TimeoutError) as e:
+            print("SMTP_UNREACHABLE", file=sys.stderr)   # marker: mạng/sandbox chặn
+            if args.transport == "smtp" or not gmail_creds_ok:
+                die(f"Không kết nối được SMTP (mạng/sandbox Cowork chặn?): {e}")
+            print("ℹ️  SMTP bị chặn → thử lại qua Gmail API/HTTPS (443, qua proxy)…", file=sys.stderr)
+            sent, failed = _gmail_fallback("Fallback ")
+            transport_used = "https"
+        except Exception as e:  # noqa: BLE001 — báo gọn cho user non-tech
+            die(f"Gửi mail lỗi: {e}")
+
+    where = " (qua Gmail API/HTTPS)" if transport_used == "https" else f" | host={host}:{port}"
     if args.split:
-        print(f"✅ Đã gửi {len(sent)} email RIÊNG (mỗi người 1 mail) tới: {', '.join(sent)} "
-              f"| host={host}:{port} | from={mail_from}")
+        print(f"✅ Đã gửi {len(sent)} email RIÊNG (mỗi người 1 mail) tới: {', '.join(sent)}{where} | from={mail_from}")
         if failed:
             print("⚠️  Gửi LỖI cho: " + "; ".join(f"{a} ({e})" for a, e in failed), file=sys.stderr)
     else:
-        print(f"✅ Đã gửi tới: {', '.join(all_rcpt)} | host={host}:{port} | from={mail_from}")
+        print(f"✅ Đã gửi tới: {', '.join(all_rcpt)}{where} | from={mail_from}")
 
 
 if __name__ == "__main__":
