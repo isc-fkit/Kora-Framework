@@ -38,6 +38,8 @@ The user invoked `/claude-knowledge-send-mail` — gửi email báo cáo tiến 
         🟡 vừa · 🟢 tích cực · 👥 BẢNG theo thành viên · 📅 dự đoán · 🎯 hành động · 📌 tóm tắt) → `python3
         "$T/progress-report/build_report.py" --inject-ai reports/ai-analysis-latest.md` (tool render **card màu theo mục +
         bảng tô màu trạng thái** vào `email-body-latest.html`). **KHÔNG gửi** khi khối AI còn trống/placeholder.
+     > ⛔ **THÂN MAIL chỉ được là `reports/email-body-latest.html`** (bản tóm tắt CÓ BANNER). **TUYỆT ĐỐI KHÔNG** dùng
+     > `reports/progress-report-latest.html` (dashboard/"processing") làm `--html-file` — nó KHÔNG có banner, sai UI mail; dashboard CHỈ là `--attach`. KHÔNG tự dán/chế HTML mail.
      d. **GỬI TỰ ĐỘNG (mặc định, kể cả Gmail).** ⚙️ **MỌI lệnh `send_report.py` đặt biến**
         `KORA_MAILER_ENV="$PWD/tools/report-mailer/.env.local"` ở ĐẦU (trỏ đúng file trong project — script CORE ở
         `~/.claude/kora-framework/...` không tự thấy). Kiểm file đó có `SMTP_USER`+`SMTP_PASS`:

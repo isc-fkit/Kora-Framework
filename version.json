@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.12.34",
+  "version": "2.12.35",
   "codename": "Claude-1",
   "released": "2026-06-25",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": true,
-  "intro": "Kora-Framework v2.12.34: BÁO CÁO — (1) câu hỏi ĐẦU TIÊN BẮT BUỘC chọn NHÓM nguồn [Jira/SharePoint/Local Excel] (hết tự chọn Jira); (2) CẤM tự dựng HTML tay — mọi nguồn import vào vault rồi build_report (khôi phục banner + đủ section, sửa lỗi báo cáo SharePoint mất banner/layout lạ); (3) thêm section 🗺️ ROADMAP/Sprint (backlog/current/next + story points) ở dashboard + email; (4) hỏi 'phân tích roadmap?' + 'ai là PM?' + đọc file OKR/Standing Meeting làm bối cảnh AI điều phối sprint; (5) AI mail/processing chi tiết + đủ bảng. NÊN cập nhật."
+  "intro": "Kora-Framework v2.12.35: SỬA lỗi MAIL lấy nhầm file dashboard/processing làm THÂN MAIL → mất banner + sai UI. send_report.py thêm GUARD: nếu --html-file trỏ progress/processing-report → TỰ ĐỔI sang email-body-latest.html (có banner) + đẩy dashboard thành đính kèm. Siết quy tắc trong daily-report/send-mail: THÂN MAIL chỉ là email-body-latest.html, KHÔNG tự dán/chế HTML. (Template email-body vốn ĐÚNG — chỉ bị gửi nhầm file.)"
 }

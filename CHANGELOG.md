@@ -10,6 +10,18 @@
 
 ---
 
+## v2.12.35 "Claude-1" — 2026-06-25
+
+**SỬA lỗi MAIL: lấy nhầm dashboard/"processing" làm THÂN MAIL → mất banner + sai UI.**
+
+- **🐞 Triệu chứng**: email gửi ra mất banner, layout sai — do thân mail bị trỏ vào `progress-report-latest.html`
+  (dashboard/processing, KHÔNG có banner) thay vì `email-body-latest.html` (bản tóm tắt CÓ banner). Template email-body
+  vốn ĐÚNG (kiểm git: không đổi) — chỉ bị **gửi nhầm file**.
+- **🔧 GUARD trong `send_report.py`**: nếu `--html-file` trỏ `progress/processing-report` → **TỰ ĐỔI sang
+  `email-body-latest.html`** cùng thư mục (có banner) + đẩy dashboard thành **đính kèm**. In cảnh báo rõ.
+- **📏 Siết quy tắc** `claude-knowledge-daily-report` + `claude-knowledge-send-mail`: **THÂN MAIL chỉ là
+  `email-body-latest.html`**; dashboard chỉ `--attach`; **KHÔNG tự dán/chế HTML mail**.
+
 ## v2.12.34 "Claude-1" — 2026-06-25
 
 **Báo cáo: chọn nguồn đa lựa chọn (đầu tiên) + ép pipeline chuẩn (khôi phục banner) + Roadmap/Sprint + hỏi PM/OKR.**
