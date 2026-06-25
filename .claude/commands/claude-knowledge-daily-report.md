@@ -13,13 +13,15 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
 1. 🔒 **CỔNG MẬT KHẨU vận hành (`KORA_OPS_PW`)** TRƯỚC — báo cáo kéo dữ liệu live nên PHẢI qua cổng:
    `python3 "$T/archive-gate/verify_ops_password.py"` (đọc env **HOẶC** `~/.config/claude-knowledge/ops-pw.env` — đặt 1 lần bằng
    `/claude-knowledge-ops-password`; **KHÔNG hỏi qua card, KHÔNG in**). Exit ≠ 0 → **DỪNG**, không kéo, không sinh report.
-2. **HỎI CHỌN NGUỒN báo cáo (CÓ THỂ NHIỀU) — LIỆT KÊ ĐỦ Jira + Excel/Sheet** từ `connections:`:
-   `python3 "$T/connections/check_connection.py" --list --json --config "$PWD/config/factory-config.yaml"` → lọc entry
-   **báo-cáo-được**: Jira (`source_type ∈ {jira_server, jira_cloud, atlassian}`) **+ Excel/Sheet**
-   (`source_type ∈ {excel, sheet}`, method `local_file`/`mcp`). **AskUserQuestion multi-select**, mỗi mục nhãn rõ
-   để chọn ĐÚNG: vd `[Jira·MCP] foxproject`, `[Jira·API] jira.fptmedicare.vn`, `[Sheet·MCP] Kế hoạch Q2 (Google)`,
-   `[Excel·Local] data/ke-hoach.xlsx` + **[Tất cả nguồn]** (>4 → phân trang). 1 nguồn duy nhất → khỏi hỏi. Không
-   nguồn nào → mời `/claude-knowledge-connect`. **Đây là bước BẮT BUỘC HỎI** (user phải chọn đúng nguồn).
+2. **CÂU HỎI ĐẦU TIÊN — BẮT BUỘC: chọn NHÓM NGUỒN (multi-select), TUYỆT ĐỐI KHÔNG tự chọn Jira.**
+   AskUserQuestion **multiSelect=true**: **[Jira] · [SharePoint] · [Local Excel]** (+ **[Tất cả]**). Đây là câu hỏi
+   ĐẦU TIÊN sau cổng mật khẩu — KHÔNG được mặc định/tự ý chọn Jira rồi chạy luôn. (Chỉ bỏ hỏi khi hệ thống có ĐÚNG
+   1 nhóm nguồn khả dụng.) Không nhóm nào kết nối → mời `/claude-knowledge-connect`.
+2a. **Với MỖI nhóm đã chọn → hỏi nguồn cụ thể của nhóm đó** (đọc `check_connection.py --list --json`):
+   - **[Jira]** → liệt kê entry `jira_*`/`atlassian` (nhãn `[Jira·MCP] foxproject` / `[Jira·API] jira.fptmedicare.vn`) → multi-select **nguồn Jira nào**.
+   - **[SharePoint]** → `sharepoint_folder_search` → chọn **FOLDER quét**; rồi `sharepoint_search folderName=<folder>` liệt kê file → chọn **(các) file daily-task** + (tùy chọn) **file OKR/Standing Meeting** (chiến lược — cho roadmap, KHÔNG import thành task).
+   - **[Local Excel]** → entry `excel__local` (hoặc hỏi đường dẫn .xlsx qua ô "Other") → chọn file.
+   > **>4 mục → phân trang** (rule #8). Xong nhóm này mới sang nhóm kế.
 2b. **Chọn PHẠM VI báo cáo (quan trọng với DỰ ÁN LỚN — không lấy hết)** — AskUserQuestion:
    **[Sprint đang chạy] (khuyến nghị) / [N ngày gần đây — mặc định 30, ô "Other" tự nhập] / [Toàn bộ]**.
    → đặt `SCOPE` ∈ `sprint|recent|all`, `NDAYS` (mặc định 30). `SCOPE≠all` → **bound scan** (nhẹ) + lọc report.
@@ -47,13 +49,22 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
    `config/factory-config.yaml` mục `reports:` (`pm_members: ["A","B"]` / `qc_members: ["C"]`). Đã có sẵn → chỉ hỏi
    "đúng chưa / thêm bớt". Để TRỐNG → build_report **tự nhận diện**. ⚠️ **PM KHÔNG đo bằng giờ-công, KHÔNG cảnh báo
    "chưa log giờ", loại khỏi capacity team** — chỉ đánh giá theo việc điều phối.
-6. Build dashboard **scope đúng project + phạm vi**: `python3 "$T/progress-report/build_report.py" --projects "<KEYS>"`
-   **`--scope <SCOPE> --recent-days <NDAYS>`** (nếu SCOPE≠all — lọc sprint active / N ngày) per
-   `workflows/14-progress-report.md` — inline Cowork UI + HTML. Báo cáo hiện **nhãn phạm vi** (vd "Sprint đang chạy").
-- The dashboard MUST include an **🤖 AI analysis** block (workflow 14 — Bước 1.5): hạng mục công việc health
-  classification (🟢/🟡/🔴), **timeline-slip prediction per active sprint** (with reasoning),
-  per-member recommendations, risk-resolution suggestions, and a 1–2 sentence executive summary —
-  written by Claude from the data, never made up.
+   > 👤 **HỎI RÕ "Ai là PM dự án?"** (1 người) — để AI phân tích theo góc PM + roadmap điều phối, query đúng người. Ghi vào `reports.pm_members` (đứng đầu).
+5c. **HỎI: "Có phân tích ROADMAP không?"** — AskUserQuestion [Có / Không].
+   - **Có** → báo cáo thêm mục **🗺️ Roadmap & điều phối sprint** (build_report đã sinh section roadmap: backlog/current/next + SP).
+   - Nếu nhóm SharePoint có chọn **file OKR/Standing Meeting/chiến lược** → ĐỌC nội dung file đó (SharePoint: `read_resource`/`--from-url`;
+     local: đọc trực tiếp/`workflow 02`) → lưu `reports/_okr-latest.txt` làm **BỐI CẢNH** cho AI roadmap (KHÔNG nạp thành task/note).
+6. **BẮT BUỘC dựng báo cáo QUA `build_report.py` — TUYỆT ĐỐI KHÔNG tự viết file HTML báo cáo bằng tay.**
+   `python3 "$T/progress-report/build_report.py" --projects "<KEYS>" --scope <SCOPE> --recent-days <NDAYS>`
+   (per `workflows/14-progress-report.md`) → ra dashboard CHUẨN (có **banner**, đủ section: trạng thái · theo người ·
+   complexity · **🗺️ Roadmap/Sprint** · capacity · rủi ro) + `email-body-latest.html`. MỌI nguồn (Jira/SharePoint/Excel)
+   phải **import vào vault rồi build_report** — kể cả khi GỘP nhiều nguồn (đừng ghép HTML tay → mất banner + sai layout).
+   > 📧 **Banner mail**: gửi qua `send_report.py` (tự nhúng `cid:kora-banner` từ `assets/banner-daily-report.jpg`) → Outlook hiện banner. Đừng bỏ qua send_report.
+- Dashboard + email PHẢI có khối **🤖 AI analysis** (workflow 14 — Bước 1.5), CHI TIẾT + đủ bảng số liệu: health
+  (🟢/🟡/🔴), **dự đoán trượt timeline mỗi sprint** (kèm lý do), phân tích từng thành viên, giải pháp rủi ro, tóm tắt điều hành;
+  **+ (nếu chọn roadmap) mục 🗺️ Roadmap & điều phối sprint**: backlog/current/next, **bốc task nào vào sprint kế** + sắp xếp
+  sprint hiện tại, gắn OKR/chiến lược (`reports/_okr-latest.txt`), theo góc **PM đã hỏi**. Viết từ DỮ LIỆU, không bịa →
+  ghi `reports/ai-analysis-latest.md` → `build_report.py --inject-ai reports/ai-analysis-latest.md` (đưa vào CẢ email lẫn dashboard).
 - **Sau khi sinh report → đề xuất bước kế (AskUserQuestion, schema rule #8 — header ≤12 ký tự vd "Bước kế"):
   [Gửi mail ngay] / [Đặt lịch hằng ngày] / [Dừng].**
   - **[Gửi mail ngay]** → đi luồng GỬI của `/claude-knowledge-send-mail` ([Gửi ngay]): cổng `KORA_OPS_PW` → chọn người nhận

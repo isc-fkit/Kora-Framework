@@ -125,6 +125,10 @@ nguồn — đặt ở đầu lệnh: `JIRA_BASE_URL=<entry.base_url>` (+ `JIRA_
 
 ## Bước 1 — Sinh số liệu + dashboard
 
+> 🚫 **TUYỆT ĐỐI KHÔNG tự viết file HTML báo cáo bằng tay** (sẽ mất banner + thiếu section + sai layout — đúng lỗi đã gặp).
+> Báo cáo CHỈ được sinh bởi `build_report.py` (chuẩn: banner, trạng thái, theo người, complexity, 🗺️ roadmap, capacity, rủi ro).
+> Mọi nguồn (Jira/SharePoint/Excel) đã import vào vault ở Bước 0.5 → build_report tự GỘP. Đừng ghép HTML từ nhiều nguồn.
+
 Chạy (Claude tự chạy trong sandbox; user chạy tay thì OS-dynamic — Windows `py`). **Scope đúng project đã chọn**
 bằng `--projects` (báo cáo CHỈ gồm project đó; rỗng = tất cả) — dữ liệu đã được làm mới ở Bước 0.5:
 
@@ -160,6 +164,10 @@ Sinh khối **🤖 Phân tích AI — CỰC KỲ CHI TIẾT** dưới dạng **M
    `## 🧩 Độ phức tạp (TRỌNG TÂM)` (đọc `complexity` JSON — hạng mục công việc điểm ≥ ngưỡng, ai phụ trách, ưu tiên review/nguồn lực) ·
    `## 👥 Phân tích theo thành viên` (KÈM BẢNG markdown `| Thành viên | Tổng | Done | Đang làm | Ghi chú |`) ·
    `## 📅 Dự đoán sprint / timeline` · `## 🎯 Hành động ưu tiên` · `## 📌 Tóm tắt điều hành`.
+   - **NẾU user chọn "phân tích roadmap"** → thêm `## 🗺️ Roadmap & điều phối sprint`: đọc `roadmap` JSON (backlog/current/next
+     + SP + done%) → bức tranh tổng; **đề xuất bốc task nào vào sprint KẾ** + **sắp xếp sprint HIỆN TẠI** cho hợp lý; gắn mục
+     tiêu **OKR/chiến lược** từ `reports/_okr-latest.txt` (nếu có); viết theo góc **PM dự án** (người đã hỏi ở daily-report 5b/5c).
+   - Mọi mục viết **CHI TIẾT + kèm BẢNG số liệu đầy đủ** (theo người/sprint/complexity/quá hạn) — từ DỮ LIỆU, không bịa.
 2. **Render + chèn vào email:** `python3 "$T/progress-report/build_report.py" --inject-ai reports/ai-analysis-latest.md`
    → tool tự thay khối `<!--KR-AI-->` trong `email-body-latest.html` bằng **CARD MÀU theo mục** + **bảng tô màu cột
    trạng thái** (Done=xanh lá · In Review=xanh dương · In Progress=cam · Test=tím · Chưa làm=xám). Mỗi mục một màu riêng dễ quan sát.

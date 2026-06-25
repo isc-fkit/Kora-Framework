@@ -10,6 +10,21 @@
 
 ---
 
+## v2.12.34 "Claude-1" — 2026-06-25
+
+**Báo cáo: chọn nguồn đa lựa chọn (đầu tiên) + ép pipeline chuẩn (khôi phục banner) + Roadmap/Sprint + hỏi PM/OKR.**
+
+- **🧭 Chọn nguồn**: câu hỏi ĐẦU TIÊN giờ **BẮT BUỘC multi-select [Jira / SharePoint / Local Excel]** (+[Tất cả]) rồi
+  drill từng nhóm (Jira nguồn nào · SharePoint folder/file nào · file local). **Hết lỗi tự chọn Jira.** (daily-report bước 2/2a.)
+- **🚫 CẤM tự dựng HTML báo cáo bằng tay**: mọi nguồn (Jira/SharePoint/Excel) phải **import vào vault → `build_report.py`**.
+  Đây là gốc của lỗi "báo cáo SharePoint mất banner + layout lạ" (Claude tự chế HTML). Nay luôn ra dashboard CHUẨN
+  (banner + trạng thái + theo người + complexity + roadmap + capacity + rủi ro). Banner mail giữ qua `send_report` (CID).
+- **🗺️ Roadmap/Sprint**: `build_report.py` thêm `roadmap` — gom MỌI sprint theo `sprint_name` → **backlog/current/next**
+  (+ done% + story points + log) → section mới ở **dashboard + email**. (Excel: `TARGET VERSION→sprint_name`.)
+- **👤 Hỏi PM + Roadmap + OKR**: flow hỏi "Có phân tích roadmap?" + "Ai là PM dự án?"; nếu chọn file OKR/Standing Meeting
+  trên SharePoint/local → đọc làm BỐI CẢNH cho mục AI **🗺️ Roadmap & điều phối sprint** (bốc task vào sprint kế + sắp xếp sprint hiện tại).
+- **📋 Mail/processing chi tiết**: AI viết đầy đủ bảng số liệu (theo người/sprint/complexity/quá hạn) + inject vào cả email lẫn dashboard.
+
 ## v2.12.33 "Claude-1" — 2026-06-25
 
 **Thêm cách đọc SharePoint QUA M365 MCP KHÔNG cần Graph token — dùng file CSV.**

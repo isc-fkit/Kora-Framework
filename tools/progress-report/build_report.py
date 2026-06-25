@@ -275,6 +275,31 @@ def compute(issues, smap, today, complexity_high=7, qc_members=None, pm_members=
             } for i in items], key=lambda x: x["group"]),
         })
 
+    # ── ROADMAP: gom MỌI sprint theo sprint_name → current/next/backlog (cho PM điều phối) ──
+    sp_all = {}
+    for i in issues:
+        sn = i.get("sprint_name")
+        if sn:
+            sp_all.setdefault(str(sn), []).append(i)
+    active_names = {str(i.get("sprint_name")) for i in active}
+    roadmap = []
+    for name, items in sp_all.items():
+        g = _status_breakdown(items, smap)
+        t = _time_sum(items)
+        ends = sorted(str(x.get("sprint_end") or "")[:10] for x in items if x.get("sprint_end"))
+        roadmap.append({
+            "name": name, "phase": "current" if name in active_names else "other",
+            "end": (ends[-1] if ends else ""), "total": len(items),
+            "done": g["done"], "in_progress": g["in_progress"], "todo": g["todo"],
+            "pct_done": pct(g["done"], len(items)),
+            "story_points": sum(float(x["story_points"]) for x in items if isinstance(x.get("story_points"), (int, float))),
+            "est_s": t["estimate_s"], "spent_s": t["spent_s"],
+        })
+    roadmap.sort(key=lambda r: (r["phase"] != "current", r["end"] == "", r["end"], r["name"]))
+    _noncur = [r for r in roadmap if r["phase"] != "current"]
+    for idx, r in enumerate(_noncur):   # sprint không-current đầu tiên = next, còn lại = backlog
+        r["phase"] = "next" if idx == 0 else "backlog"
+
     # ── Theo người: assignee (Dev) + reporter-của-Bug (QC) ──────────────────────────
     # QC (tester) TẠO bug, KHÔNG logtime như dev (hay chỉ join cuối sprint) → KHÔNG đo bằng giờ-công.
     # Vai trò: config reports.qc_members ƯU TIÊN; else auto = 0 logtime + có report Bug + KHÔNG ôm việc khác Bug.
@@ -442,7 +467,7 @@ def compute(issues, smap, today, complexity_high=7, qc_members=None, pm_members=
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(), "total": total,
         "by_status_group": grp, "pct_done": pct(grp["done"], total), "by_type": by_type,
-        "time": tsum, "active_sprints": active_sprints, "by_assignee": by_assignee, "by_project": by_project,
+        "time": tsum, "active_sprints": active_sprints, "roadmap": roadmap, "by_assignee": by_assignee, "by_project": by_project,
         "risks": {"overdue": overdue[:50], "active_sprint_no_assignee": no_assignee[:50],
                   "active_sprint_no_estimate": no_est[:50]},
         "with_time": sum(1 for i in issues if i.get("time_estimate_s") or i.get("time_spent_s")),
@@ -552,6 +577,26 @@ def render_fragment(m, vault):
             f'<th>Trạng thái</th><th>Đã log / Ước tính</th><th>Story Points</th></tr></thead><tbody>{rows}</tbody></table></div>')
     if not m["active_sprints"]:
         sprint_html = '<div class="pr-card pr-mut">Không có sprint đang chạy (active) — kiểm tra field Sprint trên Jira.</div>'
+
+    # 🗺️ ROADMAP — gom sprint current/next/backlog cho PM điều phối
+    roadmap_html = ""
+    if m.get("roadmap"):
+        _ph = {"current": "🟢 Hiện tại", "next": "🔵 Kế tiếp", "backlog": "⚪ Backlog"}
+        _grp = {"current": "done", "next": "in_progress", "backlog": "todo"}
+        rr = "".join(
+            f'<tr><td><span class="pr-pill pr-{_grp.get(r["phase"], "todo")}">{_ph.get(r["phase"], r["phase"])}</span></td>'
+            f'<td><b>{esc(r["name"])}</b></td><td>{esc(r["end"]) or "—"}</td>'
+            f'<td>{r["done"]}/{r["total"]} ({r["pct_done"]}%)</td>'
+            f'<td>{r["todo"]} / {r["in_progress"]} / {r["done"]}</td>'
+            f'<td>{r["story_points"] or ""}</td>'
+            f'<td>{human_seconds(r["spent_s"])} / {human_seconds(r["est_s"])}</td></tr>'
+            for r in m["roadmap"])
+        roadmap_html = (
+            '<div class="pr-card"><div class="pr-card-h"><b>🗺️ Roadmap / Sprint</b>'
+            '<span class="pr-mut">hiện tại · kế tiếp · backlog — cho PM điều phối</span></div>'
+            '<table class="pr-t"><thead><tr><th>Giai đoạn</th><th>Sprint</th><th>Kết thúc</th>'
+            '<th>Done</th><th>Chưa/Đang/Done</th><th>SP</th><th>Log/Ước tính</th></tr></thead>'
+            f'<tbody>{rr}</tbody></table></div>')
 
     def _ot_cell(a):
         # QC & PM không đo bằng giờ-công → "—". Quy ước màu: DƯƠNG (OT) = XANH, ÂM (thiếu) = ĐỎ.
@@ -762,6 +807,7 @@ def render_fragment(m, vault):
 <h2>📈 Biểu đồ</h2>{charts_html}
 {cx_section}
 {proj_section}
+{("<h2>🗺️ Roadmap / Sprint (điều phối)</h2>" + roadmap_html) if roadmap_html else ""}
 <h2>Sprint đang chạy</h2>{sprint_html}
 <h2>Theo người phụ trách (giờ công &amp; OT)</h2><div class="pr-card">{assignee_html}</div>
 <h2>Log giờ theo loại</h2>{logtype_html}
@@ -980,6 +1026,26 @@ def render_email_body(m, vault, banner_url=""):
         spr_block = (f'<tr><td class="kpad" style="padding:6px 22px 2px">'
                      f'<div style="font-size:12px;color:{EPAL["mut"]};text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">Sprint đang chạy ({len(m["active_sprints"])})</div>'
                      f'{srows}</td></tr>')
+    # 🗺️ ROADMAP block (email) — current/next/backlog cho PM
+    roadmap_block = ""
+    if m.get("roadmap"):
+        _phl = {"current": ("🟢", "Hiện tại"), "next": ("🔵", "Kế tiếp"), "backlog": ("⚪", "Backlog")}
+        rrows = "".join(
+            f'<tr><td style="padding:5px 8px;font-size:12px;border-top:1px solid #eef1f6">{_phl.get(r["phase"],("",""))[0]} {_phl.get(r["phase"],("",r["phase"]))[1]}</td>'
+            f'<td style="padding:5px 8px;font-size:12px;border-top:1px solid #eef1f6"><b>{esc(r["name"])}</b></td>'
+            f'<td style="padding:5px 8px;font-size:12px;text-align:center;border-top:1px solid #eef1f6">{r["done"]}/{r["total"]} ({r["pct_done"]}%)</td>'
+            f'<td style="padding:5px 8px;font-size:12px;text-align:center;border-top:1px solid #eef1f6">{r["story_points"] or "—"}</td>'
+            f'<td style="padding:5px 8px;font-size:12px;text-align:center;border-top:1px solid #eef1f6">{esc(r["end"]) or "—"}</td></tr>'
+            for r in m["roadmap"][:12])
+        roadmap_block = (
+            f'<tr><td class="kpad" style="padding:8px 22px 2px">'
+            f'<div style="font-size:12px;color:{EPAL["mut"]};text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px">🗺️ Roadmap / Sprint (điều phối)</div>'
+            f'<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e6eaf0;border-radius:10px;overflow:hidden">'
+            f'<tr style="background:{EPAL["chip"]}"><td style="padding:6px 8px;font-size:11px;color:{EPAL["mut"]}">Giai đoạn</td>'
+            f'<td style="padding:6px 8px;font-size:11px;color:{EPAL["mut"]}">Sprint</td>'
+            f'<td style="padding:6px 8px;font-size:11px;color:{EPAL["mut"]};text-align:center">Done</td>'
+            f'<td style="padding:6px 8px;font-size:11px;color:{EPAL["mut"]};text-align:center">SP</td>'
+            f'<td style="padding:6px 8px;font-size:11px;color:{EPAL["mut"]};text-align:center">Kết thúc</td></tr>{rrows}</table></td></tr>')
     # 📊 Biểu đồ EMAIL-SAFE (table + bgcolor) — render mọi client, không SVG/JS
     asg = [a for a in m["by_assignee"] if a["assignee"] not in ("(chưa giao)", "—", "")][:6]
     asg_max = max((a["total"] for a in asg), default=1)
@@ -1076,6 +1142,7 @@ def render_email_body(m, vault, banner_url=""):
   {charts_block}
   {proj_block}
   {asg_block}
+  {roadmap_block}
   {spr_block}
   {cap_block}
   <tr><td class="kpad" style="padding:12px 22px 4px">
