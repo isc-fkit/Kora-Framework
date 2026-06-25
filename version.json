@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.12.36",
+  "version": "2.12.37",
   "codename": "Claude-1",
   "released": "2026-06-25",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": true,
-  "intro": "Kora-Framework v2.12.36: SỬA báo cáo 'lấy dữ liệu cũ' khi import Local/SharePoint — (1) build_report thêm --source-ids → báo cáo CHỈ gồm nguồn user đã chọn (không lẫn note Jira cũ trong vault); (2) fix apply_scope: row import Excel/SharePoint là snapshot → KHÔNG bị scope 'N ngày gần đây' loại bỏ; (3) import_excel mặc định updated=ngày import. (4) PREVIEW cả EMAIL: build_report sinh email-preview-latest.html (banner base64 xem được trong Cowork) — skill hiện cả dashboard LẪN mail trước khi gửi. (5) AI phân tích sâu hơn (bảng theo người đầy đủ, rủi ro có số + ai + khi nào). (6) REVERT guard auto-swap sai của v2.12.35 (mail=email-body, đính kèm=dashboard, 2 file riêng). NÊN cập nhật."
+  "intro": "Kora-Framework v2.12.37: SỬA câu chọn nguồn báo cáo — (1) câu ĐẦU TIÊN luôn hiện ĐÚNG 3 NHÓM CỐ ĐỊNH [Jira · SharePoint · Local Excel] (multi-select); SharePoint LUÔN có khi M365 MCP khả dụng (trước bị thiếu vì không nằm trong connections); KHÔNG liệt kê nguồn Jira cụ thể ở câu này, KHÔNG single-select. (2) Chọn SharePoint → BẮT BUỘC hỏi FOLDER rồi hỏi FILE (report task-data và/hoặc meeting/Standing-Meeting .pptx/.docx) — KHÔNG tự quét đại 'file mới nhất'. (3) Chỉ GỘP khi chọn ≥2 nhóm; chọn 1 nhóm → báo cáo CHỈ nhóm đó. NÊN cập nhật."
 }

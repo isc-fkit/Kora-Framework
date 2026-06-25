@@ -13,18 +13,26 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
 1. 🔒 **CỔNG MẬT KHẨU vận hành (`KORA_OPS_PW`)** TRƯỚC — báo cáo kéo dữ liệu live nên PHẢI qua cổng:
    `python3 "$T/archive-gate/verify_ops_password.py"` (đọc env **HOẶC** `~/.config/claude-knowledge/ops-pw.env` — đặt 1 lần bằng
    `/claude-knowledge-ops-password`; **KHÔNG hỏi qua card, KHÔNG in**). Exit ≠ 0 → **DỪNG**, không kéo, không sinh report.
-2. **CÂU HỎI ĐẦU TIÊN — BẮT BUỘC: chọn NHÓM NGUỒN (multi-select), TUYỆT ĐỐI KHÔNG tự chọn Jira.**
-   AskUserQuestion **multiSelect=true**: **[Jira] · [SharePoint] · [Local Excel]** (+ **[Tất cả]**). Đây là câu hỏi
-   ĐẦU TIÊN sau cổng mật khẩu — KHÔNG được mặc định/tự ý chọn Jira rồi chạy luôn. (Chỉ bỏ hỏi khi hệ thống có ĐÚNG
-   1 nhóm nguồn khả dụng.) Không nhóm nào kết nối → mời `/claude-knowledge-connect`.
-2a. **Với MỖI nhóm đã chọn → hỏi nguồn cụ thể của nhóm đó** (đọc `check_connection.py --list --json`):
+2. **CÂU HỎI ĐẦU TIÊN — BẮT BUỘC: chọn NHÓM NGUỒN, multiSelect=true.** AskUserQuestion với **ĐÚNG 3 NHÓM CỐ ĐỊNH**
+   (LUÔN hiện đủ cả 3, theo thứ tự): **[Jira] · [SharePoint] · [Local Excel]** (+ **[Tất cả]**).
+   - ⛔ **KHÔNG dựng câu này từ `check_connection.py`** (đó là bước 2a). **KHÔNG** liệt kê nguồn Jira cụ thể (Jira Cloud/Server)
+     ở câu này. **KHÔNG** bỏ SharePoint. **KHÔNG** để single-select.
+   - 📎 **SharePoint LUÔN là 1 lựa chọn** nếu **M365 MCP khả dụng** (có tool `sharepoint_search`/`sharepoint_folder_search`)
+     — nó qua **connector M365**, KHÔNG nằm trong `connections:`/`check_connection`, nên đừng vì "không thấy trong connections" mà bỏ.
+   - Đây là câu hỏi ĐẦU TIÊN sau cổng mật khẩu — KHÔNG mặc định/tự chọn Jira rồi chạy. (Chỉ bỏ hỏi khi có ĐÚNG 1 nhóm khả dụng.)
+2a. **Với MỖI nhóm đã chọn → MỚI hỏi nguồn cụ thể của nhóm đó** (giờ mới đọc `check_connection.py --list --json`):
    - **[Jira]** → liệt kê entry `jira_*`/`atlassian` (nhãn `[Jira·MCP] foxproject` / `[Jira·API] jira.fptmedicare.vn`) → multi-select **nguồn Jira nào**.
-   - **[SharePoint]** → `sharepoint_folder_search` → chọn **FOLDER quét**; rồi `sharepoint_search folderName=<folder>` liệt kê file → chọn **(các) file daily-task** + (tùy chọn) **file OKR/Standing Meeting** (chiến lược — cho roadmap, KHÔNG import thành task).
+   - **[SharePoint] — BẮT BUỘC HỎI 2 BƯỚC, TUYỆT ĐỐI KHÔNG tự quét "file mới nhất":**
+     **① HỎI FOLDER**: `sharepoint_folder_search` → AskUserQuestion liệt kê các folder → user chọn **(các) FOLDER** (multi-select; >4 → phân trang).
+     **② HỎI FILE trong folder đó**: `sharepoint_search folderName=<folder>` liệt kê file → AskUserQuestion cho user chọn **(các) file**.
+     1 folder có thể có **file REPORT (task data → import thành note)** và/hoặc **file MEETING/Standing-Meeting/OKR (.pptx/.docx — đọc làm BỐI CẢNH roadmap, KHÔNG import task)** — **để user chọn loại nào / cả 2**. KHÔNG tự đoán, KHÔNG tự lấy bản mới nhất.
    - **[Local Excel]** → entry `excel__local` (hoặc hỏi đường dẫn .xlsx qua ô "Other") → chọn file.
    > **>4 mục → phân trang** (rule #8). Xong nhóm này mới sang nhóm kế.
    > 🏷️ **GHI NHỚ TOKEN NGUỒN của mỗi lựa chọn** (để báo cáo CHỈ gồm nguồn đã chọn — user xác nhận "Chỉ nguồn đã chọn"):
    > **[Jira]** → token `jira`; **mỗi file SharePoint/Local** → import với `--source-id` RÕ RÀNG, nhất quán (vd
    > `sp_<folder>`, `local_<tên-file>`) → token = đúng id đó. Gom thành `SRC_IDS` (phẩy) → truyền `--source-ids "<SRC_IDS>"` ở Bước 6.
+   > ⚖️ **CHỈ GỘP khi chọn ≥2 nhóm.** Chọn **1 nhóm** → báo cáo **CHỈ nhóm đó** (vd chỉ SharePoint → KHÔNG tự kéo
+   > thêm Jira, KHÔNG nói "kết hợp Jira + SharePoint"). Chọn ≥2 → gộp ĐÚNG các nhóm đã chọn (qua `--source-ids`).
 2b. **Chọn PHẠM VI báo cáo (quan trọng với DỰ ÁN LỚN — không lấy hết)** — AskUserQuestion:
    **[Sprint đang chạy] (khuyến nghị) / [N ngày gần đây — mặc định 30, ô "Other" tự nhập] / [Toàn bộ]**.
    → đặt `SCOPE` ∈ `sprint|recent|all`, `NDAYS` (mặc định 30). `SCOPE≠all` → **bound scan** (nhẹ) + lọc report.
@@ -55,8 +63,10 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
    > 👤 **HỎI RÕ "Ai là PM dự án?"** (1 người) — để AI phân tích theo góc PM + roadmap điều phối, query đúng người. Ghi vào `reports.pm_members` (đứng đầu).
 5c. **HỎI: "Có phân tích ROADMAP không?"** — AskUserQuestion [Có / Không].
    - **Có** → báo cáo thêm mục **🗺️ Roadmap & điều phối sprint** (build_report đã sinh section roadmap: backlog/current/next + SP).
-   - Nếu nhóm SharePoint có chọn **file OKR/Standing Meeting/chiến lược** → ĐỌC nội dung file đó (SharePoint: `read_resource`/`--from-url`;
-     local: đọc trực tiếp/`workflow 02`) → lưu `reports/_okr-latest.txt` làm **BỐI CẢNH** cho AI roadmap (KHÔNG nạp thành task/note).
+   - Nếu nhóm SharePoint có chọn **file MEETING/Standing Meeting/OKR/chiến lược** (kể cả **.pptx/.docx** như
+     `Standing Meeting - RD - 06.2026 - W4.pptx`) → ĐỌC nội dung (SharePoint: `read_resource` trả text trích xuất —
+     đủ dùng cho .pptx/.docx; hoặc `--from-url`; local: đọc trực tiếp/`workflow 02`) → lưu `reports/_okr-latest.txt`
+     làm **BỐI CẢNH** cho AI roadmap. **File meeting/OKR = ĐỌC LÀM CONTEXT, KHÔNG import thành task/note** (khác file REPORT task data).
 6. **BẮT BUỘC dựng báo cáo QUA `build_report.py` — TUYỆT ĐỐI KHÔNG tự viết file HTML báo cáo bằng tay.**
    `python3 "$T/progress-report/build_report.py" --source-ids "<SRC_IDS>" --projects "<KEYS>" --scope <SCOPE> --recent-days <NDAYS>`
    (per `workflows/14-progress-report.md`) → ra dashboard CHUẨN (có **banner**, đủ section: trạng thái · theo người ·

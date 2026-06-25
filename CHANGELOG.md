@@ -10,6 +10,18 @@
 
 ---
 
+## v2.12.37 "Claude-1" — 2026-06-25
+
+**SỬA câu chọn nguồn báo cáo: SharePoint bị thiếu + tự quét đại file mới nhất.**
+
+- **📎 SharePoint LUÔN là 1 lựa chọn**: câu hỏi ĐẦU TIÊN giờ luôn hiện **ĐÚNG 3 NHÓM CỐ ĐỊNH** `[Jira · SharePoint ·
+  Local Excel]` (multiSelect). Trước đây dựng card từ `check_connection` → SharePoint (qua M365 MCP, không nằm trong
+  `connections:`) **bị bỏ sót** + card thành single-select liệt kê Jira Cloud/Server. Nay: SharePoint hiện bất cứ khi
+  nào M365 MCP (`sharepoint_search`) khả dụng; KHÔNG liệt kê nguồn Jira cụ thể ở câu này.
+- **🗂️ Chọn SharePoint → BẮT BUỘC hỏi FOLDER rồi hỏi FILE** — KHÔNG tự quét đại "file mới nhất". 1 folder có thể có
+  **file REPORT (task-data → import)** và/hoặc **file MEETING/Standing-Meeting/OKR (`.pptx/.docx` → đọc làm bối cảnh roadmap)** → để user chọn loại nào / cả 2.
+- **⚖️ Chỉ GỘP khi chọn ≥2 nhóm**: chọn 1 nhóm → báo cáo CHỈ nhóm đó (không tự "kết hợp Jira + SharePoint" khi user chỉ chọn SharePoint).
+
 ## v2.12.36 "Claude-1" — 2026-06-25
 
 **SỬA báo cáo "lấy dữ liệu cũ" khi import Local/SharePoint + preview cả email + AI sâu hơn + revert guard sai.**

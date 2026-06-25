@@ -30,9 +30,16 @@ Windows `py`). **Exit ≠ 0 → DỪNG**: không làm mới, không sinh report.
 
 ## Bước 0.5 — LÀM MỚI dữ liệu trước khi report (Pha 2)
 
-> 🎯 **HỎI NGUỒN trước (nếu có ≥2 nguồn) — LIỆT KÊ ĐỦ Jira + Excel/Sheet — báo cáo lấy dữ liệu của nguồn ĐÃ QUÉT VỀ VAULT:**
-> AskUserQuestion **multi-select** liệt kê từng nguồn báo-cáo-được: Jira `jira_*`/`atlassian` (kèm MCP/API + domain) **VÀ**
-> Excel/Sheet (`source_type ∈ {excel, sheet}`, nhãn `[Excel·Local]`/`[Sheet·MCP]`) + **[Tất cả nguồn]**; **1 nguồn → khỏi hỏi**.
+> 🎯 **CÂU HỎI ĐẦU TIÊN — chọn NHÓM NGUỒN, multiSelect=true, ĐÚNG 3 NHÓM CỐ ĐỊNH (LUÔN đủ cả 3):**
+> **[Jira] · [SharePoint] · [Local Excel]** (+ **[Tất cả]**).
+> - ⛔ **KHÔNG dựng câu này từ `check_connection`** (đó là bước drill). **KHÔNG** liệt kê nguồn Jira cụ thể ở đây. **KHÔNG** bỏ SharePoint. **KHÔNG** single-select.
+> - 📎 **SharePoint LUÔN hiện** nếu M365 MCP khả dụng (`sharepoint_search`/`sharepoint_folder_search`) — qua connector M365, KHÔNG nằm trong `connections:`, đừng vì thế mà bỏ.
+> - ⚖️ **Chỉ GỘP khi chọn ≥2 nhóm**; chọn 1 nhóm → báo cáo CHỈ nhóm đó (không tự kéo Jira khi user chỉ chọn SharePoint).
+>
+> **Rồi DRILL từng nhóm đã chọn** (giờ mới đọc `check_connection.py --list`):
+> - **[Jira]** → multi-select nguồn `jira_*`/`atlassian` (kèm MCP/API + domain) → project.
+> - **[SharePoint] — BẮT BUỘC HỎI 2 BƯỚC, KHÔNG tự quét "file mới nhất":** ① `sharepoint_folder_search` → user chọn (các) **FOLDER**; ② `sharepoint_search folderName=<folder>` → user chọn (các) **FILE** (folder có thể có file REPORT task-data và/hoặc file MEETING/Standing-Meeting/OKR `.pptx/.docx` → để user chọn loại nào/cả 2).
+> - **[Local Excel]** → chọn file (`excel__local` hoặc đường dẫn).
 > **Mốc "dữ liệu mới"** = các mục có `updated >= last_import` (mốc RIÊNG mỗi nguồn ở `_system/last-import-<nguồn>.txt`); chưa có
 > → kéo full. **Báo RÕ:** *"Đang lấy dữ liệu của `<nguồn>` từ mốc `<last_import>`."* (Nguồn Jira chưa quét lần nào → báo cần quét trước.)
 
