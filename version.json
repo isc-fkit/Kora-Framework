@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.12.25",
+  "version": "2.12.26",
   "codename": "Claude-1",
-  "released": "2026-06-23",
+  "released": "2026-06-25",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.12.25: GỬI MAIL tự FALLBACK qua Gmail API/HTTPS khi mạng chặn SMTP (firewall công ty chặn mọi cổng SMTP nhưng cho proxy CONNECT 443). send_report.py thêm cờ --transport auto|smtp|https; khi SMTP lỗi KẾT NỐI → tự gửi lại CÙNG email (banner CID + đính kèm) qua Gmail API định tuyến qua HTTPS_PROXY. Bật 1 lần bằng tools/report-mailer/gmail_oauth_setup.py (chỉ stdlib). Sai App Password KHÔNG fallback; tương thích ngược (không creds Gmail → y như cũ)."
+  "intro": "Kora-Framework v2.12.26: SỬA lỗi 'app nhận version GitHub CŨ' khi kiểm tra cập nhật. Nguyên nhân: api.github.com bị 403 (rate-limit IP công ty) → cơ chế đọc theo SHA hỏng → fallback đọc raw branch bị CDN cache trả bản cũ; thêm so version bằng mắt (không semver). Fix: lấy version qua REDIRECT releases/latest (no-auth, no-cache), đọc version.json/CHANGELOG THEO TAG (immutable), so sánh bằng sort -V (semver). (Đã gồm fallback gửi mail HTTPS của 2.12.25.)"
 }

@@ -10,6 +10,19 @@
 
 ---
 
+## v2.12.26 "Claude-1" — 2026-06-25
+
+**SỬA lỗi "app nhận version GitHub CŨ" khi kiểm tra/cập nhật phiên bản.**
+
+- **🐞 Nguyên nhân**: bước so phiên bản đọc `version.json` remote **theo SHA commit** để né cache, nhưng lệnh lấy
+  SHA gọi `api.github.com` → trên IP công ty bị **HTTP 403** (rate-limit không-auth) → SHA rỗng → fallback đọc
+  `release/version.json?t=…`, mà **raw.githubusercontent CACHE theo path & BỎ QUA `?t=`** → trả **version.json CŨ**.
+  Cộng với so version **bằng mắt** (không semver) → kết luận sai "local mới hơn GitHub".
+- **🔧 Fix** (`workflows/10-update.md`, `claude-knowledge-version.md`): lấy version qua **redirect
+  `github.com/<repo>/releases/latest`** (no-auth, KHÔNG dính 403, KHÔNG dính CDN cache) → đọc `version.json`/
+  `CHANGELOG` **THEO TAG** (đường dẫn tag IMMUTABLE → luôn tươi) → so sánh bằng **`sort -V`** (semver xác định,
+  không nhìn bằng mắt). Hết cảnh "local 2.12.24 > GitHub 2.12.4".
+
 ## v2.12.25 "Claude-1" — 2026-06-23
 
 **Gửi mail tự FALLBACK qua Gmail API/HTTPS khi mạng chặn SMTP (firewall công ty).**
