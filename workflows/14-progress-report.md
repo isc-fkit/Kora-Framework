@@ -30,10 +30,11 @@ Windows `py`). **Exit ≠ 0 → DỪNG**: không làm mới, không sinh report.
 
 ## Bước 0.5 — LÀM MỚI dữ liệu trước khi report (Pha 2)
 
-> 🎯 **HỎI NGUỒN JIRA trước (nếu có ≥2 nguồn) — báo cáo lấy dữ liệu của nguồn ĐÃ QUÉT VỀ VAULT:** AskUserQuestion liệt kê
-> từng nguồn `jira_*` (kèm MCP/API) cho user chọn; **1 nguồn → khỏi hỏi**. **Mốc "dữ liệu mới"** = các mục có `updated >=
-> last_import` (mốc lưu RIÊNG theo từng nguồn ở `_system/last-import-<nguồn>.txt`); chưa có mốc → kéo full. **Báo cho user
-> RÕ:** *"Đang lấy dữ liệu cập nhật của `<nguồn>` từ mốc `<last_import>`."* (Nguồn nào chưa quét lần nào → báo cần quét trước.)
+> 🎯 **HỎI NGUỒN trước (nếu có ≥2 nguồn) — LIỆT KÊ ĐỦ Jira + Excel/Sheet — báo cáo lấy dữ liệu của nguồn ĐÃ QUÉT VỀ VAULT:**
+> AskUserQuestion **multi-select** liệt kê từng nguồn báo-cáo-được: Jira `jira_*`/`atlassian` (kèm MCP/API + domain) **VÀ**
+> Excel/Sheet (`source_type ∈ {excel, sheet}`, nhãn `[Excel·Local]`/`[Sheet·MCP]`) + **[Tất cả nguồn]**; **1 nguồn → khỏi hỏi**.
+> **Mốc "dữ liệu mới"** = các mục có `updated >= last_import` (mốc RIÊNG mỗi nguồn ở `_system/last-import-<nguồn>.txt`); chưa có
+> → kéo full. **Báo RÕ:** *"Đang lấy dữ liệu của `<nguồn>` từ mốc `<last_import>`."* (Nguồn Jira chưa quét lần nào → báo cần quét trước.)
 
 > 🏷️ **CHỌN PROJECT — liệt kê ĐẦY ĐỦ TỪNG project + PREFIX NGUỒN:** lấy project của nguồn đã chọn (API `--list-projects`;
 > MCP `getVisibleJiraProjects`, **phân trang lấy HẾT**) → hiện **mỗi project 1 dòng `KEY — Tên` kèm prefix** (vd
@@ -79,6 +80,17 @@ nguồn — đặt ở đầu lệnh: `JIRA_BASE_URL=<entry.base_url>` (+ `JIRA_
   `is_stale:true` → **vẫn sinh report (dữ liệu CŨ, có banner)** rồi in **lệnh terminal copy-paste** (OS-dynamic) cho user tự kéo:
   `JIRA_BASE_URL=<base_url> [JIRA_AUTH_MODE=server] python3 "<TOOL_DIR>/import_jira.py" --jql "project in (<KEYS>)"`.
   Nhắc: "Chạy lệnh trên để cập nhật, rồi gõ **'báo cáo tiến độ'** lại → báo cáo mới." User kéo xong → chạy lại workflow.
+
+**C) Nguồn `source_type: excel`/`sheet` (Excel/Google Sheet/SharePoint) → GỘP vào báo cáo như Jira** (CHỈ tương tác):
+- **`method: local_file`** (file .xlsx): `python3 "<TOOL_DIR>/excel-to-obsidian/import_excel.py" --file <entry.file_path>
+  [--sheet <entry.sheet_name>] --source-id <entry.id> [--project <KEY>] [--map '<json nếu tên cột lạ>']`. Parse bằng thư
+  viện chuẩn (zipfile+xml), tự nhận cột Việt/Anh, ghi note `source: excel` vào `07_Imported/<id>/` (ghi đè trọn — idempotent).
+- **`method: mcp`** (Google Sheets/SharePoint/M365 connector đã connected): **Claude LẤY các DÒNG qua connector** →
+  ghi tạm `reports/_sheet-<id>.csv` (header dòng đầu) hoặc `.json` (list[dict]) → `import_excel.py --from-rows
+  reports/_sheet-<id>.csv --source-id <id> [--project <KEY>] [--map …]`. (MCP-connector KHÔNG đọc được ô .xlsx nhị phân →
+  Claude lấy/chuẩn hoá thành rows; token connector do app giữ → **không chạy nền**, chỉ tương tác.)
+- Sau nạp: reindex `build_index.py --root .`. build_report **tự gộp** note `source: excel` chung với Jira (cùng schema:
+  status/assignee/story_points/complexity/time_*; vai trò PM/QC vẫn áp). Cột bắt buộc tối thiểu: **summary** + **status**.
 
 ## Bước 0.6 — Xác định VAI TRÒ thành viên (để hiểu CONTEXT phân tích từng người)
 

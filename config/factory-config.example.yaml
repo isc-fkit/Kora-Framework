@@ -58,7 +58,7 @@ jira:
 # /claude-knowledge-connect GHI vào đây; /claude-knowledge-scan và /claude-knowledge-schedule ĐỌC để liệt kê nguồn.
 # QUY TẮC ID: <source_type>__<method>[__<slug-host>]. Cùng loại nhưng MCP vs API =
 # 2 entry RIÊNG (id khác nhau) → đếm/hiển thị tách biệt.
-#   source_type: jira_server|jira_cloud|confluence|github|gitlab|sharepoint|outlook|gmail|gmail_smtp|m365
+#   source_type: jira_server|jira_cloud|confluence|github|gitlab|sharepoint|outlook|gmail|gmail_smtp|m365|excel|sheet
 #                (gmail = MCP tạo nháp/draft; gmail_smtp = SMTP App Password TỰ ĐỘNG GỬI — khác nhau)
 #   method:      mcp | api | smtp      auth_kind: oauth2 | token | mcp_oauth | app_password
 #   creds.kind:  mcp_connector (connector name) | env (biến ~/.zshrc) | dotenv (file .env)
@@ -87,8 +87,32 @@ jira:
 #     creds: { kind: dotenv, dotenv_path: tools/report-mailer/.env.local, env_keys: [SMTP_USER, SMTP_PASS] }
 #     verify: { probe: "send_report.py --check" }
 #     status: connected
+#   - id: excel__local               # Bảng task .xlsx LOCAL → gộp vào báo cáo như Jira (tương tác)
+#     method: local_file
+#     source_type: excel
+#     display_name: "Excel kế hoạch (local)"
+#     file_path: "data/ke-hoach.xlsx"   # tương đối project hoặc tuyệt đối
+#     sheet_name: "Tasks"                # bỏ trống = sheet đầu
+#     status: configured
+#   - id: sheet__mcp                  # Google Sheet / SharePoint qua MCP Cowork (Claude lấy rows → import --from-rows)
+#     method: mcp
+#     source_type: sheet
+#     display_name: "Google Sheet kế hoạch Q2"
+#     creds: { kind: mcp_connector, connector_name: "google-sheets" }   # hoặc "sharepoint"/"microsoft-365"
+#     status: connected
 # ─────────────────────────────────────────────────────────────────────────────
 connections: []
+
+# Mapping cột Excel/Sheet → field báo cáo (TÙY CHỌN — import_excel.py tự nhận tên cột phổ biến Việt/Anh).
+# Chỉ khai khi tên cột của bạn KHÁC mặc định. Dạng {header_thật: field_đích}. Field đích hợp lệ:
+#   excel_key, summary, type, status, status_category, assignee, reporter, project, story_points,
+#   complexity, estimate_hours, spent_hours, remaining_hours, duedate, sprint_name, sprint_state, sprint_end, updated
+# excel:
+#   map:
+#     "Mã CV": excel_key
+#     "Nội dung": summary
+#     "Phụ trách": assignee
+#     "Điểm": story_points
 
 code:
   enabled: false          # true nếu có repo code kết nối

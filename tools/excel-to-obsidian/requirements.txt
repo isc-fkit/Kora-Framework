@@ -1,0 +1,1 @@
+# KHÔNG cần cài gì — import_excel.py chỉ dùng thư viện chuẩn Python 3 (zipfile, xml, csv, json).

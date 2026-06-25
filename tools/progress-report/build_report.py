@@ -166,8 +166,10 @@ def load_issues(vault):
             except Exception:
                 continue
             fm, body = parse_frontmatter(text)
-            if fm.get("source") != "jira" or not fm.get("jira_key"):
+            key = fm.get("jira_key") or fm.get("excel_key")   # excel: import_excel.py ghi cả 2
+            if fm.get("source") not in ("jira", "excel") or not key:
                 continue
+            fm["jira_key"] = key   # chuẩn hoá → downstream (dedup/hiển thị) dùng jira_key cho cả nguồn excel
             fm["_summary"] = issue_summary(fm, body)
             issues.append(fm)
     return issues

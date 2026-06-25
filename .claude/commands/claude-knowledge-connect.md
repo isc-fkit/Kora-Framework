@@ -54,6 +54,14 @@ ESC hoặc [← Huỷ] = dừng, **KHÔNG ghi gì** vào `connections:`.
   > (`sync_sharepoint.py --login`, tương tác). source_type = `sharepoint`, method = `api`.
   > **Gmail SMTP** = kênh GỬI mail tự động (báo cáo/lịch nền). source_type = `gmail_smtp`, method = `smtp`
   >   (không OAuth — dùng **App Password** + 2FA). Khác Gmail MCP (chỉ tạo nháp). Xem ▸ Gmail SMTP ở Bước 3.
+- **EXCEL / SHEET (nguồn TASK cho báo cáo — gộp chung với Jira, chỉ TƯƠNG TÁC):**
+  - **[Excel local .xlsx]** → KHÔNG auth: hỏi **đường dẫn file** (AskUserQuestion gợi ý + ô "Other") + **tên sheet** (bỏ trống = sheet đầu)
+    → ghi entry `source_type: excel`, `method: local_file`, `file_path`, `sheet_name` (id `excel__local[__<slug>]`). Verify: thử
+    `python3 tools/excel-to-obsidian/import_excel.py --file <path> [--sheet …]` chạy được (parse OK) rồi mới ghi.
+  - **[Google Sheet / SharePoint qua MCP]** → cần connector tương ứng đã **connected** trong Claude App (Google Sheets /
+    SharePoint / Microsoft 365). Ghi entry `source_type: sheet`, `method: mcp`, `creds.kind: mcp_connector`,
+    `connector_name`. Lúc báo cáo, Claude lấy dòng qua connector → `import_excel.py --from-rows` (xem WF14 mục C). **Chỉ chạy
+    tương tác** (token connector do app giữ, không chạy nền). Cột tối thiểu: **summary + status**; cột lạ → khai `excel.map` trong config.
 
 > 🔖 **Đánh dấu đã kết nối:** đối chiếu với `--list` — nguồn nào ĐÃ có entry `<source_type>__<method>`
 > (đúng phương thức đang chọn) thì gắn badge **"✓ đã kết nối"** trên thẻ đó (chọn lại = kiểm tra/cập nhật,

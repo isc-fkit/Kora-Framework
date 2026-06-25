@@ -10,6 +10,22 @@
 
 ---
 
+## v2.12.28 "Claude-1" — 2026-06-25
+
+**Báo cáo nhận thêm nguồn EXCEL / GOOGLE SHEET / SharePoint — GỘP CHUNG với Jira (chỉ tương tác).**
+
+- **🆕 `tools/excel-to-obsidian/import_excel.py`** (chỉ thư viện chuẩn) — biến mỗi DÒNG bảng task → note
+  `source: excel` cùng định dạng `import_jira` → `build_report` **gộp chung** Excel + Jira (cùng biểu đồ
+  status/assignee/độ phức tạp/giờ-công; vai trò PM/QC vẫn áp). Parse **.xlsx** local (`zipfile`+`xml`, xử lý
+  shared strings + serial-date) HOẶC **`--from-rows` CSV/JSON** (cho Google Sheet/SharePoint lấy qua MCP).
+  Tự nhận cột **Việt/Anh** (override `--map`); giờ→giây; suy `status_category`; idempotent theo `--source-id`.
+- **🔀 `build_report.py`**: nới bộ lọc `load_issues` → nhận `source ∈ {jira, excel}` (chuẩn hoá `jira_key`).
+  Tương thích ngược: vault chỉ-Jira chạy y như cũ.
+- **🧭 Bước "Chọn NGUỒN" khi báo cáo** (`workflows/14`, `claude-knowledge-daily-report`) nay **LIỆT KÊ ĐỦ
+  Jira + Excel/Sheet** (multi-select, nhãn `[Jira·MCP]`/`[Excel·Local]`/`[Sheet·MCP]` + [Tất cả nguồn]) →
+  route đúng từng nguồn → gộp 1 dashboard. `claude-knowledge-connect`: thêm nguồn Excel local / Sheet-MCP.
+- Chỉ TƯƠNG TÁC (nguồn MCP: token do app giữ, không chạy nền — muốn nền dùng .xlsx local).
+
 ## v2.12.27 "Claude-1" — 2026-06-25
 
 **SỬA `scripts/update.command` bị TREO khi cập nhật trên mạng công ty (chặn tải GitHub trực tiếp).**

@@ -13,11 +13,13 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
 1. 🔒 **CỔNG MẬT KHẨU vận hành (`KORA_OPS_PW`)** TRƯỚC — báo cáo kéo dữ liệu live nên PHẢI qua cổng:
    `python3 "$T/archive-gate/verify_ops_password.py"` (đọc env **HOẶC** `~/.config/claude-knowledge/ops-pw.env` — đặt 1 lần bằng
    `/claude-knowledge-ops-password`; **KHÔNG hỏi qua card, KHÔNG in**). Exit ≠ 0 → **DỪNG**, không kéo, không sinh report.
-2. **Chọn NGUỒN Jira (CÓ THỂ NHIỀU)** từ `connections:`: `python3 "$T/connections/check_connection.py" --list --json
-   --config "$PWD/config/factory-config.yaml"` → lọc entry **Jira-capable**: `source_type ∈ {jira_server, jira_cloud,
-   atlassian}` (**`atlassian` = Atlassian Rovo CÓ Jira**). AskUserQuestion **multi-select** — hiện kèm `method` (API/MCP)
-   + `base_url` (phân biệt nhiều domain) — cho chọn **1 HOẶC NHIỀU** nguồn (lẫn API + MCP, nhiều domain đều được). Không
-   nguồn Jira nào → mời `/claude-knowledge-connect`.
+2. **HỎI CHỌN NGUỒN báo cáo (CÓ THỂ NHIỀU) — LIỆT KÊ ĐỦ Jira + Excel/Sheet** từ `connections:`:
+   `python3 "$T/connections/check_connection.py" --list --json --config "$PWD/config/factory-config.yaml"` → lọc entry
+   **báo-cáo-được**: Jira (`source_type ∈ {jira_server, jira_cloud, atlassian}`) **+ Excel/Sheet**
+   (`source_type ∈ {excel, sheet}`, method `local_file`/`mcp`). **AskUserQuestion multi-select**, mỗi mục nhãn rõ
+   để chọn ĐÚNG: vd `[Jira·MCP] foxproject`, `[Jira·API] jira.fptmedicare.vn`, `[Sheet·MCP] Kế hoạch Q2 (Google)`,
+   `[Excel·Local] data/ke-hoach.xlsx` + **[Tất cả nguồn]** (>4 → phân trang). 1 nguồn duy nhất → khỏi hỏi. Không
+   nguồn nào → mời `/claude-knowledge-connect`. **Đây là bước BẮT BUỘC HỎI** (user phải chọn đúng nguồn).
 2b. **Chọn PHẠM VI báo cáo (quan trọng với DỰ ÁN LỚN — không lấy hết)** — AskUserQuestion:
    **[Sprint đang chạy] (khuyến nghị) / [N ngày gần đây — mặc định 30, ô "Other" tự nhập] / [Toàn bộ]**.
    → đặt `SCOPE` ∈ `sprint|recent|all`, `NDAYS` (mặc định 30). `SCOPE≠all` → **bound scan** (nhẹ) + lọc report.
@@ -31,7 +33,9 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
      (liệt kê project → multi-select) → `searchJiraIssuesUsingJql` `project in (<KEYS>)<+ AND updated >= -<NDAYS>d nếu SCOPE≠all>` `fields:["*all"]` (kết quả lớn MCP
      tự lưu file → dùng path đó) + `getJiraIssue expand=names` (map field) → `import_jira.py --from-mcp <file> --names <names>`.
    - ⚠️ Chọn nguồn **MCP** thì **BẮT BUỘC** đi nhánh MCP — đừng im lặng chạy import_jira API (sẽ trúng nguồn/domain khác → thiếu project, lỗi "không có note").
-   Quét xong HẾT các nguồn → reindex **1 lần** `build_index.py --root .`. **Report trên UNION project vừa kéo** (task đã Done/đổi trạng thái sẽ đúng).
+   - **`source_type: excel` (method `local_file`)** → `python3 "$T/excel-to-obsidian/import_excel.py" --file <entry.file_path> [--sheet <entry.sheet_name>] --source-id <entry.id> [--project <KEY>] [--map '<json nếu cột lạ>']`. Tự nhận cột Việt/Anh; ghi note `source: excel` vào `07_Imported/<id>/` (idempotent).
+   - **`source_type: sheet`/`excel` (method `mcp`)** → **Claude LẤY DÒNG qua connector** (Google Sheets / SharePoint / M365 đã connected trong Cowork) → ghi tạm `reports/_sheet-<id>.csv` (hoặc .json list[dict], header dòng đầu) → `python3 "$T/excel-to-obsidian/import_excel.py" --from-rows reports/_sheet-<id>.csv --source-id <id> [--project <KEY>] [--map …]`. (MCP-connector không đọc được ô .xlsx → Claude lấy/chuẩn hoá thành rows; **chỉ TƯƠNG TÁC**, không chạy nền.)
+   Quét xong HẾT các nguồn → reindex **1 lần** `build_index.py --root .`. **Report trên UNION (Jira + Excel) vừa kéo** (task đã Done/đổi trạng thái sẽ đúng).
    > ⚠️ Nhiều domain **trùng mã project/issue** → vault đè nhau (giới hạn đã biết). Khác mã thì gộp thoải mái.
 5. (Tùy chọn) **filter member** (assignee / team) — multi-select. Hỏi **khoảng thời gian**.
 5b. **VAI TRÒ thành viên (HỎI TÊN + ROLE để hiểu CONTEXT phân tích từng người — workflow 14 Bước 0.6):** AskUserQuestion
