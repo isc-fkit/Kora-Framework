@@ -10,6 +10,15 @@
 
 ---
 
+## v2.12.40 "Claude-1" — 2026-06-25
+
+**Chọn file SharePoint: ô "Other" cho TÌM THEO KEYWORD / TÊN FILE.**
+
+- Ở bước chọn **FOLDER** và chọn **FILE** SharePoint của báo cáo, ô **"Other"** nay = **từ khóa tìm**: user gõ keyword
+  (vd `standing meeting`, `report Q2`) → `sharepoint_search query="<keyword>"` (tìm theo TÊN trên toàn site, có thể
+  kèm `folderName`) → liệt kê **kết quả khớp** để chọn. Nhanh hơn khi user biết tên file, không phải duyệt từng folder.
+- Vẫn giữ: bắt buộc hỏi folder→file, không tự lấy "file mới nhất" (v2.12.37). Sửa ở `claude-knowledge-daily-report` + workflow 14.
+
 ## v2.12.39 "Claude-1" — 2026-06-25
 
 **ĐẢM BẢO phân tích AI LUÔN có ở CẢ email LẪN dashboard.**

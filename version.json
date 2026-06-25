@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.12.39",
+  "version": "2.12.40",
   "codename": "Claude-1",
   "released": "2026-06-25",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
-  "force": true,
-  "intro": "Kora-Framework v2.12.39: ĐẢM BẢO phân tích AI LUÔN có ở CẢ email LẪN dashboard. (1) --inject-ai giờ chèn vào CẢ 3 file: email-body (gửi), email-preview (xem trước), VÀ progress-report dashboard (#kr-ai) — trước đây dashboard không bao giờ được chèn AI. (2) CODE GATE: send_report.py TỪ CHỐI gửi nếu khối AI còn placeholder (chưa --inject-ai) → mail không bao giờ thiếu phân tích AI (bỏ qua: --allow-empty-ai). NÊN cập nhật."
+  "force": false,
+  "intro": "Kora-Framework v2.12.40: chọn file SharePoint — ô 'Other' giờ cho TÌM THEO KEYWORD/TÊN FILE. Gõ từ khóa (vd 'standing meeting') vào ô Other → sharepoint_search query=<keyword> tìm theo tên toàn site (có thể kèm folderName) → liệt kê kết quả khớp để chọn. Nhanh hơn khi biết tên file, không phải duyệt từng folder. Áp cho cả bước chọn FOLDER lẫn chọn FILE."
 }

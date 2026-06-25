@@ -34,7 +34,11 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
    - **[Jira]** → liệt kê entry `jira_*`/`atlassian` (nhãn `[Jira·MCP] foxproject` / `[Jira·API] jira.fptmedicare.vn`) → multi-select **nguồn Jira nào**.
    - **[SharePoint] — BẮT BUỘC HỎI 2 BƯỚC, TUYỆT ĐỐI KHÔNG tự quét "file mới nhất":**
      **① HỎI FOLDER**: `sharepoint_folder_search` → AskUserQuestion liệt kê các folder → user chọn **(các) FOLDER** (multi-select; >4 → phân trang).
+       - 🔎 **Ô "Other" = TÌM THEO KEYWORD/TÊN.** Nếu user gõ chữ vào ô "Other" (vd `standing meeting`, `report Q2`) →
+         coi là **từ khóa tìm** → chạy `sharepoint_search query="<keyword>"` (tìm theo TÊN trên toàn site, không cần folder) →
+         AskUserQuestion liệt kê **kết quả khớp** → user chọn file. Dùng khi user biết tên/keyword (nhanh hơn duyệt folder).
      **② HỎI FILE trong folder đó**: `sharepoint_search folderName=<folder>` liệt kê file → AskUserQuestion cho user chọn **(các) file**.
+       - 🔎 **Ô "Other" ở đây cũng = keyword/tên file** → `sharepoint_search query="<keyword>" folderName=<folder>` (hoặc bỏ folderName để tìm toàn site) → liệt kê khớp → chọn.
      1 folder có thể có **file REPORT (task data → import thành note)** và/hoặc **file MEETING/Standing-Meeting/OKR (.pptx/.docx — đọc làm BỐI CẢNH roadmap, KHÔNG import task)** — **để user chọn loại nào / cả 2**. KHÔNG tự đoán, KHÔNG tự lấy bản mới nhất.
    - **[Local Excel]** → entry `excel__local` (hoặc hỏi đường dẫn .xlsx qua ô "Other") → chọn file.
    > **>4 mục → phân trang** (rule #8). Xong nhóm này mới sang nhóm kế.

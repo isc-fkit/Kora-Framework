@@ -44,6 +44,7 @@ Windows `py`). **Exit ≠ 0 → DỪNG**: không làm mới, không sinh report.
 > **Rồi DRILL từng nhóm đã chọn** (giờ mới đọc `check_connection.py --list`):
 > - **[Jira]** → multi-select nguồn `jira_*`/`atlassian` (kèm MCP/API + domain) → project.
 > - **[SharePoint] — BẮT BUỘC HỎI 2 BƯỚC, KHÔNG tự quét "file mới nhất":** ① `sharepoint_folder_search` → user chọn (các) **FOLDER**; ② `sharepoint_search folderName=<folder>` → user chọn (các) **FILE** (folder có thể có file REPORT task-data và/hoặc file MEETING/Standing-Meeting/OKR `.pptx/.docx` → để user chọn loại nào/cả 2).
+>   🔎 **Ô "Other" = TÌM THEO KEYWORD/TÊN FILE:** user gõ keyword (vd `standing meeting`) → `sharepoint_search query="<keyword>"` (tìm theo tên toàn site, có thể kèm `folderName`) → liệt kê khớp → chọn. Dùng khi biết tên file (nhanh hơn duyệt folder).
 > - **[Local Excel]** → chọn file (`excel__local` hoặc đường dẫn).
 > **Mốc "dữ liệu mới"** = các mục có `updated >= last_import` (mốc RIÊNG mỗi nguồn ở `_system/last-import-<nguồn>.txt`); chưa có
 > → kéo full. **Báo RÕ:** *"Đang lấy dữ liệu của `<nguồn>` từ mốc `<last_import>`."* (Nguồn Jira chưa quét lần nào → báo cần quét trước.)
