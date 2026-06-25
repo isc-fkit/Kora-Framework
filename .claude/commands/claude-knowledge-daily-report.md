@@ -22,6 +22,9 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
    - **[SharePoint]** → `sharepoint_folder_search` → chọn **FOLDER quét**; rồi `sharepoint_search folderName=<folder>` liệt kê file → chọn **(các) file daily-task** + (tùy chọn) **file OKR/Standing Meeting** (chiến lược — cho roadmap, KHÔNG import thành task).
    - **[Local Excel]** → entry `excel__local` (hoặc hỏi đường dẫn .xlsx qua ô "Other") → chọn file.
    > **>4 mục → phân trang** (rule #8). Xong nhóm này mới sang nhóm kế.
+   > 🏷️ **GHI NHỚ TOKEN NGUỒN của mỗi lựa chọn** (để báo cáo CHỈ gồm nguồn đã chọn — user xác nhận "Chỉ nguồn đã chọn"):
+   > **[Jira]** → token `jira`; **mỗi file SharePoint/Local** → import với `--source-id` RÕ RÀNG, nhất quán (vd
+   > `sp_<folder>`, `local_<tên-file>`) → token = đúng id đó. Gom thành `SRC_IDS` (phẩy) → truyền `--source-ids "<SRC_IDS>"` ở Bước 6.
 2b. **Chọn PHẠM VI báo cáo (quan trọng với DỰ ÁN LỚN — không lấy hết)** — AskUserQuestion:
    **[Sprint đang chạy] (khuyến nghị) / [N ngày gần đây — mặc định 30, ô "Other" tự nhập] / [Toàn bộ]**.
    → đặt `SCOPE` ∈ `sprint|recent|all`, `NDAYS` (mặc định 30). `SCOPE≠all` → **bound scan** (nhẹ) + lọc report.
@@ -55,16 +58,25 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
    - Nếu nhóm SharePoint có chọn **file OKR/Standing Meeting/chiến lược** → ĐỌC nội dung file đó (SharePoint: `read_resource`/`--from-url`;
      local: đọc trực tiếp/`workflow 02`) → lưu `reports/_okr-latest.txt` làm **BỐI CẢNH** cho AI roadmap (KHÔNG nạp thành task/note).
 6. **BẮT BUỘC dựng báo cáo QUA `build_report.py` — TUYỆT ĐỐI KHÔNG tự viết file HTML báo cáo bằng tay.**
-   `python3 "$T/progress-report/build_report.py" --projects "<KEYS>" --scope <SCOPE> --recent-days <NDAYS>`
+   `python3 "$T/progress-report/build_report.py" --source-ids "<SRC_IDS>" --projects "<KEYS>" --scope <SCOPE> --recent-days <NDAYS>`
    (per `workflows/14-progress-report.md`) → ra dashboard CHUẨN (có **banner**, đủ section: trạng thái · theo người ·
-   complexity · **🗺️ Roadmap/Sprint** · capacity · rủi ro) + `email-body-latest.html`. MỌI nguồn (Jira/SharePoint/Excel)
-   phải **import vào vault rồi build_report** — kể cả khi GỘP nhiều nguồn (đừng ghép HTML tay → mất banner + sai layout).
+   complexity · **🗺️ Roadmap/Sprint** · capacity · rủi ro) + `email-body-latest.html` + `email-preview-latest.html`.
+   - **`--source-ids "<SRC_IDS>"` BẮT BUỘC khi user chọn nguồn cụ thể** → báo cáo **CHỈ gồm nguồn đã chọn** (vault có thể
+     còn note Jira cũ + import khác; không lọc thì mail ra **dữ liệu cũ/lẫn nguồn**). `jira` = mọi note Jira; `<source_id>` = đúng lần import đó.
+   - MỌI nguồn (Jira/SharePoint/Excel) phải **import vào vault rồi build_report** — kể cả khi GỘP nhiều nguồn (đừng ghép HTML tay → mất banner + sai layout).
+   > 🖥️ **PREVIEW CẢ HAI trong Cowork** (workflow 14 Bước 2): hiện **dashboard** (`progress-report-latest.html`, tương tác)
+   > **VÀ** **email** (`email-preview-latest.html` — banner nhúng base64 nên XEM ĐƯỢC tại chỗ) để user duyệt mail trước khi gửi.
+   > Đừng chỉ preview dashboard. (File GỬI vẫn là `email-body-latest.html` — banner→CID lúc send.)
    > 📧 **Banner mail**: gửi qua `send_report.py` (tự nhúng `cid:kora-banner` từ `assets/banner-daily-report.jpg`) → Outlook hiện banner. Đừng bỏ qua send_report.
-- Dashboard + email PHẢI có khối **🤖 AI analysis** (workflow 14 — Bước 1.5), CHI TIẾT + đủ bảng số liệu: health
-  (🟢/🟡/🔴), **dự đoán trượt timeline mỗi sprint** (kèm lý do), phân tích từng thành viên, giải pháp rủi ro, tóm tắt điều hành;
-  **+ (nếu chọn roadmap) mục 🗺️ Roadmap & điều phối sprint**: backlog/current/next, **bốc task nào vào sprint kế** + sắp xếp
-  sprint hiện tại, gắn OKR/chiến lược (`reports/_okr-latest.txt`), theo góc **PM đã hỏi**. Viết từ DỮ LIỆU, không bịa →
-  ghi `reports/ai-analysis-latest.md` → `build_report.py --inject-ai reports/ai-analysis-latest.md` (đưa vào CẢ email lẫn dashboard).
+- Dashboard + email PHẢI có khối **🤖 AI analysis** (workflow 14 — Bước 1.5) — **PHÂN TÍCH SÂU, CHI TIẾT, đủ BẢNG số
+  liệu** (chuẩn = bằng/hơn mẫu báo cáo đầy đủ). BẮT BUỘC, mỗi mục **trích DỮ LIỆU cụ thể (mã hạng mục · giờ · % · ngày), CẤM nói chung chung**:
+  - **🔴/🟡 Rủi ro**: đánh SỐ + **Mức độ** + **Dự đoán & lý do BẰNG SỐ** (giờ remaining, %done, ngày trễ, est/spent) + **Tác động** + **Phương án + AI(ai) + KHI NÀO** (mốc ngày).
+  - **👥 Theo thành viên**: BẢNG `| Thành viên | Vai trò | Tổng | Done | %Done | Giờ log | %Capacity | Bug | Ghi chú |` + nhận xét cân bằng tải; PM/QC tách đúng vai trò (không đo giờ).
+  - **🧩 Complexity**: 3 việc khó nhất (mã·người·trạng thái) + phân bố điểm + ai đang ôm cụm khó.
+  - **📅 Sprint/timeline**: dự đoán từng sprint kèm số (quỹ giờ, carry-over) **+ (nếu roadmap) 🗺️ Roadmap & điều phối**: backlog/current/next, **bốc task nào vào sprint kế** + sắp xếp sprint hiện tại, gắn OKR/chiến lược (`reports/_okr-latest.txt`), theo góc **PM đã hỏi**.
+  - **🎯 Hành động ưu tiên** (theo ngày) + **📌 Tóm tắt điều hành**.
+  Viết từ DỮ LIỆU, không bịa → ghi `reports/ai-analysis-latest.md` → `build_report.py --inject-ai reports/ai-analysis-latest.md`
+  (đưa vào CẢ email-body, email-preview LẪN dashboard).
 > 📧 **THÂN MAIL (BẮT BUỘC) = `reports/email-body-latest.html`** (bản tóm tắt CÓ BANNER + đủ section, do build_report sinh).
 > **TUYỆT ĐỐI KHÔNG lấy `progress-report-latest.html` (dashboard/"processing") làm thân mail** — đó CHỈ là **file ĐÍNH KÈM**.
 > Lấy nhầm dashboard làm thân mail = **mất banner + sai UI** (đúng lỗi đang gặp). Luôn: `--html-file reports/email-body-latest.html

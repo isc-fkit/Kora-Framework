@@ -18,6 +18,7 @@ Chỉ dùng thư viện chuẩn Python 3 — KHÔNG cần pip install gì.
 """
 
 import argparse
+import base64
 import calendar
 import glob
 import html
@@ -225,21 +226,25 @@ def _status_breakdown(items, smap):
 def apply_scope(issues, scope, recent_days):
     """Giới hạn PHẠM VI báo cáo (dự án lớn không lấy hết) — trả (issues_lọc, nhãn).
     sprint = chỉ hạng mục công việc trong SPRINT ĐANG CHẠY (fallback N ngày gần đây nếu không có sprint active);
-    recent = hạng mục công việc có 'updated' trong N ngày; all/rỗng = toàn bộ. KHÔNG trả rỗng khi vault có data."""
+    recent = hạng mục công việc có 'updated' trong N ngày; all/rỗng = toàn bộ. KHÔNG trả rỗng khi vault có data.
+    LƯU Ý: row IMPORT (source ≠ jira, vd Excel/SharePoint) là SNAPSHOT hiện tại → LUÔN giữ, recency/sprint chỉ áp cho note Jira."""
     if scope in ("all", "", None):
         return issues, "Toàn bộ"
     cutoff = (date.today() - timedelta(days=max(1, int(recent_days or 30)))).isoformat()
-    recent = [i for i in issues if str(i.get("updated") or "")[:10] >= cutoff]
+    # Tách Jira (có time-series 'updated') vs IMPORT (Excel/SharePoint — snapshot, không lọc theo recency).
+    imported = [i for i in issues if (i.get("source") or "jira") != "jira"]
+    jira = [i for i in issues if (i.get("source") or "jira") == "jira"]
+    recent_jira = [i for i in jira if str(i.get("updated") or "")[:10] >= cutoff]
     if scope == "sprint":
-        sp = [i for i in issues if (i.get("sprint_state") or "").lower() == "active"]
-        if sp:
-            return sp, "Sprint đang chạy"
-        if recent:
-            return recent, f"{recent_days} ngày gần đây (không có sprint active)"
+        sp = [i for i in jira if (i.get("sprint_state") or "").lower() == "active"]
+        if sp or imported:
+            return sp + imported, "Sprint đang chạy"
+        if recent_jira:
+            return recent_jira, f"{recent_days} ngày gần đây (không có sprint active)"
         return issues, "Toàn bộ (không có sprint active / hoạt động gần đây)"
     if scope == "recent":
-        if recent:
-            return recent, f"{recent_days} ngày gần đây"
+        if recent_jira or imported:
+            return recent_jira + imported, f"{recent_days} ngày gần đây"
         return issues, f"Toàn bộ (không có hoạt động trong {recent_days} ngày)"
     return issues, "Toàn bộ"
 
@@ -1328,18 +1333,24 @@ def render_ai_cards(md):
 
 
 def inject_ai_into_email(out_dir, md_path):
-    """Đọc file markdown AI → render card màu → thay khối <!--KR-AI--> trong email-body-latest.html."""
+    """Đọc file markdown AI → render card màu → thay khối <!--KR-AI--> trong email-body-latest.html
+    VÀ email-preview-latest.html (bản xem trước có banner base64) để cả 2 đồng bộ AI."""
     os.makedirs(out_dir, exist_ok=True)   # phòng thủ: không chết vì thiếu thư mục
     email = os.path.join(out_dir, "email-body-latest.html")
     if not os.path.exists(email):
         die(f"Không thấy {email} — hãy chạy build_report (sinh email) trước khi --inject-ai.")
     md = open(md_path, encoding="utf-8").read() if os.path.exists(md_path) else md_path
     block = render_ai_cards(md)
-    txt = open(email, encoding="utf-8").read()
-    txt = re.sub(r"<!--KR-AI-START-->.*?<!--KR-AI-END-->",
-                 lambda _m: "<!--KR-AI-START-->" + block + "<!--KR-AI-END-->", txt, count=1, flags=re.DOTALL)
-    open(email, "w", encoding="utf-8").write(txt)
-    print(f"Đã chèn phân tích AI (card màu) vào {email}")
+    done = []
+    for fp in (email, os.path.join(out_dir, "email-preview-latest.html")):
+        if not os.path.exists(fp):
+            continue
+        txt = open(fp, encoding="utf-8").read()
+        txt = re.sub(r"<!--KR-AI-START-->.*?<!--KR-AI-END-->",
+                     lambda _m: "<!--KR-AI-START-->" + block + "<!--KR-AI-END-->", txt, count=1, flags=re.DOTALL)
+        open(fp, "w", encoding="utf-8").write(txt)
+        done.append(fp)
+    print(f"Đã chèn phân tích AI (card màu) vào {', '.join(done)}")
 
 
 def main():
@@ -1348,6 +1359,9 @@ def main():
     ap.add_argument("--out", help="Thư mục xuất (mặc định reports/)")
     ap.add_argument("--projects", default="", help="Lọc báo cáo theo project key, cách nhau phẩy "
                     "(vd PROJ1,PROJ2). Rỗng = tất cả project trong vault.")
+    ap.add_argument("--source-ids", dest="source_ids", default="", help="Lọc báo cáo theo NGUỒN, cách nhau phẩy. "
+                    "Mỗi token là 'jira' (mọi note source:jira) HOẶC một source_id của lần import Excel/SharePoint "
+                    "(vd local_kehoach,sp_standup). Rỗng = mọi nguồn. Dùng để báo cáo CHỈ nguồn user đã chọn.")
     ap.add_argument("--inject-ai", dest="inject_ai", help="Chèn file markdown phân tích AI (CARD MÀU) vào "
                     "email-body-latest.html (trong --out) rồi thoát. KHÔNG build lại report.")
     ap.add_argument("--scope", default="all", choices=["all", "sprint", "recent"],
@@ -1389,6 +1403,14 @@ def main():
         die(f"Vault không tồn tại: {vault}")
 
     issues = load_issues(vault)
+    if args.source_ids:
+        ids = {s.strip() for s in args.source_ids.split(",") if s.strip()}
+        issues = [i for i in issues
+                  if (i.get("source") or "jira") in ids or (i.get("source_id") or "") in ids]
+        if not issues:
+            die(f"Không có note nào khớp nguồn {sorted(ids)} trong vault {vault}.\n"
+                f"   → Kiểm tra: 'jira' cho note Jira; đúng --source-id của lần import Excel/SharePoint. "
+                f"Hãy quét/import nguồn đó trước rồi báo cáo lại.")
     if args.projects:
         keys = {k.strip() for k in args.projects.split(",") if k.strip()}
         issues = [i for i in issues if (i.get("project") or "") in keys]
@@ -1445,9 +1467,26 @@ def main():
     open(ebody_latest, "w", encoding="utf-8").write(ebody)
     open(json_p, "w", encoding="utf-8").write(data_json)
 
+    # 3) PREVIEW EMAIL — bản XEM TRƯỚC mail (Cowork/trình duyệt): banner nhúng BASE64 để hiện được tại chỗ
+    #    (email-body-latest.html dùng URL remote cho send_report swap→CID; trình duyệt có thể chặn URL đó).
+    #    KHÔNG dùng cho gửi mail (Gmail/Outlook chặn data: URI) — chỉ để preview.
+    banner_data_uri = banner_url
+    asset = os.path.join(REPO_ROOT, "assets", "banner-daily-report.jpg")
+    try:
+        if os.path.exists(asset):
+            b64 = base64.b64encode(open(asset, "rb").read()).decode("ascii")
+            banner_data_uri = f"data:image/jpeg;base64,{b64}"
+    except Exception:
+        pass
+    epreview = render_email_body(m, vault, banner_data_uri)
+    epreview_latest = os.path.join(out, "email-preview-latest.html")
+    open(epreview_latest, "w", encoding="utf-8").write(epreview)
+    open(os.path.join(day_dir, f"email-preview-{stamp}.html"), "w", encoding="utf-8").write(epreview)
+
     print(f"Report tiến độ đã tạo từ {len(issues)} issue.")
     print(f"  - Bản lịch sử (ngày-giờ): {report_dated}")
     print(f"  - Email body (gửi mail): {ebody_latest}")
+    print(f"  - Email PREVIEW (xem trước, banner base64): {epreview_latest}")
     print(f"  - Dashboard mới nhất: {latest_p}")
     print(f"  - Dữ liệu (UI Cowork inline): {json_p}")
     print(f"Tổng: {m['total']} hạng mục công việc · {m['pct_done']}% done · "

@@ -264,20 +264,6 @@ def main():
             '<p style="color:#888;font-size:12px">— Tự động gửi.</p></div>'
         )
     else:
-        # GUARD: THÂN MAIL phải là email-body (có banner), KHÔNG phải dashboard/processing.
-        # Nếu --html-file trỏ nhầm progress/processing-report → TỰ ĐỔI sang email-body-latest.html
-        # cùng thư mục (đẩy dashboard thành đính kèm). Chống lỗi "mất banner + lấy file processing làm thân mail".
-        if args.html_file and re.search(r"(progress|processing)[-_]?report", os.path.basename(args.html_file), re.I):
-            _eb = os.path.join(os.path.dirname(args.html_file) or ".", "email-body-latest.html")
-            if os.path.exists(_eb):
-                print(f"⚠️  Thân mail trỏ DASHBOARD ({os.path.basename(args.html_file)}) → TỰ ĐỔI sang "
-                      f"email-body-latest.html (có banner); dashboard chuyển thành đính kèm.", file=sys.stderr)
-                if args.html_file not in args.attach:
-                    args.attach.append(args.html_file)
-                args.html_file = _eb
-            else:
-                print(f"⚠️  Thân mail đang là DASHBOARD ({os.path.basename(args.html_file)}) — nên dùng "
-                      f"email-body-latest.html (có banner). Không thấy file đó cùng thư mục để tự đổi.", file=sys.stderr)
         if args.html_file:
             p = Path(args.html_file)
             if not p.exists():

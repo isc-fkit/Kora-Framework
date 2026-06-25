@@ -411,10 +411,17 @@ def row_to_note(row, fmap, default_project, src_id, idx):
         val = g(fld)
         if val:
             fm.append(f"{fld}: {json.dumps(val, ensure_ascii=False)}")
+    has_updated = False
     for fld in ("duedate", "sprint_end", "updated"):
         val = to_date(g(fld)) if g(fld) else ""
         if val:
             fm.append(f"{fld}: {json.dumps(val, ensure_ascii=False) if fld == 'sprint_end' else val}")
+            if fld == "updated":
+                has_updated = True
+    if not has_updated:
+        # Không có cột 'updated' → snapshot VỪA import = mới hôm nay (ngày của NOW). Tránh bị scope
+        # recency của build_report loại bỏ khi gộp với note Jira có 'updated'. Có cột thật → tôn trọng ở trên.
+        fm.append(f"updated: {NOW[:10]}")
     for fld in ("story_points", "complexity"):
         n = to_num(g(fld))
         if n is not None:

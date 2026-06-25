@@ -10,6 +10,23 @@
 
 ---
 
+## v2.12.36 "Claude-1" — 2026-06-25
+
+**SỬA báo cáo "lấy dữ liệu cũ" khi import Local/SharePoint + preview cả email + AI sâu hơn + revert guard sai.**
+
+- **🏷️ Lọc đúng nguồn (`--source-ids`)**: `build_report.py` thêm cờ `--source-ids "jira,local_x,sp_y"` → báo cáo
+  **CHỈ gồm nguồn user đã chọn** (vault có thể còn note Jira cũ + import khác → trước đây lẫn vào thành "dữ liệu cũ").
+- **🐞 fix `apply_scope`**: row import Excel/SharePoint (`source` ≠ jira) là **snapshot hiện tại → LUÔN giữ**; recency
+  (`--scope recent`) chỉ áp cho note Jira. Trước fix: khi vault có Jira (có `updated`) + import (không `updated`),
+  scope "30 ngày" **vứt sạch row import** → mail ra mỗi Jira cũ. (Repro: 100 import + 1 Jira → ra 1; sau fix → 101.)
+- **🗓️ `import_excel`**: mặc định `updated` = ngày import khi file không có cột updated (snapshot = mới hôm nay).
+- **🖥️ PREVIEW cả EMAIL**: `build_report` sinh thêm `reports/email-preview-latest.html` (banner **base64** → xem được
+  trong Cowork/trình duyệt). Skill report giờ preview **CẢ dashboard LẪN mail** trước khi gửi. File GỬI vẫn là
+  `email-body-latest.html` (banner→CID lúc send; Gmail/Outlook chặn `data:` nên không base64 cho bản gửi).
+- **🤖 AI sâu hơn**: bảng theo thành viên đầy đủ (`Vai trò/%Done/Giờ log/%Capacity/Bug`), rủi ro có **số + ai + khi nào**, cấm nói chung chung.
+- **↩️ Revert guard sai (v2.12.35)**: bỏ auto-swap `progress-report`→`email-body` trong `send_report.py`. Đúng thiết
+  kế: **mail = `email-body-latest.html`, đính kèm = dashboard** — 2 file RIÊNG, không đánh đồng.
+
 ## v2.12.35 "Claude-1" — 2026-06-25
 
 **SỬA lỗi MAIL: lấy nhầm dashboard/"processing" làm THÂN MAIL → mất banner + sai UI.**
