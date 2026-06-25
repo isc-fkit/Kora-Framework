@@ -10,6 +10,17 @@
 
 ---
 
+## v2.12.27 "Claude-1" — 2026-06-25
+
+**SỬA `scripts/update.command` bị TREO khi cập nhật trên mạng công ty (chặn tải GitHub trực tiếp).**
+
+- **🐞 Nguyên nhân**: `curl -fL` tải zip **không có `--max-time`** + **không qua proxy** → trên mạng chặn
+  codeload/api.github.com (firewall công ty), download treo vô hạn → lệnh cập nhật không bao giờ xong.
+- **🔧 Fix**: thêm hàm `cfetch` — `--connect-timeout`/`--max-time` (KHÔNG treo) + **tự FALLBACK qua proxy**
+  (`KORA_UPDATE_PROXY` → `https_proxy`/`HTTPS_PROXY` → `proxy.hcm.fpt.vn:80`); tải **archive THEO TAG** (resolve
+  qua redirect `releases/latest` → immutable, không dính CDN cache như nhánh) thay cơ chế SHA cũ (api.github.com 403).
+  Tải lỗi → báo rõ cách đặt `https_proxy`. (Đồng bộ với fix phát hiện version v2.12.26.)
+
 ## v2.12.26 "Claude-1" — 2026-06-25
 
 **SỬA lỗi "app nhận version GitHub CŨ" khi kiểm tra/cập nhật phiên bản.**

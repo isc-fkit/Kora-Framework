@@ -86,14 +86,30 @@ else
 
   ZIP_FILE="$TMP_DIR/release.zip"
   echo "⬇️  Đang tải bản mới nhất..."
-  # TRÁNH CACHE CŨ: archive theo nhánh bị CDN cache dai → resolve SHA commit mới nhất rồi tải theo SHA.
-  SHA="$(curl -fsSL -H 'Accept: application/vnd.github.sha' "https://api.github.com/repos/$REPO/commits/$REF" 2>/dev/null || true)"
-  if printf '%s' "$SHA" | grep -qiE '^[0-9a-f]{40}$'; then
-    ZIP_URL="https://github.com/$REPO/archive/$SHA.zip"; echo "   (bản mới nhất: ${SHA:0:7})"
+  # Mạng công ty có thể CHẶN tải trực tiếp (codeload/api.github.com timeout/403) → thử TRỰC TIẾP rồi
+  # TỰ FALLBACK qua proxy; LUÔN có --connect-timeout/--max-time để KHÔNG bao giờ treo vô hạn.
+  # Proxy ứng viên (theo thứ tự): $KORA_UPDATE_PROXY → $https_proxy/$HTTPS_PROXY → proxy.hcm.fpt.vn:80 (mạng FPT).
+  CT=15
+  _proxies() { printf '%s\n' "" "${KORA_UPDATE_PROXY:-}" "${https_proxy:-}" "${HTTPS_PROXY:-}" "http://proxy.hcm.fpt.vn:80"; }
+  cfetch() {  # cfetch <max-time> <curl args...>  → stdout; thử direct rồi từng proxy (dedup), có timeout.
+    local mt="$1"; shift; local p seen="|" px
+    while IFS= read -r p; do
+      case "$seen" in *"|$p|"*) continue;; esac
+      seen="$seen$p|"
+      px=(); [ -n "$p" ] && { px=(-x "$p"); echo "   ↪︎ thử qua proxy: $p" >&2; }
+      if curl -fsSL --connect-timeout "$CT" --max-time "$mt" "${px[@]}" "$@" 2>/dev/null; then return 0; fi
+    done < <(_proxies)
+    return 1
+  }
+  # Resolve TAG mới nhất qua REDIRECT releases/latest (no api-403, no CDN cache) → archive THEO TAG (immutable, tươi).
+  TAG="$(cfetch 30 -I -o /dev/null -w '%{url_effective}' "https://github.com/$REPO/releases/latest" 2>/dev/null | sed -nE 's#.*/tag/(.+)#\1#p' | tr -d '\r')"
+  if [ -n "$TAG" ]; then
+    ZIP_URL="https://github.com/$REPO/archive/refs/tags/$TAG.zip"; echo "   (bản mới nhất: $TAG)"
   else
-    ZIP_URL="https://github.com/$REPO/archive/refs/heads/$REF.zip"
+    ZIP_URL="https://github.com/$REPO/archive/refs/heads/$REF.zip"; echo "   (dùng nhánh $REF)"
   fi
-  curl -fL "$ZIP_URL" -o "$ZIP_FILE" || die "Tải bản mới thất bại. Kiểm tra kết nối mạng rồi thử lại."
+  cfetch 180 -o "$ZIP_FILE" "$ZIP_URL" || die "Tải bản mới thất bại (mạng/proxy). Nếu mạng công ty CHẶN tải trực tiếp,
+    đặt proxy rồi chạy lại:  export https_proxy=http://<proxy>:<port>   (vd: http://proxy.hcm.fpt.vn:80)"
 
   echo "📂 Đang giải nén..."
   unzip -q "$ZIP_FILE" -d "$TMP_DIR" || die "Giải nén thất bại (file tải về có thể hỏng)."

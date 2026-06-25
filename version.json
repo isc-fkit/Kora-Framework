@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.12.26",
+  "version": "2.12.27",
   "codename": "Claude-1",
   "released": "2026-06-25",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.12.26: SỬA lỗi 'app nhận version GitHub CŨ' khi kiểm tra cập nhật. Nguyên nhân: api.github.com bị 403 (rate-limit IP công ty) → cơ chế đọc theo SHA hỏng → fallback đọc raw branch bị CDN cache trả bản cũ; thêm so version bằng mắt (không semver). Fix: lấy version qua REDIRECT releases/latest (no-auth, no-cache), đọc version.json/CHANGELOG THEO TAG (immutable), so sánh bằng sort -V (semver). (Đã gồm fallback gửi mail HTTPS của 2.12.25.)"
+  "intro": "Kora-Framework v2.12.27: SỬA scripts/update.command bị TREO khi cập nhật trên mạng công ty (chặn tải GitHub trực tiếp). Thêm --connect-timeout/--max-time (hết treo vô hạn) + TỰ FALLBACK qua proxy (KORA_UPDATE_PROXY → https_proxy → proxy.hcm.fpt.vn:80) + tải archive THEO TAG (redirect releases/latest, immutable, không CDN cache). (Đã gồm fix phát hiện version 2.12.26 + fallback gửi mail HTTPS 2.12.25.)"
 }
