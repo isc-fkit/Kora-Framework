@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.12.42",
+  "version": "2.12.43",
   "codename": "Claude-1",
   "released": "2026-06-25",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.12.42: sửa trải nghiệm 'cập nhật' trong Cowork. Khi gõ 'cập nhật' mà skill /claude-knowledge-update KHÔNG có trong available list (Cowork chưa upload), Claude KHÔNG còn thử gọi Skill rồi 'xin lỗi gọi nhầm' — mà chạy THẲNG workflows/10-update.md qua run_command (CLAUDE.md + workflows luôn được nạp khi mở project). Áp chung: skill khớp nhưng thiếu trong list → chạy workflow tương đương, không xin lỗi. Update không phụ thuộc skill đã upload hay chưa."
+  "intro": "Kora-Framework v2.12.43: tích hợp Gmail API (OAuth2) — FALLBACK gửi mail khi SMTP bị chặn — vào /claude-knowledge-connect. gmail_oauth_setup.py thêm --write-zshrc / --write-env: lấy refresh token rồi GHI THẲNG 3 key GMAIL_OAUTH_* vào ~/.zshrc (hoặc .env.local cho lịch nền), chmod 600, KHÔNG in token ra chat → chạy được qua run_command an toàn. Connect có lựa chọn [Gmail API (OAuth2)]; send_report.py --transport auto tự SMTP→Gmail API khi SMTP lỗi (cùng banner/đính kèm)."
 }

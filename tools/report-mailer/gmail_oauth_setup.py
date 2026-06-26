@@ -74,12 +74,46 @@ def _exchange_code(code, client_id, client_secret, redirect_uri, proxy):
         sys.exit(f"❌ Không kết nối được oauth2.googleapis.com (kiểm tra HTTPS_PROXY): {e}")
 
 
+def _upsert_keys(path, kv, as_export):
+    """Ghi/đè 3 key vào file (xoá dòng cũ cùng key rồi thêm mới). KHÔNG in giá trị. as_export=True → 'export K=\"V\"'."""
+    path = os.path.expanduser(path)
+    keys = set(kv)
+    lines = []
+    if os.path.exists(path):
+        for ln in open(path, encoding="utf-8").read().splitlines():
+            s = ln.strip()
+            s = s[len("export "):] if s.startswith("export ") else s
+            k = s.split("=", 1)[0].strip() if "=" in s else ""
+            if k in keys:
+                continue   # bỏ dòng cũ của key này
+            lines.append(ln)
+    while lines and lines[-1].strip() == "":
+        lines.pop()
+    lines.append("")
+    lines.append("# Gmail API fallback (gửi mail khi SMTP bị chặn) — Kora /claude-knowledge-connect")
+    for k, v in kv.items():
+        lines.append(f'export {k}="{v}"' if as_export else f'{k}={v}')
+    parent = os.path.dirname(path)
+    if parent:
+        os.makedirs(parent, exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        f.write("\n".join(lines) + "\n")
+    try:
+        os.chmod(path, 0o600)
+    except OSError:
+        pass
+
+
 def main():
     ap = argparse.ArgumentParser(description="Lấy Gmail OAuth refresh token (1 lần).")
     ap.add_argument("--client-id", default=os.getenv("GMAIL_OAUTH_CLIENT_ID"))
     ap.add_argument("--client-secret", default=os.getenv("GMAIL_OAUTH_CLIENT_SECRET"))
     ap.add_argument("--proxy", default=os.getenv("HTTPS_PROXY") or os.getenv("https_proxy"),
                     help="Proxy HTTPS (mặc định đọc HTTPS_PROXY).")
+    ap.add_argument("--write-zshrc", action="store_true",
+                    help="GHI THẲNG 3 key vào ~/.zshrc (KHÔNG in token ra màn hình) — an toàn khi chạy qua run_command.")
+    ap.add_argument("--write-env", dest="write_env",
+                    help="GHI THẲNG 3 key vào file .env.local chỉ định (KEY=VALUE, không 'export') — cho lịch nền.")
     args = ap.parse_args()
     if not args.client_id or not args.client_secret:
         sys.exit("❌ Thiếu --client-id/--client-secret (hoặc export GMAIL_OAUTH_CLIENT_ID/SECRET).")
@@ -117,6 +151,25 @@ def main():
         sys.exit("❌ Không có refresh_token (thường do app chưa 'prompt=consent' hoặc đã cấp trước). "
                  "Gỡ quyền tại myaccount.google.com/permissions rồi chạy lại.")
 
+    kv = {
+        "GMAIL_OAUTH_CLIENT_ID": args.client_id,
+        "GMAIL_OAUTH_CLIENT_SECRET": args.client_secret,
+        "GMAIL_OAUTH_REFRESH_TOKEN": refresh,
+    }
+    # GHI THẲNG (an toàn cho run_command — KHÔNG in token ra chat)
+    if args.write_zshrc:
+        rc = os.path.expanduser("~/.zshrc")
+        _upsert_keys(rc, kv, as_export=True)
+        print(f"\n✅ THÀNH CÔNG — đã ghi 3 key Gmail API vào {rc} (token KHÔNG in ra màn hình).")
+        print("   → Chạy `source ~/.zshrc` (hoặc mở shell mới). Kiểm tra:")
+        print("     python3 tools/report-mailer/send_report.py --check --transport https")
+        return
+    if args.write_env:
+        _upsert_keys(args.write_env, kv, as_export=False)
+        print(f"\n✅ THÀNH CÔNG — đã ghi 3 key Gmail API vào {args.write_env} (KEY=VALUE, token KHÔNG in). Dùng cho lịch nền.")
+        print("   Kiểm tra: python3 tools/report-mailer/send_report.py --check --transport https --env " + args.write_env)
+        return
+    # Chế độ MẶC ĐỊNH (chạy tay ở Terminal): in để user tự dán
     print("\n✅ THÀNH CÔNG. DÁN 3 dòng sau vào ~/.zshrc (rồi `source ~/.zshrc`) "
           "HOẶC vào tools/report-mailer/.env.local (bỏ chữ 'export'):\n")
     print(f'export GMAIL_OAUTH_CLIENT_ID="{args.client_id}"')

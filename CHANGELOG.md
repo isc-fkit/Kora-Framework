@@ -10,6 +10,19 @@
 
 ---
 
+## v2.12.43 "Claude-1" — 2026-06-25
+
+**Tích hợp Gmail API (OAuth2) — fallback gửi mail khi SMTP bị chặn — vào `/claude-knowledge-connect`.**
+
+- **`gmail_oauth_setup.py` thêm `--write-zshrc` / `--write-env <path>`**: sau khi uỷ quyền OAuth (loopback browser), **GHI
+  THẲNG** 3 key `GMAIL_OAUTH_CLIENT_ID/SECRET/REFRESH_TOKEN` vào `~/.zshrc` (hoặc `.env.local` cho lịch nền), idempotent +
+  chmod 600, **KHÔNG in token ra màn hình/chat** → chạy được qua `run_command` an toàn. (Chế độ in-để-dán cũ vẫn còn cho Terminal.)
+- **`/claude-knowledge-connect`**: thêm lựa chọn **[Gmail API (OAuth2 — FALLBACK gửi khi SMTP bị chặn)]** (Thẻ 2 nhánh API):
+  prereq Client ID/Secret (Desktop-app OAuth, Gmail API) → đặt ID/Secret ở `~/.zshrc` (không qua chat) → `gmail_oauth_setup.py
+  --write-zshrc` → verify `send_report.py --check --transport https`. Entry `gmail_api__https` (tách khỏi `gmail_smtp__smtp`).
+- Cơ chế gửi đã có sẵn từ trước: `send_report.py --transport auto` **tự fallback SMTP→Gmail API/HTTPS** khi SMTP lỗi kết nối
+  (cùng tài khoản, cùng banner/đính kèm; honor `HTTPS_PROXY`). Sửa `gmail_oauth_setup.py`, `claude-knowledge-connect`, `CLAUDE.md`.
+
 ## v2.12.42 "Claude-1" — 2026-06-25
 
 **Sửa trải nghiệm "cập nhật" trong Cowork — bỏ màn "gọi nhầm skill / xin lỗi".**

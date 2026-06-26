@@ -48,12 +48,15 @@ ESC hoặc [← Huỷ] = dừng, **KHÔNG ghi gì** vào `connections:`.
 - **API** (6 nguồn → **PHÂN TRANG 2 thẻ**; ưu tiên **OAuth 2.0**, PAT là fallback):
   - **Thẻ 1:** **[Jira Cloud]** / **[Jira Server / self-host]** / **[GitHub]** / **[Khác — xem thêm]**.
   - Chọn **[Khác — xem thêm]** → **Thẻ 2:** **[GitLab]** / **[SharePoint (Microsoft Graph — ĐẨY/ghi KB)]** /
-    **[Gmail SMTP (App Password — TỰ ĐỘNG GỬI mail)]**.
+    **[Gmail SMTP (App Password — TỰ ĐỘNG GỬI mail)]** / **[Gmail API (OAuth2 — FALLBACK gửi khi SMTP bị chặn)]**.
   > SharePoint API khác MCP Microsoft 365 (chỉ đọc): API Graph để **GHI** KB. Auth: app-only
   > client-credentials (cần admin consent `Sites.ReadWrite.All`, chạy nền) **hoặc** device-flow
   > (`sync_sharepoint.py --login`, tương tác). source_type = `sharepoint`, method = `api`.
   > **Gmail SMTP** = kênh GỬI mail tự động (báo cáo/lịch nền). source_type = `gmail_smtp`, method = `smtp`
   >   (không OAuth — dùng **App Password** + 2FA). Khác Gmail MCP (chỉ tạo nháp). Xem ▸ Gmail SMTP ở Bước 3.
+  > **Gmail API (OAuth2)** = **FALLBACK gửi mail qua HTTPS** khi mạng chặn SMTP (vd firewall công ty chỉ cho 443).
+  >   `send_report.py` tự `SMTP → Gmail API` khi SMTP fail (`--transport auto`). source_type = `gmail_api`, method = `https`.
+  >   Cần **Client ID + Client Secret** (OAuth client kiểu **Desktop app**, đã bật Gmail API). Xem ▸ Gmail API ở Bước 3.
 - **EXCEL / SHEET (nguồn TASK cho báo cáo — gộp chung với Jira, chỉ TƯƠNG TÁC):**
   - **[Excel local .xlsx]** → KHÔNG auth: hỏi **đường dẫn file** (AskUserQuestion gợi ý + ô "Other") + **tên sheet** (bỏ trống = sheet đầu)
     → ghi entry `source_type: excel`, `method: local_file`, `file_path`, `sheet_name` (id `excel__local[__<slug>]`). Verify: thử
@@ -119,17 +122,22 @@ ESC hoặc [← Huỷ] = dừng, **KHÔNG ghi gì** vào `connections:`.
         chạy lại verify là được — **KHÔNG cần `source`** (run_command/script tự đọc). App Password KHÔNG ra chat/card.
      3. `source_type = gmail_smtp`, method = `smtp`, `creds.kind = dotenv` (trỏ `tools/report-mailer/.env.local`).
 
-  ▸ **Gmail API (HTTPS fallback) — cho mạng CHẶN SMTP (firewall công ty):** khi mạng chặn MỌI cổng SMTP
-     (587/465/25/2525) nhưng proxy cho CONNECT 443, gửi mail qua **Gmail API/HTTPS** thay SMTP. `send_report.py`
-     TỰ fallback sang kênh này khi SMTP lỗi kết nối (cùng tài khoản, cùng banner/đính kèm). Cài 1 lần:
-     1. Google Cloud Console: tạo project → bật **Gmail API** → tạo **OAuth client "Desktop app"** (Client ID + Secret).
-        Consent screen NÊN **Publish** để refresh token không hết hạn sau 7 ngày. (ID/Secret KHÔNG ra chat/card.)
-     2. Lấy refresh token (đi qua proxy):
-        `HTTPS_PROXY=http://proxy.hcm.fpt.vn:80 python3 tools/report-mailer/gmail_oauth_setup.py --client-id <ID> --client-secret <SECRET>`
-        → in 3 `export GMAIL_OAUTH_*` để đặt ở **`~/.zshrc`** (ưu tiên) **hoặc** `.env.local` (BẮT BUỘC ở `.env.local`
-        nếu chạy lịch nền cron/launchd — không đọc được shell). Thêm `HTTPS_PROXY` cùng chỗ. (Refresh token KHÔNG ra chat/card.)
-     3. Verify: `python3 tools/report-mailer/send_report.py --check` (kiểm cả SMTP + Gmail API) hoặc `--check --transport https`.
-     4. `source_type = gmail_api`, method = `https`, id `gmail_api__https` (TÁCH khỏi `gmail_smtp__smtp` — API và SMTP tính RIÊNG).
+  ▸ **Gmail API (OAuth2 — FALLBACK gửi khi SMTP bị chặn):** khi mạng chặn MỌI cổng SMTP (587/465/25/2525) nhưng proxy
+     cho CONNECT 443, gửi mail qua **Gmail API/HTTPS** thay SMTP. `send_report.py --transport auto` **TỰ fallback** SMTP→Gmail API
+     khi SMTP lỗi kết nối (cùng tài khoản, cùng banner/đính kèm). Cài 1 lần (3 key `GMAIL_OAUTH_CLIENT_ID/SECRET/REFRESH_TOKEN`):
+     1. **Prereq** (user đã có): Google Cloud Console → bật **Gmail API** → **OAuth client "Desktop app"** → Client ID + Secret.
+        Consent screen NÊN **Publish** (refresh token không hết hạn sau 7 ngày). **(Client ID/Secret KHÔNG ra chat/card.)**
+     2. **Đặt Client ID/Secret vào ENV — KHÔNG qua chat:** hướng dẫn user tự thêm vào `~/.zshrc`:
+        `export GMAIL_OAUTH_CLIENT_ID="…"` và `export GMAIL_OAUTH_CLIENT_SECRET="…"` (+ `export HTTPS_PROXY=http://proxy.hcm.fpt.vn:80` nếu mạng công ty). Rồi user báo "xong".
+     3. **Lấy refresh token + GHI THẲNG (KHÔNG in token):** ưu tiên `run_command` (Claude Desktop) chạy:
+        `source ~/.zshrc; python3 tools/report-mailer/gmail_oauth_setup.py --write-zshrc`
+        → script tự mở **trình duyệt** cho user uỷ quyền (loopback `127.0.0.1`) → đổi code→refresh token → **ghi cả 3 key
+        `GMAIL_OAUTH_*` vào `~/.zshrc`** (chmod 600, idempotent) và **KHÔNG in token ra màn hình/chat**.
+        - **Lịch nền** (cron/launchd không đọc shell) → thêm `--write-env tools/report-mailer/.env.local` (ghi `KEY=VALUE`, kèm `HTTPS_PROXY`).
+        - Không có `run_command` (web Cowork) → **BÀN GIAO**: user chạy đúng lệnh trên ở **Terminal**.
+     4. **Verify:** `source ~/.zshrc; python3 tools/report-mailer/send_report.py --check --transport https` (exit 0 = OK).
+     5. `source_type = gmail_api`, method = `https`, id `gmail_api__https` (TÁCH khỏi `gmail_smtp__smtp` — API và SMTP tính RIÊNG;
+        capability = **fallback gửi** cho `/claude-knowledge-send-mail` + lịch nền).
 
 ### Bước 4 — Verify rồi mới GHI (KHÔNG ghi nửa chừng)
 - **API:** chạy `python3 "$T/connections/check_connection.py" --check <id> --config "$PWD/config/factory-config.yaml"` (`T` resolve như Bước 0) → đọc JSON kết quả. *(tool đọc PROJECT config theo `--config`/cwd — KHÔNG phải CORE config.)*
