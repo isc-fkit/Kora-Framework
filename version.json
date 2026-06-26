@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.12.41",
+  "version": "2.12.42",
   "codename": "Claude-1",
   "released": "2026-06-25",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.12.41: file OKR / Standing-Meeting (non-task) có SECTION PHÂN TÍCH RIÊNG trong báo cáo. build_report đọc reports/_okr-blocks.json (Claude cấu trúc từ file chiến lược) → render section RIÊNG: nội dung chia nhóm (grid: RD/Medical/CSKH... + chip trạng thái màu) + khối AI phân tích riêng cho OKR/chiến lược — ở CẢ dashboard LẪN email. Không còn dựng tay; nhất quán, chia rõ dễ nhìn. Không có file OKR → không có section (tương thích ngược)."
+  "intro": "Kora-Framework v2.12.42: sửa trải nghiệm 'cập nhật' trong Cowork. Khi gõ 'cập nhật' mà skill /claude-knowledge-update KHÔNG có trong available list (Cowork chưa upload), Claude KHÔNG còn thử gọi Skill rồi 'xin lỗi gọi nhầm' — mà chạy THẲNG workflows/10-update.md qua run_command (CLAUDE.md + workflows luôn được nạp khi mở project). Áp chung: skill khớp nhưng thiếu trong list → chạy workflow tương đương, không xin lỗi. Update không phụ thuộc skill đã upload hay chưa."
 }

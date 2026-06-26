@@ -10,6 +10,17 @@
 
 ---
 
+## v2.12.42 "Claude-1" — 2026-06-25
+
+**Sửa trải nghiệm "cập nhật" trong Cowork — bỏ màn "gọi nhầm skill / xin lỗi".**
+
+- Khi gõ **"cập nhật"** mà skill `/claude-knowledge-update` **KHÔNG có trong available list** (Cowork chưa upload skill đó),
+  Claude trước đây thử gọi `Skill …` → thất bại → **"Xin lỗi, gọi nhầm skill"** rồi mới fallback. Nay: **chạy THẲNG
+  `workflows/10-update.md`** qua `run_command` (CLAUDE.md + `workflows/` luôn được nạp khi mở project) — KHÔNG thử gọi
+  Skill, KHÔNG xin lỗi. Update **không phụ thuộc** skill đã upload hay chưa (chính lúc cần update là lúc skill hay thiếu/cũ).
+- **Quy tắc chung** (CLAUDE.md §🎯): skill khớp nhưng thiếu trong available list → chạy **workflow tương đương** trong repo,
+  KHÔNG "skill không có → xin lỗi". Sửa `CLAUDE.md` + `workflows/10-update.md`.
+
 ## v2.12.41 "Claude-1" — 2026-06-25
 
 **File OKR / Standing-Meeting (non-task) có SECTION PHÂN TÍCH RIÊNG trong báo cáo.**

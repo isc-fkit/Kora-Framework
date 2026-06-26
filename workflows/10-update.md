@@ -5,6 +5,10 @@
 > ⚠️ Đây là **cập nhật phiên bản CHƯƠNG TRÌNH (app)**. Khi user gõ các trigger trên →
 > **chạy thẳng workflow này**, KHÔNG hỏi lại "bạn muốn cập nhật cái gì". WF tự confirm trước
 > bước GHI/tải (Bước 2) nên an toàn.
+> 🚫 **KHÔNG phụ thuộc skill `/claude-knowledge-update` có trong available list.** Update là việc WF này tự làm được
+> (qua `run_command`/Bash). Nếu skill không có trong Cowork → **ĐỪNG thử gọi `Skill claude-knowledge-update` rồi "xin lỗi
+> gọi nhầm"** — đi thẳng workflow này (CLAUDE.md + `workflows/` luôn được nạp khi mở project). Chính lúc cần update là lúc
+> skill hay bị thiếu/cũ, nên việc chạy thẳng WF10 là ĐÚNG, không phải fallback "đáng xin lỗi".
 > **Ngoại lệ duy nhất:** user gõ **"cập nhật" TRƠ** (không tân ngữ) → mới hỏi 1 câu phân biệt:
 > *"Cập nhật ứng dụng lên bản mới, hay cập nhật tri thức/nội dung?"* rồi mới chạy.
 > Nên TỰ kiểm tra ở cuối setup (workflow 00 Bước 7) và khi user hỏi "đang bản nào".
