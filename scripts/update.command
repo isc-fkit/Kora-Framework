@@ -148,6 +148,9 @@ fi
 # nếu không copy sang đây thì fix skill (vd claude-knowledge-connect) KHÔNG bao giờ tới user dù CORE đã update.
 GLOBAL_CMD="$HOME/.claude/commands"
 SRC_CMD="$REPO_ROOT/.claude/commands"
+# MIGRATION: rsync KHÔNG --delete nên skill /kora-* CŨ kẹt lại trong CORE (REPO_ROOT/.claude/commands) →
+# lẫn với /claude-knowledge-* gây "lỗi các skill". Dọn THẲNG trong CORE (cả khi SRC_CMD==GLOBAL_CMD ở bản dev).
+rm -f "$SRC_CMD"/kora-*.md 2>/dev/null || true
 if [ -d "$SRC_CMD" ] && [ "$(cd "$SRC_CMD" && pwd)" != "$(cd "$GLOBAL_CMD" 2>/dev/null && pwd || echo _nope_)" ]; then
   mkdir -p "$GLOBAL_CMD"
   rm -f "$GLOBAL_CMD"/kora-*.md 2>/dev/null || true   # MIGRATION: gỡ lệnh /kora-* CŨ (đã đổi tên → /claude-knowledge-*)

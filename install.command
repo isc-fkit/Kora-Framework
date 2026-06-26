@@ -75,6 +75,8 @@ for d in workflows scripts templates config tools assets; do
 done
 # Workflow CHỈ-DUY-TRÌ — gỡ khỏi bản cài người dùng (phát hành/tiến hóa hệ thống chỉ ở người viết repo).
 for mw in 12-release.md 13-evolve-system.md; do rm -f "$DEST_CORE/workflows/$mw" 2>/dev/null || true; done
+# MIGRATION: dọn skill /kora-* CŨ kẹt trong CORE (orphan từ bản cài cũ — đã đổi tên → /claude-knowledge-*) để không lẫn skill.
+rm -f "$DEST_CORE/.claude/commands"/kora-*.md 2>/dev/null || true
 [ -f "$SRC/CLAUDE.md" ] && cp "$SRC/CLAUDE.md" "$DEST_CORE/" || true
 # version.json + CHANGELOG → để /claude-knowledge-version /claude-knowledge-update đọc được bản đã cài.
 [ -f "$SRC/version.json" ] && cp "$SRC/version.json" "$DEST_CORE/" || true

@@ -10,6 +10,17 @@
 
 ---
 
+## v2.12.44 "Claude-1" — 2026-06-25
+
+**SỬA lỗi "lẫn skill" sau khi đổi tên `/kora-*` → `/claude-knowledge-*`.**
+
+- **Gốc:** `update.command` đồng bộ CORE bằng `rsync` **KHÔNG `--delete`** + chỉ dọn `kora-*` ở `~/.claude/commands/` +
+  Downloads, **KHÔNG dọn trong CORE** `~/.claude/kora-framework/.claude/commands/` → **19 skill `/kora-*` CŨ kẹt lại** lẫn
+  với 18 skill `/claude-knowledge-*` mới → Cowork/Claude gọi nhầm / báo lỗi skill.
+- **Sửa:** `scripts/update.command` + `install.command` nay **dọn THẲNG `kora-*.md` trong CORE** (`$REPO_ROOT/.claude/commands`
+  / `$DEST_CORE/.claude/commands`) mỗi lần update/cài → skill cũ không còn tồn tại song song. Cập nhật bản này 1 lần để tự dọn.
+- (Cleanup thủ công đã chạy trên máy đang dùng: 19 `kora-*.md` cũ → 0.)
+
 ## v2.12.43 "Claude-1" — 2026-06-25
 
 **Tích hợp Gmail API (OAuth2) — fallback gửi mail khi SMTP bị chặn — vào `/claude-knowledge-connect`.**

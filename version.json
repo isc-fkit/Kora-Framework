@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.12.43",
+  "version": "2.12.44",
   "codename": "Claude-1",
   "released": "2026-06-25",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
-  "force": false,
-  "intro": "Kora-Framework v2.12.43: tích hợp Gmail API (OAuth2) — FALLBACK gửi mail khi SMTP bị chặn — vào /claude-knowledge-connect. gmail_oauth_setup.py thêm --write-zshrc / --write-env: lấy refresh token rồi GHI THẲNG 3 key GMAIL_OAUTH_* vào ~/.zshrc (hoặc .env.local cho lịch nền), chmod 600, KHÔNG in token ra chat → chạy được qua run_command an toàn. Connect có lựa chọn [Gmail API (OAuth2)]; send_report.py --transport auto tự SMTP→Gmail API khi SMTP lỗi (cùng banner/đính kèm)."
+  "force": true,
+  "intro": "Kora-Framework v2.12.44: SỬA lỗi 'lẫn skill' sau khi đổi tên /kora-* → /claude-knowledge-*. update.command dùng rsync KHÔNG --delete nên skill /kora-* CŨ kẹt lại trong CORE (~/.claude/kora-framework/.claude/commands) lẫn với skill mới → gọi nhầm/lỗi. Nay update.command + install.command DỌN THẲNG kora-*.md trong CORE. Cập nhật bản này để tự dọn skill cũ."
 }
