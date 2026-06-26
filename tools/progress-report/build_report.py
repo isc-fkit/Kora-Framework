@@ -546,7 +546,100 @@ def svg_bars(rows, color, maxn=8, w=360):
     return f'<svg width="{w}" height="{h}" viewBox="0 0 {w} {h}">{"".join(parts)}</svg>'
 
 
-def render_fragment(m, vault):
+# ── OKR / Standing-Meeting (file CHIẾN LƯỢC, KHÔNG phải task) — section RIÊNG ──
+# Claude đọc file OKR/Standing-Meeting → lập reports/_okr-blocks.json (cấu trúc) → build_report render
+# section chia nhóm (grid) + khối AI phân tích RIÊNG, vào CẢ dashboard LẪN email. None → không có section.
+def load_okr_blocks(out_dir):
+    """Đọc reports/_okr-blocks.json → dict {title, source, groups:[{icon,label,items:[{name,chips:[]}]}], analysis_md}. None nếu thiếu/sai."""
+    p = os.path.join(out_dir, "_okr-blocks.json")
+    if not os.path.exists(p):
+        return None
+    try:
+        data = json.loads(open(p, encoding="utf-8").read())
+    except Exception:
+        return None
+    if not isinstance(data, dict) or not isinstance(data.get("groups"), list) or not data["groups"]:
+        return None
+    return data
+
+
+def _okr_chip(chip):
+    """chip = 'text' HOẶC {'text':..., 'tone':'ok|warn|risk|info'} → (text, tone)."""
+    if isinstance(chip, dict):
+        return str(chip.get("text", "")).strip(), str(chip.get("tone", "") or "").lower()
+    return str(chip).strip(), ""
+
+
+def render_okr_dashboard(data):
+    """Section OKR/Standing-Meeting cho DASHBOARD (grid chia nhóm + AI riêng)."""
+    if not data:
+        return ""
+    title = esc(data.get("title") or "Cập nhật nhóm / OKR")
+    src = esc(data.get("source") or "")
+    tone_c = {"ok": PAL["green"], "warn": PAL["orange"], "risk": PAL["red"], "info": PAL["blue"]}
+    cols = []
+    for g in data.get("groups", []):
+        items_html = ""
+        for it in (g.get("items") or []):
+            chips = ""
+            for ch in (it.get("chips") or []):
+                t, tone = _okr_chip(ch)
+                if not t:
+                    continue
+                c = tone_c.get(tone, PAL["mut"])
+                chips += (f'<span style="display:inline-block;margin:3px 4px 0 0;padding:2px 9px;border-radius:999px;'
+                          f'border:1px solid {c};color:{c};font-size:11px;line-height:1.5">{esc(t)}</span>')
+            items_html += (f'<div style="margin-top:9px"><div style="font-weight:700;color:{PAL["ink"]};font-size:13px">'
+                           f'{esc(it.get("name", ""))}</div><div>{chips}</div></div>')
+        cols.append(f'<div style="flex:1 1 250px;min-width:230px"><div style="color:{PAL["teal"]};font-weight:800;'
+                    f'font-size:13.5px;border-bottom:1px solid {PAL["line"]};padding-bottom:5px">'
+                    f'{esc(g.get("icon", ""))} {esc(g.get("label", ""))}</div>{items_html}</div>')
+    grid = f'<div style="display:flex;flex-wrap:wrap;gap:16px 28px">{"".join(cols)}</div>'
+    ana = ""
+    if data.get("analysis_md"):
+        ana = (f'<div style="margin-top:14px;border-top:1px dashed {PAL["line"]};padding-top:10px">'
+               f'<b style="color:#c9b8ff">🤖 Phân tích AI — OKR / Chiến lược</b>{render_ai_cards(data["analysis_md"])}</div>')
+    badge = f' · <span style="color:{PAL["mut"]};font-size:14px">{src}</span>' if src else ""
+    return f'<h2>📋 {title}{badge}</h2><div class="pr-card">{grid}{ana}</div>'
+
+
+def render_okr_email(data):
+    """Section OKR/Standing-Meeting cho EMAIL (email-safe, chia nhóm + AI riêng)."""
+    if not data:
+        return ""
+    title = esc(data.get("title") or "Cập nhật nhóm / OKR")
+    src = esc(data.get("source") or "")
+    tone_c = {"ok": EPAL["green"], "warn": EPAL["orange"], "risk": EPAL["red"], "info": EPAL["blue"]}
+    blocks = ""
+    for g in data.get("groups", []):
+        items = ""
+        for it in (g.get("items") or []):
+            chips = ""
+            for ch in (it.get("chips") or []):
+                t, tone = _okr_chip(ch)
+                if not t:
+                    continue
+                c = tone_c.get(tone, EPAL["mut"])
+                chips += (f'<span style="display:inline-block;margin:2px 4px 0 0;padding:1px 8px;border:1px solid {c};'
+                          f'color:{c};border-radius:999px;font-size:11px">{esc(t)}</span>')
+            items += (f'<div style="margin-top:6px"><span style="font-weight:700;color:{EPAL["ink"]};font-size:12.5px">'
+                      f'{esc(it.get("name", ""))}</span><br>{chips}</div>')
+        blocks += (f'<div style="margin-top:10px"><div style="color:{EPAL["blue"]};font-weight:800;font-size:12.5px;'
+                   f'border-bottom:1px solid {EPAL["line"]};padding-bottom:3px">{esc(g.get("icon", ""))} '
+                   f'{esc(g.get("label", ""))}</div>{items}</div>')
+    ana = ""
+    if data.get("analysis_md"):
+        ana = (f'<div style="margin-top:10px;border-top:1px dashed {EPAL["line"]};padding-top:8px">'
+               f'{render_ai_cards(data["analysis_md"])}</div>')
+    badge = f' · {src}' if src else ""
+    return (f'<tr><td class="kpad" style="padding:10px 22px 2px">'
+            f'<div style="font-size:13px;font-weight:800;color:{EPAL["vio"]};text-transform:uppercase;'
+            f'letter-spacing:.03em;margin-bottom:4px">📋 {title}{badge}</div>'
+            f'<div style="background:{EPAL["chip"]};border:1px solid {EPAL["line"]};border-radius:10px;'
+            f'padding:10px 13px">{blocks}{ana}</div></td></tr>')
+
+
+def render_fragment(m, vault, okr=None):
     t = m["time"]
     cards = "".join([
         kpi("Tổng hạng mục", m["total"], color="ink"),
@@ -802,6 +895,7 @@ def render_fragment(m, vault):
                       f'hạng mục PHỨC TẠP CAO (điểm ≥ {cthr}) / {cxm.get("total_scored", 0)} hạng mục công việc có điểm · cao nhất '
                       f'<b>{cxm.get("max", 0)}</b>. Số càng lớn càng phức tạp → ưu tiên review &amp; nguồn lực.</p>'
                       f'{cbars}{chtbl}</div>')
+    okr_html = render_okr_dashboard(okr)
     return f"""{style}<div class="pr">
 <h1>📊 Báo cáo tiến độ dự án</h1>
 <div class="pr-sub">{_scope} · Vault: {esc(os.path.basename(vault.rstrip('/')))} · cập nhật {esc(gen)} (giờ UTC) · {m['total']} hạng mục công việc</div>
@@ -815,6 +909,7 @@ def render_fragment(m, vault):
 {cx_section}
 {proj_section}
 {("<h2>🗺️ Roadmap / Sprint (điều phối)</h2>" + roadmap_html) if roadmap_html else ""}
+{okr_html}
 <h2>Sprint đang chạy</h2>{sprint_html}
 <h2>Theo người phụ trách (giờ công &amp; OT)</h2><div class="pr-card">{assignee_html}</div>
 <h2>Log giờ theo loại</h2>{logtype_html}
@@ -886,7 +981,7 @@ def _type_label(t):
     return _TYPE_LABELS.get((t or "issue").lower(), (t or "Issue").title())
 
 
-def render_email_body(m, vault, banner_url=""):
+def render_email_body(m, vault, banner_url="", okr=None):
     """HTML tĩnh, email-safe, responsive. Chừa khối AI giữa <!--KR-AI-START--> ... <!--KR-AI-END-->
     để Claude THAY bằng phân tích CHI TIẾT (rủi ro · dự đoán · đề xuất) trước khi gửi."""
     t, g = m["time"], m["by_status_group"]
@@ -1053,6 +1148,8 @@ def render_email_body(m, vault, banner_url=""):
             f'<td style="padding:6px 8px;font-size:11px;color:{EPAL["mut"]};text-align:center">Done</td>'
             f'<td style="padding:6px 8px;font-size:11px;color:{EPAL["mut"]};text-align:center">SP</td>'
             f'<td style="padding:6px 8px;font-size:11px;color:{EPAL["mut"]};text-align:center">Kết thúc</td></tr>{rrows}</table></td></tr>')
+    # 📋 OKR / Standing-Meeting block (email) — section RIÊNG cho file chiến lược (không phải task)
+    okr_block = render_okr_email(okr)
     # 📊 Biểu đồ EMAIL-SAFE (table + bgcolor) — render mọi client, không SVG/JS
     asg = [a for a in m["by_assignee"] if a["assignee"] not in ("(chưa giao)", "—", "")][:6]
     asg_max = max((a["total"] for a in asg), default=1)
@@ -1150,6 +1247,7 @@ def render_email_body(m, vault, banner_url=""):
   {proj_block}
   {asg_block}
   {roadmap_block}
+  {okr_block}
   {spr_block}
   {cap_block}
   <tr><td class="kpad" style="padding:12px 22px 4px">
@@ -1466,15 +1564,17 @@ def main():
             banner_url = bm.group(1).strip()
     if not banner_url:  # mặc định → email LUÔN có banner (asset trên nhánh main)
         banner_url = "https://raw.githubusercontent.com/isc-fkit/Kora-Framework/main/assets/banner-daily-report.jpg"
-    fragment = render_fragment(m, vault)
 
     out = args.out or os.path.join(DATA, "reports")
     os.makedirs(out, exist_ok=True)
+    okr = load_okr_blocks(out)   # section RIÊNG cho file OKR/Standing-Meeting (Claude lập reports/_okr-blocks.json); None → bỏ qua
+    fragment = render_fragment(m, vault, okr)
+
     now = datetime.now()
     day = now.strftime("%Y-%m-%d")
     stamp = now.strftime("%Y-%m-%d_%H%M")            # NGÀY-GIỜ tạo → gắn vào tên file (mỗi lần chạy 1 bản riêng)
     fragment_html = standalone(fragment)
-    ebody = render_email_body(m, vault, banner_url)   # email body (mobile) — Claude điền AI giữa <!--KR-AI-->
+    ebody = render_email_body(m, vault, banner_url, okr)   # email body (mobile) — Claude điền AI giữa <!--KR-AI-->
     data_json = json.dumps(m, ensure_ascii=False, indent=2)
     # 1) LỊCH SỬ THEO NGÀY — reports/<YYYY-MM-DD>/<file>-<ngày-giờ>.html (không ghi đè; nhiều lần/ngày = nhiều bản)
     day_dir = os.path.join(out, day)
@@ -1502,7 +1602,7 @@ def main():
             banner_data_uri = f"data:image/jpeg;base64,{b64}"
     except Exception:
         pass
-    epreview = render_email_body(m, vault, banner_data_uri)
+    epreview = render_email_body(m, vault, banner_data_uri, okr)
     epreview_latest = os.path.join(out, "email-preview-latest.html")
     open(epreview_latest, "w", encoding="utf-8").write(epreview)
     open(os.path.join(day_dir, f"email-preview-{stamp}.html"), "w", encoding="utf-8").write(epreview)

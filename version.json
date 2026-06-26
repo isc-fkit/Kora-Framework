@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.12.40",
+  "version": "2.12.41",
   "codename": "Claude-1",
   "released": "2026-06-25",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.12.40: chọn file SharePoint — ô 'Other' giờ cho TÌM THEO KEYWORD/TÊN FILE. Gõ từ khóa (vd 'standing meeting') vào ô Other → sharepoint_search query=<keyword> tìm theo tên toàn site (có thể kèm folderName) → liệt kê kết quả khớp để chọn. Nhanh hơn khi biết tên file, không phải duyệt từng folder. Áp cho cả bước chọn FOLDER lẫn chọn FILE."
+  "intro": "Kora-Framework v2.12.41: file OKR / Standing-Meeting (non-task) có SECTION PHÂN TÍCH RIÊNG trong báo cáo. build_report đọc reports/_okr-blocks.json (Claude cấu trúc từ file chiến lược) → render section RIÊNG: nội dung chia nhóm (grid: RD/Medical/CSKH... + chip trạng thái màu) + khối AI phân tích riêng cho OKR/chiến lược — ở CẢ dashboard LẪN email. Không còn dựng tay; nhất quán, chia rõ dễ nhìn. Không có file OKR → không có section (tương thích ngược)."
 }

@@ -77,10 +77,16 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
    > 👤 **HỎI RÕ "Ai là PM dự án?"** (1 người) — để AI phân tích theo góc PM + roadmap điều phối, query đúng người. Ghi vào `reports.pm_members` (đứng đầu).
 5c. **HỎI: "Có phân tích ROADMAP không?"** — AskUserQuestion [Có / Không].
    - **Có** → báo cáo thêm mục **🗺️ Roadmap & điều phối sprint** (build_report đã sinh section roadmap: backlog/current/next + SP).
-   - Nếu nhóm SharePoint có chọn **file MEETING/Standing Meeting/OKR/chiến lược** (kể cả **.pptx/.docx** như
+   - Nếu nhóm SharePoint/Local có chọn **file MEETING/Standing Meeting/OKR/chiến lược** (kể cả **.pptx/.docx** như
      `Standing Meeting - RD - 06.2026 - W4.pptx`) → ĐỌC nội dung (SharePoint: `read_resource` trả text trích xuất —
-     đủ dùng cho .pptx/.docx; hoặc `--from-url`; local: đọc trực tiếp/`workflow 02`) → lưu `reports/_okr-latest.txt`
-     làm **BỐI CẢNH** cho AI roadmap. **File meeting/OKR = ĐỌC LÀM CONTEXT, KHÔNG import thành task/note** (khác file REPORT task data).
+     đủ dùng cho .pptx/.docx; hoặc `--from-url`; local: đọc trực tiếp/`workflow 02`). **File meeting/OKR = ĐỌC LÀM
+     CONTEXT, KHÔNG import thành task/note** (khác file REPORT task data). Sau đó:
+     - 📋 **LẬP `reports/_okr-blocks.json`** (Claude cấu trúc từ nội dung file) → build_report render **section RIÊNG**
+       (grid chia nhóm + khối AI phân tích riêng) ở **CẢ dashboard LẪN email**. Schema:
+       `{"title": "...", "source": "SharePoint", "groups": [{"icon":"🔬","label":"RD / Solution","items":[{"name":"Insulin Tool","chips":["Log insulin 18-25/06",{"text":"Câu hỏi BS/BN","tone":"warn"}]}]}], "analysis_md": "## 🔴 Rủi ro\\n...\\n## 📌 Tóm tắt\\n..."}`.
+       `tone` ∈ `ok|warn|risk|info` (màu chip) — bỏ trống = trung tính. `analysis_md` = phân tích AI RIÊNG cho OKR/chiến lược
+       (insight · rủi ro · ĐỐI CHIẾU với tiến độ sprint/OKR), viết theo góc PM. **Mỗi nhóm/đầu việc chia rõ cho dễ nhìn.**
+     - Cũng lưu `reports/_okr-latest.txt` (text thô) làm **BỐI CẢNH** cho mục 🗺️ Roadmap của AI chính (Bước 1.5).
 6. **BẮT BUỘC dựng báo cáo QUA `build_report.py` — TUYỆT ĐỐI KHÔNG tự viết file HTML báo cáo bằng tay.**
    `python3 "$T/progress-report/build_report.py" --source-ids "<SRC_IDS>" --projects "<KEYS>" --scope <SCOPE> --recent-days <NDAYS>`
    (per `workflows/14-progress-report.md`) → ra dashboard CHUẨN (có **banner**, đủ section: trạng thái · theo người ·

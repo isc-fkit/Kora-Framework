@@ -10,6 +10,17 @@
 
 ---
 
+## v2.12.41 "Claude-1" — 2026-06-25
+
+**File OKR / Standing-Meeting (non-task) có SECTION PHÂN TÍCH RIÊNG trong báo cáo.**
+
+- **📋 Section riêng cho file chiến lược**: `build_report.py` đọc `reports/_okr-blocks.json` (Claude cấu trúc từ file
+  OKR/Standing-Meeting) → render **section RIÊNG**: **nội dung chia nhóm** (grid: RD/Solution · Medical · CSKH… mỗi đầu
+  việc + **chip trạng thái màu** ok/warn/risk/info) **+ khối AI phân tích RIÊNG** cho OKR/chiến lược (đối chiếu tiến độ,
+  góc PM). Hiện ở **CẢ dashboard LẪN email + email-preview**. Trước đây nội dung này phải dựng tay; nay tool render nhất quán.
+- Schema `_okr-blocks.json`: `{title, source, groups:[{icon,label,items:[{name,chips:[ "text" | {text,tone} ]}]}], analysis_md}`.
+- Không có `_okr-blocks.json` → **không có section** (tương thích ngược, báo cáo task thuần như cũ). Sửa flow `daily-report` + workflow 14.
+
 ## v2.12.40 "Claude-1" — 2026-06-25
 
 **Chọn file SharePoint: ô "Other" cho TÌM THEO KEYWORD / TÊN FILE.**

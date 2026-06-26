@@ -187,6 +187,10 @@ Sinh khối **🤖 Phân tích AI — CỰC KỲ CHI TIẾT** dưới dạng **M
      + SP + done%) → bức tranh tổng; **đề xuất bốc task nào vào sprint KẾ** + **sắp xếp sprint HIỆN TẠI** cho hợp lý; gắn mục
      tiêu **OKR/chiến lược** từ `reports/_okr-latest.txt` (nếu có); viết theo góc **PM dự án** (người đã hỏi ở daily-report 5b/5c).
    - Mọi mục viết **CHI TIẾT + kèm BẢNG số liệu đầy đủ** (theo người/sprint/complexity/quá hạn) — từ DỮ LIỆU, không bịa.
+   - 📋 **FILE OKR / STANDING-MEETING (non-task) → SECTION RIÊNG:** nếu user chọn file chiến lược → Claude cấu trúc nội dung
+     thành `reports/_okr-blocks.json` **TRƯỚC khi build_report** → tool render **section riêng** (grid chia nhóm + khối AI
+     phân tích RIÊNG cho OKR) ở **CẢ dashboard LẪN email**. Schema: `{"title","source","groups":[{"icon","label","items":[{"name","chips":[ "text" | {"text","tone":"ok|warn|risk|info"} ]}]}],"analysis_md":"## ...md phân tích riêng..."}`.
+     Chia rõ từng nhóm/đầu việc cho dễ nhìn; `analysis_md` đối chiếu OKR ↔ tiến độ sprint, góc PM. (Khác mục 🗺️ Roadmap của task report.)
 2. **Render + chèn (BẮT BUỘC):** `python3 "$T/progress-report/build_report.py" --inject-ai reports/ai-analysis-latest.md`
    → tool tự thay khối `<!--KR-AI-->` bằng **CARD MÀU theo mục** + **bảng tô màu cột trạng thái** (Done=xanh lá ·
    In Review=xanh dương · In Progress=cam · Test=tím · Chưa làm=xám) trong **CẢ 3 file -latest cùng lúc**:
