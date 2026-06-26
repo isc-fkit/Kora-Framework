@@ -169,7 +169,9 @@ def main():
     gmail_refresh_token = cfg("GMAIL_OAUTH_REFRESH_TOKEN")
     gmail_api_user = cfg("GMAIL_API_USER", "me")
     gmail_creds_ok = bool(gmail_client_id and gmail_client_secret and gmail_refresh_token)
-    https_proxy = cfg("HTTPS_PROXY") or cfg("https_proxy")   # proxy công ty cho CONNECT 443
+    # proxy công ty cho CONNECT 443. KORA_HTTPS_PROXY = proxy RIÊNG cho Kora mailer (để user dùng proxy-toggle
+    # mà KHÔNG cần bật HTTPS_PROXY hệ thống cho cả shell). Ưu tiên: HTTPS_PROXY > https_proxy > KORA_HTTPS_PROXY.
+    https_proxy = cfg("HTTPS_PROXY") or cfg("https_proxy") or cfg("KORA_HTTPS_PROXY")
     try:
         smtp_timeout = int(cfg("SMTP_TIMEOUT", "15"))         # ngắn để fallback nhanh; override được
     except ValueError:

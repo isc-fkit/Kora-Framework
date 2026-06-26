@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.12.46",
+  "version": "2.12.47",
   "codename": "Claude-1",
   "released": "2026-06-25",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.12.46: kết nối Gmail API (OAuth2) tối ưu như các connect skill khác — KHÔNG sửa tay ~/.zshrc nữa. /claude-knowledge-connect → API → Gmail OAuth2 nay TỰ TẠO tools/report-mailer/.env.local (placeholder Client ID/Secret + HTTPS_PROXY); user chỉ dán 2 giá trị vào FILE (không qua chat); 1 lệnh gmail_oauth_setup.py --env <file> --write-env <file> đọc creds từ file → uỷ quyền browser → ghi refresh token vào CÙNG file (không in token). gmail_oauth_setup.py thêm cờ --env."
+  "intro": "Kora-Framework v2.12.47: Gmail API creds về ĐÚNG ~/.zshrc (rule #6, KHÔNG rải .env.local trong source). connect → Gmail OAuth2: user dán Client ID/Secret vào file input TẠM → gmail_oauth_setup.py --env <file> --write-zshrc ghi GMAIL_OAUTH_* vào ~/.zshrc rồi xoá file input. Proxy gửi mail dùng var RIÊNG KORA_HTTPS_PROXY (send_report đọc var này) — KHÔNG đụng HTTPS_PROXY hệ thống, hợp với ai dùng proxy-toggle bật/tắt theo mạng."
 }

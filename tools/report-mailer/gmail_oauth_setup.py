@@ -112,8 +112,8 @@ def main():
     ap = argparse.ArgumentParser(description="Lấy Gmail OAuth refresh token (1 lần).")
     ap.add_argument("--client-id", default=os.getenv("GMAIL_OAUTH_CLIENT_ID"))
     ap.add_argument("--client-secret", default=os.getenv("GMAIL_OAUTH_CLIENT_SECRET"))
-    ap.add_argument("--proxy", default=os.getenv("HTTPS_PROXY") or os.getenv("https_proxy"),
-                    help="Proxy HTTPS (mặc định đọc HTTPS_PROXY).")
+    ap.add_argument("--proxy", default=os.getenv("HTTPS_PROXY") or os.getenv("https_proxy") or os.getenv("KORA_HTTPS_PROXY"),
+                    help="Proxy HTTPS (mặc định đọc HTTPS_PROXY, rồi KORA_HTTPS_PROXY).")
     ap.add_argument("--env", dest="env_file",
                     help="Đọc GMAIL_OAUTH_CLIENT_ID/SECRET (+ HTTPS_PROXY) từ file .env.local này nếu chưa truyền qua --client-id/env. "
                          "Dùng chung file với --write-env để 1 file lo cả input lẫn output (flow /claude-knowledge-connect).")
@@ -135,7 +135,7 @@ def main():
             _fv[_k.strip()] = _v.strip().strip('"').strip("'")
         args.client_id = args.client_id or _fv.get("GMAIL_OAUTH_CLIENT_ID")
         args.client_secret = args.client_secret or _fv.get("GMAIL_OAUTH_CLIENT_SECRET")
-        args.proxy = args.proxy or _fv.get("HTTPS_PROXY") or _fv.get("https_proxy")
+        args.proxy = args.proxy or _fv.get("HTTPS_PROXY") or _fv.get("https_proxy") or _fv.get("KORA_HTTPS_PROXY")
     if not args.client_id or not args.client_secret:
         sys.exit("❌ Thiếu Client ID/Secret. Truyền --client-id/--client-secret, hoặc export GMAIL_OAUTH_CLIENT_ID/SECRET, "
                  "hoặc dán vào file rồi --env <file>.")
@@ -178,17 +178,21 @@ def main():
         "GMAIL_OAUTH_CLIENT_SECRET": args.client_secret,
         "GMAIL_OAUTH_REFRESH_TOKEN": refresh,
     }
+    # Lưu proxy RIÊNG cho Kora mailer (KORA_HTTPS_PROXY) → mail tự chạy được khi user dùng proxy-toggle
+    # mà KHÔNG cần bật HTTPS_PROXY hệ thống. Chỉ ghi khi có proxy.
+    if args.proxy:
+        kv["KORA_HTTPS_PROXY"] = args.proxy
     # GHI THẲNG (an toàn cho run_command — KHÔNG in token ra chat)
     if args.write_zshrc:
         rc = os.path.expanduser("~/.zshrc")
         _upsert_keys(rc, kv, as_export=True)
-        print(f"\n✅ THÀNH CÔNG — đã ghi 3 key Gmail API vào {rc} (token KHÔNG in ra màn hình).")
+        print(f"\n✅ THÀNH CÔNG — đã ghi các key Gmail API vào {rc} (token KHÔNG in ra màn hình).")
         print("   → Chạy `source ~/.zshrc` (hoặc mở shell mới). Kiểm tra:")
         print("     python3 tools/report-mailer/send_report.py --check --transport https")
         return
     if args.write_env:
         _upsert_keys(args.write_env, kv, as_export=False)
-        print(f"\n✅ THÀNH CÔNG — đã ghi 3 key Gmail API vào {args.write_env} (KEY=VALUE, token KHÔNG in). Dùng cho lịch nền.")
+        print(f"\n✅ THÀNH CÔNG — đã ghi các key Gmail API vào {args.write_env} (KEY=VALUE, token KHÔNG in). Dùng cho lịch nền.")
         print("   Kiểm tra: python3 tools/report-mailer/send_report.py --check --transport https --env " + args.write_env)
         return
     # Chế độ MẶC ĐỊNH (chạy tay ở Terminal): in để user tự dán

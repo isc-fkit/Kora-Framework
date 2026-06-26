@@ -10,6 +10,18 @@
 
 ---
 
+## v2.12.47 "Claude-1" — 2026-06-25
+
+**Gmail API creds về ĐÚNG `~/.zshrc` (rule #6) + proxy riêng `KORA_HTTPS_PROXY` (không đụng proxy-toggle hệ thống).**
+
+- **Creds ở `~/.zshrc`, KHÔNG rải `.env.local` trong source:** `connect → Gmail OAuth2` nay tạo file input **tạm**
+  `tools/report-mailer/.oauth-input` (user dán Client ID/Secret vào FILE, không qua chat) → `gmail_oauth_setup.py --env <file>
+  **--write-zshrc**` ghi `GMAIL_OAUTH_*` vào `~/.zshrc` → **xoá file input**. (v2.12.46 lỡ default `.env.local` — nay sửa đúng rule #6.)
+- **Proxy gửi mail = var RIÊNG `KORA_HTTPS_PROXY`:** `send_report.py` + `gmail_oauth_setup.py` đọc proxy theo thứ tự
+  `HTTPS_PROXY > https_proxy > **KORA_HTTPS_PROXY**`. Nhờ vậy ai dùng **proxy-toggle** (bật/tắt `HTTPS_PROXY` theo mạng) vẫn
+  để mail tự gửi được mà KHÔNG phải bật proxy hệ thống cho cả shell. `--write-zshrc/--write-env` tự ghi kèm `KORA_HTTPS_PROXY` nếu có proxy.
+- Lịch nền (cron/launchd) → `--write-env tools/report-mailer/.env.local` (ngoại lệ rule #6 cho nền).
+
 ## v2.12.46 "Claude-1" — 2026-06-25
 
 **Kết nối Gmail API (OAuth2) tối ưu như các connect skill khác — không sửa tay `~/.zshrc`.**
