@@ -10,6 +10,18 @@
 
 ---
 
+## v2.12.45 "Claude-1" — 2026-06-25
+
+**KHÔNG còn tạo "rác" trong Downloads — folder Skill đi theo DYNAMIC PATH cạnh CORE.**
+
+- **Gốc:** `install.command` dựng cả một project (docs/vault/config/CLAUDE.md) + folder `Skill/` trong `~/Downloads/Knowledge-Base`
+  → đổ rác vào Downloads, lại trùng với project thật user tự tạo.
+- **Sửa:** folder Skill (để upload Cowork) nay đặt **dynamic** tại `~/.claude/kora-framework/Skill` (theo `$HOME`, cạnh CORE)
+  — hoặc trong `KORA_PROJECT` nếu user đặt biến đó. **Bỏ scaffold project ở Downloads**: `/claude-knowledge-init` (workflow 00
+  Bước 0) tự dựng `docs/ + vault + config` ở **folder bạn mở** (bất kỳ đâu). `install` + `update` **tự dọn** folder `Skill/`
+  kiểu cũ trong `~/Downloads/Knowledge-Base`.
+- (Đã dọn trên máy đang dùng: gỡ project scaffold rỗng ở Downloads; folder upload chuyển về `~/.claude/kora-framework/Skill`.)
+
 ## v2.12.44 "Claude-1" — 2026-06-25
 
 **SỬA lỗi "lẫn skill" sau khi đổi tên `/kora-*` → `/claude-knowledge-*`.**

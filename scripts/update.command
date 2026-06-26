@@ -157,10 +157,13 @@ if [ -d "$SRC_CMD" ] && [ "$(cd "$SRC_CMD" && pwd)" != "$(cd "$GLOBAL_CMD" 2>/de
   cp "$SRC_CMD"/claude-knowledge-*.md "$GLOBAL_CMD"/ 2>/dev/null || true
   rm -f "$GLOBAL_CMD/claude-knowledge-release.md" 2>/dev/null || true   # maintainer-only — không cài cho user
   echo "🔄 Đã refresh skill /claude-knowledge-* vào ~/.claude/commands/ (gỡ /kora-* cũ)."
-  # Đồng bộ luôn folder Skill/ (upload tay vào Cowork) nếu có.
-  for sd in "$HOME/Downloads/Knowledge-Base/Skill" "$REPO_ROOT/Skill"; do
+  # Folder Skill/ (upload tay vào Cowork) — DYNAMIC PATH cạnh CORE (~/.claude/kora-framework/Skill), KHÔNG đụng Downloads.
+  mkdir -p "$REPO_ROOT/Skill" 2>/dev/null || true
+  for sd in "$REPO_ROOT/Skill"; do
     [ -d "$sd" ] && { rm -f "$sd"/kora-*.md 2>/dev/null || true; cp "$GLOBAL_CMD"/claude-knowledge-*.md "$sd"/ 2>/dev/null || true; }
   done
+  # Dọn RÁC bản cũ: folder Skill kiểu cũ trong Downloads (không refresh ở đó nữa).
+  rm -rf "$HOME/Downloads/Knowledge-Base/Skill" "$HOME/Downloads/Knowledge-Base/skill" 2>/dev/null || true
 fi
 
 # --- Báo version mới + nhắc reindex ------------------------------------------

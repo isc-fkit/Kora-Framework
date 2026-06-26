@@ -85,47 +85,27 @@ rm -f "$DEST_CORE/.claude/commands"/kora-*.md 2>/dev/null || true
 NDOM="$(ls -1 "$DEST_CORE"/config/domain-presets/*.md 2>/dev/null | wc -l | tr -d ' ')"
 [ -f "$DEST_CORE/config/domain-presets/healthcare.md" ] || echo "⚠️  Thiếu preset Healthcare — nguồn cài có thể cũ."
 
-# --- Resolve thư mục Downloads động (theo OS; tự fallback nếu không có) ---
-DL_BASE="$HOME/Downloads"
-if [ "$(uname -s 2>/dev/null)" = "Linux" ] && have xdg-user-dir; then
-  _d="$(xdg-user-dir DOWNLOAD 2>/dev/null || true)"
-  [ -n "$_d" ] && DL_BASE="$_d"
-fi
-[ -d "$DL_BASE" ] || DL_BASE="$HOME"   # Downloads không tồn tại → về home
-
-# --- 3) Dựng ROOT Knowledge-Base trong Downloads + KHỞI TẠO project NGAY (folder skill BÊN TRONG) ---
-ROOT="${KORA_PROJECT:-$DL_BASE/Knowledge-Base}"
-SKILL_DIR="$ROOT/Skill"
-echo "📦 Khởi tạo project tại: $ROOT"
+# --- 3) Folder SKILL (để upload vào Cowork) — DYNAMIC PATH, KHÔNG đổ rác vào Downloads ---
+# Mặc định đặt CẠNH CORE: ~/.claude/kora-framework/Skill (theo $HOME, ổn định, không rải file vào Downloads).
+# Muốn để trong 1 project cụ thể → đặt biến KORA_PROJECT=<đường dẫn project> trước khi cài.
+# KHÔNG tự scaffold project nữa: init (/claude-knowledge-init, workflow 00 Bước 0) tự dựng docs/vault/config ở FOLDER user mở (bất kỳ đâu).
+if [ -n "${KORA_PROJECT:-}" ]; then SKILL_DIR="$KORA_PROJECT/Skill"; else SKILL_DIR="$DEST_CORE/Skill"; fi
 mkdir -p "$SKILL_DIR"
-
-# Folder skill nằm BÊN TRONG ROOT (để upload tay vào Cowork) — refresh mỗi lần cài/update.
-rm -f "$SKILL_DIR"/kora-*.md "$SKILL_DIR"/claude-knowledge-*.md 2>/dev/null || true
+rm -f "$SKILL_DIR"/kora-*.md 2>/dev/null || true            # dọn skill /kora-* CŨ (đã đổi tên)
+rm -f "$SKILL_DIR"/claude-knowledge-*.md 2>/dev/null || true
 cp "$DEST_CMD"/claude-knowledge-*.md "$SKILL_DIR"/ 2>/dev/null || true
 
-# Khởi tạo cấu trúc project GỌN ngay trong ROOT — CHỈ khi chưa phải project Kora (tránh đè tri thức).
-if [ ! -f "$ROOT/config/factory-config.yaml" ] && [ ! -d "$ROOT/config/domain-presets" ]; then
-  echo "📁 Dựng cấu trúc project (docs/ + vault + config) bên trong $ROOT"
-  mkdir -p "$ROOT"/docs/01-domain "$ROOT"/docs/02-product "$ROOT"/docs/03-features "$ROOT"/docs/04-design \
-           "$ROOT"/docs/05-architecture "$ROOT"/docs/06-decisions "$ROOT"/docs/07-research "$ROOT"/docs/08-glossary \
-           "$ROOT/inbox" "$ROOT/.kb" "$ROOT/config" "$ROOT/Kora_Brain/00_Index"
-  [ -f "$DEST_CORE/config/factory-config.example.yaml" ] && cp "$DEST_CORE/config/factory-config.example.yaml" "$ROOT/config/factory-config.yaml"
-  [ -d "$DEST_CORE/config/domain-presets" ] && cp -R "$DEST_CORE/config/domain-presets" "$ROOT/config/domain-presets"
-  printf '@~/.claude/kora-framework/CLAUDE.md\n' > "$ROOT/CLAUDE.md"   # Cowork/CLI nạp rule orchestrator khi mở folder
-  printf '# Knowledge Base\n' > "$ROOT/Kora_Brain/00_Index/Knowledge-Base.md"
-fi
-
-# (Dọn folder Kora-Skills kiểu cũ nếu còn sót từ bản trước)
-rm -rf "$DL_BASE/Kora-Skills" "$DL_BASE/Kora-Skills.zip" 2>/dev/null || true
+# Dọn RÁC bản cũ ở Downloads (KHÔNG tạo mới ở Downloads): folder Kora-Skills + folder Skill kiểu cũ.
+rm -rf "$HOME/Downloads/Kora-Skills" "$HOME/Downloads/Kora-Skills.zip" 2>/dev/null || true
+rm -rf "$HOME/Downloads/Knowledge-Base/Skill" "$HOME/Downloads/Knowledge-Base/skill" 2>/dev/null || true
 
 VER="$(grep -E '"version"' "$DEST_CORE/version.json" 2>/dev/null | head -n1 | sed -E 's/.*"version"[^"]*"([^"]*)".*/\1/')"
 echo ""
 echo "✅ Đã cài Kora-Framework ${VER:+v$VER} — $N skill + $NDOM domain preset (gồm Healthcare/Y tế, Retail, Manufacturing…) vào ~/.claude."
-echo "   📁 Project đã khởi tạo sẵn: $ROOT"
 echo "   📁 Folder skill (upload vào Cowork): $SKILL_DIR"
-echo "   • Claude Code (CLI): mở  $ROOT  → gõ  /claude-knowledge-init  (đặt domain/tên) rồi  /claude-knowledge-scan."
-echo "   • Claude Cowork (App): upload các file claude-knowledge-*.md trong  $SKILL_DIR/  vào mục Skills → mở  $ROOT  → gõ /claude-knowledge-init."
-echo "   Cập nhật: chạy lại file này → skill mới tự kéo vào ~/.claude VÀ $SKILL_DIR/ (tri thức GIỮ NGUYÊN)."
+echo "   • Claude Code (CLI): mở FOLDER PROJECT của bạn (bất kỳ đâu) → gõ  /claude-knowledge-init  (tự dựng project + đặt domain) rồi  /claude-knowledge-scan."
+echo "   • Claude Cowork (App): upload các file claude-knowledge-*.md trong  $SKILL_DIR/  vào mục Skills → mở project của bạn → gõ /claude-knowledge-init."
+echo "   Cập nhật: chạy lại file này → skill mới tự kéo vào ~/.claude VÀ $SKILL_DIR/ (tri thức GIỮ NGUYÊN, KHÔNG tạo rác ở Downloads)."
 echo "   Gỡ:       chạy uninstall.command (hoặc /claude-knowledge-uninstall)."
 echo ""
 echo "   💡 (Tùy chọn) Quét nguồn NỘI BỘ (Jira Server self-host…) THẲNG trong Cowork không cần Terminal?"
