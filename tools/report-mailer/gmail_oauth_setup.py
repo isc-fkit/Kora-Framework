@@ -17,6 +17,10 @@ Chạy:
       --client-id <CLIENT_ID> --client-secret <CLIENT_SECRET>
   (hoặc export GMAIL_OAUTH_CLIENT_ID / GMAIL_OAUTH_CLIENT_SECRET trước rồi chạy không cần cờ.)
 
+  TỐI ƯU (flow /claude-knowledge-connect) — đọc creds TỪ FILE + ghi token VÀO CÙNG FILE (user chỉ dán 2 giá trị vào file, không qua chat):
+      python3 tools/report-mailer/gmail_oauth_setup.py \
+          --env tools/report-mailer/.env.local --write-env tools/report-mailer/.env.local
+
 Xong → script in 3 dòng export để bạn DÁN vào ~/.zshrc (hoặc tools/report-mailer/.env.local).
 Refresh token chỉ in 1 lần để bạn tự lưu — KHÔNG ghi ra file/git.
 """
@@ -110,13 +114,31 @@ def main():
     ap.add_argument("--client-secret", default=os.getenv("GMAIL_OAUTH_CLIENT_SECRET"))
     ap.add_argument("--proxy", default=os.getenv("HTTPS_PROXY") or os.getenv("https_proxy"),
                     help="Proxy HTTPS (mặc định đọc HTTPS_PROXY).")
+    ap.add_argument("--env", dest="env_file",
+                    help="Đọc GMAIL_OAUTH_CLIENT_ID/SECRET (+ HTTPS_PROXY) từ file .env.local này nếu chưa truyền qua --client-id/env. "
+                         "Dùng chung file với --write-env để 1 file lo cả input lẫn output (flow /claude-knowledge-connect).")
     ap.add_argument("--write-zshrc", action="store_true",
                     help="GHI THẲNG 3 key vào ~/.zshrc (KHÔNG in token ra màn hình) — an toàn khi chạy qua run_command.")
     ap.add_argument("--write-env", dest="write_env",
                     help="GHI THẲNG 3 key vào file .env.local chỉ định (KEY=VALUE, không 'export') — cho lịch nền.")
     args = ap.parse_args()
+    # Bổ sung creds từ --env (file .env.local) nếu chưa có — ưu tiên: CLI/env > file. Để user CHỈ cần dán
+    # Client ID/Secret vào FILE (không qua chat), flow tự đọc → OAuth → ghi refresh token lại CÙNG file.
+    if args.env_file and os.path.exists(os.path.expanduser(args.env_file)):
+        _fv = {}
+        for _ln in open(os.path.expanduser(args.env_file), encoding="utf-8"):
+            _s = _ln.strip()
+            _s = _s[7:] if _s.startswith("export ") else _s
+            if _s.startswith("#") or "=" not in _s:
+                continue
+            _k, _v = _s.split("=", 1)
+            _fv[_k.strip()] = _v.strip().strip('"').strip("'")
+        args.client_id = args.client_id or _fv.get("GMAIL_OAUTH_CLIENT_ID")
+        args.client_secret = args.client_secret or _fv.get("GMAIL_OAUTH_CLIENT_SECRET")
+        args.proxy = args.proxy or _fv.get("HTTPS_PROXY") or _fv.get("https_proxy")
     if not args.client_id or not args.client_secret:
-        sys.exit("❌ Thiếu --client-id/--client-secret (hoặc export GMAIL_OAUTH_CLIENT_ID/SECRET).")
+        sys.exit("❌ Thiếu Client ID/Secret. Truyền --client-id/--client-secret, hoặc export GMAIL_OAUTH_CLIENT_ID/SECRET, "
+                 "hoặc dán vào file rồi --env <file>.")
 
     server = HTTPServer(("127.0.0.1", 0), _OAuthHandler)
     server.auth_code = server.state_recv = server.auth_error = None

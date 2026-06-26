@@ -127,17 +127,20 @@ ESC hoặc [← Huỷ] = dừng, **KHÔNG ghi gì** vào `connections:`.
      khi SMTP lỗi kết nối (cùng tài khoản, cùng banner/đính kèm). Cài 1 lần (3 key `GMAIL_OAUTH_CLIENT_ID/SECRET/REFRESH_TOKEN`):
      1. **Prereq** (user đã có): Google Cloud Console → bật **Gmail API** → **OAuth client "Desktop app"** → Client ID + Secret.
         Consent screen NÊN **Publish** (refresh token không hết hạn sau 7 ngày). **(Client ID/Secret KHÔNG ra chat/card.)**
-     2. **Đặt Client ID/Secret vào ENV — KHÔNG qua chat:** hướng dẫn user tự thêm vào `~/.zshrc`:
-        `export GMAIL_OAUTH_CLIENT_ID="…"` và `export GMAIL_OAUTH_CLIENT_SECRET="…"` (+ `export HTTPS_PROXY=http://proxy.hcm.fpt.vn:80` nếu mạng công ty). Rồi user báo "xong".
-     3. **Lấy refresh token + GHI THẲNG (KHÔNG in token):** ưu tiên `run_command` (Claude Desktop) chạy:
-        `source ~/.zshrc; python3 tools/report-mailer/gmail_oauth_setup.py --write-zshrc`
-        → script tự mở **trình duyệt** cho user uỷ quyền (loopback `127.0.0.1`) → đổi code→refresh token → **ghi cả 3 key
-        `GMAIL_OAUTH_*` vào `~/.zshrc`** (chmod 600, idempotent) và **KHÔNG in token ra màn hình/chat**.
-        - **Lịch nền** (cron/launchd không đọc shell) → thêm `--write-env tools/report-mailer/.env.local` (ghi `KEY=VALUE`, kèm `HTTPS_PROXY`).
-        - Không có `run_command` (web Cowork) → **BÀN GIAO**: user chạy đúng lệnh trên ở **Terminal**.
-     4. **Verify:** `source ~/.zshrc; python3 tools/report-mailer/send_report.py --check --transport https` (exit 0 = OK).
-     5. `source_type = gmail_api`, method = `https`, id `gmail_api__https` (TÁCH khỏi `gmail_smtp__smtp` — API và SMTP tính RIÊNG;
-        capability = **fallback gửi** cho `/claude-knowledge-send-mail` + lịch nền).
+     2. **FLOW TỰ TẠO file `.env.local` — user CHỈ dán 2 giá trị vào FILE (KHÔNG qua chat), GIỐNG các API skill khác:**
+        - `mkdir -p tools/report-mailer`; nếu chưa có `tools/report-mailer/.env.local` → tạo từ `.env.local.example` (hoặc ghi mới)
+          và **ĐẢM BẢO có sẵn 3 dòng placeholder** (nối thêm nếu thiếu, KHÔNG đè giá trị có sẵn):
+          `GMAIL_OAUTH_CLIENT_ID=` · `GMAIL_OAUTH_CLIENT_SECRET=` · `HTTPS_PROXY=http://proxy.hcm.fpt.vn:80` (proxy nếu mạng công ty).
+        - **Present file cho user** (card + đường dẫn tuyệt đối + cách mở: macOS Finder `Cmd+Shift+G` dán path, file ẩn `Cmd+Shift+.`):
+          user **dán Client ID/Secret vào ĐÚNG 2 dòng trong FILE** rồi báo "xong". **TUYỆT ĐỐI KHÔNG hỏi/nhận ID/Secret qua chat/card.**
+     3. **Chạy OAuth + ghi token — 1 LỆNH, đọc & ghi CÙNG file (KHÔNG in token):** ưu tiên `run_command` (Claude Desktop):
+        `python3 "$T/report-mailer/gmail_oauth_setup.py" --env "$PWD/tools/report-mailer/.env.local" --write-env "$PWD/tools/report-mailer/.env.local"`
+        → đọc Client ID/Secret **từ file** → mở **trình duyệt** uỷ quyền (loopback `127.0.0.1`) → đổi code→refresh token →
+        **ghi `GMAIL_OAUTH_REFRESH_TOKEN` vào CÙNG file** (`.env.local`, chmod 600, idempotent) — **KHÔNG in token ra chat**.
+        (Không có `run_command` → **BÀN GIAO**: user chạy đúng lệnh trên ở **Terminal**. Muốn dùng cả CLI tương tác → thêm `--write-zshrc`.)
+     4. **Verify:** `KORA_MAILER_ENV="$PWD/tools/report-mailer/.env.local" python3 "$T/report-mailer/send_report.py" --check --transport https` (exit 0 = OK).
+     5. `source_type = gmail_api`, method = `https`, id `gmail_api__https`, `creds.kind = dotenv` (trỏ `tools/report-mailer/.env.local`) —
+        TÁCH khỏi `gmail_smtp__smtp`; capability = **fallback gửi** cho `/claude-knowledge-send-mail` + lịch nền. (Lịch nền BẮT BUỘC `.env.local` — đã đúng chỗ.)
 
 ### Bước 4 — Verify rồi mới GHI (KHÔNG ghi nửa chừng)
 - **API:** chạy `python3 "$T/connections/check_connection.py" --check <id> --config "$PWD/config/factory-config.yaml"` (`T` resolve như Bước 0) → đọc JSON kết quả. *(tool đọc PROJECT config theo `--config`/cwd — KHÔNG phải CORE config.)*

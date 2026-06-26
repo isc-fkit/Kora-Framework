@@ -10,6 +10,18 @@
 
 ---
 
+## v2.12.46 "Claude-1" — 2026-06-25
+
+**Kết nối Gmail API (OAuth2) tối ưu như các connect skill khác — không sửa tay `~/.zshrc`.**
+
+- **`/claude-knowledge-connect` → API → Gmail OAuth2** nay **TỰ TẠO `tools/report-mailer/.env.local`** với placeholder
+  `GMAIL_OAUTH_CLIENT_ID=` / `GMAIL_OAUTH_CLIENT_SECRET=` / `HTTPS_PROXY=…`. User **chỉ dán 2 giá trị vào FILE** (không qua
+  chat, như các API skill khác) → **1 lệnh** lo hết.
+- **`gmail_oauth_setup.py` thêm `--env <file>`**: đọc Client ID/Secret (+ proxy) **từ file** nếu chưa truyền qua CLI/env;
+  kết hợp `--write-env <file>` → **đọc & ghi cùng 1 `.env.local`**: đọc creds → uỷ quyền browser → ghi `GMAIL_OAUTH_REFRESH_TOKEN`
+  vào cùng file (chmod 600, KHÔNG in token). Precedence: CLI > env > file. (Còn `--write-zshrc` cho ai muốn dùng CLI tương tác.)
+- `send_report.py --transport auto` vẫn tự fallback SMTP→Gmail API. Sửa `gmail_oauth_setup.py`, `claude-knowledge-connect`, `CLAUDE.md`.
+
 ## v2.12.45 "Claude-1" — 2026-06-25
 
 **KHÔNG còn tạo "rác" trong Downloads — folder Skill đi theo DYNAMIC PATH cạnh CORE.**
