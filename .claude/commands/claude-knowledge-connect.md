@@ -17,8 +17,24 @@ T=tools; [ -e "$T/connections/check_connection.py" ] || T="$HOME/.claude/kora-fr
 (Windows: `py` thay `python3`.) Rồi hỏi:
 - **[Xem nguồn đã kết nối]** → liệt kê **TẤT CẢ** entry trong `connections:` kèm trạng thái
   (`display_name` + method + ✓ connected · checked …). **API vs MCP hiển thị TÁCH RIÊNG** (mỗi method 1
-  dòng — id `<source_type>__<method>` khác nhau). Mỗi dòng có **[⟳ Kiểm tra lại]** (`--check <id>`).
-  Registry rỗng → báo "chưa kết nối nguồn nào". Xong → đề xuất bước kế (không ghi gì).
+  dòng — id `<source_type>__<method>` khác nhau). Registry rỗng → báo "chưa kết nối nguồn nào".
+  > ⛔ **"KIỂM TRA KẾT NỐI" = VERIFY HẾT MỌI NGUỒN, KHÔNG ĐƯỢC CHỈ PROBE JIRA.** Khi user nói "kiểm tra
+  >   kết nối" / "kiểm tra các nguồn" / "check connections" mà **KHÔNG nêu đích danh 1 nguồn** → **MẶC ĐỊNH
+  >   chạy [⟳⟳ Kiểm tra lại TẤT CẢ]**, lặp MỌI entry trong `--list` (Jira, Gmail, M365/SharePoint/Outlook,
+  >   GitHub…). Chỉ kiểm 1 nguồn khi user CHỈ RÕ tên nguồn đó.
+  Hai hành động:
+  - **[⟳ Kiểm tra lại 1 nguồn]** → `check_connection.py --check <id> --config "$PWD/config/factory-config.yaml"`.
+  - **[⟳⟳ Kiểm tra lại TẤT CẢ]** — BẮT BUỘC verify HẾT, KHÔNG dừng ở Jira:
+    1. `check_connection.py --check-all --json --config "$PWD/config/factory-config.yaml"` → **mảng** kết quả MỌI nguồn.
+    2. Nguồn `status: connected|error` (api/sharepoint/excel) → tool đã verify xong → lấy nguyên kết quả.
+    3. Nguồn `status: needs_model_probe` → **TỰ chạy đúng probe cho TỪNG cái** (đọc `verify_tool`/`verify_cmd`
+       trong JSON — ĐỪNG bỏ sót nguồn nào): MCP Jira→`searchJiraIssuesUsingJql`/`getVisibleJiraProjects` ·
+       Confluence→`searchConfluenceUsingCql` · SharePoint→`sharepoint_folder_search` · Outlook→`outlook_email_search` ·
+       Gmail draft→`list_drafts`/`list_labels` · `gmail_smtp`→`send_report.py --check` ·
+       `gmail_api`→`send_report.py --check --transport https`.
+    4. Tổng hợp **1 bảng**: mỗi nguồn ✓ connected / ✗ lỗi + lý do. Hỏi confirm nếu muốn ghi `last_checked`/`status`
+       vào `connections:` (GHI = qua Gate).
+  Xong → đề xuất bước kế (không ghi gì nếu chỉ xem).
 - **[Kết nối mới]** → sang Bước 1.
 
 ### Bước 1 — Phương thức  → **[MCP]** / **[API]** / **[← Huỷ]**

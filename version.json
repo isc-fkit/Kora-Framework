@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.12.47",
+  "version": "2.12.48",
   "codename": "Claude-1",
-  "released": "2026-06-25",
+  "released": "2026-06-28",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
-  "force": false,
-  "intro": "Kora-Framework v2.12.47: Gmail API creds về ĐÚNG ~/.zshrc (rule #6, KHÔNG rải .env.local trong source). connect → Gmail OAuth2: user dán Client ID/Secret vào file input TẠM → gmail_oauth_setup.py --env <file> --write-zshrc ghi GMAIL_OAUTH_* vào ~/.zshrc rồi xoá file input. Proxy gửi mail dùng var RIÊNG KORA_HTTPS_PROXY (send_report đọc var này) — KHÔNG đụng HTTPS_PROXY hệ thống, hợp với ai dùng proxy-toggle bật/tắt theo mạng."
+  "force": true,
+  "intro": "Kora-Framework v2.12.48: 'Kiểm tra kết nối' nay VERIFY HẾT mọi nguồn trong sổ connections (Jira, Gmail, Microsoft 365/SharePoint/Outlook, GitHub…), KHÔNG còn chỉ probe Jira. check_connection.py thêm --check-all: api/sharepoint/excel probe thật; nguồn mcp/mail trả needs_model_probe + verify_tool/verify_cmd để model tự gọi MCP tool / send_report.py --check. Skill connect: mục 'Xem nguồn đã kết nối' thêm [Kiểm tra lại TẤT CẢ] + directive cấm chỉ probe Jira. --list/--check giữ nguyên (tương thích ngược)."
 }

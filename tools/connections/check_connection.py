@@ -252,10 +252,69 @@ def list_repos(entry: dict):
     print(json.dumps(out, ensure_ascii=False))
 
 
+def mcp_probe_hint(source_type: str) -> str:
+    """MCP tool nên gọi để verify 1 nguồn MCP (theo source_type). Skill/model dùng gợi ý này
+    để probe ĐÚNG từng nguồn, không bỏ sót Gmail/M365 khi 'kiểm tra tất cả'."""
+    return {
+        "jira_cloud": "searchJiraIssuesUsingJql | getVisibleJiraProjects",
+        "jira_server": "searchJiraIssuesUsingJql | getVisibleJiraProjects",
+        "atlassian": "searchJiraIssuesUsingJql | getVisibleJiraProjects",
+        "confluence": "searchConfluenceUsingCql",
+        "sharepoint": "sharepoint_folder_search | sharepoint_search",
+        "outlook": "outlook_email_search",
+        "gmail": "list_drafts | list_labels",
+        "m365": "sharepoint_folder_search | outlook_email_search",
+    }.get(source_type, "gọi 1 MCP tool của connector để verify")
+
+
+def verify_one(entry: dict) -> dict:
+    """Verify 1 connection → dict {id, source_type, method, status, last_checked, last_error,
+    [verify_tool|verify_cmd]}. Dùng cho --check-all (lặp MỌI nguồn, không chỉ Jira):
+      - api (jira_*/github/gitlab/confluence) + sharepoint → probe THẬT (probe_api).
+      - mcp → needs_model_probe + verify_tool (model phải tự gọi MCP tool).
+      - gmail_smtp(smtp)/gmail_api(https) → needs_model_probe + verify_cmd (chạy send_report.py --check).
+      - local_file (excel) → kiểm tra file tồn tại.
+    """
+    eid = entry.get("id", "?")
+    st = entry.get("source_type", "")
+    method = entry.get("method", "")
+    res = {"id": eid, "source_type": st, "method": method,
+           "last_checked": now_iso(), "last_error": ""}
+    if method == "mcp":
+        res.update(status="needs_model_probe",
+                   verify_tool=entry.get("tool") or entry.get("connector") or mcp_probe_hint(st),
+                   note="Gọi MCP tool của connector để verify.")
+        return res
+    if st == "gmail_smtp" or method == "smtp":
+        res.update(status="needs_model_probe",
+                   verify_cmd="report-mailer/send_report.py --check",
+                   note="Chạy send_report.py --check để verify Gmail SMTP.")
+        return res
+    if st == "gmail_api" or method == "https":
+        res.update(status="needs_model_probe",
+                   verify_cmd="report-mailer/send_report.py --check --transport https",
+                   note="Chạy send_report.py --check --transport https để verify Gmail API.")
+        return res
+    if method == "local_file":
+        fp = entry.get("file_path", "")
+        p = Path(fp).expanduser() if fp else None
+        if p and p.exists():
+            res.update(status="connected")
+        else:
+            res.update(status="error", last_error=f"không thấy file: {fp or '(trống)'}")
+        return res
+    # còn lại: api (jira_*/github/gitlab/confluence) + sharepoint
+    status, err = probe_api(entry)
+    res.update(status=status, last_error=err)
+    return res
+
+
 def main():
     ap = argparse.ArgumentParser(description="Kiểm tra sổ kết nối Kora.")
     ap.add_argument("--list", action="store_true", help="In bảng các kết nối đã đăng ký.")
     ap.add_argument("--check", metavar="ID", help="Kiểm tra 1 kết nối theo id.")
+    ap.add_argument("--check-all", dest="check_all", action="store_true",
+                    help="Kiểm tra LẠI TẤT␣CẢ kết nối (lặp mọi entry; nguồn mcp/mail → needs_model_probe + gợi ý tool).")
     ap.add_argument("--list-repos", dest="list_repos", metavar="ID",
                     help="Liệt kê repo (GitHub) / project (GitLab) của connection <id> (JSON) để CHỌN.")
     ap.add_argument("--json", action="store_true", help="In JSON thay vì bảng (cho --list).")
@@ -271,6 +330,25 @@ def main():
             print(json.dumps({"error": f"không tìm thấy id '{args.list_repos}' trong connections"}, ensure_ascii=False))
             sys.exit(1)
         list_repos(entry)
+        return
+
+    if args.check_all:
+        results = [verify_one(c) for c in conns]
+        if args.json:
+            print(json.dumps(results, ensure_ascii=False, indent=2))
+            return
+        if not conns:
+            print("ℹ️  Chưa có kết nối nào. Chạy /claude-knowledge-connect để thêm.")
+            return
+        icon = {"connected": "✅", "error": "❌", "needs_model_probe": "🔶"}
+        print(f"{'ID':30} {'METHOD':6} {'STATUS':20} CHI TIẾT (tool/cmd để verify · hoặc lỗi)")
+        for r in results:
+            tag = f"{icon.get(r['status'], '?')} {r['status']}"
+            detail = r.get("verify_tool") or r.get("verify_cmd") or r.get("last_error") or ""
+            print(f"{r.get('id', '?'):30} {r.get('method', '?'):6} {tag:20} {detail}")
+        n_probe = sum(1 for r in results if r["status"] == "needs_model_probe")
+        if n_probe:
+            print(f"\n🔶 {n_probe} nguồn (MCP/mail) cần model tự gọi tool/cmd ở cột CHI TIẾT để verify.")
         return
 
     if args.list or (not args.check):

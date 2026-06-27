@@ -10,6 +10,19 @@
 
 ---
 
+## v2.12.48 "Claude-1" — 2026-06-28
+
+**"Kiểm tra kết nối" verify HẾT mọi nguồn trong sổ `connections:` — không còn chỉ probe Jira.**
+
+- **`tools/connections/check_connection.py` thêm `--check-all`:** lặp MỌI entry — `api`/`sharepoint`/`excel`
+  probe THẬT trong code; nguồn `mcp` (Gmail/M365/Atlassian) + Gmail `smtp`/`https` trả `needs_model_probe`
+  kèm **`verify_tool`/`verify_cmd` đúng loại** (MCP tool tương ứng · `send_report.py --check`) để model tự
+  verify TỪNG nguồn, không bỏ sót.
+- **Skill `claude-knowledge-connect`** — mục **[Xem nguồn đã kết nối]** thêm hành động **[⟳⟳ Kiểm tra lại
+  TẤT CẢ]** + directive: user nói "kiểm tra kết nối" mà không nêu đích danh → **mặc định verify hết danh
+  sách**, KHÔNG được chỉ probe Jira.
+- `--list` và `--check <id>` **giữ nguyên** (tương thích ngược). Không cần migration.
+
 ## v2.12.47 "Claude-1" — 2026-06-25
 
 **Gmail API creds về ĐÚNG `~/.zshrc` (rule #6) + proxy riêng `KORA_HTTPS_PROXY` (không đụng proxy-toggle hệ thống).**
