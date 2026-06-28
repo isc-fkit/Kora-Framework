@@ -10,6 +10,20 @@
 
 ---
 
+## v2.13.1 "Claude-1" — 2026-06-29
+
+**Báo cáo tài chính chuẩn KẾ TOÁN + luôn hỏi loại báo cáo + fix template registry.**
+
+- **Báo cáo tài chính (hoá đơn) chuẩn kế toán:** `invoice_blocks` thêm **bảng TỔNG HỢP THUẾ GTGT theo thuế suất**
+  (số HĐ · tiền hàng · thuế · tổng — đối chiếu khấu trừ đầu vào) + **bảng theo khoản mục**; KPI nhãn kế toán
+  (tiền hàng chưa VAT · thuế GTGT · tổng thanh toán); bảng kê chi tiết thêm cột **%VAT**; biểu đồ cơ cấu & theo tháng.
+- **Khối AI phân tích kế toán:** `build_report.py --ai <md>` chèn card phân tích (tóm tắt · cơ cấu chi · thuế GTGT &
+  khấu trừ · 🔴 rủi ro: tập trung NCC / dòng tiền / hoá đơn hợp lệ · 🎯 đề xuất) — tái dùng `render_ai_cards` (email-safe).
+- **Skill report LUÔN HỎI loại báo cáo** (5 loại, phân trang): Tiến độ · Cuộc họp · Tiến độ+Meeting+Roadmap/OKR ·
+  Báo cáo tài chính · Custom — mỗi loại sinh template + phân tích đúng chuyên ngành. Nguồn ảnh hoá đơn: chat / folder local / **folder SharePoint**.
+- **FIX QUAN TRỌNG:** `.gitignore` mẫu `reports/` (không anchor) **nuốt nhầm `templates/reports/`** → v2.13.0 phát hành
+  THIẾU registry template (custom template lỗi ở máy cài mới). Sửa `→ /reports/`; bản này **bù `templates/reports/`**.
+
 ## v2.13.0 "Claude-1" — 2026-06-29
 
 **REPORT ĐA LOẠI + tự động hoá: hóa đơn (OCR ảnh), meeting-roadmap, Canva, Campaign (n8n-lite).**

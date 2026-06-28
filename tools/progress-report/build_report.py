@@ -229,46 +229,72 @@ def _inv_bars(pairs, width=520, bar_h=26, gap=12):
 
 
 def invoice_blocks(invoices):
-    """Tính các KHỐI dữ liệu hoá đơn → dict html (cho layout mặc định HOẶC template custom)."""
+    """Tính các KHỐI dữ liệu hoá đơn → dict html chuẩn KẾ TOÁN: tổng hợp thuế GTGT theo thuế suất,
+    theo khoản mục, theo nhà cung cấp, theo tháng, bảng kê chi tiết."""
     from collections import defaultdict
     rows = []
     for v in invoices:
         sub = float(v.get("subtotal") or 0)
         vat = float(v.get("vat") or 0)
         tot = float(v.get("total") or 0) or (sub + vat)
+        try:
+            rate = float(v.get("vat_rate") or 0)
+        except (TypeError, ValueError):
+            rate = 0.0
         rows.append({"invoice_no": str(v.get("invoice_no") or ""), "date": str(v.get("date") or ""),
                      "vendor": str(v.get("vendor") or ""), "category": str(v.get("category") or "Khác"),
-                     "subtotal": sub, "vat": vat, "total": tot})
+                     "subtotal": sub, "vat": vat, "total": tot, "rate": rate})
     rows.sort(key=lambda x: x["date"])
     n = len(rows)
     sub = sum(r["subtotal"] for r in rows)
     vat = sum(r["vat"] for r in rows)
     tot = sum(r["total"] for r in rows)
-    by_cat, by_vendor, by_month = defaultdict(float), defaultdict(float), defaultdict(float)
+    by_cat_t, by_cat_n = defaultdict(float), defaultdict(int)
+    by_vendor_t, by_vendor_n = defaultdict(float), defaultdict(int)
+    by_month = defaultdict(float)
+    by_rate = defaultdict(lambda: {"n": 0, "sub": 0.0, "vat": 0.0, "tot": 0.0})
     for r in rows:
-        by_cat[r["category"]] += r["total"]
-        by_vendor[r["vendor"]] += r["total"]
+        by_cat_t[r["category"]] += r["total"]; by_cat_n[r["category"]] += 1
+        by_vendor_t[r["vendor"]] += r["total"]; by_vendor_n[r["vendor"]] += 1
         by_month[(r["date"] or "0000-00")[:7]] += r["total"]
-    cat_pairs = sorted(by_cat.items(), key=lambda x: -x[1])
-    vendor_pairs = sorted(by_vendor.items(), key=lambda x: -x[1])
+        br = by_rate[r["rate"]]; br["n"] += 1; br["sub"] += r["subtotal"]; br["vat"] += r["vat"]; br["tot"] += r["total"]
+    cat_pairs = sorted(by_cat_t.items(), key=lambda x: -x[1])
+    vendor_pairs = sorted(by_vendor_t.items(), key=lambda x: -x[1])
     month_pairs = sorted(by_month.items())
     dates = [r["date"] for r in rows if r["date"]]
     period = f"{dates[0]} → {dates[-1]}" if dates else "—"
     kpis = "".join(
         f'<div class="kpi"><div class="kpi-v">{esc(val)}</div><div class="kpi-l">{esc(lbl)}</div></div>'
-        for lbl, val in [("Số hoá đơn", str(n)), ("Tiền hàng", _vnd(sub)),
-                         ("Tổng VAT", _vnd(vat)), ("TỔNG CHI", _vnd(tot))])
+        for lbl, val in [("Số hoá đơn", str(n)), ("Tiền hàng (chưa VAT)", _vnd(sub)),
+                         ("Thuế GTGT", _vnd(vat)), ("TỔNG THANH TOÁN", _vnd(tot))])
+    # Bảng TỔNG HỢP THUẾ GTGT theo thuế suất (chuẩn kế toán — đối chiếu khấu trừ đầu vào)
+    tax_rows = "".join(
+        f"<tr><td>{int(rate*100)}%</td><td class='num'>{by_rate[rate]['n']}</td>"
+        f"<td class='num'>{_vnd(by_rate[rate]['sub'])}</td><td class='num'>{_vnd(by_rate[rate]['vat'])}</td>"
+        f"<td class='num b'>{_vnd(by_rate[rate]['tot'])}</td></tr>" for rate in sorted(by_rate))
+    tax_rows += (f"<tr><td class='b'>Tổng</td><td class='num b'>{n}</td><td class='num b'>{_vnd(sub)}</td>"
+                 f"<td class='num b'>{_vnd(vat)}</td><td class='num b'>{_vnd(tot)}</td></tr>")
+    tax_summary = ("<table><thead><tr><th>Thuế suất</th><th class='num'>Số HĐ</th><th class='num'>Tiền hàng</th>"
+                   f"<th class='num'>Thuế GTGT</th><th class='num'>Tổng</th></tr></thead><tbody>{tax_rows}</tbody></table>")
+    # Bảng theo KHOẢN MỤC
+    crows = "".join(
+        f"<tr><td>{esc(c)}</td><td class='num'>{by_cat_n[c]}</td><td class='num b'>{_vnd(t)}</td>"
+        f"<td class='num'>{(t/tot*100 if tot else 0):.1f}%</td></tr>" for c, t in cat_pairs)
+    table_category = ("<table><thead><tr><th>Khoản mục</th><th class='num'>Số HĐ</th><th class='num'>Tổng chi</th>"
+                      f"<th class='num'>Tỷ trọng</th></tr></thead><tbody>{crows}</tbody></table>")
     trows = "".join(
         f"<tr><td>{esc(r['invoice_no'])}</td><td>{esc(r['date'])}</td><td>{esc(r['vendor'])}</td>"
         f"<td>{esc(r['category'])}</td><td class='num'>{_vnd(r['subtotal'])}</td>"
-        f"<td class='num'>{_vnd(r['vat'])}</td><td class='num b'>{_vnd(r['total'])}</td></tr>" for r in rows)
-    trows += (f"<tr><td colspan='4' class='b'>TỔNG CỘNG</td><td class='num b'>{_vnd(sub)}</td>"
+        f"<td class='num'>{int(r['rate']*100)}%</td><td class='num'>{_vnd(r['vat'])}</td>"
+        f"<td class='num b'>{_vnd(r['total'])}</td></tr>" for r in rows)
+    trows += (f"<tr><td colspan='4' class='b'>TỔNG CỘNG</td><td class='num b'>{_vnd(sub)}</td><td></td>"
               f"<td class='num b'>{_vnd(vat)}</td><td class='num b'>{_vnd(tot)}</td></tr>")
     vrows = "".join(
-        f"<tr><td>{esc(v)}</td><td class='num b'>{_vnd(t)}</td>"
+        f"<tr><td>{esc(v)}</td><td class='num'>{by_vendor_n[v]}</td><td class='num b'>{_vnd(t)}</td>"
         f"<td class='num'>{(t/tot*100 if tot else 0):.1f}%</td></tr>" for v, t in vendor_pairs)
     return {"n": n, "subtotal": sub, "vat": vat, "total": tot, "period": period, "KPIS": kpis,
-            "TABLE_INVOICES": trows, "TABLE_VENDORS": vrows,
+            "TABLE_INVOICES": trows, "TABLE_VENDORS": vrows, "TAX_SUMMARY": tax_summary,
+            "TABLE_CATEGORY": table_category,
             "CHART_CATEGORY": _inv_bars(cat_pairs), "CHART_MONTH": _inv_bars(list(month_pairs))}
 
 
@@ -289,15 +315,19 @@ _INVOICE_CSS = (" body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-seri
     " @media(max-width:760px){.kpis{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}}")
 
 
-def render_invoice_report(invoices, title="Báo cáo chi phí — Hoá đơn", template_html=None):
-    """Render report hoá đơn. template_html=None → layout mặc định; else thay {{KEY}} trong template."""
+def render_invoice_report(invoices, title="Báo cáo chi phí — Hoá đơn", template_html=None, ai_html=""):
+    """Render report hoá đơn. template_html=None → layout mặc định; else thay {{KEY}} trong template.
+    ai_html = khối phân tích AI (render_ai_cards) — chèn sau KPIs / thay {{AI}} trong template."""
     b = invoice_blocks(invoices)
+    ai_block = (f"<div class='card'><h2>🤖 Phân tích AI — Chi phí</h2>{ai_html}</div>" if ai_html else "")
     if template_html:
         out = template_html
         repl = {"TITLE": esc(title), "PERIOD": esc(b["period"]), "N": str(b["n"]),
                 "KPIS": b["KPIS"], "TABLE_INVOICES": b["TABLE_INVOICES"], "TABLE_VENDORS": b["TABLE_VENDORS"],
+                "TAX_SUMMARY": b["TAX_SUMMARY"], "TABLE_CATEGORY": b["TABLE_CATEGORY"],
                 "CHART_CATEGORY": b["CHART_CATEGORY"], "CHART_MONTH": b["CHART_MONTH"],
-                "TOTAL": _vnd(b["total"]), "SUBTOTAL": _vnd(b["subtotal"]), "VAT": _vnd(b["vat"])}
+                "TOTAL": _vnd(b["total"]), "SUBTOTAL": _vnd(b["subtotal"]), "VAT": _vnd(b["vat"]),
+                "AI": ai_block}
         for k, val in repl.items():
             out = out.replace("{{" + k + "}}", val)
         return out
@@ -307,14 +337,17 @@ def render_invoice_report(invoices, title="Báo cáo chi phí — Hoá đơn", t
             f"<div class='hd'><h1>{esc(title)}</h1><div class='sub'>Kỳ: {esc(b['period'])} · {b['n']} hoá đơn · "
             "Nguồn: hoá đơn quét (OCR) · VND</div></div>"
             f"<div class='kpis'>{b['KPIS']}</div>"
-            f"<div class='grid2'><div class='card'><h2>Chi theo phân loại</h2>{b['CHART_CATEGORY']}</div>"
+            f"{ai_block}"
+            f"<div class='card'><h2>Tổng hợp thuế GTGT theo thuế suất</h2>{b['TAX_SUMMARY']}</div>"
+            f"<div class='grid2'><div class='card'><h2>Cơ cấu chi theo khoản mục</h2>{b['CHART_CATEGORY']}</div>"
             f"<div class='card'><h2>Chi theo tháng</h2>{b['CHART_MONTH']}</div></div>"
-            "<div class='card'><h2>Tổng theo nhà cung cấp</h2><table><thead><tr><th>Nhà cung cấp</th>"
-            f"<th class='num'>Tổng chi</th><th class='num'>Tỷ trọng</th></tr></thead><tbody>{b['TABLE_VENDORS']}</tbody></table></div>"
-            f"<div class='card'><h2>Chi tiết hoá đơn ({b['n']})</h2><table><thead><tr><th>Số HĐ</th><th>Ngày</th>"
-            "<th>Nhà cung cấp</th><th>Phân loại</th><th class='num'>Tiền hàng</th><th class='num'>VAT</th>"
+            f"<div class='card'><h2>Chi theo khoản mục</h2>{b['TABLE_CATEGORY']}</div>"
+            "<div class='card'><h2>Tổng hợp theo nhà cung cấp</h2><table><thead><tr><th>Nhà cung cấp</th>"
+            f"<th class='num'>Số HĐ</th><th class='num'>Tổng chi</th><th class='num'>Tỷ trọng</th></tr></thead><tbody>{b['TABLE_VENDORS']}</tbody></table></div>"
+            f"<div class='card'><h2>Bảng kê chi tiết hoá đơn ({b['n']})</h2><table><thead><tr><th>Số HĐ</th><th>Ngày</th>"
+            "<th>Nhà cung cấp</th><th>Khoản mục</th><th class='num'>Tiền hàng</th><th class='num'>%VAT</th><th class='num'>VAT</th>"
             f"<th class='num'>Tổng</th></tr></thead><tbody>{b['TABLE_INVOICES']}</tbody></table></div>"
-            "<div class='foot'>Kora — Report hoá đơn · build_report.py --report-type invoice</div>"
+            "<div class='foot'>Kora — Báo cáo tài chính (hoá đơn GTGT) · build_report.py --report-type invoice</div>"
             "</div></body></html>")
 
 
@@ -1723,6 +1756,8 @@ def main():
                     "(bắt buộc cho --report-type custom; tuỳ chọn cho invoice).")
     ap.add_argument("--meetings", help="File JSON biên bản họp đã AI-tóm-tắt (cho --report-type meeting-roadmap; "
                     "mặc định reports/_meeting-rows.json).")
+    ap.add_argument("--ai", dest="ai_md", help="File markdown phân tích AI → chèn khối card vào report "
+                    "invoice/custom (Claude sinh từ dữ liệu hoá đơn rồi truyền vào).")
     args = ap.parse_args()
     DATA = data_root()   # project (cwd) nếu có config/factory-config.yaml; else REPO_ROOT (dev / lịch nền)
 
@@ -1788,7 +1823,10 @@ def main():
             tmpl_html, _base, ttl = load_report_template(args.template, DATA)
             if ttl:
                 title = ttl
-        html_out = render_invoice_report(invs, title, tmpl_html)
+        ai_html = ""
+        if args.ai_md and os.path.exists(args.ai_md):
+            ai_html = render_ai_cards(open(args.ai_md, encoding="utf-8").read())
+        html_out = render_invoice_report(invs, title, tmpl_html, ai_html)
         stamp = datetime.now().strftime("%Y%m%d-%H%M")
         latest = os.path.join(out_dir, "invoice-report-latest.html")
         open(latest, "w", encoding="utf-8").write(html_out)

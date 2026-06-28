@@ -1,0 +1,38 @@
+<!DOCTYPE html><html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITLE}}</title>
+<style>
+ body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:0;background:#f7f8f5;color:#22302a}
+ .wrap{max-width:980px;margin:0 auto;padding:24px}
+ .hero{background:#0f6e56;color:#fff;border-radius:16px;padding:28px 30px;text-align:center}
+ .hlabel{font-size:15px;opacity:.85;letter-spacing:.5px}
+ .htotal{font-size:42px;font-weight:800;margin:6px 0}
+ .hsub{font-size:13px;opacity:.9}
+ .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:18px 0}
+ .kpi{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.06);text-align:center}
+ .kpi-v{font-size:19px;font-weight:700;color:#0f6e56}.kpi-l{font-size:12px;color:#6a766f;margin-top:4px}
+ .card{background:#fff;border-radius:12px;padding:18px 20px;margin:14px 0;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+ .card h2{font-size:16px;margin:0 0 12px;color:#0f6e56}
+ table{width:100%;border-collapse:collapse;font-size:13px}
+ th,td{padding:8px 10px;text-align:left;border-bottom:1px solid #eef1ee}
+ th{background:#e7f3ee;color:#225646}.num{text-align:right}.b{font-weight:700;color:#0f6e56}
+ .foot{color:#9aa69f;font-size:12px;text-align:center;margin:18px 0}
+ @media(max-width:760px){.kpis{grid-template-columns:repeat(2,1fr)}}
+</style></head><body><div class="wrap">
+ <div class="hero"><div class="hlabel">{{TITLE}}</div><div class="htotal">{{TOTAL}}</div>
+   <div class="hsub">Kỳ {{PERIOD}} · {{N}} hoá đơn · Tiền hàng {{SUBTOTAL}} · VAT {{VAT}}</div></div>
+ <div class="kpis">{{KPIS}}</div>
+ {{AI}}
+ <div class="card"><h2>Tổng hợp thuế GTGT theo thuế suất</h2>{{TAX_SUMMARY}}</div>
+ <div class="card"><h2>Chi theo tháng</h2>{{CHART_MONTH}}</div>
+ <div class="card"><h2>Cơ cấu chi theo khoản mục</h2>{{CHART_CATEGORY}}</div>
+ <div class="card"><h2>Chi theo khoản mục</h2>{{TABLE_CATEGORY}}</div>
+ <div class="card"><h2>Tổng hợp theo nhà cung cấp</h2>
+   <table><thead><tr><th>Nhà cung cấp</th><th class="num">Số HĐ</th><th class="num">Tổng chi</th><th class="num">Tỷ trọng</th></tr></thead>
+   <tbody>{{TABLE_VENDORS}}</tbody></table></div>
+ <div class="card"><h2>Bảng kê chi tiết hoá đơn ({{N}})</h2>
+   <table><thead><tr><th>Số HĐ</th><th>Ngày</th><th>Nhà cung cấp</th><th>Khoản mục</th>
+   <th class="num">Tiền hàng</th><th class="num">%VAT</th><th class="num">VAT</th><th class="num">Tổng</th></tr></thead>
+   <tbody>{{TABLE_INVOICES}}</tbody></table></div>
+ <div class="foot">Kora — template invoice-quarterly · build_report.py --report-type custom --template invoice-quarterly</div>
+</div></body></html>

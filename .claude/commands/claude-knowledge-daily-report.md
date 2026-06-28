@@ -6,7 +6,7 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
 
 > 🛑🛑 **GIAO THỨC BẮT BUỘC — KHÔNG NHẢY BƯỚC, KHÔNG TỰ ĐỘNG QUÉT/BUILD.** Khi mở skill này, hành động HỢP LỆ DUY NHẤT,
 > ĐÚNG THỨ TỰ: **(1)** cổng mật khẩu `verify_ops_password.py`; **(2)** **AskUserQuestion chọn LOẠI REPORT**
-> (**[Tiến độ] · [Chi phí–Hoá đơn] · [Meeting+Roadmap] · [Custom]** — Bước 1b); **(3)** nếu LOẠI = **Tiến độ** →
+> (**5 loại** — Bước 1b: Tiến độ · Cuộc họp · Tiến độ+Meeting+Roadmap/OKR · Báo cáo tài chính · Custom); **(3)** nếu LOẠI = **Tiến độ** →
 > **AskUserQuestion chọn NGUỒN** (3 nhóm cố định **[Jira · SharePoint · Local Excel]**, multiSelect); nếu = **Hoá đơn/Custom**
 > → nguồn là note `source: invoice` (nạp ảnh hoá đơn nếu chưa có, Bước 1b), KHÔNG hỏi 3 nhóm. **🛑 SAU mỗi câu → DỪNG, CHỜ user.**
 > ⛔ **TUYỆT ĐỐI KHÔNG gọi BẤT KỲ tool nào khác trước khi user trả lời câu chọn nguồn** — CẤM ĐÍCH DANH:
@@ -25,14 +25,23 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
 1. 🔒 **CỔNG MẬT KHẨU vận hành (`KORA_OPS_PW`)** TRƯỚC — báo cáo kéo dữ liệu live nên PHẢI qua cổng:
    `python3 "$T/archive-gate/verify_ops_password.py"` (đọc env **HOẶC** `~/.config/claude-knowledge/ops-pw.env` — đặt 1 lần bằng
    `/claude-knowledge-ops-password`; **KHÔNG hỏi qua card, KHÔNG in**). Exit ≠ 0 → **DỪNG**, không kéo, không sinh report.
-1b. **CHỌN LOẠI REPORT — NGAY SAU cổng mật khẩu, TRƯỚC chọn nguồn** (AskUserQuestion, header "Loại report", single-select):
-   **[Tiến độ — Jira/đa nguồn] (mặc định) · [Chi phí — Hoá đơn] · [Meeting + Roadmap] · [Custom template]**.
-   - **[Tiến độ]** → tiếp Bước 2 (chọn 3 nhóm nguồn) như cũ; build mặc định `--report-type progress`.
-   - **[Chi phí — Hoá đơn]** → **BỎ QUA Bước 2 (3 nhóm)**. Nguồn = note `source: invoice`. Nếu vault CHƯA có (kiểm thư mục `Invoices/`):
-     hướng dẫn user **kéo ẢNH HOÁ ĐƠN vào chat** → Claude ĐỌC ảnh (OCR) → xuất rows `reports/_invoice-rows.json`
-     (cột: vendor, date, category, currency, subtotal, vat, vat_rate, total) → `python3 "$T/invoice-report/import_invoice.py"
-     --from-rows reports/_invoice-rows.json --source-id invoice__<batch>` → reindex `build_index.py --root .`. Rồi → NHÁNH TEMPLATE.
-   - **[Meeting + Roadmap]** → nguồn = BIÊN BẢN HỌP. Nếu chưa có: user kéo file họp (.pptx/.docx/ảnh/text), HOẶC chọn từ
+1b. **LUÔN HỎI — CHỌN LOẠI BÁO CÁO ngay sau cổng mật khẩu, TRƯỚC chọn nguồn** (AskUserQuestion BẮT BUỘC, header "Loại BC",
+   single-select; **5 loại → PHÂN TRANG** rule #8: thẻ 1 = 3 mục + **[Khác — xem thêm]** → thẻ 2 phần còn lại). Mỗi loại = template + phân tích AI ĐÚNG chuyên ngành:
+   **[Tiến độ (daily-report)] · [Cuộc họp (meeting)] · [Tiến độ + Meeting + Roadmap/OKR] · [Báo cáo tài chính (hoá đơn)] · [Custom template]**.
+   - **[Tiến độ (daily-report)]** → tiếp Bước 2 (chọn 3 nhóm nguồn) như cũ; build mặc định `--report-type progress`.
+   - **[Tiến độ + Meeting + Roadmap/OKR]** → báo cáo TIẾN ĐỘ (Bước 2) **+ mục Roadmap/OKR (5c)** + đọc file họp → gộp;
+     build progress với roadmap=Có + `reports/_okr-blocks.json` (và/hoặc meeting-roadmap). Dành cho review điều phối PM tổng thể.
+   - **[Báo cáo tài chính (hoá đơn)]** → **BỎ QUA Bước 2 (3 nhóm)**. Nguồn = note `source: invoice`. Nếu vault CHƯA có (kiểm thư mục `Invoices/`),
+     lấy ảnh hoá đơn từ **1 trong 3 nguồn** (AskUserQuestion): **(a) kéo ẢNH vào chat** · **(b) folder LOCAL** (đường dẫn) ·
+     **(c) folder SHAREPOINT** (`sharepoint_folder_search` → chọn folder → `sharepoint_search fileType=png/jpg/pdf` → `read_resource`/tải từng ảnh).
+     → Claude **ĐỌC ảnh (OCR vision)** → xuất rows `reports/_invoice-rows.json` (cột: vendor, date, category, currency, subtotal, vat, vat_rate, total)
+     → `python3 "$T/invoice-report/import_invoice.py" --from-rows reports/_invoice-rows.json --source-id invoice__<batch>` → reindex `build_index.py --root .`.
+     **Rồi: (1)** NHÁNH TEMPLATE; **(2) AI phân tích theo KIẾN THỨC KẾ TOÁN** — Claude viết nhận định CHI TIẾT ra `reports/ai-invoice-latest.md`:
+     `## 📌 Tóm tắt điều hành` · `## 📊 Cơ cấu chi theo khoản mục` · `## 🧾 Thuế GTGT & khấu trừ đầu vào` (đối chiếu theo thuế suất) ·
+     `## 🔴 Rủi ro` (tập trung nhà cung cấp, dòng tiền theo tháng, hoá đơn hợp lệ/đủ MST, thuế suất bất thường) · `## 🎯 Đề xuất`
+     → build kèm `--ai reports/ai-invoice-latest.md`. **Report tài chính tự có:** KPI (tiền hàng chưa VAT · thuế GTGT · tổng thanh toán) ·
+     **bảng TỔNG HỢP THUẾ GTGT theo thuế suất** · bảng theo khoản mục · tổng hợp theo NCC · biểu đồ cơ cấu & theo tháng · bảng kê chi tiết — chuẩn kế toán.
+   - **[Cuộc họp (meeting)]** → nguồn = BIÊN BẢN HỌP. Nếu chưa có: user kéo file họp (.pptx/.docx/ảnh/text), HOẶC chọn từ
      SharePoint (`sharepoint_search` → `read_resource`), HOẶC **Outlook** (`outlook_calendar_search` lịch họp / `outlook_email_search`
      email họp) → Claude ĐỌC + TÓM TẮT (AI) thành `reports/_meeting-rows.json`
      (list: `title/date/attendees/summary/decisions[]/action_items[]/risks[]`) → `python3 "$T/meeting-report/import_meeting.py"

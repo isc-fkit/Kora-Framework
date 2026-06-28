@@ -1,0 +1,12 @@
+{
+  "_note": "Registry template report. Mỗi entry: name (chọn qua --template), base (loại dữ liệu: invoice|progress), file (HTML có placeholder {{KEY}}), title. Placeholder hỗ trợ: TITLE, PERIOD, N, KPIS, CHART_CATEGORY, CHART_MONTH, TABLE_VENDORS, TABLE_INVOICES, TOTAL, SUBTOTAL, VAT. Workflow report 'tạo mới' sẽ ghi thêm entry + file vào đây sau khi user chốt.",
+  "templates": [
+    {
+      "name": "invoice-quarterly",
+      "base": "invoice",
+      "file": "invoice-quarterly.html",
+      "title": "Báo cáo chi phí theo Quý",
+      "description": "Bố cục kế toán theo quý: tổng chi nổi bật + chi theo tháng + theo phân loại + theo nhà cung cấp."
+    }
+  ]
+}
