@@ -10,6 +10,17 @@
 
 ---
 
+## v2.13.2 "Claude-1" — 2026-06-29
+
+**Siết CLARIFY toàn luồng — "hỏi-rồi-DỪNG", không tự đoán (rà scan/sync/canva/campaign/báo cáo).**
+
+- **Canva:** `export-design` nay **HỎI định dạng** (PDF/PNG/PPTX) qua AskUserQuestion ở cả 2 nhánh (trước auto).
+- **Campaign:** mục đặt lịch thêm **[Lịch Cowork /schedule — quan sát được]** (khuyến nghị, chạy được cả bước model)
+  cạnh lịch nền OS; **[Chạy ngay] phải XÁC NHẬN** (chạy thật = gửi mail/đẩy ra ngoài).
+- **Scan:** nguồn Outlook **HỎI bộ lọc trước** (thời gian/người gửi/chủ đề) — không tự lấy hết hộp thư.
+- **Báo cáo tài chính:** lấy ảnh hoá đơn từ SharePoint **HỎI 2 bước** (folder → file), không tự lấy "file mới nhất".
+- **Sync:** giữ nguyên (đã chặt: target → cổng `KORA_OPS_PW` → `--push --dry-run` preview → confirm → push).
+
 ## v2.13.1 "Claude-1" — 2026-06-29
 
 **Báo cáo tài chính chuẩn KẾ TOÁN + luôn hỏi loại báo cáo + fix template registry.**

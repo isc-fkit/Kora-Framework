@@ -11,7 +11,8 @@ The user invoked `/claude-knowledge-campaign` — dựng/quản lý **campaign t
 ### Bước 1 — Chọn (AskUserQuestion, header "Campaign")
 **[Tạo campaign mới] · [Xem & quản lý] · [← Huỷ]**.
 - **[Xem & quản lý]** → `campaign.py list` → AskUserQuestion cho từng campaign: **[Chạy thử (dry-run)] · [Chạy ngay] · [Bật/Tắt] · [Xoá]**.
-  `campaign.py run <id> --dry-run` (xem chuỗi lệnh, KHÔNG thực thi) / `run <id>` (thật) / `delete --id <id>`. Bật/Tắt = sửa `enabled` (đọc-sửa registry).
+  `run <id> --dry-run` (xem chuỗi lệnh, KHÔNG thực thi) / `run <id>` (thật) / `delete --id <id>`. Bật/Tắt = sửa `enabled` (đọc-sửa registry).
+  - ⚠️ **[Chạy ngay] = chạy THẬT (gửi mail / đẩy post/sync ra ngoài) → ✋ XÁC NHẬN trước** (nên đề nghị `--dry-run` trước). [Xoá] cũng xác nhận.
 
 ### Bước 2 — Tạo campaign mới (hỏi từng bước → CHỐT → tạo → đặt lịch)
 1. **Tên + id** (AskUserQuestion gợi ý + ô "Other").
@@ -24,9 +25,11 @@ The user invoked `/claude-knowledge-campaign` — dựng/quản lý **campaign t
    - `post`/`sync` → `target` (confluence/github/sharepoint). **(gated)**
 3. **Dựng spec JSON** (`{"campaigns":[{id,name,schedule,enabled,steps:[…]}]}`) → **trình cho user → ✋ CHỐT**.
 4. Sau chốt → `campaign.py create --file <spec.json>`.
-5. **HỎI LỊCH** (AskUserQuestion): **[Đặt lịch nền (OS)] / [Chạy tay khi cần]**. Đặt lịch → đăng ký qua
-   `tools/kora-scheduler/schedule.py` (cron/launchd) gọi `campaign.py run <id>` đúng giờ — bước outward cần
-   `KORA_OPS_PW` ở `~/.config/claude-knowledge/ops-pw.env`. (Lịch nền chỉ chạy bước HEADLESS; bước model bỏ qua.)
+5. **HỎI LỊCH** (AskUserQuestion): **[Lịch Cowork /schedule — quan sát được (khuyến nghị)] / [Lịch nền OS (launchd/cron)] / [Chạy tay khi cần]**.
+   - **[Lịch Cowork /schedule]** → tạo scheduled task qua `/claude-knowledge-schedule` (chạy khi MỞ app, theo dõi/ bật-tắt trong Cowork).
+     ƯU TIÊN: chạy được **CẢ bước model** (analyze/canva) vì có Claude trong phiên — phù hợp campaign có OCR/AI/Canva.
+   - **[Lịch nền OS]** → `tools/kora-scheduler/schedule.py` (cron/launchd) gọi `campaign.py run <id>` đúng giờ —
+     **CHỈ chạy bước HEADLESS** (analyze/canva BỊ BỎ QUA vì không có model). Bước outward cần `KORA_OPS_PW` ở `~/.config/claude-knowledge/ops-pw.env`.
 6. **Chạy thử ngay:** đề nghị `campaign.py run <id> --dry-run` để user xem chuỗi trước khi chạy thật.
 
 > Khi chạy INTERACTIVE: gặp bước `analyze`/`canva` → Claude thực hiện tại chỗ (phân tích AI / gọi skill Canva, hỏi-rõ→chốt),

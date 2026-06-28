@@ -32,8 +32,11 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
    - **[Tiến độ + Meeting + Roadmap/OKR]** → báo cáo TIẾN ĐỘ (Bước 2) **+ mục Roadmap/OKR (5c)** + đọc file họp → gộp;
      build progress với roadmap=Có + `reports/_okr-blocks.json` (và/hoặc meeting-roadmap). Dành cho review điều phối PM tổng thể.
    - **[Báo cáo tài chính (hoá đơn)]** → **BỎ QUA Bước 2 (3 nhóm)**. Nguồn = note `source: invoice`. Nếu vault CHƯA có (kiểm thư mục `Invoices/`),
-     lấy ảnh hoá đơn từ **1 trong 3 nguồn** (AskUserQuestion): **(a) kéo ẢNH vào chat** · **(b) folder LOCAL** (đường dẫn) ·
-     **(c) folder SHAREPOINT** (`sharepoint_folder_search` → chọn folder → `sharepoint_search fileType=png/jpg/pdf` → `read_resource`/tải từng ảnh).
+     lấy ảnh hoá đơn — **HỎI TỪNG BƯỚC qua AskUserQuestion, DỪNG chờ trả lời, KHÔNG TỰ ĐOÁN / KHÔNG tự lấy "file mới nhất":**
+     **① Nguồn ảnh** (AskUserQuestion): **(a) kéo ẢNH vào chat** · **(b) folder LOCAL** (hỏi đường dẫn) · **(c) folder SHAREPOINT**.
+     **② Nếu chọn SharePoint → HỎI 2 BƯỚC (như Bước 2a, TUYỆT ĐỐI không tự quét):** **(2a) HỎI FOLDER** — `sharepoint_folder_search`
+     → AskUserQuestion liệt kê folder → user chọn FOLDER (ô "Other" = gõ keyword → `sharepoint_search query=`); **(2b) HỎI FILE** —
+     `sharepoint_search folderName=<folder> fileType=png/jpg/pdf` → AskUserQuestion chọn (các) ảnh → `read_resource`/tải. >4 mục → phân trang (rule #8).
      → Claude **ĐỌC ảnh (OCR vision)** → xuất rows `reports/_invoice-rows.json` (cột: vendor, date, category, currency, subtotal, vat, vat_rate, total)
      → `python3 "$T/invoice-report/import_invoice.py" --from-rows reports/_invoice-rows.json --source-id invoice__<batch>` → reindex `build_index.py --root .`.
      **Rồi: (1)** NHÁNH TEMPLATE; **(2) AI phân tích theo KIẾN THỨC KẾ TOÁN** — Claude viết nhận định CHI TIẾT ra `reports/ai-invoice-latest.md`:

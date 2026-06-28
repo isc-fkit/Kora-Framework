@@ -20,14 +20,14 @@ The user invoked `/claude-knowledge-canva` — tạo sản phẩm/thuyết trìn
 2. `get-brand-template-dataset <template_id>` → xem các field cần điền.
 3. **Lấy dữ liệu điền field** từ KB/Jira/mô tả user (AI map) → trình bày bản map cho user → **✋ CHỐT**.
 4. Sau khi chốt → `autofill-design` (hoặc `create-design-from-brand-template`) với dataset đã map → nhận `design_id`.
-5. `export-design <design_id>` (chọn format: PDF/PNG/PPTX) → tải file.
+5. **AskUserQuestion chọn ĐỊNH DẠNG** (PDF / PNG / PPTX) → `export-design <design_id> --format <…>` → tải file.
 
 ### Nhánh B — THUYẾT TRÌNH từ mô tả (AI phân tích → hỏi rõ → chốt → generate)
 1. User MÔ TẢ (chủ đề, mục tiêu). **AI phân tích** + **AskUserQuestion làm rõ** (tối đa vài thẻ): **đối tượng nghe** · **số slide** · **tông/brand** (dùng `brand_kit_id`?) · **nội dung lấy từ KB nào** (feature/report/meeting trong vault?).
 2. Claude DỰNG **outline** (tiêu đề + bullet từng slide), kéo nội dung từ KB nếu user chỉ định (tra `.kb/index.json` + vault). **Trình outline cho user → ✋ CHỐT** (sửa tới khi ưng). **CHƯA chốt → KHÔNG generate.**
 3. Sau chốt → `generate-design-structured` (truyền outline + `brand_kit_id`) → `design_id`. (Mô tả tự do ngắn → `generate-design`.)
 4. `get-design-pages <design_id>` (kiểm số trang/nội dung) → nếu cần chỉnh, lặp lại bước 2–3.
-5. `export-design <design_id>` format **PPTX/PDF** → tải file.
+5. **AskUserQuestion chọn ĐỊNH DẠNG** (PPTX / PDF / PNG) → `export-design <design_id> --format <…>` → tải file.
 
 ### Bước cuối — Lưu vào KB + bước kế
 - Lưu output: `docs/04-Designs/D-<slug>/` — `source/design-meta.md` (frontmatter: type: design, source: canva, design_id, template_id?, created) + `export/<file>` (PDF/PPTX/PNG). Backlink `[[…]]` tới feature/report liên quan. Reindex `python3 "$T/kb-indexer/build_index.py" --root .`.

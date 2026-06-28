@@ -63,7 +63,7 @@ The user invoked `/claude-knowledge-scan` — scan & import knowledge.
      5. Reindex (Bước 3) + báo cáo **theo loại** như mọi nguồn. **Chỉ coi là "đã quét" khi đã chạy xong bước 4 này.**
    - **SharePoint (MCP)** → `sharepoint_folder_search` để **liệt kê THƯ MỤC / PATH** (mọi cấp có [Chọn tất cả])
      → user chọn folder → `sharepoint_search` (+ fetch) **get nội dung** tài liệu về vault.
-   - **Outlook (MCP)** → `outlook_email_search` (+ `outlook_calendar_search`) → lấy email/lịch theo bộ lọc về vault.
+   - **Outlook (MCP)** → **AskUserQuestion hỏi BỘ LỌC trước** (khoảng thời gian · người gửi · chủ đề/keyword — KHÔNG tự lấy hết hộp thư) → `outlook_email_search` (+ `outlook_calendar_search`) theo bộ lọc → về vault.
    - **GitHub (MCP)** → MCP tool của GitHub (repo/issues/PR/wiki).
    - **GitHub (API)** → `python3 tools/github-sync/sync_github.py --pull` → kéo `.md` từ repo → `<vault>/GitHub/` (frontmatter + link nguồn + `_GitHub-Index.md`).
    - **GitLab (API)** → `python3 tools/gitlab-sync/sync_gitlab.py --pull` → kéo `.md` từ repo → `<vault>/GitLab/` (frontmatter + link nguồn + `_GitLab-Index.md`). Token `KORA_GITLAB_SYNC_TOKEN` ở `tools/gitlab-sync/.env.local`.
