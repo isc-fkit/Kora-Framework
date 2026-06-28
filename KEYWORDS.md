@@ -40,6 +40,9 @@
 | Đóng gói bàn giao | "đóng gói bàn giao", "archive", "handover" | *đóng gói bàn giao cho team QC* |
 | Phát hành 🔒m | "phát hành", "release", "ra bản mới" | *phát hành v2.13* (chỉ maintainer) |
 | Tiến hóa hệ thống 🔒m | "tiến hóa hệ thống", "rà soát workflow" | *rà soát + cải tiến workflow* (chỉ maintainer) |
+| Report hoá đơn/họp 🔒 | "báo cáo hoá đơn", "tổng hợp hoá đơn", "báo cáo quý", "báo cáo cuộc họp" | *tổng hợp ảnh hoá đơn → báo cáo quý* · *báo cáo họp + roadmap* |
+| Tạo Canva | "tạo thuyết trình", "tạo thiết kế canva", "tạo ấn phẩm/slide" | *tạo bài thuyết trình thị trường Q3* (AI hỏi rõ → chốt) |
+| Campaign tự động | "tạo campaign", "tự động hoá a-z", "chuỗi tự động như n8n" | *tự động hằng quý: gom hoá đơn → report → gửi sếp* |
 
 ⚠️ **Tránh nhầm:** "cập nhật **dữ liệu** jira" = quét ≠ "cập nhật **phiên bản/ứng dụng**" = update app.
 🔒 = cần mật khẩu vận hành · 🔒m = chỉ maintainer · 🔵 = tự chạy không cần lệnh.

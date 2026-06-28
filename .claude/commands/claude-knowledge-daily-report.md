@@ -1,12 +1,14 @@
 ---
-description: Generate a progress report. Choose one or more projects (multi-select), filter by members, pull data for a chosen time range from the sources, then build the dashboard. Password-gated (operations password) since it pulls live data. Triggers (vi): «báo cáo tiến độ», «report tiến độ», «tiến độ dự án», «cập nhật tiến độ», «sinh dashboard» → tự gọi skill này khi user nhắn các ý đó (tiếng Việt) trong Cowork.
+description: Generate a progress report. Choose one or more projects (multi-select), filter by members, pull data for a chosen time range from the sources, then build the dashboard. Password-gated (operations password) since it pulls live data. Triggers (vi): «báo cáo tiến độ», «report tiến độ», «tiến độ dự án», «cập nhật tiến độ», «sinh dashboard» → tự gọi skill này khi user nhắn các ý đó (tiếng Việt) trong Cowork. Hỗ trợ ĐA LOẠI report: tiến độ (Jira/đa nguồn) · chi phí–hoá đơn (OCR ảnh) · custom template.
 ---
 
 The user invoked `/claude-knowledge-daily-report` — build a progress report.
 
 > 🛑🛑 **GIAO THỨC BẮT BUỘC — KHÔNG NHẢY BƯỚC, KHÔNG TỰ ĐỘNG QUÉT/BUILD.** Khi mở skill này, hành động HỢP LỆ DUY NHẤT,
-> ĐÚNG THỨ TỰ: **(1)** cổng mật khẩu `verify_ops_password.py`; **(2)** **AskUserQuestion chọn NGUỒN** (3 nhóm cố định
-> **[Jira · SharePoint · Local Excel]**, multiSelect). **🛑 SAU (2) → DỪNG, CHỜ user trả lời.**
+> ĐÚNG THỨ TỰ: **(1)** cổng mật khẩu `verify_ops_password.py`; **(2)** **AskUserQuestion chọn LOẠI REPORT**
+> (**[Tiến độ] · [Chi phí–Hoá đơn] · [Meeting+Roadmap] · [Custom]** — Bước 1b); **(3)** nếu LOẠI = **Tiến độ** →
+> **AskUserQuestion chọn NGUỒN** (3 nhóm cố định **[Jira · SharePoint · Local Excel]**, multiSelect); nếu = **Hoá đơn/Custom**
+> → nguồn là note `source: invoice` (nạp ảnh hoá đơn nếu chưa có, Bước 1b), KHÔNG hỏi 3 nhóm. **🛑 SAU mỗi câu → DỪNG, CHỜ user.**
 > ⛔ **TUYỆT ĐỐI KHÔNG gọi BẤT KỲ tool nào khác trước khi user trả lời câu chọn nguồn** — CẤM ĐÍCH DANH:
 > `check_connection.py`, `sharepoint_search`, `sharepoint_folder_search`, `getVisibleJiraProjects`,
 > `searchJiraIssuesUsingJql`, `import_jira.py`, `import_excel.py`, `build_report.py`, `read_resource`.
@@ -23,7 +25,31 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
 1. 🔒 **CỔNG MẬT KHẨU vận hành (`KORA_OPS_PW`)** TRƯỚC — báo cáo kéo dữ liệu live nên PHẢI qua cổng:
    `python3 "$T/archive-gate/verify_ops_password.py"` (đọc env **HOẶC** `~/.config/claude-knowledge/ops-pw.env` — đặt 1 lần bằng
    `/claude-knowledge-ops-password`; **KHÔNG hỏi qua card, KHÔNG in**). Exit ≠ 0 → **DỪNG**, không kéo, không sinh report.
-2. **CÂU HỎI ĐẦU TIÊN — BẮT BUỘC: chọn NHÓM NGUỒN, multiSelect=true.** AskUserQuestion với **ĐÚNG 3 NHÓM CỐ ĐỊNH**
+1b. **CHỌN LOẠI REPORT — NGAY SAU cổng mật khẩu, TRƯỚC chọn nguồn** (AskUserQuestion, header "Loại report", single-select):
+   **[Tiến độ — Jira/đa nguồn] (mặc định) · [Chi phí — Hoá đơn] · [Meeting + Roadmap] · [Custom template]**.
+   - **[Tiến độ]** → tiếp Bước 2 (chọn 3 nhóm nguồn) như cũ; build mặc định `--report-type progress`.
+   - **[Chi phí — Hoá đơn]** → **BỎ QUA Bước 2 (3 nhóm)**. Nguồn = note `source: invoice`. Nếu vault CHƯA có (kiểm thư mục `Invoices/`):
+     hướng dẫn user **kéo ẢNH HOÁ ĐƠN vào chat** → Claude ĐỌC ảnh (OCR) → xuất rows `reports/_invoice-rows.json`
+     (cột: vendor, date, category, currency, subtotal, vat, vat_rate, total) → `python3 "$T/invoice-report/import_invoice.py"
+     --from-rows reports/_invoice-rows.json --source-id invoice__<batch>` → reindex `build_index.py --root .`. Rồi → NHÁNH TEMPLATE.
+   - **[Meeting + Roadmap]** → nguồn = BIÊN BẢN HỌP. Nếu chưa có: user kéo file họp (.pptx/.docx/ảnh/text), HOẶC chọn từ
+     SharePoint (`sharepoint_search` → `read_resource`), HOẶC **Outlook** (`outlook_calendar_search` lịch họp / `outlook_email_search`
+     email họp) → Claude ĐỌC + TÓM TẮT (AI) thành `reports/_meeting-rows.json`
+     (list: `title/date/attendees/summary/decisions[]/action_items[]/risks[]`) → `python3 "$T/meeting-report/import_meeting.py"
+     --from-rows reports/_meeting-rows.json --source-id meeting__<batch>` (lưu vault `type: meeting`) + reindex. Build:
+     `python3 "$T/progress-report/build_report.py" --report-type meeting-roadmap` → gộp **họp (AI summary) + roadmap từ task Jira** trong vault.
+   - **[Custom template]** → BẮT BUỘC chọn/tạo template (nhánh dưới) → build `--report-type custom --template <name>`.
+   **NHÁNH TEMPLATE (cho Hoá đơn/Custom) — AskUserQuestion header "Template":** liệt kê template có sẵn đọc từ
+   `templates/reports/_index.json` (mỗi `name`+`title` = 1 option) + **[Mặc định]** (chỉ Hoá đơn) + **[Tạo mới]** (rule #8: >4 → phân trang).
+   - **[Tạo mới] = full workflow chuyên nghiệp:** Claude DỰNG file template HTML dùng placeholder
+     `{{TITLE}} {{PERIOD}} {{N}} {{KPIS}} {{CHART_CATEGORY}} {{CHART_MONTH}} {{TABLE_VENDORS}} {{TABLE_INVOICES}} {{TOTAL}} {{SUBTOTAL}} {{VAT}}`
+     → **PREVIEW cho user (visualize) → CHỜ user CHỐT** (sửa tới khi ưng) → lưu `templates/reports/<name>.html`
+     + thêm entry `_index.json` (`name`/`base: invoice`/`file`/`title`). **CHƯA chốt → KHÔNG build.**
+   - Build Hoá đơn/Custom: `python3 "$T/progress-report/build_report.py" --report-type <invoice|custom> [--template <name>]
+     --source-ids "invoice__<batch>"` → ra `reports/invoice-report-latest.html`.
+   > 🔒 Backstop: `--report-type custom` TỪ CHỐI nếu thiếu `--template`; template lạ → lỗi liệt kê tên có sẵn.
+   > 📧 Gửi/đính kèm report Hoá đơn/Custom: `send_report.py --html-file reports/invoice-report-latest.html --attach reports/invoice-report-latest.html` (qua cổng `KORA_OPS_PW`).
+2. **(CHỈ khi LOẠI report = Tiến độ) — chọn NHÓM NGUỒN, multiSelect=true.** AskUserQuestion với **ĐÚNG 3 NHÓM CỐ ĐỊNH**
    (LUÔN hiện đủ cả 3, theo thứ tự): **[Jira] · [SharePoint] · [Local Excel]** (+ **[Tất cả]**).
    - ⛔ **KHÔNG dựng câu này từ `check_connection.py`** (đó là bước 2a). **KHÔNG** liệt kê nguồn Jira cụ thể (Jira Cloud/Server)
      ở câu này. **KHÔNG** bỏ SharePoint. **KHÔNG** để single-select.

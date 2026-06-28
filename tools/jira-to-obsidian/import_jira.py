@@ -143,6 +143,7 @@ def _auth_header():
 
 HEADERS = {"Authorization": _auth_header(), "Accept": "application/json"}
 FROM_MCP = False  # True khi nạp qua --from-mcp (không có token → bỏ qua việc gọi API lấy thêm comment)
+SOURCE_ID = ""    # token nguồn ghi vào frontmatter note (mặc định jira__<host>; override bằng --source-id) — tách Jira đa instance khi báo cáo
 NOW = datetime.now(timezone.utc).isoformat()
 
 # --- Cấu trúc thư mục vault: mặc định bên dưới, override được bằng env (dynamic) ---
@@ -698,7 +699,7 @@ def issue_note(issue, project_key, fname_map):
 
     fm = [
         "---",
-        f"type: {itype}", "source: jira", f"jira_key: {key}",
+        f"type: {itype}", "source: jira", f"source_id: {SOURCE_ID}", f"jira_key: {key}",
         f"jira_issue_type: {f['issuetype']['name']}", f"project: {project_key}",
         f"status: {status}", f"parent: {parent}",
     ]
@@ -997,7 +998,7 @@ def run_full():
         nodes.append({"id": pkey, "type": "project", "title": pname, "status": "", "project": pkey})
 
         epics = [i for i in issues if norm_type(i) == "epic"]
-        proj_note = ["---", "type: project", "source: jira",
+        proj_note = ["---", "type: project", "source: jira", f"source_id: {SOURCE_ID}",
                      f"jira_project_key: {pkey}", f"imported_at: {NOW}", "---", "",
                      f"# {pname}", "", "## Epics", ""]
         proj_note += [f"- [[{fname_map[e['key']]}]]" for e in epics] or ["- (chưa có epic)"]
@@ -1067,15 +1068,18 @@ def main():
                          "Cowork sandbox chặn mạng API). Token KHÔNG in (vẫn ở .env.local; chỉ trỏ JIRA_ENV_FILE).")
     ap.add_argument("--vault", help="Đường dẫn vault (override; mặc định OBSIDIAN_VAULT → config vault_path → ./KB-Vault). "
                                     "Tương đối → neo theo project hiện tại.")
+    ap.add_argument("--source-id", dest="source_id", help="Token nguồn ghi vào frontmatter note (mặc định "
+                    "jira__<host của JIRA_BASE_URL>). Tách Jira ĐA INSTANCE (Cloud/Server) khi báo cáo --source-ids.")
     args = ap.parse_args()
     if args.emit_command:   # BÀN GIAO: in lệnh chạy ở Terminal (KHÔNG quét, KHÔNG cần token/mạng)
         print(_emit_command(args))
         return
-    global PER_PROJECT, FIELD_MAP, VAULT
+    global PER_PROJECT, FIELD_MAP, VAULT, SOURCE_ID
     if args.per_project:
         PER_PROJECT = True
     if args.vault:   # override cao nhất — neo theo DATA (project)
         VAULT = _resolve_vault(args.vault, DATA)
+    SOURCE_ID = args.source_id or f"jira__{_source_id()}"   # token nguồn cho frontmatter (tách đa instance)
 
     # --check-fresh: chỉ đọc vault, KHÔNG cần token/cấu hình kết nối
     if args.check_fresh:

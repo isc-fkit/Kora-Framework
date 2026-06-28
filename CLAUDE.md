@@ -107,6 +107,9 @@
 | "đóng gói bàn giao", "archive", "handover", "đóng gói cho user dùng" | Confirm → `workflows/15-archive.md` (`/claude-knowledge-archive`): **cổng mật khẩu** → chọn USER/HOST + read-only/read-write → ship key READ → `kora-archive-*.zip`. Gói USER tắt report/mail, tự lên lịch get&post. |
 | "phát hành", "release", "lên version", "ra bản mới" | **CHỈ người duy trì app** — `workflows/12-release.md` Bước 0 kiểm tra file `.maintainer`. Máy user thường (không có `.maintainer`) → KHÔNG chạy, giải thích đây là lệnh của tác giả + gợi ý **"cập nhật phiên bản"** / **"sao lưu"** |
 | "tiến hóa hệ thống", "rà soát workflow", "cải tiến quy trình" | **CHỈ người duy trì app** (guard `.maintainer`) → `workflows/13-evolve-system.md`: review đối kháng workflow/rule → đề xuất sửa → release. User thường → giải thích + gợi ý gửi phản hồi. **Phân biệt với WF09:** "tiến hóa" + KB/tri thức/feature → WF09 (mọi user); + workflow/rule/quy trình/hệ thống → WF13 (maintainer); chỉ "tiến hóa" trơ → hỏi rõ "KB hay hệ thống?" |
+| "báo cáo hoá đơn", "tổng hợp hoá đơn/chi phí", "báo cáo quý kế toán", "báo cáo cuộc họp", "phân tích họp + roadmap" | `/claude-knowledge-daily-report` (Bước 1b chọn LOẠI): **hoá đơn** (kéo ảnh hoá đơn → OCR → `import_invoice.py` → `build_report.py --report-type invoice`) · **meeting-roadmap** (file/lịch họp → AI tóm tắt → `import_meeting.py` → `--report-type meeting-roadmap` gộp task+họp) · **custom template** (`--report-type custom --template <name>`). |
+| "tạo thiết kế canva", "tạo thuyết trình", "tạo slide", "tạo ấn phẩm từ template" | Confirm → `/claude-knowledge-canva` (`workflows/17-canva.md`): **[Sản phẩm từ brand template]** (search→autofill→export) / **[Thuyết trình từ mô tả]** (AI phân tích→hỏi rõ→**chốt**→`generate-design-structured`→export). Canva = MCP app-level; tạo/export = outward → chốt trước. Lưu `docs/04-Designs`. |
+| "tạo campaign", "tự động hoá quy trình a-z", "chuỗi tự động như n8n", "pipeline tự động", "đặt lịch chiến dịch" | Confirm → `/claude-knowledge-campaign` (`workflows/18-campaign.md`): dựng chuỗi bước TUYẾN TÍNH (scan→analyze→report/canva→mail→post/sync) qua `tools/kora-campaign/campaign.py` (create/list/run/dry-run/delete), hẹn ngày qua `schedule.py`. Bước outward gated `KORA_OPS_PW`; bước model (analyze/canva) chạy interactive. ✋ chốt trước khi tạo/đặt lịch. |
 
 **Nếu chưa setup** (`config/factory-config.yaml` còn giá trị `TODO`): KHÔNG bắt user nhớ
 lệnh. Với yêu cầu đầu tiên, giải thích ngắn ("cần cài đặt 1 lần để có tri thức mà phân
@@ -198,6 +201,10 @@ Mục tiêu: user KHÔNG cần thuộc lệnh nào — chỉ nói bằng lời t
    chạy scan/get** (kéo tri thức về), chỉ bỏ post/report/mail/sync + cảnh báo. `/claude-knowledge-export-*` và `/claude-knowledge-export-docs`
    **TUYỆT ĐỐI không** dùng cổng này. **Đặt 1 lần bằng `/claude-knowledge-ops-password`** → lưu `~/.config/claude-knowledge/ops-pw.env`
    (chmod 600); `verify_ops_password.py` đọc env **HOẶC** file đó lúc chạy → có hiệu lực ngay, không cần `source`.
+   **CODE-GATE (cưỡng chế hỏi-chốt, không chỉ prose):** một số tool TỪ CHỐI chạy (exit≠0) khi thiếu input bắt buộc, để
+   model KHÔNG thể bỏ qua AskUserQuestion: `build_report.py` thiếu `--source-ids` khi vault có >1 nguồn (gồm token Jira
+   per-instance `jira__<host>`); `check_connection.py --record-result` thiếu `--status`/`--confirm`; `send_report.py`
+   thiếu người nhận (`--to`); `--report-type custom` thiếu `--template`.
 3. **Trình bày bằng ngôn ngữ tự nhiên trước.** Khi phân tích xong, trả lời user bằng
    tiếng Việt dễ hiểu (không dán file thô), rồi mới hỏi confirm để ghi vào `.md`.
 4. **Không bịa tri thức.** Thiếu thông tin → đánh dấu `[CẦN XÁC NHẬN]`.
@@ -210,6 +217,11 @@ Mục tiêu: user KHÔNG cần thuộc lệnh nào — chỉ nói bằng lời t
    trong gói bàn giao; (b) **lịch sync nền** — mỗi NGUỒN user chọn auto-sync mới tạo `.env.local` RIÊNG cho
    nguồn đó (cron/launchd cần file, không đọc được shell tương tác). Token/password **KHÔNG** in ra log/chat,
    **KHÔNG** vào `connections:`/config/git.
+   > 🔑 **RULE (user CHỐT): TẤT CẢ key env ĐỀU ĐẶT & ĐỌC/QUÉT Ở `~/.zshrc`.** Mọi kết nối (Jira Cloud+Server, GitHub/GitLab,
+   > SMTP + `SMTP_PASS`, `GMAIL_OAUTH_*` + `KORA_HTTPS_PROXY`, `KORA_OPS_PW`…) ghi `export` vào `~/.zshrc`. **VERIFY/đọc env BẮT BUỘC
+   > qua `run_command`** (nó `source ~/.zshrc`) — **Bash trơ KHÔNG nạp `~/.zshrc`**, nên **TUYỆT ĐỐI đừng kết luận "thiếu key/token"
+   > từ Bash hay từ placeholder trong `.env.local`** (đó là kết luận SAI). `.env.local` CHỈ dùng khi chạy lịch **OS cron/launchd thật**;
+   > user này dùng **Cowork `/schedule` + run_command** → `~/.zshrc` phủ hết, không cần `.env.local`. (Xem [[prefer-local-terminal-run-command]].)
    > 📧 **MAIL — fallback SMTP→HTTPS khi mạng chặn SMTP:** nếu mạng chặn mọi cổng SMTP (firewall công ty) nhưng
    > proxy cho CONNECT 443, `tools/report-mailer/send_report.py` **tự gửi lại qua Gmail API/HTTPS** (cùng tài khoản,
    > qua proxy). Bật bằng `tools/report-mailer/gmail_oauth_setup.py` → 3 key `GMAIL_OAUTH_CLIENT_ID/SECRET/REFRESH_TOKEN`

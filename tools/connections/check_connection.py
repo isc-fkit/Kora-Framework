@@ -309,6 +309,52 @@ def verify_one(entry: dict) -> dict:
     return res
 
 
+def record_result(cfg_path, eid, status, last_error=""):
+    """Ghi status/last_checked/last_error cho entry <eid> trong block connections: (sửa YAML TẠI CHỖ,
+    stdlib — regex giới hạn đúng vùng indent của entry, KHÔNG đụng creds:/verify: con)."""
+    p = Path(cfg_path)
+    if not p.exists():
+        print(f"❌ Không thấy config: {cfg_path}", file=sys.stderr)
+        sys.exit(2)
+    lines = p.read_text(encoding="utf-8").splitlines()
+    id_re = re.compile(r"^(\s*)-\s+id:\s*['\"]?" + re.escape(eid) + r"['\"]?\s*(#.*)?$")
+    start, dash_indent = None, 0
+    for i, ln in enumerate(lines):
+        m = id_re.match(ln)
+        if m:
+            start, dash_indent = i, len(m.group(1))
+            break
+    if start is None:
+        print(f"❌ Không thấy id '{eid}' trong connections của {cfg_path}.", file=sys.stderr)
+        sys.exit(2)
+    child = " " * (dash_indent + 2)               # key con của list-item nằm ngay dưới 'id'
+    end = len(lines)                              # cuối entry = dòng non-blank đầu tiên thụt < child
+    for j in range(start + 1, len(lines)):
+        s = lines[j]
+        if not s.strip() or s.lstrip().startswith("#"):
+            continue
+        if (len(s) - len(s.lstrip())) < len(child):
+            end = j
+            break
+    upd = {"status": f"{child}status: {status}",
+           "last_checked": f'{child}last_checked: "{now_iso()}"',
+           "last_error": f'{child}last_error: "{last_error or ""}"'}
+    seen = set()
+    for j in range(start + 1, end):
+        s = lines[j]
+        if (len(s) - len(s.lstrip())) != len(child):
+            continue
+        km = re.match(r"^\s*([A-Za-z_]+):", s)
+        if km and km.group(1) in upd:
+            lines[j] = upd[km.group(1)]
+            seen.add(km.group(1))
+    miss = [upd[k] for k in ("status", "last_checked", "last_error") if k not in seen]
+    if miss:
+        lines[start + 1:start + 1] = miss
+    p.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print(f"✓ Ghi trạng thái '{status}' cho {eid} vào sổ (last_checked cập nhật).")
+
+
 def main():
     ap = argparse.ArgumentParser(description="Kiểm tra sổ kết nối Kora.")
     ap.add_argument("--list", action="store_true", help="In bảng các kết nối đã đăng ký.")
@@ -320,9 +366,29 @@ def main():
     ap.add_argument("--json", action="store_true", help="In JSON thay vì bảng (cho --list).")
     ap.add_argument("--config", default="", help="Đường dẫn factory-config.yaml (mặc định: config của "
                     "thư mục hiện tại = PROJECT). Cần khi tool chạy từ CORE cho project ở nơi khác.")
+    ap.add_argument("--record-result", dest="record_result", metavar="ID",
+                    help="GHI lại trạng thái verify cho 1 nguồn (sau khi model probe MCP). Cần --status và --confirm.")
+    ap.add_argument("--status", dest="rec_status", choices=["connected", "error", "needs_model_probe"],
+                    help="Trạng thái để ghi (đi cùng --record-result).")
+    ap.add_argument("--last-error", dest="rec_error", default="",
+                    help="Mô tả lỗi (đi cùng --record-result, tùy chọn).")
+    ap.add_argument("--confirm", action="store_true",
+                    help="Xác nhận GHI registry — BẮT BUỘC cho --record-result (cổng chống ghi lén, phải qua Approval Gate).")
     args = ap.parse_args()
 
-    conns = parse_connections(resolve_config(args.config))
+    cfg_path = resolve_config(args.config)
+    conns = parse_connections(cfg_path)
+
+    if args.record_result:   # ── GATE: ghi registry phải có --status + --confirm ──
+        if not args.rec_status:
+            print("❌ --record-result cần --status <connected|error|needs_model_probe>.", file=sys.stderr)
+            sys.exit(2)
+        if not args.confirm:
+            print("❌ --record-result cần --confirm (cổng chống ghi registry lén — phải qua Approval Gate).",
+                  file=sys.stderr)
+            sys.exit(2)
+        record_result(cfg_path, args.record_result, args.rec_status, args.rec_error)
+        return
 
     if args.list_repos:
         entry = next((c for c in conns if c.get("id") == args.list_repos), None)

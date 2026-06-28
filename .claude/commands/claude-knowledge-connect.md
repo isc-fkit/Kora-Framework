@@ -15,9 +15,12 @@ Chạy trước để biết hiện trạng — **đường dẫn tool TỰ RESO
 T=tools; [ -e "$T/connections/check_connection.py" ] || T="$HOME/.claude/kora-framework/tools"; python3 "$T/connections/check_connection.py" --list --config "$PWD/config/factory-config.yaml"
 ```
 (Windows: `py` thay `python3`.) Rồi hỏi:
-- **[Xem nguồn đã kết nối]** → liệt kê **TẤT CẢ** entry trong `connections:` kèm trạng thái
-  (`display_name` + method + ✓ connected · checked …). **API vs MCP hiển thị TÁCH RIÊNG** (mỗi method 1
-  dòng — id `<source_type>__<method>` khác nhau). Registry rỗng → báo "chưa kết nối nguồn nào".
+- **[Xem nguồn đã kết nối]** → xuất **BẢNG CHI TIẾT, ĐẦY ĐỦ** (KHÔNG chung chung), mỗi dòng đủ cột:
+  **Nguồn · Method (MCP/API/SMTP) · Tài khoản · Trạng thái (LIVE-probe vs theo-config) · Phạm vi (projects/site) · Trong sổ `connections:`?**.
+  Gồm CẢ (i) entry trong sổ (`--list`) LẪN (ii) **nguồn LIVE NGOÀI SỔ** — connector bật ở app/env mà CHƯA đăng ký
+  (vd Jira Cloud qua Atlassian Rovo MCP, Jira Server qua token env): `mcp-registry list_connectors` + env (`JIRA_BASE_URL`)
+  → **diff** với id trong sổ → cái chưa có = "❌ chưa trong sổ". **API vs MCP TÁCH RIÊNG.** Registry rỗng vẫn phải dò (ii).
+  **KÊNH GỬI MAIL** (`gmail_smtp`/`gmail_api`) hiển thị mục RIÊNG "Kênh gửi mail" — KHÔNG lẫn vào danh sách nguồn tri thức.
   > ⛔ **"KIỂM TRA KẾT NỐI" = VERIFY HẾT MỌI NGUỒN, KHÔNG ĐƯỢC CHỈ PROBE JIRA.** Khi user nói "kiểm tra
   >   kết nối" / "kiểm tra các nguồn" / "check connections" mà **KHÔNG nêu đích danh 1 nguồn** → **MẶC ĐỊNH
   >   chạy [⟳⟳ Kiểm tra lại TẤT CẢ]**, lặp MỌI entry trong `--list` (Jira, Gmail, M365/SharePoint/Outlook,
@@ -32,9 +35,14 @@ T=tools; [ -e "$T/connections/check_connection.py" ] || T="$HOME/.claude/kora-fr
        Confluence→`searchConfluenceUsingCql` · SharePoint→`sharepoint_folder_search` · Outlook→`outlook_email_search` ·
        Gmail draft→`list_drafts`/`list_labels` · `gmail_smtp`→`send_report.py --check` ·
        `gmail_api`→`send_report.py --check --transport https`.
-    4. Tổng hợp **1 bảng**: mỗi nguồn ✓ connected / ✗ lỗi + lý do. Hỏi confirm nếu muốn ghi `last_checked`/`status`
-       vào `connections:` (GHI = qua Gate).
-  Xong → đề xuất bước kế (không ghi gì nếu chỉ xem).
+    4. Tổng hợp **BẢNG CHI TIẾT** (đúng các cột trên) — PROBE LIVE điền trạng thái thật (vd MCP Jira `getVisibleJiraProjects`
+       còn liệt kê project vào cột Phạm vi); không probe được → 🟡 "theo-config, chưa probe".
+    5. **GHI kết quả vào sổ QUA GATE:** sau khi user ĐỒNG Ý → `check_connection.py --record-result <id>
+       --status <connected|error|needs_model_probe> [--last-error "…"] --confirm`
+       (cổng chống ghi lén: thiếu `--status` hoặc `--confirm` → tool TỪ CHỐI).
+    6. **Nguồn LIVE NGOÀI SỔ → MỜI ĐĂNG KÝ:** AskUserQuestion "Ghi nguồn này vào sổ?" từng cái (Jira Cloud `jira_cloud__mcp`;
+       Jira Server `jira_server__api__<host>` — nhắc đặt token ở `tools/jira-to-obsidian/.env.local` nếu env trống) → route Bước 2/3/4.
+  Xong → đề xuất bước kế (chỉ XEM → KHÔNG ghi; có probe + user đồng ý → mới `--record-result`).
 - **[Kết nối mới]** → sang Bước 1.
 
 ### Bước 1 — Phương thức  → **[MCP]** / **[API]** / **[← Huỷ]**

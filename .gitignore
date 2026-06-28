@@ -18,6 +18,8 @@ tools/gitlab-sync/work/
 # Lịch cấp HĐH (DATA, máy-cục-bộ) — registry + log. Plist/crontab nằm NGOÀI repo.
 tools/kora-scheduler/schedules.json
 reports/scheduler-logs/
+# Campaign registry (DATA, máy-cục-bộ) — định nghĩa campaign của user.
+tools/kora-campaign/campaigns.json
 
 # ===== KHÔNG public nội dung nghiệp vụ (chỉ host trang giới thiệu) =====
 # Bỏ comment các dòng dưới nếu muốn GIỮ KB ở local, chỉ đẩy landing page + source code:

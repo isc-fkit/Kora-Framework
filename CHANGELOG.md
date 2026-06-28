@@ -10,6 +10,36 @@
 
 ---
 
+## v2.13.0 "Claude-1" — 2026-06-29
+
+**REPORT ĐA LOẠI + tự động hoá: hóa đơn (OCR ảnh), meeting-roadmap, Canva, Campaign (n8n-lite).**
+
+- **`build_report.py` đa loại:** thêm `--report-type {progress|invoice|meeting-roadmap|custom}` + `--template`
+  (registry `templates/reports/_index.json`). `render_progress` giữ nguyên (tương thích ngược).
+- **Hóa đơn từ ẢNH:** đọc ảnh hóa đơn (OCR bằng vision) → rows → **`tools/invoice-report/import_invoice.py`**
+  (`source: invoice`) → `--report-type invoice` / `custom` (vd template `invoice-quarterly`). Demo generator
+  `tools/_demo/gen_meinvoice_samples.py` (hóa đơn GTGT kiểu MISA).
+- **Meeting + Roadmap:** `tools/meeting-report/import_meeting.py` (`type: meeting`) + `--report-type
+  meeting-roadmap` gộp **họp (AI summary) + task Jira** → phân tích lộ trình.
+- **Canva:** skill `claude-knowledge-canva` + `workflows/17-canva.md` — sản phẩm từ brand template + thuyết
+  trình từ mô tả (AI hỏi rõ → chốt → generate → export → `docs/04-Designs`).
+- **Campaign (n8n-lite):** `tools/kora-campaign/campaign.py` (create/list/run/dry-run/delete) — chuỗi bước
+  TUYẾN TÍNH scan→analyze→report/canva→mail→post/sync, hẹn lịch (ưu tiên Cowork `/schedule`). Bước outward
+  qua cổng `KORA_OPS_PW`; bước model (analyze/canva) chạy interactive.
+- **Connect:** `check_connection.py --record-result <id> --status --confirm` (writer ghi sổ qua cổng, sửa
+  YAML tại chỗ); skill connect xuất **bảng chi tiết** gộp cả nguồn live NGOÀI registry + mời đăng ký.
+- **Báo cáo đa nguồn:** `import_jira.py --source-id` ghi `source_id` vào frontmatter → **tách Jira đa instance**
+  (Cloud/Server) trong `build_report --source-ids`; token `jira` vẫn là **wildcard** (mọi instance).
+- **Code-gate cưỡng chế hỏi-chốt:** `build_report` (>1 nguồn thiếu `--source-ids`), `check_connection
+  --record-result` (thiếu `--status`/`--confirm`), `send_report` (thiếu `--to`), `--report-type custom`
+  (thiếu `--template`) → đều TỪ CHỐI (exit≠0).
+- **RULE key env:** TẤT CẢ key đặt & đọc/verify ở `~/.zshrc` qua `run_command` (Bash không nạp `~/.zshrc`).
+  Skill `scan` thêm bước "Tạo lịch?"; landing thêm mục hướng dẫn step-by-step hóa đơn/họp/campaign.
+
+> ⚠️ **MIGRATION:** note Jira quét bằng bản cũ **chưa có `source_id`** → chỉ khớp wildcard `jira`, chưa tách
+> được theo instance. Muốn báo cáo TÁCH Cloud/Server → **quét lại TỪNG nguồn Jira 1 lần** (mỗi nguồn 1
+> `--source-id jira__<host>`). Không bắt buộc — bản cũ vẫn báo cáo bình thường dưới token `jira`.
+
 ## v2.12.48 "Claude-1" — 2026-06-28
 
 **"Kiểm tra kết nối" verify HẾT mọi nguồn trong sổ `connections:` — không còn chỉ probe Jira.**

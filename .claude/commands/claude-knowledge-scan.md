@@ -95,5 +95,10 @@ The user invoked `/claude-knowledge-scan` — scan & import knowledge.
      **vai trò/domain/template** (`workflows/03-request.md` Bước 0) nếu phiên chưa chốt; ghi artifact theo
      **ĐỊNH DẠNG CHUẨN** `templates/prompts/ba-prompt-library.md` + cấu trúc `templates/` (như WF02 Bước 6 /
      WF03 "ĐẦU RA CHUẨN TỰ ĐỘNG"). Tức **import/scan và phân tích dùng CHUNG một chuẩn đầu ra**.
+5. **LUÔN ĐỀ XUẤT BƯỚC KẾ — gồm hỏi "Tạo lịch?"** (AskUserQuestion, schema rule #8, header ≤12 ký tự "Bước kế"):
+   **[Tạo lịch tự động] · [Quét thêm nguồn khác] · [Sinh báo cáo] · [Dừng]**.
+   - **[Tạo lịch tự động]** → `/claude-knowledge-schedule` (`workflows/08-schedule-sync.md`): lịch định kỳ get→reindex→(report/mail/sync).
+   - **[Quét thêm nguồn khác]** → quay lại chọn nguồn (Jira domain khác / SharePoint / file / ảnh hoá đơn).
+   - Đừng dead-end: luôn cho user chọn bước tiếp, KHÔNG bắt nhớ lệnh.
 
 Giữ bảo mật token (env var) + Approval Gate trước khi ghi vào `docs/` / vault.

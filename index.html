@@ -290,7 +290,7 @@
     <div class="brand" data-go="home" title="Trang chủ">
       <span class="brandmark" aria-hidden="true">K</span>
       <span class="org">FPT TELECOM</span>
-      <div class="fw">Claude Knowledge AI<span>v2.12.48 · Claude-1</span></div>
+      <div class="fw">Claude Knowledge AI<span>v2.13.0 · Claude-1</span></div>
     </div>
     <nav class="nav">
       <div class="grp">Tổng quan</div>
@@ -316,7 +316,7 @@
     <!-- ===================== HOME ===================== -->
     <div class="page" id="home">
       <header class="hero">
-        <span class="badge">FPT Telecom · Claude Knowledge AI · v2.12.48 · &ldquo;Claude-1&rdquo;</span>
+        <span class="badge">FPT Telecom · Claude Knowledge AI · v2.13.0 · &ldquo;Claude-1&rdquo;</span>
         <h1>Claude Knowledge AI — Sơ đồ nguyên lý hoạt động</h1>
         <p class="sub">Trợ lý tri thức tự lớn lên cùng dự án: hợp nhất tri thức phân tán, nối tri thức local của nhân viên với <b>Knowledge Base</b> chung (trên Cloud), và tự động hóa đồng bộ — báo cáo — cảnh báo.</p>
         <div class="pipe">
@@ -779,6 +779,32 @@ khi CHẠY:  scan/get (KHÔNG gác) → reindex → 🔒 cổng → post · repo
 
       <h2 class="sec">8 · 📦 Archive — <code>/claude-knowledge-archive</code></h2>
       <p style="color:var(--muted)">Đóng gói KB phân quyền (read-only / read-write) + mật khẩu (chỉ gác HOST tạo gói). HOST đẩy KB lên Cloud → USER import → connect MCP → <code>/claude-knowledge-schedule</code> kéo về local. Project import luôn <b>hỏi để nắm tri thức</b>. Gói USER tắt report/mail, tự lên lịch get&amp;post. <b>Báo lỗi về người phụ trách:</b> cấu hình email ticket sự cố (<code>scheduler.error_recipients</code>) đi theo gói + ship <b>cred SMTP no-reply</b> → khi lịch của USER lỗi, tự email người phụ trách (HOST). Hỗ trợ đầy đủ <b>Windows · macOS · Linux</b> (đóng gói &amp; import gói USER).</p>
+
+      <h2 class="sec" style="margin-top:32px">9 · 📄 Báo cáo HÓA ĐƠN / HỌP &amp; Campaign tự động — step-by-step</h2>
+      <p style="color:var(--muted)">Report giờ <b>đa loại</b>: <code>--report-type</code> = <b>progress</b> (Jira) · <b>invoice</b> (hóa đơn) · <b>meeting-roadmap</b> (họp + lộ trình) · <b>custom</b> (template tự tạo). Người nhận mail <b>ship RỖNG khi release</b> — mỗi lần <b>luôn HỎI</b>, nhập được <b>NHIỀU email cùng lúc</b> (cách nhau dấu phẩy).</p>
+
+      <p style="color:var(--text)"><b>A · Hóa đơn → báo cáo quý</b> (nói lời thường: <i>"tổng hợp ảnh hóa đơn → báo cáo quý"</i>)</p>
+      <ol style="color:var(--muted);line-height:1.7">
+        <li>Đưa <b>ảnh hóa đơn</b> vào (kéo vào chat, hoặc bỏ vào thư mục <code>inbox/</code>).</li>
+        <li>Claude <b>đọc ảnh (OCR bằng vision)</b> → xuất <code>reports/_invoice-rows.json</code> (cột: vendor, date, category, subtotal, vat, total).</li>
+        <li>Nạp + dựng (Claude tự chạy): <code>import_invoice.py --from-rows reports/_invoice-rows.json --source-id invoice__&lt;đợt&gt;</code> → <code>build_index.py --root .</code> → <code>build_report.py --report-type invoice --source-ids invoice__&lt;đợt&gt;</code>.</li>
+        <li>Chọn <b>template</b>: có sẵn (vd <code>invoice-quarterly</code>) hoặc <b>[Tạo mới]</b> → AI dựng → bạn review → <b>chốt</b> → lưu <code>templates/reports/</code>. Build template: <code>build_report.py --report-type custom --template &lt;tên&gt; --source-ids invoice__&lt;đợt&gt;</code>.</li>
+      </ol>
+
+      <p style="color:var(--text)"><b>B · Bật gửi mail tự động</b> (1 lần — SMTP, tự fallback Gmail API OAuth2 khi mạng chặn)</p>
+      <ol style="color:var(--muted);line-height:1.7">
+        <li>Tài khoản gửi (vd <code>ftel.medicare@gmail.com</code>): bật <b>xác minh 2 bước</b> → tạo <b>App Password</b> 16 ký tự (myaccount.google.com → Security → App passwords).</li>
+        <li>Dán App Password vào <code>tools/report-mailer/.env.local</code> dòng <code>SMTP_PASS=</code> (<b>KHÔNG dán qua chat</b>). Verify: <code>send_report.py --check</code>.</li>
+        <li><b>Mạng chặn SMTP</b> (vd firewall công ty): tạo <b>OAuth client "Desktop app"</b> (Google Cloud → bật Gmail API) → <code>gmail_oauth_setup.py</code> → <code>send_report.py --transport auto</code> tự chuyển <b>HTTPS/Gmail API</b> qua proxy.</li>
+        <li>Gửi: <code>send_report.py --to "a@x.com,b@y.com" --html-file reports/invoice-report-latest.html --transport auto</code> (qua cổng <code>KORA_OPS_PW</code>).</li>
+      </ol>
+
+      <p style="color:var(--text)"><b>C · Campaign tự động hằng quý</b> (chuỗi A→B chạy theo lịch, kiểu n8n)</p>
+      <ol style="color:var(--muted);line-height:1.7">
+        <li>Nói <i>"tạo campaign hóa đơn hằng quý"</i> → chuỗi: <b>OCR → import → reindex → report → gửi mail</b> (bước OCR/Canva cần model chạy khi mở app).</li>
+        <li>Quản lý: <code>campaign.py list</code> · <code>run &lt;id&gt; --dry-run</code> (xem trước) · <code>run &lt;id&gt;</code> · <code>delete --id &lt;id&gt;</code>.</li>
+        <li><b>Đặt lịch qua <code>/claude-knowledge-schedule</code> (Cowork — chạy khi mở app, dễ QUAN SÁT)</b> thay vì chạy nền OS. Bước phát ra ngoài (mail/sync) qua cổng <code>KORA_OPS_PW</code>.</li>
+      </ol>
     </div>
 
     <!-- ===================== PROMPTS ===================== -->
@@ -1617,11 +1643,24 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
       <div class="phead"><div class="pl">I · Release Note</div><h1><span class="em">🆕</span>Lịch sử phiên bản</h1></div>
       <p class="lead">Lịch sử bản <b>APP</b> (CORE: skills, workflows, tools…). Cập nhật: chạy lại lệnh cài (bash CLI, tab <a data-go="install" style="cursor:pointer">C</a>) — <b>tri thức của bạn được giữ nguyên</b> (DATA không bị đụng).</p>
 
-      <div class="callout ok"><span>🆕</span><div><b>Bản mới nhất (latest): <code>v2.12.48</code> — "Claude-1"</b> · phát hành 2026-06-28. Danh sách đầy đủ ở <a href="https://github.com/isc-fkit/Kora-Framework/blob/release/CHANGELOG.md">CHANGELOG.md</a>.</div></div>
+      <div class="callout ok"><span>🆕</span><div><b>Bản mới nhất (latest): <code>v2.13.0</code> — "Claude-1"</b> · phát hành 2026-06-29. Danh sách đầy đủ ở <a href="https://github.com/isc-fkit/Kora-Framework/blob/release/CHANGELOG.md">CHANGELOG.md</a>.</div></div>
 
       <div class="card" style="border-color:var(--accent)">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.12.48 — "Claude-1" <span style="display:inline-block;margin-left:6px;padding:2px 9px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;font-size:10.5px;font-weight:800;vertical-align:2px">MỚI NHẤT</span></b><span style="color:var(--faint);font-size:12.5px">2026-06-28</span>
+          <b style="font-size:16px">v2.13.0 — "Claude-1" <span style="display:inline-block;margin-left:6px;padding:2px 9px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;font-size:10.5px;font-weight:800;vertical-align:2px">MỚI NHẤT</span></b><span style="color:var(--faint);font-size:12.5px">2026-06-29</span>
+        </div>
+        <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
+          <li><b>📄 Report ĐA LOẠI</b> — build_report.py thêm <code>--report-type {progress|invoice|meeting-roadmap|custom}</code> + <code>--template</code> (registry templates/reports/).</li>
+          <li><b>🧾 Hóa đơn từ ẢNH</b> (OCR vision → import_invoice.py) → báo cáo chi phí/quý; <b>📅 meeting-roadmap</b> gộp họp (AI summary) + task Jira.</li>
+          <li><b>🎨 Canva</b> (sản phẩm + thuyết trình) &amp; <b>⚙️ Campaign n8n-lite</b> (tools/kora-campaign) — chuỗi scan→phân tích→report/canva→mail→sync hẹn lịch.</li>
+          <li><b>🔌 Connect</b> --record-result + bảng chi tiết gộp nguồn live ngoài sổ; <b>tách Jira đa instance</b> (--source-id). Code-gate cưỡng chế hỏi-chốt.</li>
+          <li>RULE: mọi key env ở ~/.zshrc (verify qua run_command). <b>Migration:</b> quét lại từng nguồn Jira để backfill source_id.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
+          <b style="font-size:16px">v2.12.48 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-28</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>🔌 "Kiểm tra kết nối" verify HẾT mọi nguồn</b> (Jira, Gmail, Microsoft 365, GitHub…) — không còn chỉ probe Jira. check_connection.py thêm --check-all.</li>

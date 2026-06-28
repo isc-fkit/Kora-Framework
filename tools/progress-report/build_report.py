@@ -176,6 +176,247 @@ def load_issues(vault):
     return issues
 
 
+# ══════════════════════════════════════════════════════════════════════════════
+# REPORT ĐA LOẠI (Pha 2): invoice / custom — đọc note source:invoice trong vault.
+# Luồng progress (Jira) bên dưới KHÔNG đổi; dispatch ở main() rẽ nhánh sớm.
+# ══════════════════════════════════════════════════════════════════════════════
+def load_invoices(vault):
+    """Nạp note HOÁ ĐƠN (source: invoice) trong vault → list dict (cho --report-type invoice/custom)."""
+    invs = []
+    for root, _dirs, files in os.walk(vault):
+        if os.sep + "_system" in root:
+            continue
+        for fn in files:
+            if not fn.endswith(".md"):
+                continue
+            try:
+                text = open(os.path.join(root, fn), encoding="utf-8").read()
+            except Exception:
+                continue
+            fm, _body = parse_frontmatter(text)
+            if fm.get("source") != "invoice":
+                continue
+            invs.append(fm)
+    return invs
+
+
+def _vnd(n):
+    try:
+        n = float(n)
+    except (TypeError, ValueError):
+        n = 0
+    return f"{n:,.0f}".replace(",", ".") + " ₫"
+
+
+def _inv_bars(pairs, width=520, bar_h=26, gap=12):
+    if not pairs:
+        return ""
+    mx = max((v for _, v in pairs), default=0) or 1
+    h = len(pairs) * (bar_h + gap) + gap
+    out = [f'<svg viewBox="0 0 {width} {h}" width="100%" height="{h}" '
+           f'xmlns="http://www.w3.org/2000/svg" role="img">']
+    palette = ["#2b50c2", "#2e9e8f", "#c2772b", "#8a4fc2", "#c23b5e", "#3b8ac2"]
+    y = gap
+    for i, (label, val) in enumerate(pairs):
+        bw = max(2, int((width - 230) * (val / mx)))
+        c = palette[i % len(palette)]
+        out.append(f'<text x="0" y="{y+int(bar_h*0.7)}" font-size="13" fill="#555">{esc(label)[:26]}</text>')
+        out.append(f'<rect x="170" y="{y}" width="{bw}" height="{bar_h}" rx="4" fill="{c}"/>')
+        out.append(f'<text x="{170+bw+6}" y="{y+int(bar_h*0.7)}" font-size="12" fill="#777">{_vnd(val)}</text>')
+        y += bar_h + gap
+    out.append("</svg>")
+    return "".join(out)
+
+
+def invoice_blocks(invoices):
+    """Tính các KHỐI dữ liệu hoá đơn → dict html (cho layout mặc định HOẶC template custom)."""
+    from collections import defaultdict
+    rows = []
+    for v in invoices:
+        sub = float(v.get("subtotal") or 0)
+        vat = float(v.get("vat") or 0)
+        tot = float(v.get("total") or 0) or (sub + vat)
+        rows.append({"invoice_no": str(v.get("invoice_no") or ""), "date": str(v.get("date") or ""),
+                     "vendor": str(v.get("vendor") or ""), "category": str(v.get("category") or "Khác"),
+                     "subtotal": sub, "vat": vat, "total": tot})
+    rows.sort(key=lambda x: x["date"])
+    n = len(rows)
+    sub = sum(r["subtotal"] for r in rows)
+    vat = sum(r["vat"] for r in rows)
+    tot = sum(r["total"] for r in rows)
+    by_cat, by_vendor, by_month = defaultdict(float), defaultdict(float), defaultdict(float)
+    for r in rows:
+        by_cat[r["category"]] += r["total"]
+        by_vendor[r["vendor"]] += r["total"]
+        by_month[(r["date"] or "0000-00")[:7]] += r["total"]
+    cat_pairs = sorted(by_cat.items(), key=lambda x: -x[1])
+    vendor_pairs = sorted(by_vendor.items(), key=lambda x: -x[1])
+    month_pairs = sorted(by_month.items())
+    dates = [r["date"] for r in rows if r["date"]]
+    period = f"{dates[0]} → {dates[-1]}" if dates else "—"
+    kpis = "".join(
+        f'<div class="kpi"><div class="kpi-v">{esc(val)}</div><div class="kpi-l">{esc(lbl)}</div></div>'
+        for lbl, val in [("Số hoá đơn", str(n)), ("Tiền hàng", _vnd(sub)),
+                         ("Tổng VAT", _vnd(vat)), ("TỔNG CHI", _vnd(tot))])
+    trows = "".join(
+        f"<tr><td>{esc(r['invoice_no'])}</td><td>{esc(r['date'])}</td><td>{esc(r['vendor'])}</td>"
+        f"<td>{esc(r['category'])}</td><td class='num'>{_vnd(r['subtotal'])}</td>"
+        f"<td class='num'>{_vnd(r['vat'])}</td><td class='num b'>{_vnd(r['total'])}</td></tr>" for r in rows)
+    trows += (f"<tr><td colspan='4' class='b'>TỔNG CỘNG</td><td class='num b'>{_vnd(sub)}</td>"
+              f"<td class='num b'>{_vnd(vat)}</td><td class='num b'>{_vnd(tot)}</td></tr>")
+    vrows = "".join(
+        f"<tr><td>{esc(v)}</td><td class='num b'>{_vnd(t)}</td>"
+        f"<td class='num'>{(t/tot*100 if tot else 0):.1f}%</td></tr>" for v, t in vendor_pairs)
+    return {"n": n, "subtotal": sub, "vat": vat, "total": tot, "period": period, "KPIS": kpis,
+            "TABLE_INVOICES": trows, "TABLE_VENDORS": vrows,
+            "CHART_CATEGORY": _inv_bars(cat_pairs), "CHART_MONTH": _inv_bars(list(month_pairs))}
+
+
+_INVOICE_CSS = (" body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:0;background:#f4f6fb;color:#1c2540}"
+    " .wrap{max-width:980px;margin:0 auto;padding:24px}"
+    " .hd{background:linear-gradient(135deg,#1c2e6e,#2b50c2);color:#fff;border-radius:14px;padding:24px 28px}"
+    " .hd h1{margin:0 0 4px;font-size:24px}.hd .sub{opacity:.85;font-size:14px}"
+    " .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:18px 0}"
+    " .kpi{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.07);text-align:center}"
+    " .kpi-v{font-size:20px;font-weight:700;color:#1c2e6e}.kpi-l{font-size:12px;color:#6a7390;margin-top:4px}"
+    " .card{background:#fff;border-radius:12px;padding:18px 20px;margin:14px 0;box-shadow:0 1px 3px rgba(0,0,0,.07)}"
+    " .card h2{font-size:16px;margin:0 0 12px;color:#1c2e6e}"
+    " table{width:100%;border-collapse:collapse;font-size:13px}"
+    " th,td{padding:8px 10px;text-align:left;border-bottom:1px solid #eef0f6}"
+    " th{background:#eef1fb;color:#33406e}.num{text-align:right}.b{font-weight:700;color:#1c2e6e}"
+    " .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}"
+    " .foot{color:#9aa1b8;font-size:12px;text-align:center;margin:18px 0}"
+    " @media(max-width:760px){.kpis{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}}")
+
+
+def render_invoice_report(invoices, title="Báo cáo chi phí — Hoá đơn", template_html=None):
+    """Render report hoá đơn. template_html=None → layout mặc định; else thay {{KEY}} trong template."""
+    b = invoice_blocks(invoices)
+    if template_html:
+        out = template_html
+        repl = {"TITLE": esc(title), "PERIOD": esc(b["period"]), "N": str(b["n"]),
+                "KPIS": b["KPIS"], "TABLE_INVOICES": b["TABLE_INVOICES"], "TABLE_VENDORS": b["TABLE_VENDORS"],
+                "CHART_CATEGORY": b["CHART_CATEGORY"], "CHART_MONTH": b["CHART_MONTH"],
+                "TOTAL": _vnd(b["total"]), "SUBTOTAL": _vnd(b["subtotal"]), "VAT": _vnd(b["vat"])}
+        for k, val in repl.items():
+            out = out.replace("{{" + k + "}}", val)
+        return out
+    return ("<!DOCTYPE html><html lang='vi'><head><meta charset='utf-8'>"
+            "<meta name='viewport' content='width=device-width, initial-scale=1'>"
+            f"<title>{esc(title)}</title><style>{_INVOICE_CSS}</style></head><body><div class='wrap'>"
+            f"<div class='hd'><h1>{esc(title)}</h1><div class='sub'>Kỳ: {esc(b['period'])} · {b['n']} hoá đơn · "
+            "Nguồn: hoá đơn quét (OCR) · VND</div></div>"
+            f"<div class='kpis'>{b['KPIS']}</div>"
+            f"<div class='grid2'><div class='card'><h2>Chi theo phân loại</h2>{b['CHART_CATEGORY']}</div>"
+            f"<div class='card'><h2>Chi theo tháng</h2>{b['CHART_MONTH']}</div></div>"
+            "<div class='card'><h2>Tổng theo nhà cung cấp</h2><table><thead><tr><th>Nhà cung cấp</th>"
+            f"<th class='num'>Tổng chi</th><th class='num'>Tỷ trọng</th></tr></thead><tbody>{b['TABLE_VENDORS']}</tbody></table></div>"
+            f"<div class='card'><h2>Chi tiết hoá đơn ({b['n']})</h2><table><thead><tr><th>Số HĐ</th><th>Ngày</th>"
+            "<th>Nhà cung cấp</th><th>Phân loại</th><th class='num'>Tiền hàng</th><th class='num'>VAT</th>"
+            f"<th class='num'>Tổng</th></tr></thead><tbody>{b['TABLE_INVOICES']}</tbody></table></div>"
+            "<div class='foot'>Kora — Report hoá đơn · build_report.py --report-type invoice</div>"
+            "</div></body></html>")
+
+
+def load_report_template(name, droot):
+    """Đọc templates/reports/_index.json → tìm template theo name → trả (html, base, title)."""
+    idx = os.path.join(droot, "templates", "reports", "_index.json")
+    if not os.path.exists(idx):
+        die(f"Chưa có registry template: {idx}. Tạo template trước (workflow report).")
+    reg = json.load(open(idx, encoding="utf-8"))
+    ent = next((t for t in reg.get("templates", []) if t.get("name") == name), None)
+    if not ent:
+        names = ", ".join(t.get("name", "?") for t in reg.get("templates", [])) or "(rỗng)"
+        die(f"Không thấy template '{name}'. Có: {names}.")
+    fp = os.path.join(droot, "templates", "reports", ent["file"])
+    if not os.path.exists(fp):
+        die(f"File template không tồn tại: {fp}")
+    return open(fp, encoding="utf-8").read(), ent.get("base", "invoice"), ent.get("title")
+
+
+# ── Pha 4: Meeting + Roadmap ──────────────────────────────────────────────────
+def load_meeting_rows(path):
+    """Đọc biên bản họp đã AI-tóm-tắt (list[dict] title/date/attendees/summary/decisions/action_items/risks)."""
+    if not path or not os.path.exists(path):
+        return []
+    try:
+        data = json.load(open(path, encoding="utf-8"))
+        return data if isinstance(data, list) else []
+    except Exception:
+        return []
+
+
+def _mr_list(items):
+    items = items or []
+    if not items:
+        return "<div class='muted'>(không có)</div>"
+    return "<ul>" + "".join(f"<li>{esc(x)}</li>" for x in items) + "</ul>"
+
+
+_MR_CSS = (" body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:0;background:#f5f4fb;color:#241c40}"
+    " .wrap{max-width:980px;margin:0 auto;padding:24px}"
+    " .hd{background:linear-gradient(135deg,#3a2e6e,#6b4ec2);color:#fff;border-radius:14px;padding:24px 28px}"
+    " .hd h1{margin:0 0 4px;font-size:24px}.hd .sub{opacity:.85;font-size:14px}"
+    " .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:18px 0}"
+    " .kpi{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.06);text-align:center}"
+    " .kpi-v{font-size:22px;font-weight:700;color:#4a3aa7}.kpi-l{font-size:12px;color:#6a6790;margin-top:4px}"
+    " .card{background:#fff;border-radius:12px;padding:18px 20px;margin:14px 0;box-shadow:0 1px 3px rgba(0,0,0,.06)}"
+    " .card h2{font-size:16px;margin:0 0 6px;color:#4a3aa7}"
+    " .muted{color:#8a86a8;font-size:13px}.sec{margin-top:10px}.sec b{color:#33306e}"
+    " ul{margin:6px 0 0;padding-left:20px}li{font-size:13px;margin:3px 0}"
+    " .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}p{font-size:14px;line-height:1.55}"
+    " .foot{color:#9a96b8;font-size:12px;text-align:center;margin:18px 0}"
+    " @media(max-width:760px){.grid2{grid-template-columns:1fr}}")
+
+
+def render_meeting_roadmap(meetings, issues, title="Báo cáo Meeting & Roadmap"):
+    """Gộp BIÊN BẢN HỌP (AI summary) + ROADMAP từ task Jira → 1 report chiến lược (Pha 4)."""
+    cur, nxt, done = [], [], 0
+    for i in issues or []:
+        st = (i.get("status") or "").strip().lower()
+        label = f"{i.get('jira_key') or ''} — {i.get('_summary') or ''}".strip(" —")
+        if any(w in st for w in ("done", "closed", "resolved", "hoàn thành", "complete")):
+            done += 1
+        elif any(w in st for w in ("progress", "doing", "đang", "review", "test")):
+            cur.append(label)
+        else:
+            nxt.append(label)
+    n_dec = sum(len(m.get("decisions") or []) for m in meetings)
+    n_act = sum(len(m.get("action_items") or []) for m in meetings)
+    n_risk = sum(len(m.get("risks") or []) for m in meetings)
+    kpis = [("Cuộc họp", len(meetings)), ("Quyết định", n_dec), ("Action item", n_act), ("Rủi ro", n_risk)]
+    if issues:
+        kpis.append(("Task (Jira)", len(issues)))
+    kpi_html = "".join(f'<div class="kpi"><div class="kpi-v">{v}</div>'
+                       f'<div class="kpi-l">{esc(l)}</div></div>' for l, v in kpis)
+    cards = ""
+    for m in meetings:
+        cards += (f"<div class='card'><h2>{esc(m.get('title') or 'Họp')}</h2>"
+                  f"<div class='muted'>{esc(m.get('date') or '')} · {esc(m.get('attendees') or '')}</div>"
+                  f"<p>{esc(m.get('summary') or '')}</p>"
+                  f"<div class='sec'><b>Quyết định</b>{_mr_list(m.get('decisions'))}</div>"
+                  f"<div class='sec'><b>Hành động</b>{_mr_list(m.get('action_items'))}</div>"
+                  f"<div class='sec'><b>Rủi ro</b>{_mr_list(m.get('risks'))}</div></div>")
+    if issues:
+        roadmap = (f"<div class='card'><h2>🗺️ Roadmap (từ {len(issues)} task Jira)</h2>"
+                   f"<div class='grid2'><div><b>Đang làm ({len(cur)})</b>{_mr_list(cur[:15])}</div>"
+                   f"<div><b>Kế tiếp ({len(nxt)})</b>{_mr_list(nxt[:15])}</div></div>"
+                   f"<div class='muted' style='margin-top:8px'>Đã xong: {done} task.</div></div>")
+    else:
+        roadmap = "<div class='card'><div class='muted'>Chưa có task Jira trong vault để dựng roadmap (quét Jira để bổ sung).</div></div>"
+    dates = sorted(str(m.get("date") or "") for m in meetings if m.get("date"))
+    period = f"{dates[0]} → {dates[-1]}" if dates else "—"
+    return ("<!DOCTYPE html><html lang='vi'><head><meta charset='utf-8'>"
+            "<meta name='viewport' content='width=device-width, initial-scale=1'>"
+            f"<title>{esc(title)}</title><style>{_MR_CSS}</style></head><body><div class='wrap'>"
+            f"<div class='hd'><h1>{esc(title)}</h1><div class='sub'>Kỳ: {esc(period)} · "
+            f"{len(meetings)} cuộc họp · {len(issues or [])} task Jira</div></div>"
+            f"<div class='kpis'>{kpi_html}</div>{roadmap}"
+            f"<h2 style='color:#4a3aa7;margin:18px 0 4px'>Biên bản họp ({len(meetings)})</h2>{cards}"
+            "<div class='foot'>Kora — Meeting & Roadmap · build_report.py --report-type meeting-roadmap</div>"
+            "</div></body></html>")
+
+
 def vault_freshness(vault, stale_after_days=1):
     """Đọc mọi mốc last-import-*.txt trong vault → mốc mới nhất + cờ CŨ (so hôm nay)."""
     marks = glob.glob(os.path.join(vault, "**", "last-import-*.txt"), recursive=True)
@@ -1475,6 +1716,13 @@ def main():
                     help="Số ngày N cho --scope recent / fallback của sprint (mặc định 30).")
     ap.add_argument("--complexity-high", dest="complexity_high", type=int, default=7,
                     help="Ngưỡng 'phức tạp cao' cho field Complexity (mặc định 7 — >= ngưỡng = cao).")
+    ap.add_argument("--report-type", dest="report_type", default="progress",
+                    choices=["progress", "invoice", "meeting-roadmap", "custom"],
+                    help="Loại report: progress (Jira, mặc định) | invoice (hoá đơn) | meeting-roadmap (Pha 4) | custom (template).")
+    ap.add_argument("--template", help="Tên template trong templates/reports/_index.json "
+                    "(bắt buộc cho --report-type custom; tuỳ chọn cho invoice).")
+    ap.add_argument("--meetings", help="File JSON biên bản họp đã AI-tóm-tắt (cho --report-type meeting-roadmap; "
+                    "mặc định reports/_meeting-rows.json).")
     args = ap.parse_args()
     DATA = data_root()   # project (cwd) nếu có config/factory-config.yaml; else REPO_ROOT (dev / lịch nền)
 
@@ -1506,6 +1754,50 @@ def main():
     if not os.path.isdir(vault):
         die(f"Vault không tồn tại: {vault}")
 
+    # ── DISPATCH theo --report-type (nhánh KHÔNG-Jira: invoice/custom/meeting-roadmap) ──
+    rtype = getattr(args, "report_type", "progress")
+    if rtype != "progress":
+        out_dir = args.out or os.path.join(DATA, "reports")
+        os.makedirs(out_dir, exist_ok=True)
+        if rtype == "meeting-roadmap":
+            meetings = load_meeting_rows(args.meetings or os.path.join(DATA, "reports", "_meeting-rows.json"))
+            if not meetings:
+                die("Không có biên bản họp. Tạo reports/_meeting-rows.json (AI tóm tắt từ file họp) hoặc truyền "
+                    "--meetings <file>, rồi (tùy chọn) import_meeting.py để lưu vault.")
+            mr_issues = load_issues(vault)
+            html_out = render_meeting_roadmap(meetings, mr_issues, "Báo cáo Meeting & Roadmap")
+            stamp = datetime.now().strftime("%Y%m%d-%H%M")
+            latest = os.path.join(out_dir, "meeting-roadmap-latest.html")
+            open(latest, "w", encoding="utf-8").write(html_out)
+            open(os.path.join(out_dir, f"meeting-roadmap-{stamp}.html"), "w", encoding="utf-8").write(html_out)
+            print(f"✓ Report (meeting-roadmap): {latest}")
+            print(f"  {len(meetings)} cuộc họp | {len(mr_issues)} task Jira trong vault")
+            return
+        invs = load_invoices(vault)
+        sid = (args.source_ids or "").strip()
+        if sid and sid.lower() not in ("all", "*"):
+            ids = {s.strip() for s in sid.split(",") if s.strip()}
+            invs = [v for v in invs if v.get("source_id") in ids or "invoice" in ids]
+        if not invs:
+            die("Không có note hoá đơn (source: invoice) trong vault. "
+                "Chạy tools/invoice-report/import_invoice.py trước, hoặc kiểm --source-ids.")
+        tmpl_html, title = None, "Báo cáo chi phí — Hoá đơn"
+        if rtype == "custom" and not args.template:
+            die("report-type custom cần --template <name>. Liệt kê trong templates/reports/_index.json.")
+        if args.template:
+            tmpl_html, _base, ttl = load_report_template(args.template, DATA)
+            if ttl:
+                title = ttl
+        html_out = render_invoice_report(invs, title, tmpl_html)
+        stamp = datetime.now().strftime("%Y%m%d-%H%M")
+        latest = os.path.join(out_dir, "invoice-report-latest.html")
+        open(latest, "w", encoding="utf-8").write(html_out)
+        open(os.path.join(out_dir, f"invoice-report-{stamp}.html"), "w", encoding="utf-8").write(html_out)
+        tot = sum(float(v.get("total") or 0) for v in invs)
+        print(f"✓ Report ({rtype}{'/'+args.template if args.template else ''}): {latest}")
+        print(f"  {len(invs)} hoá đơn | TỔNG {_vnd(tot)}")
+        return
+
     issues = load_issues(vault)
     # ── CỔNG CHẶN NGUỒN: vault có >1 nguồn mà KHÔNG chỉ định --source-ids → TỪ CHỐI build ──
     # Biến "skip im lặng câu hỏi chọn nguồn → build sai/lẫn nguồn" thành DỪNG + buộc đi hỏi user.
@@ -1513,16 +1805,20 @@ def main():
     available_sources = set()
     for _i in issues:
         _src = (_i.get("source") or "jira")
-        available_sources.add("jira" if _src == "jira" else (_i.get("source_id") or "excel"))
+        if _src == "jira":
+            available_sources.add(_i.get("source_id") or "jira")   # tách Jira THEO INSTANCE khi note có source_id; else token "jira"
+        else:
+            available_sources.add(_i.get("source_id") or "excel")
     sid_raw = (args.source_ids or "").strip()
     if sid_raw.lower() in ("all", "*"):
         sid_raw = ""   # all = mọi nguồn → bỏ lọc (đã chủ ý chọn tất cả)
     elif not sid_raw and len(available_sources) > 1:
         die("❌ Vault có NHIỀU NGUỒN: " + ", ".join(sorted(available_sources)) + ".\n"
             "   PHẢI truyền --source-ids để báo cáo CHỈ gồm nguồn user đã chọn — vd:\n"
-            "     --source-ids jira            (chỉ Jira)\n"
-            "     --source-ids jira,sp_standup (Jira + 1 import SharePoint)\n"
-            "     --source-ids all             (tất cả nguồn)\n"
+            "     --source-ids jira              (MỌI instance Jira — wildcard)\n"
+            "     --source-ids jira__foxproject  (CHỈ 1 instance Jira theo source_id)\n"
+            "     --source-ids jira,sp_standup   (Jira + 1 import SharePoint)\n"
+            "     --source-ids all               (tất cả nguồn)\n"
             "   ⛔ KHÔNG build report khi CHƯA hỏi user chọn nguồn: chạy /claude-knowledge-daily-report bước 2 "
             "(AskUserQuestion 3 nhóm [Jira·SharePoint·Local Excel]) TRƯỚC, rồi truyền --source-ids tương ứng.")
     if sid_raw:
