@@ -805,6 +805,28 @@ khi CHẠY:  scan/get (KHÔNG gác) → reindex → 🔒 cổng → post · repo
         <li>Quản lý: <code>campaign.py list</code> · <code>run &lt;id&gt; --dry-run</code> (xem trước) · <code>run &lt;id&gt;</code> · <code>delete --id &lt;id&gt;</code>.</li>
         <li><b>Đặt lịch qua <code>/claude-knowledge-schedule</code> (Cowork — chạy khi mở app, dễ QUAN SÁT)</b> thay vì chạy nền OS. Bước phát ra ngoài (mail/sync) qua cổng <code>KORA_OPS_PW</code>.</li>
       </ol>
+
+      <h2 class="sec" style="margin-top:32px">10 · 🕗 Kiểm tra worklog / thời gian tạo task Jira — <code>/claude-knowledge-worklog-check</code> <span class="pw">🔒 (Admin permission)</span></h2>
+      <p style="color:var(--muted)">Soát các task <b>ĐÃ TẠO</b> trên Jira xem <b>startTime / dueTime / estimate</b> có đặt đúng để <b>logwork không bị chặn validation thời gian</b> không — rồi <b>gợi ý lịch tạo task mới</b>. Áp cho issue type <b>Task / Sub-task</b> có field <b>Type = Normal</b> (OT / Effort liệt kê riêng, ngoài cap). Kết quả: <b>biểu đồ calendar timeline</b> (hiện inline trong Cowork) + bảng lỗi + file HTML.</p>
+
+      <div class="callout"><span>📐</span><div><b>Quy tắc (Type = Normal):</b> mỗi <b>ngày làm việc</b> (T2–T6, bỏ T7/CN) log tối đa <b>8h</b>; chỉ log trong <code>[startTime, dueTime)</code> — <b>dueTime là biên LOẠI TRỪ</b>. <code>dueTime</code> tối thiểu = ngày-làm-việc cuối (đủ chứa est ở 8h/ngày) <b>+ 1 ngày lịch</b>. Ví dụ: start <b>01/06</b> est <b>8h</b> → due <b>02/06</b>; est <b>16h</b> → due <b>04/06</b>; làm xong <b>thứ Sáu</b> → due <b>thứ Bảy</b>; tràn T6→T2 (2 ngày làm) → due <b>thứ Ba</b> (T7/CN ở giữa bỏ qua). Cho phép <b>chồng ngày</b> — chỉ báo lỗi khi <b>tổng giờ/người/ngày &gt; 8h</b>.</div></div>
+
+      <p style="color:var(--text)"><b>A · Soát task đã tạo trong 1 tháng</b> (nói lời thường: <i>"kiểm tra task tháng 6 tạo đúng giờ chưa"</i>)</p>
+      <ol style="color:var(--muted);line-height:1.7">
+        <li>Cổng <b>mật khẩu vận hành</b> (<code>KORA_OPS_PW</code>) → <b>chọn THÁNG</b> (<code>YYYY-MM</code>) → chọn <b>nguồn Jira</b> → <b>project</b> → (tùy chọn) lọc <b>người</b>.</li>
+        <li>Quét Jira tháng đó về vault — <b>bổ sung 2 field</b>: đặt <code>JIRA_START_FIELD</code> (Start date) + <code>JIRA_WORKTYPE_FIELD</code> (Type) trước <code>import_jira.py</code> (lấy id từ <code>config jira.start_field</code> / <code>worktype_field</code>; để rỗng = tự dò theo TÊN field). Rồi reindex <code>build_index.py --root .</code>.</li>
+        <li>Validate (Claude tự chạy): <code>validate_worklog.py --validate --month &lt;YYYY-MM&gt; --vault &lt;vault&gt; [--project &lt;KEYS&gt;] [--assignee &lt;tên&gt;]</code> → sinh <code>reports/worklog-check-latest.html</code> + <code>reports/worklog-timeline-&lt;tháng&gt;.svg</code> + JSON.</li>
+        <li>Xem <b>biểu đồ calendar timeline</b> (Gantt theo ngày + dải tải/ngày, ô &gt;8h tô đỏ, T7/CN xám) + <b>bảng lỗi</b> kèm <b>dueTime gợi ý</b> cho từng task → sửa trên Jira.</li>
+      </ol>
+
+      <p style="color:var(--text)"><b>B · Gợi ý lịch tạo task mới</b> (nhập tên + est → tự đề xuất start / due / est)</p>
+      <ol style="color:var(--muted);line-height:1.7">
+        <li>Nhập danh sách <b>task mới</b> (tên + est giờ) + <b>người</b> + <b>ngày bắt đầu</b> (anchor).</li>
+        <li><code>validate_worklog.py --plan --month &lt;YYYY-MM&gt; --vault &lt;vault&gt; --assignee &lt;người&gt; --anchor &lt;YYYY-MM-DD&gt; --new-tasks '[{"name":"...","est_h":8}]'</code> → tự <b>water-fill</b> đề xuất <b>start / due / est</b> (≤8h/ngày, bỏ cuối tuần) + timeline cập nhật (task gợi ý = thanh viền đứt).</li>
+        <li>Chọn <b>[Chỉ xem]</b> hoặc <b>[Tạo trên Jira]</b> → (đã qua cổng) tạo task thật qua <code>createJiraIssue</code> (set Start date / dueTime / est / Type = Normal).</li>
+      </ol>
+
+      <div class="callout"><span>🏷️</span><div><b>Mã lỗi:</b> <code>WINDOW_TOO_SMALL</code> (dueTime quá sớm — kèm due tối thiểu) · <code>INVALID_WINDOW</code> (dueTime ≤ startTime) · <code>DAY_OVERLOAD</code> (tổng &gt;8h/người/ngày — kiểm khả thi EDF water-fill) · <code>OVER_CAPACITY</code> (vượt năng lực tháng: Σest &gt; ngày-làm-việc×8h) · <code>MISSING_START/DUE/EST</code> · <code>WEEKEND_START</code> · <code>DUE_SUGGEST</code> (due dư — có thể thu hẹp). <b>Cấu hình field</b> (đã map sẵn cho FMC): <code>jira.start_field</code>, <code>jira.worktype_field</code>, <code>jira.effort_field</code> trong <code>config/factory-config.yaml</code>.</div></div>
     </div>
 
     <!-- ===================== PROMPTS ===================== -->
@@ -2431,6 +2453,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
         <tr><td><code>/claude-knowledge-schedule</code></td><td>Lịch HĐH (local): scan → report → mail → sync; quản lý HĐH+Cowork</td><td>🔒 (post/report/mail/sync · scan KHÔNG cần)</td></tr>
         <tr><td><code>/claude-knowledge-alert-mail</code></td><td>Mail cảnh báo sự cố (ticket sự cố) — override mọi lịch</td><td>—</td></tr>
         <tr><td><code>/claude-knowledge-daily-report</code></td><td>Báo cáo tiến độ (lọc, theo thời gian) — kéo dữ liệu live</td><td>🔒 (Admin permission)</td></tr>
+        <tr><td><code>/claude-knowledge-worklog-check</code></td><td>Kiểm tra worklog/thời gian tạo task Jira (Type=Normal, 8h/ngày, dueTime đúng est) + biểu đồ calendar timeline + gợi ý lịch task mới</td><td>🔒 (Admin permission)</td></tr>
         <tr><td><code>/claude-knowledge-archive</code></td><td>Đóng gói Knowledge Base phân quyền + mật khẩu</td><td>🔑 Archive</td></tr>
         <tr><td><code>/claude-knowledge-export-docs</code></td><td>Xuất DOCX / PDF theo doc template</td><td>—</td></tr>
         <tr><td><code>/claude-knowledge-export-knowledge-base</code></td><td>Xuất toàn bộ Knowledge Base ra zip</td><td>—</td></tr>
@@ -2454,6 +2477,7 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
         <tr><td>Gửi mail báo cáo</td><td>"gửi mail báo cáo", "email tiến độ cho team"</td><td><i>gửi mail báo cáo cho team</i></td></tr>
         <tr><td>Đặt lịch quét/sync</td><td>"đặt lịch quét jira", "tự động đồng bộ"</td><td><i>đặt lịch quét jira 8h sáng</i></td></tr>
         <tr><td>Báo cáo tiến độ</td><td>"báo cáo tiến độ", "tiến độ dự án", "cập nhật tiến độ"</td><td><i>cập nhật tiến độ dự án FA</i> → hỏi nguồn → project</td></tr>
+        <tr><td>Kiểm tra worklog 🔒</td><td>"kiểm tra logwork", "soát task tạo có đúng không", "kiểm tra thời gian task tháng", "gợi ý lịch tạo task"</td><td><i>kiểm tra task tháng 6 tạo đúng giờ chưa</i> → hỏi tháng → timeline + bảng lỗi</td></tr>
         <tr><td>Đặt lịch báo cáo</td><td>"đặt lịch báo cáo", "lịch báo cáo tiến độ"</td><td><i>đặt lịch báo cáo 8h hằng ngày</i></td></tr>
         <tr><td>Sửa danh sách mail</td><td>"sửa danh sách email báo cáo", "thêm người nhận mail"</td><td><i>thêm a@x.com vào nhận report</i></td></tr>
         <tr><td>Mail cảnh báo sự cố</td><td>"sửa mail cảnh báo sự cố", "cấu hình mail lỗi lịch"</td><td><i>đổi người nhận mail cảnh báo lịch</i></td></tr>
