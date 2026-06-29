@@ -10,6 +10,25 @@
 
 ---
 
+## v2.13.7 "Claude-1" — 2026-06-29
+
+**Báo cáo TIẾN ĐỘ nhúng-HTML + AI qua mail · GẮN ĐỦ con agent phân tích cho 5 loại report · FIX responsive KPI.**
+
+- **Báo cáo tiến độ qua mail:** giữ **banner ẢNH ở header** (`<img class=kbanner src=banner-daily-report.jpg>` → `send_report` swap
+  `cid:kora-banner` nhúng inline) + khối **🤖 AI phân tích nhúng thẳng body** (`build_report.py --inject-ai` thay `<!--KR-AI-->`).
+  Build LUÔN ghi `reports/progress-data-latest.json` cho con agent đọc (trước chỉ có file theo ngày → skill trỏ file không tồn tại).
+- **GẮN sub-agent phân tích chuyên sâu cho CẢ 5 LOẠI report** (trước chỉ tiến độ + tài chính):
+  - **Cuộc họp (meeting):** spawn con agent **thư ký/phân tích họp** (quyết định · action item + người + deadline · rủi ro chiến lược ·
+    liên hệ roadmap) → `reports/ai-meeting-latest.md` → `--report-type meeting-roadmap --ai`. `render_meeting_roadmap` nay nhận
+    `ai_html` + render khối **🤖 Phân tích AI — Họp & Roadmap**.
+  - **Roadmap/OKR:** spawn con agent **chiến lược/PM** (đối chiếu OKR ↔ tiến độ sprint · bốc task sprint kế · phụ thuộc · rủi ro lộ
+    trình) đọc `_okr-latest.txt` + `progress-data-latest.json` → trường `analysis_md` trong `_okr-blocks.json`.
+  - **Custom template:** spawn con agent **phân tích bám template** (`data:analyze`) → `reports/ai-custom-latest.md` → `--ai`
+    (custom dùng chung path `render_invoice_report`). Fallback mọi loại: không spawn được Agent → Claude tự viết.
+- **FIX responsive KPI báo cáo TÀI CHÍNH:** 4 card từ `inline-block;width:46%` (card "Tổng thanh toán" rớt xuống dòng 2) →
+  **`<table table-layout:fixed>` 4 cột 25% trong 1 `<tr>`** → luôn nằm 1 dòng, bền cả Outlook (Word engine bỏ qua inline-block).
+- **Gỡ footer** lệnh nội bộ (`build_report.py --report-type ...`) khỏi mail + template `invoice-quarterly.html`.
+
 ## v2.13.6 "Claude-1" — 2026-06-29
 
 **Báo cáo tài chính INLINE-STYLED (email-safe) — gửi thẳng làm body mail.**

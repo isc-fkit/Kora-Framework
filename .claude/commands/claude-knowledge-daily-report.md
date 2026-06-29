@@ -50,8 +50,12 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
      SharePoint (`sharepoint_search` → `read_resource`), HOẶC **Outlook** (`outlook_calendar_search` lịch họp / `outlook_email_search`
      email họp) → Claude ĐỌC + TÓM TẮT (AI) thành `reports/_meeting-rows.json`
      (list: `title/date/attendees/summary/decisions[]/action_items[]/risks[]`) → `python3 "$T/meeting-report/import_meeting.py"
-     --from-rows reports/_meeting-rows.json --source-id meeting__<batch>` (lưu vault `type: meeting`) + reindex. Build:
-     `python3 "$T/progress-report/build_report.py" --report-type meeting-roadmap` → gộp **họp (AI summary) + roadmap từ task Jira** trong vault.
+     --from-rows reports/_meeting-rows.json --source-id meeting__<batch>` (lưu vault `type: meeting`) + reindex.
+     **AI phân tích — SPAWN con agent THƯ KÝ/PHÂN TÍCH HỌP** (Agent tool: đóng vai thư ký cuộc họp + phân tích chiến lược,
+     đọc `reports/_meeting-rows.json`) → con agent viết ra `reports/ai-meeting-latest.md` (không spawn được Agent → Claude tự viết):
+     `## 📌 Tóm tắt điều hành` · `## ✅ Quyết định & cam kết` · `## 🎯 Action items` (việc · NGƯỜI phụ trách · DEADLINE) ·
+     `## 🔴 Rủi ro chiến lược` · `## 🔗 Liên hệ tiến độ/roadmap` (đối chiếu task Jira trong vault). Build:
+     `python3 "$T/progress-report/build_report.py" --report-type meeting-roadmap --ai reports/ai-meeting-latest.md` → gộp **họp (AI summary) + roadmap từ task Jira** trong vault.
    - **[Custom template]** → BẮT BUỘC chọn/tạo template (nhánh dưới) → build `--report-type custom --template <name>`.
    **NHÁNH TEMPLATE (cho Hoá đơn/Custom) — AskUserQuestion header "Template":** liệt kê template có sẵn đọc từ
    `templates/reports/_index.json` (mỗi `name`+`title` = 1 option) + **[Mặc định]** (chỉ Hoá đơn) + **[Tạo mới]** (rule #8: >4 → phân trang).
@@ -59,8 +63,11 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
      `{{TITLE}} {{PERIOD}} {{N}} {{KPIS}} {{CHART_CATEGORY}} {{CHART_MONTH}} {{TABLE_VENDORS}} {{TABLE_INVOICES}} {{TOTAL}} {{SUBTOTAL}} {{VAT}}`
      → **PREVIEW cho user (visualize) → CHỜ user CHỐT** (sửa tới khi ưng) → lưu `templates/reports/<name>.html`
      + thêm entry `_index.json` (`name`/`base: invoice`/`file`/`title`). **CHƯA chốt → KHÔNG build.**
+   - **(Custom) AI phân tích — SPAWN con agent PHÂN TÍCH bám TEMPLATE** (Agent tool + skill `data:analyze`: đọc dữ liệu nguồn
+     `reports/_invoice-rows.json` / note `source: invoice`, bám đúng loại dữ liệu & mục tiêu của template đã chọn) → viết
+     `reports/ai-custom-latest.md` (`## 📌 Tóm tắt` · `## 📊 Phát hiện chính` · `## 🔴 Rủi ro` · `## 🎯 Đề xuất`; không spawn được Agent → Claude tự viết).
    - Build Hoá đơn/Custom: `python3 "$T/progress-report/build_report.py" --report-type <invoice|custom> [--template <name>]
-     --source-ids "invoice__<batch>"` → ra `reports/invoice-report-latest.html`.
+     --source-ids "invoice__<batch>" --ai reports/ai-<invoice|custom>-latest.md` → ra `reports/invoice-report-latest.html`.
    > 🔒 Backstop: `--report-type custom` TỪ CHỐI nếu thiếu `--template`; template lạ → lỗi liệt kê tên có sẵn.
    > 📧 Gửi report Hoá đơn/Custom: report ĐÃ **inline-styled (email-safe)** → gửi THẲNG làm BODY (giữ nguyên định dạng ở Gmail/Outlook):
    > `send_report.py --html-file reports/invoice-report-latest.html --attach reports/invoice-report-latest.html` (qua cổng `KORA_OPS_PW`).
@@ -131,8 +138,11 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
      - 📋 **LẬP `reports/_okr-blocks.json`** (Claude cấu trúc từ nội dung file) → build_report render **section RIÊNG**
        (grid chia nhóm + khối AI phân tích riêng) ở **CẢ dashboard LẪN email**. Schema:
        `{"title": "...", "source": "SharePoint", "groups": [{"icon":"🔬","label":"RD / Solution","items":[{"name":"Insulin Tool","chips":["Log insulin 18-25/06",{"text":"Câu hỏi BS/BN","tone":"warn"}]}]}], "analysis_md": "## 🔴 Rủi ro\\n...\\n## 📌 Tóm tắt\\n..."}`.
-       `tone` ∈ `ok|warn|risk|info` (màu chip) — bỏ trống = trung tính. `analysis_md` = phân tích AI RIÊNG cho OKR/chiến lược
-       (insight · rủi ro · ĐỐI CHIẾU với tiến độ sprint/OKR), viết theo góc PM. **Mỗi nhóm/đầu việc chia rõ cho dễ nhìn.**
+       `tone` ∈ `ok|warn|risk|info` (màu chip) — bỏ trống = trung tính. `analysis_md` = phân tích AI RIÊNG cho OKR/chiến lược.
+       **SPAWN con agent CHIẾN LƯỢC/PM** (Agent tool: đóng vai PM/chiến lược; đọc `reports/_okr-latest.txt` BỐI CẢNH +
+       `reports/progress-data-latest.json` tiến độ) → viết phân tích (insight · 🔴 rủi ro lộ trình · ĐỐI CHIẾU OKR ↔ tiến độ
+       sprint · bốc task vào sprint kế · phụ thuộc), theo góc **PM đã hỏi** → Claude đưa nội dung agent vào trường
+       `analysis_md` (không spawn được Agent → Claude tự viết). **Mỗi nhóm/đầu việc chia rõ cho dễ nhìn.**
      - Cũng lưu `reports/_okr-latest.txt` (text thô) làm **BỐI CẢNH** cho mục 🗺️ Roadmap của AI chính (Bước 1.5).
 6. **BẮT BUỘC dựng báo cáo QUA `build_report.py` — TUYỆT ĐỐI KHÔNG tự viết file HTML báo cáo bằng tay.**
    `python3 "$T/progress-report/build_report.py" --source-ids "<SRC_IDS>" --projects "<KEYS>" --scope <SCOPE> --recent-days <NDAYS> [--members "<MEMBERS Bước 5>"] [--roles Dev,QC]`

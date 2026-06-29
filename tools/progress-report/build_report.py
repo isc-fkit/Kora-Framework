@@ -263,10 +263,14 @@ def invoice_blocks(invoices):
     month_pairs = sorted(by_month.items())
     dates = [r["date"] for r in rows if r["date"]]
     period = f"{dates[0]} → {dates[-1]}" if dates else "—"
-    kpis = "".join(
-        f'<div style="{_S_KPI}"><div style="{_S_KPIV}">{esc(val)}</div><div style="{_S_KPIL}">{esc(lbl)}</div></div>'
+    # KPI dạng TABLE 4 cột (table-layout:fixed) — luôn nằm 1 dòng, bền cả Outlook (inline-block hay vỡ ở Word engine).
+    _kpi_cells = "".join(
+        f'<td width="25%" valign="top" style="{_S_KPI}"><div style="{_S_KPIV}">{esc(val)}</div><div style="{_S_KPIL}">{esc(lbl)}</div></td>'
         for lbl, val in [("Số hoá đơn", str(n)), ("Tiền hàng (chưa VAT)", _vnd(sub)),
                          ("Thuế GTGT", _vnd(vat)), ("TỔNG THANH TOÁN", _vnd(tot))])
+    kpis = (f'<table role="presentation" width="100%" cellpadding="0" cellspacing="6" '
+            f'style="width:100%;table-layout:fixed;border-collapse:separate">'
+            f'<tr>{_kpi_cells}</tr></table>')
     # Bảng TỔNG HỢP THUẾ GTGT theo thuế suất (chuẩn kế toán — đối chiếu khấu trừ đầu vào). Inline-styled (email-safe).
     tax_rows = "".join(
         f'<tr><td style="{_S_TD}">{int(rate*100)}%</td><td style="{_S_TDN}">{by_rate[rate]["n"]}</td>'
@@ -304,7 +308,7 @@ _S_WRAP = "max-width:980px;margin:0 auto;padding:20px;font-family:-apple-system,
 _S_HERO = "background:#1c2e6e;color:#fff;border-radius:14px;padding:22px 26px;margin-bottom:14px"
 _S_CARD = "background:#fff;border:1px solid #eef0f6;border-radius:12px;padding:16px 18px;margin:0 0 14px"
 _S_H2 = "font-size:16px;margin:0 0 10px;color:#1c2e6e"
-_S_KPI = "display:inline-block;width:46%;max-width:230px;background:#fff;border:1px solid #eef0f6;border-radius:10px;padding:14px;margin:1%;text-align:center;vertical-align:top;box-sizing:border-box"
+_S_KPI = "background:#fff;border:1px solid #eef0f6;border-radius:10px;padding:14px 10px;text-align:center;vertical-align:top;box-sizing:border-box"
 _S_KPIV = "font-size:19px;font-weight:700;color:#1c2e6e"
 _S_KPIL = "font-size:12px;color:#6a7390;margin-top:4px"
 _S_TBL = "width:100%;border-collapse:collapse;font-size:13px"
@@ -353,7 +357,6 @@ def render_invoice_report(invoices, title="Báo cáo chi phí — Hoá đơn", t
             f'<div style="{_S_CARD}"><div style="{_S_H2}">Chi theo khoản mục</div>{b["TABLE_CATEGORY"]}</div>'
             f'<div style="{_S_CARD}"><div style="{_S_H2}">Tổng hợp theo nhà cung cấp</div>{_vhdr}</div>'
             f'<div style="{_S_CARD}"><div style="{_S_H2}">Bảng kê chi tiết hoá đơn ({b["n"]})</div>{_ihdr}</div>'
-            '<div style="color:#9aa1b8;font-size:12px;text-align:center;margin:18px 0">Kora — Báo cáo tài chính (hoá đơn GTGT) · build_report.py --report-type invoice</div>'
             "</div></body></html>")
 
 
@@ -408,8 +411,9 @@ _MR_CSS = (" body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;mar
     " @media(max-width:760px){.grid2{grid-template-columns:1fr}}")
 
 
-def render_meeting_roadmap(meetings, issues, title="Báo cáo Meeting & Roadmap"):
-    """Gộp BIÊN BẢN HỌP (AI summary) + ROADMAP từ task Jira → 1 report chiến lược (Pha 4)."""
+def render_meeting_roadmap(meetings, issues, title="Báo cáo Meeting & Roadmap", ai_html=""):
+    """Gộp BIÊN BẢN HỌP (AI summary) + ROADMAP từ task Jira → 1 report chiến lược (Pha 4).
+    ai_html = khối phân tích chuyên sâu (render_ai_cards) từ con agent họp/chiến lược (--ai)."""
     cur, nxt, done = [], [], 0
     for i in issues or []:
         st = (i.get("status") or "").strip().lower()
@@ -445,12 +449,14 @@ def render_meeting_roadmap(meetings, issues, title="Báo cáo Meeting & Roadmap"
         roadmap = "<div class='card'><div class='muted'>Chưa có task Jira trong vault để dựng roadmap (quét Jira để bổ sung).</div></div>"
     dates = sorted(str(m.get("date") or "") for m in meetings if m.get("date"))
     period = f"{dates[0]} → {dates[-1]}" if dates else "—"
+    ai_block = (f"<div class='card'><h2>🤖 Phân tích AI — Họp &amp; Roadmap</h2>{ai_html}</div>"
+                if ai_html else "")
     return ("<!DOCTYPE html><html lang='vi'><head><meta charset='utf-8'>"
             "<meta name='viewport' content='width=device-width, initial-scale=1'>"
             f"<title>{esc(title)}</title><style>{_MR_CSS}</style></head><body><div class='wrap'>"
             f"<div class='hd'><h1>{esc(title)}</h1><div class='sub'>Kỳ: {esc(period)} · "
             f"{len(meetings)} cuộc họp · {len(issues or [])} task Jira</div></div>"
-            f"<div class='kpis'>{kpi_html}</div>{roadmap}"
+            f"<div class='kpis'>{kpi_html}</div>{ai_block}{roadmap}"
             f"<h2 style='color:#4a3aa7;margin:18px 0 4px'>Biên bản họp ({len(meetings)})</h2>{cards}"
             "<div class='foot'>Kora — Meeting & Roadmap · build_report.py --report-type meeting-roadmap</div>"
             "</div></body></html>")
@@ -1808,7 +1814,10 @@ def main():
                 die("Không có biên bản họp. Tạo reports/_meeting-rows.json (AI tóm tắt từ file họp) hoặc truyền "
                     "--meetings <file>, rồi (tùy chọn) import_meeting.py để lưu vault.")
             mr_issues = load_issues(vault)
-            html_out = render_meeting_roadmap(meetings, mr_issues, "Báo cáo Meeting & Roadmap")
+            mr_ai = ""
+            if args.ai_md and os.path.exists(args.ai_md):
+                mr_ai = render_ai_cards(open(args.ai_md, encoding="utf-8").read())
+            html_out = render_meeting_roadmap(meetings, mr_issues, "Báo cáo Meeting & Roadmap", mr_ai)
             stamp = datetime.now().strftime("%Y%m%d-%H%M")
             latest = os.path.join(out_dir, "meeting-roadmap-latest.html")
             open(latest, "w", encoding="utf-8").write(html_out)
@@ -1940,6 +1949,7 @@ def main():
     open(latest_p, "w", encoding="utf-8").write(fragment_html)
     open(ebody_latest, "w", encoding="utf-8").write(ebody)
     open(json_p, "w", encoding="utf-8").write(data_json)
+    open(os.path.join(out, "progress-data-latest.json"), "w", encoding="utf-8").write(data_json)  # bản -latest cho agent AI đọc
 
     # 3) PREVIEW EMAIL — bản XEM TRƯỚC mail (Cowork/trình duyệt): banner nhúng BASE64 để hiện được tại chỗ
     #    (email-body-latest.html dùng URL remote cho send_report swap→CID; trình duyệt có thể chặn URL đó).
