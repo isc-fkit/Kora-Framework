@@ -10,6 +10,17 @@
 
 ---
 
+## v2.13.5 "Claude-1" — 2026-06-29
+
+**Tích hợp con AGENT phân tích vào lệnh báo cáo.**
+
+- **Báo cáo tài chính:** AI-analysis spawn **con agent phân tích tài chính/kế toán** (Agent tool, skill `data:analyze`
+  + kiến thức kế toán) đọc `reports/_invoice-rows.json` → viết `reports/ai-invoice-latest.md` → `build_report --ai`.
+- **Báo cáo tiến độ:** spawn **3 con agent quản lý SONG SONG** — `operations:status-report` (tóm tắt/hành động),
+  `operations:risk-assessment` (rủi ro), `operations:capacity-plan` (năng lực/sprint) — đọc `progress-data-latest.json`
+  → **tổng hợp** thành `reports/ai-analysis-latest.md` → `build_report --inject-ai`. PM/QC theo vai trò (không đo giờ).
+- **Fallback:** môi trường không có Agent tool → Claude tự viết phân tích như cũ (không vỡ luồng).
+
 ## v2.13.4 "Claude-1" — 2026-06-29
 
 **Lọc báo cáo theo thành viên / vai trò.**
