@@ -44,6 +44,8 @@ jira:
   effort_field: ""        # custom field "ước tính theo giờ" gộp vào est khi thiếu time-tracking (vd FMC: customfield_10867)
   complexity_field: ""    # custom field "Complexity" (độ phức tạp, số). Rỗng → tự dò field tên "Complexity". Ghi frontmatter `complexity`.
   complexity_high: 7      # ngưỡng PHỨC TẠP CAO (>= ngưỡng = cao) — báo cáo lấy nhóm này làm trọng tâm
+  start_field: ""         # field "Start date" (ngày bắt đầu logwork). Rỗng → tự dò field tên "Start date". Ghi frontmatter `startdate` (workflow 19 kiểm tra worklog)
+  worktype_field: ""      # field "Type" phân loại worklog (Normal/OT/Effort). Rỗng → tự dò. Ghi frontmatter `work_type` (cap 8h/ngày chỉ áp Normal)
   tool_path: tools/jira-to-obsidian
   group_by_project: true  # mỗi project Jira 1 thư mục con trong vault (hỏi lúc setup)
   run_mode: auto          # auto = thử sandbox trước | sandbox | user_terminal (tự ghi sau lần chạy đầu)

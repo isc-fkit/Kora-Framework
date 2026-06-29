@@ -43,6 +43,7 @@
 | Report hoá đơn/họp 🔒 | "báo cáo hoá đơn", "tổng hợp hoá đơn", "báo cáo quý", "báo cáo cuộc họp" | *tổng hợp ảnh hoá đơn → báo cáo quý* · *báo cáo họp + roadmap* |
 | Tạo Canva | "tạo thuyết trình", "tạo thiết kế canva", "tạo ấn phẩm/slide" | *tạo bài thuyết trình thị trường Q3* (AI hỏi rõ → chốt) |
 | Campaign tự động | "tạo campaign", "tự động hoá a-z", "chuỗi tự động như n8n" | *tự động hằng quý: gom hoá đơn → report → gửi sếp* |
+| Kiểm tra worklog 🔒 | "kiểm tra logwork", "soát task tạo có đúng không", "kiểm tra thời gian task tháng", "gợi ý lịch tạo task" | *kiểm tra task tháng 6 tạo đúng giờ chưa* → hỏi tháng → quét → biểu đồ timeline + lỗi |
 
 ⚠️ **Tránh nhầm:** "cập nhật **dữ liệu** jira" = quét ≠ "cập nhật **phiên bản/ứng dụng**" = update app.
 🔒 = cần mật khẩu vận hành · 🔒m = chỉ maintainer · 🔵 = tự chạy không cần lệnh.

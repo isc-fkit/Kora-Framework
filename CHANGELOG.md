@@ -10,6 +10,20 @@
 
 ---
 
+## v2.14.0 "Claude-1" — 2026-06-30
+
+**KIỂM TRA WORKLOG / THỜI GIAN TẠO TASK JIRA** — workflow 19 + skill `/claude-knowledge-worklog-check` (trigger: "kiểm tra logwork", "soát task tạo có đúng không", "kiểm tra thời gian task tháng", "gợi ý lịch tạo task").
+
+- **Quét 1 THÁNG → soát task Normal** (issue type **Task/Sub-task** có field **Type = Normal**; OT/Effort liệt kê riêng, ngoài cap). Quy tắc: mỗi ngày làm việc log tối đa **8h**, chỉ log trong `[startTime, dueTime)` — **dueTime là biên LOẠI TRỪ**, bỏ T7/CN.
+- **Bộ kiểm `tools/worklog-validator/validate_worklog.py`** (chỉ thư viện chuẩn):
+  - `dueTime` tối thiểu theo est (start 01/06 est 8h → due 02/06; est 16h → due 04/06; xong T6 → due T7; tràn cuối tuần thì cuốn đúng số ngày làm việc) → bắt **WINDOW_TOO_SMALL** (due quá sớm) / **INVALID_WINDOW** (due ≤ start) / **DUE_SUGGEST** (due dư).
+  - **Năng lực tháng/người** (Σest ≤ ngày-làm-việc × 8h) → **OVER_CAPACITY**.
+  - **Xung đột tổng >8h/người/ngày** qua kiểm tra khả thi **EDF water-fill** (cho chồng ngày) → **DAY_OVERLOAD**. Cùng **MISSING_START/DUE/EST**, **WEEKEND_START**.
+  - **Biểu đồ CALENDAR TIMELINE** (Gantt theo ngày + dải tải/ngày, ô >8h đỏ, task gợi ý viền đứt) render qua `show_widget` + dashboard HTML + JSON.
+  - Chế độ **`--plan`**: nhập tên+est → tự water-fill đề xuất start/due/est (≤8h/ngày, bỏ cuối tuần) → tùy chọn **tạo thẳng trên Jira** (MCP `createJiraIssue`, qua cổng `KORA_OPS_PW`).
+- **`import_jira.py` quét thêm 2 field**: "Start date" → frontmatter `startdate`; field "Type" (Normal/OT/Effort) → `work_type`. Cấu hình id ở `config jira.start_field` / `worktype_field` (rỗng = tự dò theo tên field; có env `JIRA_START_FIELD` / `JIRA_WORKTYPE_FIELD`).
+- **Không cần migration** — field/skill mới, không đổi cấu trúc DATA hiện có.
+
 ## v2.13.7 "Claude-1" — 2026-06-29
 
 **Báo cáo TIẾN ĐỘ nhúng-HTML + AI qua mail · GẮN ĐỦ con agent phân tích cho 5 loại report · FIX responsive KPI.**

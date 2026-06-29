@@ -119,6 +119,12 @@ EFFORT_FIELD = os.getenv("JIRA_EFFORT_FIELD") or ""
 # Custom field "Complexity" (độ phức tạp; số càng lớn càng phức tạp, >=7 = cao). Ưu tiên id cấu hình; nếu rỗng,
 # tự dò field tên "Complexity" trong FIELD_MAP. Ghi frontmatter máy-đọc `complexity` để report lấy làm trọng tâm.
 COMPLEXITY_FIELD = os.getenv("JIRA_COMPLEXITY_FIELD") or ""
+# Custom field "Start date" (ngày BẮT ĐẦU được phép logwork). Ưu tiên id cấu hình; rỗng → tự dò field tên
+# "Start date"/"Start" trong FIELD_MAP. Ghi frontmatter máy-đọc `startdate` (YYYY-MM-DD) cho workflow kiểm tra worklog.
+START_FIELD = os.getenv("JIRA_START_FIELD") or ""
+# Custom field "Type" phân loại worklog (Normal / OT / Effort). Ưu tiên id cấu hình; rỗng → tự dò field tên
+# "Type"/"Work Type" HOẶC field option có giá trị ∈ {Normal,OT,Effort}. Ghi frontmatter `work_type` (ràng buộc 8h/ngày chỉ áp Normal).
+WORKTYPE_FIELD = os.getenv("JIRA_WORKTYPE_FIELD") or ""
 # Mặc định BẬT gom theo project; chỉ tắt khi user ghi rõ GROUP_BY_PROJECT=false
 PER_PROJECT = (os.getenv("GROUP_BY_PROJECT") or "true").strip().lower() not in ("0", "false", "no")
 # Mặc định CÀO HẾT mọi field (fields=*all + map tên custom field). Tắt: JIRA_FETCH_ALL_FIELDS=false
@@ -551,8 +557,65 @@ def _complexity(f):
         return None
 
 
+def _norm_date(v):
+    """Trả 'YYYY-MM-DD' từ chuỗi date/datetime Jira; None nếu không nhận dạng được."""
+    if isinstance(v, dict):
+        v = v.get("value") or v.get("name") or v.get("date")
+    if not isinstance(v, str):
+        return None
+    s = v.strip()[:10]
+    if len(s) == 10 and s[4] == "-" and s[7] == "-":
+        try:
+            int(s[:4]); int(s[5:7]); int(s[8:10])
+            return s
+        except ValueError:
+            return None
+    return None
+
+
+def _start_date(f):
+    """Ngày BẮT ĐẦU (YYYY-MM-DD). Ưu tiên START_FIELD; rỗng → dò field tên 'start date'/'start' trong FIELD_MAP."""
+    fid = START_FIELD
+    if not fid:
+        for k, name in FIELD_MAP.items():
+            if (name or "").strip().lower() in ("start date", "start", "planned start", "start time", "ngày bắt đầu"):
+                fid = k
+                break
+    if not fid:
+        return _norm_date(f.get("startdate") or f.get("start"))  # vài bản expose tên thẳng
+    return _norm_date(f.get(fid))
+
+
+_WORKTYPE_VALUES = {"normal", "ot", "effort"}
+
+
+def _work_type(f):
+    """Giá trị field phân loại worklog (Normal/OT/Effort). Ưu tiên WORKTYPE_FIELD; rỗng → dò field tên
+    'type'/'work type' HOẶC field option có giá trị ∈ {Normal,OT,Effort}."""
+    def _val(raw):
+        if isinstance(raw, list):
+            raw = raw[0] if raw else None
+        if isinstance(raw, dict):
+            raw = raw.get("value") or raw.get("name")
+        return raw.strip() if isinstance(raw, str) and raw.strip() else None
+    if WORKTYPE_FIELD:
+        return _val(f.get(WORKTYPE_FIELD))
+    for k, name in FIELD_MAP.items():        # 1) khớp theo TÊN field
+        if (name or "").strip().lower() in ("type", "work type", "worklog type", "task type", "loại"):
+            val = _val(f.get(k))
+            if val:
+                return val
+    for k in f:                              # 2) khớp theo TẬP GIÁ TRỊ {Normal,OT,Effort}
+        if k in ("issuetype", "status", "priority"):
+            continue
+        val = _val(f.get(k))
+        if val and val.lower() in _WORKTYPE_VALUES:
+            return val
+    return None
+
+
 def _machine_progress_fields(f):
-    """Dòng frontmatter MÁY-ĐỌC cho report: status_category, time(giây), story_points, sprint active, complexity."""
+    """Dòng frontmatter MÁY-ĐỌC cho report: status_category, time(giây), story_points, sprint active, complexity, startdate, work_type."""
     lines = []
     sc = ((f.get("status") or {}).get("statusCategory") or {}).get("key", "")  # new|indeterminate|done
     cat = {"new": "todo", "indeterminate": "in_progress", "done": "done"}.get(sc, "")
@@ -578,6 +641,12 @@ def _machine_progress_fields(f):
     cx = _complexity(f)
     if cx is not None:
         lines.append(f"complexity: {cx}")
+    sd = _start_date(f)
+    if sd:
+        lines.append(f"startdate: {sd}")
+    wt = _work_type(f)
+    if wt:
+        lines.append(f"work_type: {json.dumps(wt, ensure_ascii=False)}")
     return lines
 
 
