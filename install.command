@@ -78,6 +78,11 @@ for mw in 12-release.md 13-evolve-system.md; do rm -f "$DEST_CORE/workflows/$mw"
 # MIGRATION: dọn skill /kora-* CŨ kẹt trong CORE (orphan từ bản cài cũ — đã đổi tên → /claude-knowledge-*) để không lẫn skill.
 rm -f "$DEST_CORE/.claude/commands"/kora-*.md 2>/dev/null || true
 [ -f "$SRC/CLAUDE.md" ] && cp "$SRC/CLAUDE.md" "$DEST_CORE/" || true
+# CORE phụ (cho refresh bundle project): .kb/rules.md + system-lessons.md + docs/07-research — KHÔNG phải DATA user.
+mkdir -p "$DEST_CORE/.kb" 2>/dev/null || true
+[ -f "$SRC/.kb/rules.md" ] && cp "$SRC/.kb/rules.md" "$DEST_CORE/.kb/" 2>/dev/null || true
+[ -f "$SRC/.kb/system-lessons.md" ] && cp "$SRC/.kb/system-lessons.md" "$DEST_CORE/.kb/" 2>/dev/null || true
+[ -d "$SRC/docs/07-research" ] && { mkdir -p "$DEST_CORE/docs" 2>/dev/null; rm -rf "$DEST_CORE/docs/07-research" 2>/dev/null; cp -R "$SRC/docs/07-research" "$DEST_CORE/docs/07-research" 2>/dev/null; } || true
 # version.json + CHANGELOG → để /claude-knowledge-version /claude-knowledge-update đọc được bản đã cài.
 [ -f "$SRC/version.json" ] && cp "$SRC/version.json" "$DEST_CORE/" || true
 [ -f "$SRC/CHANGELOG.md" ] && cp "$SRC/CHANGELOG.md" "$DEST_CORE/" || true
@@ -94,6 +99,18 @@ mkdir -p "$SKILL_DIR"
 rm -f "$SKILL_DIR"/kora-*.md 2>/dev/null || true            # dọn skill /kora-* CŨ (đã đổi tên)
 rm -f "$SKILL_DIR"/claude-knowledge-*.md 2>/dev/null || true
 cp "$DEST_CMD"/claude-knowledge-*.md "$SKILL_DIR"/ 2>/dev/null || true
+
+# Đăng ký PROJECT vào registry + đồng bộ bundle (CLAUDE.md + merge config keys mới) → update sau luôn refresh đúng project.
+if [ -n "${KORA_PROJECT:-}" ] && [ -d "$KORA_PROJECT" ]; then
+  REG="${XDG_CONFIG_HOME:-$HOME/.config}/claude-knowledge/projects.list"
+  KP="$(cd "$KORA_PROJECT" && pwd)"
+  mkdir -p "$(dirname "$REG")" 2>/dev/null || true; touch "$REG" 2>/dev/null || true
+  grep -qxF "$KP" "$REG" 2>/dev/null || printf '%s\n' "$KP" >> "$REG"
+  [ -f "$KP/CLAUDE.md" ] && [ -f "$DEST_CORE/CLAUDE.md" ] && cp "$DEST_CORE/CLAUDE.md" "$KP/CLAUDE.md" 2>/dev/null || true
+  if [ -f "$KP/config/factory-config.yaml" ] && [ -f "$DEST_CORE/tools/config-merge/merge_config.py" ] && have python3; then
+    python3 "$DEST_CORE/tools/config-merge/merge_config.py" --user "$KP/config/factory-config.yaml" --example "$DEST_CORE/config/factory-config.example.yaml" --write --quiet 2>/dev/null || true
+  fi
+fi
 
 # Dọn RÁC bản cũ ở Downloads (KHÔNG tạo mới ở Downloads): folder Kora-Skills + folder Skill kiểu cũ.
 rm -rf "$HOME/Downloads/Kora-Skills" "$HOME/Downloads/Kora-Skills.zip" 2>/dev/null || true

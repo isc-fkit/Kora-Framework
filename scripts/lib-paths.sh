@@ -126,6 +126,57 @@ read_manifest_field() {
     | sed -E 's/[[:space:]]+$//'
 }
 
+# ── REGISTRY + PROJECT-BUNDLE REFRESH (update đồng bộ HOÀN TOÀN, không partial) ──────────────
+# registry_file: file liệt kê các DATA-PROJECT user mở (mỗi project có bundle CORE riêng: CLAUDE.md +
+# Skill/ + config). update refresh các project này để Cowork luôn có tính năng mới (không "lúc có lúc mất").
+registry_file() {
+  printf '%s' "${XDG_CONFIG_HOME:-$HOME/.config}/claude-knowledge/projects.list"
+}
+
+# register_project <path>: thêm project vào registry (dedupe). Chỉ ghi nếu trông giống project Kora.
+register_project() {
+  local p="${1:-}"
+  [ -n "$p" ] || return 0
+  p="$(cd "$p" 2>/dev/null && pwd || echo "")"; [ -n "$p" ] || return 0
+  [ -f "$p/config/factory-config.yaml" ] || [ -f "$p/CLAUDE.md" ] || [ -d "$p/Skill" ] || return 0
+  local rf; rf="$(registry_file)"
+  mkdir -p "$(dirname "$rf")" 2>/dev/null || true
+  touch "$rf" 2>/dev/null || return 0
+  grep -qxF "$p" "$rf" 2>/dev/null || printf '%s\n' "$p" >> "$rf"
+}
+
+# refresh_project_bundle <project_dir> <core_dir> <global_cmd>: đồng bộ phần CORE BUNDLE trong 1 project
+# (Skill/ + CLAUDE.md + .kb/rules.md + .kb/system-lessons.md + docs/07-research + MERGE config) — DATA GIỮ NGUYÊN.
+refresh_project_bundle() {
+  local proj="${1:-}" core="${2:-}" gcmd="${3:-}"
+  [ -d "$proj" ] || return 0
+  # Skill/ (Cowork upload) — refresh claude-knowledge-* (gỡ maintainer + kora-* cũ). find -delete: an toàn mọi shell.
+  if [ -d "$proj/Skill" ] && [ -d "$gcmd" ]; then
+    find "$proj/Skill" -maxdepth 1 -type f \( -name 'kora-*.md' -o -name 'claude-knowledge-*.md' \) -delete 2>/dev/null || true
+    cp "$gcmd"/claude-knowledge-*.md "$proj/Skill"/ 2>/dev/null || true
+    rm -f "$proj/Skill/claude-knowledge-release.md" 2>/dev/null || true
+  fi
+  # CLAUDE.md (Cowork đọc từ project) — chỉ khi project bundle sẵn có
+  [ -f "$proj/CLAUDE.md" ] && [ -f "$core/CLAUDE.md" ] && cp "$core/CLAUDE.md" "$proj/CLAUDE.md" 2>/dev/null || true
+  # .kb CORE (rules + system-lessons) — KHÔNG phải DATA của user
+  if [ -d "$proj/.kb" ]; then
+    [ -f "$core/.kb/rules.md" ] && cp "$core/.kb/rules.md" "$proj/.kb/rules.md" 2>/dev/null || true
+    [ -f "$core/.kb/system-lessons.md" ] && cp "$core/.kb/system-lessons.md" "$proj/.kb/system-lessons.md" 2>/dev/null || true
+  fi
+  # docs/07-research (CORE — ship sẵn, không phải tri thức user)
+  if [ -d "$proj/docs" ] && [ -d "$core/docs/07-research" ]; then
+    rm -rf "$proj/docs/07-research" 2>/dev/null || true
+    cp -R "$core/docs/07-research" "$proj/docs/07-research" 2>/dev/null || true
+  fi
+  # MERGE config keys mới (giữ nguyên giá trị user) — tránh "tính năng mới thiếu config → lỗi"
+  if [ -f "$proj/config/factory-config.yaml" ] && [ -f "$core/config/factory-config.example.yaml" ] \
+     && [ -f "$core/tools/config-merge/merge_config.py" ] && command -v python3 >/dev/null 2>&1; then
+    python3 "$core/tools/config-merge/merge_config.py" \
+      --user "$proj/config/factory-config.yaml" \
+      --example "$core/config/factory-config.example.yaml" --write --quiet 2>/dev/null || true
+  fi
+}
+
 # self_dequarantine: gỡ nhãn ẩn 'com.apple.quarantine' mà macOS dán cho file tải từ web.
 # Mục đích: sau khi user "Open Anyway" 1 file .command ở lần đầu, các script CÒN LẠI sẽ
 # KHÔNG bị Gatekeeper hỏi nữa ở những lần double-click sau (chỉ cần vượt 1 lần duy nhất).

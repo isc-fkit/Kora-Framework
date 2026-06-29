@@ -37,6 +37,20 @@ finish() {
   read -r -p "Xong. Nhấn Enter để đóng cửa sổ..." _ || true
 }
 
+# --project <path>: chế độ NHẸ — đăng ký 1 PROJECT có sẵn + đồng bộ bundle CORE của nó NGAY từ CORE đang cài
+# (Skill/ · CLAUDE.md · merge config), KHÔNG tải lại. Dùng cho install Cowork/standalone CŨ chưa từng đăng ký.
+if [ "${1:-}" = "--project" ] && [ -n "${2:-}" ]; then
+  PROJ_ARG="$2"
+  [ -d "$PROJ_ARG" ] || die "Không thấy thư mục project: $PROJ_ARG"
+  register_project "$PROJ_ARG"
+  refresh_project_bundle "$PROJ_ARG" "$REPO_ROOT" "$HOME/.claude/commands"
+  echo "📌 Đã đăng ký + đồng bộ bundle CORE (Skill/ · CLAUDE.md · config) cho project:"
+  echo "   $PROJ_ARG"
+  echo "   Lần 'cập nhật phiên bản' sau sẽ tự refresh project này theo bản mới nhất."
+  finish
+  exit 0
+fi
+
 echo "================================================================"
 echo "  CẬP NHẬT Kora-Framework"
 echo "  Thư mục: $REPO_ROOT"
@@ -134,10 +148,20 @@ else
   done < <(data_env_files)
   # Maintainer-only (phát hành/tiến hóa hệ thống) — KHÔNG kéo về bản người dùng.
   RSYNC_EXCLUDES+=( --exclude "/.claude/commands/claude-knowledge-release.md" --exclude "/workflows/12-release.md" --exclude "/workflows/13-evolve-system.md" )
+  # BẢO VỆ TUYỆT ĐỐI khi --delete: token/.env.local ở MỌI tool dir + file *.local + thư mục runtime
+  # (Skill regenerate ngay dưới, projects/_system runtime). excludes = vừa không transfer vừa KHÔNG bị xóa.
+  RSYNC_EXCLUDES+=( --exclude "**/.env.local" --exclude "**/.env" --exclude "**/*.local" \
+                    --exclude "/Skill" --exclude "/projects" --exclude "/_system" )
 
-  # rsync ĐÈ (không --delete để không xóa file người dùng ngoài danh sách).
-  rsync -a "${RSYNC_EXCLUDES[@]}" "$SRC_DIR"/ "$REPO_ROOT"/ \
-    || die "Ghi đè phần chương trình thất bại."
+  # rsync ĐÈ + --delete + --checksum → CORE thành BẢN SAO SẠCH ĐÚNG NỘI DUNG của release:
+  #   • --delete: prune file CŨ/đổi-tên (hết "lỗi cấu trúc cơ bản" do lẫn file cũ).
+  #   • --checksum: so theo NỘI DUNG (không phụ mtime) → kể cả user lỡ sửa CORE / lệch giờ vẫn về đúng bản mới.
+  # An toàn: mọi DATA + token (.env.local) + runtime đã ở excludes (rsync KHÔNG xóa/đụng file excluded).
+  # rsync có thể trả 23/24 (cảnh báo "không xóa được thư mục chứa DATA" — VÔ HẠI) → chỉ die khi lỗi THẬT (≥25).
+  rsync -a --delete --checksum "${RSYNC_EXCLUDES[@]}" "$SRC_DIR"/ "$REPO_ROOT"/ || {
+    rc=$?; [ "$rc" -ge 25 ] && die "Ghi đè phần chương trình thất bại (rsync rc=$rc)."
+    echo "   (rsync rc=$rc — cảnh báo vô hại do bảo vệ DATA, đã bỏ qua)"
+  }
 
   echo ""
   echo "✅ Cập nhật chương trình thành công (tri thức của bạn được giữ nguyên)."
@@ -164,6 +188,20 @@ if [ -d "$SRC_CMD" ] && [ "$(cd "$SRC_CMD" && pwd)" != "$(cd "$GLOBAL_CMD" 2>/de
   done
   # Dọn RÁC bản cũ: folder Skill kiểu cũ trong Downloads (không refresh ở đó nữa).
   rm -rf "$HOME/Downloads/Knowledge-Base/Skill" "$HOME/Downloads/Knowledge-Base/skill" 2>/dev/null || true
+fi
+
+# --- Refresh BUNDLE CORE trong từng PROJECT đã đăng ký (đồng bộ HOÀN TOÀN, không partial) ----------
+# Project Cowork mở bản CŨ có Skill/ + CLAUDE.md + config RIÊNG → nếu không refresh thì thiếu tính năng
+# mới (worklog-check…) dù CORE đã update. Loop registry → đồng bộ bundle CORE (DATA của user GIỮ NGUYÊN).
+REG="$(registry_file)"
+if [ -f "$REG" ]; then
+  REFRESHED=0
+  while IFS= read -r proj; do
+    [ -n "$proj" ] && [ -d "$proj" ] || continue
+    refresh_project_bundle "$proj" "$REPO_ROOT" "$GLOBAL_CMD"
+    REFRESHED=$((REFRESHED + 1))
+  done < "$REG"
+  [ "$REFRESHED" -gt 0 ] && echo "🔄 Đã đồng bộ bundle CORE (Skill/ · CLAUDE.md · config) cho $REFRESHED project đã đăng ký."
 fi
 
 # --- Báo version mới + nhắc reindex ------------------------------------------

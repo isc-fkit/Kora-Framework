@@ -10,6 +10,18 @@
 
 ---
 
+## v2.14.2 "Claude-1" — 2026-06-30
+
+**FIX ROOT-CAUSE cơ chế CẬP NHẬT — update giờ đồng bộ HOÀN TOÀN, hết "lúc có lúc mất tính năng".**
+
+Trước đây update chỉ refresh MỘT PHẦN (managed CORE + `~/.claude/commands`), KHÔNG đụng bundle CORE trong project Cowork (Skill/ + CLAUDE.md + config riêng), KHÔNG merge config key mới, KHÔNG prune file cũ → install cũ cập nhật xong vẫn thiếu tính năng / lỗi cấu trúc. Đã sửa tận gốc:
+
+- **`update.command` rsync thêm `--delete --checksum`** → CORE thành **bản sao SẠCH đúng nội dung** release (prune file cũ/đổi-tên, hết "lỗi cấu trúc cơ bản"; ép đúng bản mới kể cả lệch giờ / user lỡ sửa CORE). **An toàn tuyệt đối:** token `.env.local` ở MỌI tool dir + DATA + vault nằm trong excludes — rsync `--delete` KHÔNG đụng file excluded (đã test cắm token + DATA giả → giữ nguyên 100%).
+- **Tool `tools/config-merge/merge_config.py`** (stdlib): khi update, tự **THÊM config key MỚI** từ `factory-config.example.yaml` vào `factory-config.yaml` của user, **GIỮ NGUYÊN giá trị + comment + thứ tự user** → tính năng mới (vd `jira.start_field`/`worktype_field`) không còn thiếu config.
+- **Registry project** `~/.config/claude-knowledge/projects.list` + `refresh_project_bundle` (trong `lib-paths.sh`): update **lặp đồng bộ bundle CORE** (Skill/ · CLAUDE.md · `.kb/rules.md`+`system-lessons.md` · `docs/07-research` · merge config) cho **MỌI project đã đăng ký** → mở project Cowork CŨ luôn có TRỌN tính năng mới. DATA (vault/docs/.kb) **GIỮ NGUYÊN**.
+- **Lệnh mới `update.command --project <path>`** — đăng ký + đồng bộ NGAY 1 install cũ (không tải lại). `install.command` cũng tự đăng ký + merge config cho `KORA_PROJECT` + copy `.kb` CORE vào managed.
+- **KHÔNG migration.** Update cũ → v2.14.2 vẫn chạy; từ v2.14.2 trở đi mọi update đồng bộ trọn vẹn.
+
 ## v2.14.1 "Claude-1" — 2026-06-30
 
 **Vá auto-dò field qua MCP + đồng bộ tài liệu cấu trúc.**
