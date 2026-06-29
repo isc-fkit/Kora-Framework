@@ -105,12 +105,17 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
      ⚠️ KHÔNG dùng read_resource lấy ô của .xlsx (text lệch cột). **Google Sheet**: Publish-CSV → `--from-url`.
    Quét xong HẾT các nguồn → reindex **1 lần** `build_index.py --root .`. **Report trên UNION (Jira + Excel) vừa kéo** (task đã Done/đổi trạng thái sẽ đúng).
    > ⚠️ Nhiều domain **trùng mã project/issue** → vault đè nhau (giới hạn đã biết). Khác mã thì gộp thoải mái.
-5. (Tùy chọn) **filter member** (assignee / team) — multi-select. Hỏi **khoảng thời gian**.
+5. **THÀNH VIÊN của (các) project — LUÔN HỎI** (nhiều dự án, mỗi người gắn 1 dự án → KHÔNG tự dùng / KHÔNG tự đoán):
+   AskUserQuestion (header "Thành viên"): **[Dùng danh sách đã lưu cho project này] / [Điều chỉnh lại]**.
+   - **[Dùng list cũ]** → đọc `reports.project_members.<KEY>` (list thành viên đã lưu ĐÚNG project đó) → lọc/ngữ cảnh report theo đó.
+   - **[Điều chỉnh lại]** → AskUserQuestion **multi-select** (assignee lấy từ data quét + ô **"Other"** gõ tên) → chọn thành viên đưa vào báo cáo
+     → **LƯU LẠI `reports.project_members.<KEY>`** cho lần sau (mỗi project 1 list riêng). >4 → phân trang; có **[Chọn tất cả]**.
+   - **KHÔNG hỏi lại VAI TRÒ** (PM/QC đã ở config, Bước 5b chỉ ÁP role khi build). Rồi hỏi **khoảng thời gian** (nếu cần).
 5b. **VAI TRÒ thành viên (HỎI TÊN + ROLE để hiểu CONTEXT phân tích từng người — workflow 14 Bước 0.6):** AskUserQuestion
    (multi-select + ô **"Other"** gõ tên chưa có) gán **PM/PO** (CHỈ ĐIỀU PHỐI, tạo Epic/Request/US, **KHÔNG log task**
    → `reports.pm_members`) và **QC** (tạo Bug → `reports.qc_members`); còn lại **Dev**. Ghi inline list vào
-   `config/factory-config.yaml` mục `reports:` (`pm_members: ["A","B"]` / `qc_members: ["C"]`). Đã có sẵn → chỉ hỏi
-   "đúng chưa / thêm bớt". Để TRỐNG → build_report **tự nhận diện**. ⚠️ **PM KHÔNG đo bằng giờ-công, KHÔNG cảnh báo
+   `config/factory-config.yaml` mục `reports:` (`pm_members: ["A","B"]` / `qc_members: ["C"]`). **ĐÃ CÓ trong config →
+   KHÔNG HỎI LẠI role** (chỉ ÁP lúc build; vd PM: Khánh/PO · QC: Linh, Châu). Để TRỐNG → build_report **tự nhận diện**. ⚠️ **PM KHÔNG đo bằng giờ-công, KHÔNG cảnh báo
    "chưa log giờ", loại khỏi capacity team** — chỉ đánh giá theo việc điều phối.
    > 👤 **HỎI RÕ "Ai là PM dự án?"** (1 người) — để AI phân tích theo góc PM + roadmap điều phối, query đúng người. Ghi vào `reports.pm_members` (đứng đầu).
 5c. **HỎI: "Có phân tích ROADMAP không?"** — AskUserQuestion [Có / Không].
@@ -139,7 +144,11 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
 - Dashboard + email PHẢI có khối **🤖 AI analysis** (workflow 14 — Bước 1.5) — **PHÂN TÍCH SÂU, CHI TIẾT, đủ BẢNG số
   liệu** (chuẩn = bằng/hơn mẫu báo cáo đầy đủ). BẮT BUỘC, mỗi mục **trích DỮ LIỆU cụ thể (mã hạng mục · giờ · % · ngày), CẤM nói chung chung**:
   - **🔴/🟡 Rủi ro**: đánh SỐ + **Mức độ** + **Dự đoán & lý do BẰNG SỐ** (giờ remaining, %done, ngày trễ, est/spent) + **Tác động** + **Phương án + AI(ai) + KHI NÀO** (mốc ngày).
-  - **👥 Theo thành viên**: BẢNG `| Thành viên | Vai trò | Tổng | Done | %Done | Giờ log | %Capacity | Bug | Ghi chú |` + nhận xét cân bằng tải; PM/QC tách đúng vai trò (không đo giờ).
+  - **👥 Theo thành viên**: BẢNG `| Thành viên | Vai trò | Tổng | Done | %Done | Giờ log | %Capacity | Bug | Ghi chú |` + nhận xét cân bằng tải.
+    🎚️ **PHÂN TÍCH THEO VAI TRÒ — TUYỆT ĐỐI KHÔNG áp rule Dev cho PM/QC** (PM/QC `%Capacity` = "—", đừng phạt):
+    · **Dev** → đo **giờ-công · %capacity · %done · cân bằng tải** (cảnh báo nếu thiếu/quá tải/chưa log giờ).
+    · **PM/PO** → KHÔNG đo giờ/capacity/%done, KHÔNG cảnh báo "chưa log giờ"; đánh giá theo **ĐIỀU PHỐI** (số Epic/Request/US tạo · roadmap · sắp sprint · gỡ blocker · chất lượng phân rã yêu cầu).
+    · **QC** → KHÔNG đo giờ/capacity như Dev; đánh giá theo **CHẤT LƯỢNG** (số Bug tìm/tạo · bug nghiêm trọng · re-open · độ phủ test) — KHÔNG phạt vì "ít giờ log / %capacity thấp".
   - **🧩 Complexity**: 3 việc khó nhất (mã·người·trạng thái) + phân bố điểm + ai đang ôm cụm khó.
   - **📅 Sprint/timeline**: dự đoán từng sprint kèm số (quỹ giờ, carry-over) **+ (nếu roadmap) 🗺️ Roadmap & điều phối**: backlog/current/next, **bốc task nào vào sprint kế** + sắp xếp sprint hiện tại, gắn OKR/chiến lược (`reports/_okr-latest.txt`), theo góc **PM đã hỏi**.
   - **🎯 Hành động ưu tiên** (theo ngày) + **📌 Tóm tắt điều hành**.
@@ -151,8 +160,11 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
 > --attach reports/progress-report-latest.html`. Và **KHÔNG tự dán/chế nội dung mail** — chỉ gửi đúng file email-body qua `send_report.py`.
 - **Sau khi sinh report → đề xuất bước kế (AskUserQuestion, schema rule #8 — header ≤12 ký tự vd "Bước kế"):
   [Gửi mail ngay] / [Đặt lịch hằng ngày] / [Dừng].**
-  - **[Gửi mail ngay]** → đi luồng GỬI của `/claude-knowledge-send-mail` ([Gửi ngay]): cổng `KORA_OPS_PW` → chọn người nhận
-    (`reports.email.to`) → **tự dùng Gmail SMTP nếu đã setup** → gửi. **Cowork chặn SMTP → ưu tiên MCP `run_command`
-    (local-terminal) GỬI THẲNG nếu có; không có → BÀN GIAO bash cho terminal** (xem claude-knowledge-send-mail "ƯU TIÊN/BÀN GIAO"): KHÔNG dead-end.
+  - **[Gửi mail ngay]** → luồng GỬI của `/claude-knowledge-send-mail` ([Gửi ngay]): cổng `KORA_OPS_PW` →
+    **NGƯỜI NHẬN — LUÔN HỎI** (per-project, như thành viên): AskUserQuestion **[Dùng list email đã lưu cho project này] / [Điều chỉnh lại]**.
+    **[Dùng cũ]** → `reports.project_email.<KEY>` (fallback `reports.email.to`). **[Điều chỉnh]** → nhập **NHIỀU email cách nhau dấu phẩy**
+    (AskUserQuestion gợi ý + ô "Other" — gửi được nhiều người cùng lúc) → **LƯU `reports.project_email.<KEY>`** cho lần sau.
+    → `send_report.py --to "a@x,b@y,…"` (mỗi To = 1 người, không thấy nhau) → **tự dùng Gmail SMTP nếu đã setup** → gửi.
+    **Cowork chặn SMTP → ưu tiên MCP `run_command` GỬI THẲNG; không có → BÀN GIAO bash** (KHÔNG dead-end).
   - **[Đặt lịch hằng ngày]** → tạo **Cowork scheduled task qua `/schedule`** (theo `workflows/08-schedule-sync.md`
     Mục B) chạy mỗi ngày: **kéo dữ liệu → sinh report → tự gửi email** tới `reports.email.to` (gửi mail qua cổng `send_report.py --check`).

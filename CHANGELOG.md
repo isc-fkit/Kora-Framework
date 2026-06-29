@@ -10,6 +10,19 @@
 
 ---
 
+## v2.13.3 "Claude-1" — 2026-06-29
+
+**Báo cáo theo DỰ ÁN: thành viên & email per-project (luôn hỏi) + PM/QC phân tích theo vai trò.**
+
+- **Thành viên per-project:** báo cáo LUÔN HỎI **[Dùng list đã lưu cho project] / [Điều chỉnh]** (multi-select + [Chọn tất cả])
+  → lưu `reports.project_members.<KEY>` (mỗi dự án 1 list — vì nhiều dự án, mỗi người gắn 1 dự án). KHÔNG tự dùng/tự đoán.
+- **Email per-project + gửi nhiều:** daily-report & send-mail LUÔN HỎI **[Dùng list email cũ] / [Điều chỉnh]** → nhập NHIỀU email
+  (cách nhau dấu phẩy, mỗi To riêng) → lưu `reports.project_email.<KEY>`.
+- **Role:** đã có trong config (`reports.pm_members`/`qc_members`) → **KHÔNG hỏi lại**, chỉ áp lúc build.
+- **Phân tích theo VAI TRÒ (instruction):** PM/PO đánh giá theo **điều phối** (Epic/Request/US · roadmap · sprint), QC theo
+  **chất lượng** (Bug tìm/nghiêm trọng · re-open · coverage) — **KHÔNG áp rule Dev** (giờ-công/%capacity/%done; `%Capacity="—"`).
+  (`build_report.py` vốn đã loại PM+QC khỏi giờ-công/capacity; bản này siết phần AI phân tích cho nhất quán.)
+
 ## v2.13.2 "Claude-1" — 2026-06-29
 
 **Siết CLARIFY toàn luồng — "hỏi-rồi-DỪNG", không tự đoán (rà scan/sync/canva/campaign/báo cáo).**

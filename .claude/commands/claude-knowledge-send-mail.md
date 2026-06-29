@@ -14,8 +14,11 @@ The user invoked `/claude-knowledge-send-mail` — gửi email báo cáo tiến 
 2b. **Chọn PHẠM VI báo cáo (dự án LỚN — không lấy hết):** AskUserQuestion **[Sprint đang chạy] / [N ngày gần đây —
    mặc định 30] / [Toàn bộ]** → `SCOPE` (sprint/recent/all), `NDAYS`. SCOPE≠all → scan thêm `AND updated >= -<NDAYS>d` + build_report `--scope`.
    (Thẻ hợp lệ: `header` ≤12 ký tự vd "Phạm vi", mỗi option có `description`, `multiSelect:false` — CLAUDE.md rule #8.)
-3. **Chọn người nhận (mail gửi đến):** danh bạ `reports.email.to` (multi-select) + **[+ Thêm mới]**
-   (ô "Other" → gõ địa chỉ → **lưu vào `reports.email.to`**). Đây là nguồn người nhận DUY NHẤT mà lịch/task đọc.
+3. **NGƯỜI NHẬN — LUÔN HỎI (per-project; nhiều dự án, mỗi người gắn 1 dự án → KHÔNG tự dùng):** AskUserQuestion
+   **[Dùng list email đã lưu cho project này] / [Điều chỉnh lại]**.
+   - **[Dùng cũ]** → `reports.project_email.<KEY>` (fallback danh bạ `reports.email.to`).
+   - **[Điều chỉnh]** → AskUserQuestion **multi-select** từ danh bạ + ô **"Other"** gõ **NHIỀU email cách nhau dấu phẩy**
+     (gửi nhiều người cùng lúc) → **LƯU `reports.project_email.<KEY>`** (per-project — nguồn lịch/task đọc; mỗi project 1 list riêng).
 4. **Gửi ngay hay đặt lịch:** AskUserQuestion **[Gửi ngay] / [Đặt lịch]** (thẻ hợp lệ: `header` NGẮN ≤12 ký tự
    vd "Gửi/Lịch", mỗi option có `description`, `multiSelect:false` — xem CLAUDE.md rule #8; header dài → `Invalid tool parameters`).
    - **[Gửi ngay]:**
