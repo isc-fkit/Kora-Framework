@@ -73,7 +73,7 @@ API Atlassian + MCP, nhiều domain đều quét được; tích lũy CÙNG vaul
 1. `since` = `last_import` (chưa có → kéo full).
 2. MCP `searchJiraIssuesUsingJql`: `project = <KEY> AND updated >= "<since>"` (hoặc `project=<KEY>` nếu
    full), `fields:["*all"]`. Kết quả lớn MCP **tự lưu ra file** → dùng path đó; nhỏ (inline) → ghi ra
-   `reports/_mcp-pull.json`. (KHÔNG nạp cả khối vào ngữ cảnh — xử lý qua file.)
+   `reports/_mcp-pull-<PROJECT>.json` (đặt tên **theo từng project** để tránh đè khi quét nhiều project). (KHÔNG nạp cả khối vào ngữ cảnh — xử lý qua file.)
 3. Lấy map tên field 1 lần: `getJiraIssue` 1 hạng mục công việc `expand=names` → ghi `{id:name}` ra `reports/_mcp-names.json`.
 4. Nạp vào vault (tái dùng toàn bộ logic ghi note): `python3 tools/jira-to-obsidian/import_jira.py
    --from-mcp <file> --names reports/_mcp-names.json --since` (cờ `--since` để bật idempotent-per-day).

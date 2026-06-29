@@ -1157,7 +1157,7 @@ def main():
 
     # --from-mcp: nạp từ file MCP (Cloud) — KHÔNG cần token; tái dùng toàn bộ logic ghi note
     if args.from_mcp:
-        global FROM_MCP
+        global FROM_MCP, FIELD_MAP
         FROM_MCP = True
         if args.since is not None and has_daily_success() and not args.force:
             print(f"Hôm nay ({_today()}) đã đồng bộ thành công → bỏ qua (dùng --force để ép).")

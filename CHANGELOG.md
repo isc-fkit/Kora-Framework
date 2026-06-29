@@ -10,6 +10,18 @@
 
 ---
 
+## v2.14.1 "Claude-1" — 2026-06-30
+
+**Vá auto-dò field qua MCP + đồng bộ tài liệu cấu trúc.**
+
+- **FIX `import_jira.py`** — nhánh `--from-mcp` thiếu `global FIELD_MAP` (chỉ khai báo `global FROM_MCP`) → map field-id↔tên từ `--names` rơi vào biến cục bộ, **auto-dò field theo TÊN không chạy** (Start date / Type / Complexity / Story Points chỉ lấy được khi đặt cứng env id). Nay thêm `FIELD_MAP` vào `global` → quét nguồn **MCP** không cần đặt cứng `JIRA_START_FIELD`/`JIRA_WORKTYPE_FIELD` vẫn ra `startdate`/`work_type`.
+- **Đồng bộ TÀI LIỆU cấu trúc cho khớp thực tế** (landing `index.html` mục IV · `CLAUDE.md` §3 · `workflows/14-progress-report.md` · `.claude/commands/claude-knowledge-scan.md`):
+  - Vault = **mỗi project 1 thư mục con** (`<Mã>_<Tên>/` chứa `01_Projects`…`06_SubTasks` + `08_RawIssues` + `_wiki/<Project>-Wiki.md`); root vault có `00_Index/` · `_system/` · `Invoices/`.
+  - `_system/` chứa `last-import-<nguồn>.txt` + marker daily-sync + map idempotent `github/`·`sharepoint/`·`confluence/`.
+  - MCP pull đặt tên **per-project** `reports/_mcp-pull-<PROJECT>.json` (tránh đè khi nhiều project).
+  - `inbox/` nhận thêm **`.xlsx` (Import_Task)**; liệt kê file trung gian `reports/` (`_mcp-names.json`·`_sheet-*.csv`·`_okr-latest.txt`·`ai-analysis-latest.md`·`email-body/preview-latest.html`).
+- **Không cần migration.**
+
 ## v2.14.0 "Claude-1" — 2026-06-30
 
 **KIỂM TRA WORKLOG / THỜI GIAN TẠO TASK JIRA** — workflow 19 + skill `/claude-knowledge-worklog-check` (trigger: "kiểm tra logwork", "soát task tạo có đúng không", "kiểm tra thời gian task tháng", "gợi ý lịch tạo task").

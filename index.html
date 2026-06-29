@@ -290,7 +290,7 @@
     <div class="brand" data-go="home" title="Trang chủ">
       <span class="brandmark" aria-hidden="true">K</span>
       <span class="org">FPT TELECOM</span>
-      <div class="fw">Claude Knowledge AI<span>v2.14.0 · Claude-1</span></div>
+      <div class="fw">Claude Knowledge AI<span>v2.14.1 · Claude-1</span></div>
     </div>
     <nav class="nav">
       <div class="grp">Tổng quan</div>
@@ -316,7 +316,7 @@
     <!-- ===================== HOME ===================== -->
     <div class="page" id="home">
       <header class="hero">
-        <span class="badge">FPT Telecom · Claude Knowledge AI · v2.14.0 · &ldquo;Claude-1&rdquo;</span>
+        <span class="badge">FPT Telecom · Claude Knowledge AI · v2.14.1 · &ldquo;Claude-1&rdquo;</span>
         <h1>Claude Knowledge AI — Sơ đồ nguyên lý hoạt động</h1>
         <p class="sub">Trợ lý tri thức tự lớn lên cùng dự án: hợp nhất tri thức phân tán, nối tri thức local của nhân viên với <b>Knowledge Base</b> chung (trên Cloud), và tự động hóa đồng bộ — báo cáo — cảnh báo.</p>
         <div class="pipe">
@@ -453,9 +453,9 @@
       <table>
         <tr><th>Nơi lưu</th><th>Vai trò</th><th>Logic đặt tên file</th></tr>
         <tr><td><b>Knowledge Base (source)</b><br><code>docs/</code></td><td>Nguồn chuẩn cho người đọc &amp; Claude; chỉ ghi sau khi duyệt (Gate 1).</td><td><code>docs/03-features/F-xxx-&lt;slug&gt;/source/</code> → <code>01-user-document.md</code> · <code>03-business-rules.md</code> · <code>04-acceptance-criteria.md</code> · <code>07-test-plan.md</code></td></tr>
-        <tr><td><b>Vault Obsidian local</b><br><code>&lt;TênProject&gt;_Brain/</code></td><td>"Bộ não" — note + backlink <code>[[…]]</code>; gồm <b>raw quét</b> + <b>tri thức tổng hợp sau duyệt</b>, tự liên kết chéo project.</td><td><b>Raw (quét Jira/file):</b> <code>01_Projects</code> · <code>02_Epics</code> · <code>03_UserStories</code> · <code>04_Tasks</code> · <code>05_Bugs</code> · <code>06_SubTasks</code> · <code>08_RawIssues</code>; note <code>KEY_&lt;tiêu-đề&gt;.md</code> (vd <code>PROJ-123_…md</code>).<br><b>Tổng hợp (sau duyệt — workflow 03):</b> <code>04_BusinessRules/BR-*.md</code> · <code>05_AcceptanceCriteria/AC-*.md</code> · <code>06_Features/F-*.md</code>.</td></tr>
+        <tr><td><b>Vault Obsidian local</b><br><code>&lt;TênProject&gt;_Brain/</code></td><td>"Bộ não" — note + backlink <code>[[…]]</code>; gồm <b>raw quét</b> + <b>tri thức tổng hợp sau duyệt</b>, tự liên kết chéo project.</td><td><b>Mỗi project = 1 thư mục con</b> <code>&lt;Mã&gt;_&lt;Tên&gt;/</code> (vd <code>FMC_FPT-Medicare/</code>), bên trong: <code>01_Projects</code> · <code>02_Epics</code> · <code>03_UserStories</code> · <code>04_Tasks</code> · <code>05_Bugs</code> · <code>06_SubTasks</code> · <code>08_RawIssues</code> · <code>_wiki/&lt;Project&gt;-Wiki.md</code> (trang tổng hợp liên kết) — note <code>KEY_&lt;tiêu-đề&gt;.md</code> (vd <code>FMC-123_…md</code>). <b>Root vault:</b> <code>00_Index/</code> · <code>_system/</code> · <code>Invoices/</code> (nếu có hoá đơn).<br><b>Tổng hợp (sau duyệt — workflow 03):</b> <code>04_BusinessRules/BR-*.md</code> · <code>05_AcceptanceCriteria/AC-*.md</code> · <code>06_Features/F-*.md</code>.</td></tr>
       </table>
-      <p style="color:var(--faint);font-size:13px">Tên vault lấy <b>động</b> từ <code>config &gt; vault_path</code> (đặt lúc <code>/claude-knowledge-init</code> theo tên project: <code>&lt;TênProject&gt;_Brain</code>). File hệ thống ở <code>.kb/</code> (index · relation-graph · health-report).</p>
+      <p style="color:var(--faint);font-size:13px">Tên vault lấy <b>động</b> từ <code>config &gt; vault_path</code> (đặt lúc <code>/claude-knowledge-init</code> theo tên project: <code>&lt;TênProject&gt;_Brain</code>). File hệ thống: <code>.kb/</code> (index · relation-graph · health-report) ở source; <code>&lt;vault&gt;/_system/</code> (mốc <code>last-import-&lt;nguồn&gt;.txt</code> riêng mỗi nguồn · marker đồng bộ · map <code>github/</code>·<code>sharepoint/</code>·<code>confluence/</code>). File trung gian quét/báo cáo ở <code>reports/</code> (<code>_mcp-pull-&lt;PROJECT&gt;.json</code> · <code>_mcp-names.json</code> · <code>_okr-latest.txt</code> · <code>ai-analysis-latest.md</code> · <code>email-body/preview-latest.html</code>).</p>
 
       <h2 class="sec">V · Thuật ngữ &amp; từ viết tắt</h2>
       <table>
@@ -1665,11 +1665,21 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
       <div class="phead"><div class="pl">I · Release Note</div><h1><span class="em">🆕</span>Lịch sử phiên bản</h1></div>
       <p class="lead">Lịch sử bản <b>APP</b> (CORE: skills, workflows, tools…). Cập nhật: chạy lại lệnh cài (bash CLI, tab <a data-go="install" style="cursor:pointer">C</a>) — <b>tri thức của bạn được giữ nguyên</b> (DATA không bị đụng).</p>
 
-      <div class="callout ok"><span>🆕</span><div><b>Bản mới nhất (latest): <code>v2.14.0</code> — "Claude-1"</b> · phát hành 2026-06-30. Danh sách đầy đủ ở <a href="https://github.com/isc-fkit/Kora-Framework/blob/release/CHANGELOG.md">CHANGELOG.md</a>.</div></div>
+      <div class="callout ok"><span>🆕</span><div><b>Bản mới nhất (latest): <code>v2.14.1</code> — "Claude-1"</b> · phát hành 2026-06-30. Danh sách đầy đủ ở <a href="https://github.com/isc-fkit/Kora-Framework/blob/release/CHANGELOG.md">CHANGELOG.md</a>.</div></div>
 
       <div class="card" style="border-color:var(--accent)">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.14.0 — "Claude-1" <span style="display:inline-block;margin-left:6px;padding:2px 9px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;font-size:10.5px;font-weight:800;vertical-align:2px">MỚI NHẤT</span></b><span style="color:var(--faint);font-size:12.5px">2026-06-30</span>
+          <b style="font-size:16px">v2.14.1 — "Claude-1" <span style="display:inline-block;margin-left:6px;padding:2px 9px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;font-size:10.5px;font-weight:800;vertical-align:2px">MỚI NHẤT</span></b><span style="color:var(--faint);font-size:12.5px">2026-06-30</span>
+        </div>
+        <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
+          <li><b>🛠️ Vá auto-dò field qua MCP</b> — <code>import_jira.py --from-mcp</code> thiếu <code>global FIELD_MAP</code> → auto-dò Start date / Type / Complexity theo tên không chạy; nay quét nguồn MCP không cần đặt cứng field id vẫn ra <code>startdate</code>/<code>work_type</code>.</li>
+          <li><b>📁 Đồng bộ tài liệu cấu trúc</b> — vault: mỗi project 1 folder con (<code>01_Projects…06_SubTasks</code> + <code>_wiki/</code>), root có <code>_system/</code> · <code>Invoices/</code>; MCP pull đặt tên per-project <code>_mcp-pull-&lt;PROJECT&gt;.json</code>; <code>inbox/</code> nhận thêm <code>.xlsx</code>; liệt kê file trung gian <code>reports/</code>.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
+          <b style="font-size:16px">v2.14.0 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-06-30</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>🕗 KIỂM TRA WORKLOG / THỜI GIAN TẠO TASK Jira</b> — workflow 19 + skill <code>/claude-knowledge-worklog-check</code>: quét 1 tháng, soát task Normal (Task/Sub-task, Type=Normal) — mỗi ngày tối đa 8h, dueTime phải đủ chứa estimate (bỏ T7/CN, biên loại trừ).</li>

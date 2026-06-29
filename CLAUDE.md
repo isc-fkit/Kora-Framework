@@ -306,10 +306,12 @@ Claude phải đọc `config/domain-rules.md` trước mỗi phiên phân tích 
 | `workflows/` | Kịch bản step-by-step cho từng luồng (Claude đọc và thực thi tuần tự) |
 | `config/` | Cấu hình động: domain, rules, preset |
 | `tools/jira-to-obsidian/` | Tool quét Jira → Obsidian vault (script sẵn, chỉ cần điền .env.local) |
-| `inbox/` | Vùng đệm: raw → normalized → classified → pending-approval → approved/rejected |
+| `inbox/` | Vùng đệm nạp tài liệu (PDF / DOCX / ảnh / **`.xlsx` định dạng Import_Task** / zip Obsidian): raw → normalized → classified → pending-approval → approved/rejected |
 | `docs/` | **KB chính** — chỉ ghi sau khi user approve |
 | `docs/03-features/F-xxx/` | Mỗi feature một folder: source/ (cho Claude) + export/ (cho người đọc) |
-| `Project_Name_Brain/` | Obsidian vault — "bộ não" tri thức (notes + backlink). Setup đổi tên theo project: `<TênProject>_Brain`; luôn đọc vị trí thật từ `config > vault_path` |
+| `Project_Name_Brain/` | Obsidian vault — "bộ não" tri thức (notes + backlink). **Mỗi project = 1 thư mục con** (`<Mã>_<Tên>/`, vd `FMC_FPT-Medicare/`) chứa `01_Projects` … `06_SubTasks` + `08_RawIssues` + `_wiki/<Project>-Wiki.md` (trang tổng hợp liên kết); **root vault** có `00_Index/` · `_system/` · (`Invoices/` nếu có hoá đơn). Đổi tên theo project lúc setup: `<TênProject>_Brain`; đọc vị trí thật từ `config > vault_path` |
+| `<vault>/_system/` | File HỆ THỐNG của vault (không phải tri thức): `last-import-<nguồn>.txt` (mốc quét incremental, riêng mỗi nguồn) · marker daily-success · map đồng bộ idempotent `github/` · `sharepoint/` · `confluence/` |
+| `reports/` | Đầu ra báo cáo + file TRUNG GIAN (gitignore): `_mcp-pull-<PROJECT>.json` · `_mcp-names.json` · `_sheet-<id>.csv` · `_okr-latest.txt` · `ai-analysis-latest.md` · `progress-data-latest.json` · `progress-report-latest.html` · `email-body/preview-latest.html` · `worklog-check-latest.html` · `worklog-timeline-<tháng>.svg` |
 | `tools/confluence-sync/` | Tool đẩy/kéo KB ↔ Confluence chung (get & post, REST + OAuth) |
 | `tools/github-sync/` | Tool đẩy/kéo KB ↔ repo GitHub riêng tư (git push/pull qua PAT, idempotent, token ở `.env.local`) |
 | `tools/sharepoint-sync/` | Tool đẩy/kéo KB ↔ SharePoint document library (Microsoft Graph; auth client-credentials/device-flow; idempotent map+etag) |

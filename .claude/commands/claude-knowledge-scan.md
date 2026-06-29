@@ -55,7 +55,7 @@ The user invoked `/claude-knowledge-scan` — scan & import knowledge.
      1. Chọn project (xem mục "liệt kê project" ở Bước 1) → có (các) `<KEY>`.
      2. `searchJiraIssuesUsingJql` (`project = <KEY>` [+ `AND updated >= "<since>"` nếu incremental], `fields:["*all"]`,
         **phân trang LẤY HẾT** — đừng dừng ở trang đầu). MCP trả file → dùng path đó; inline nhỏ → tự ghi ra
-        `reports/_mcp-pull.json`. **KHÔNG** nạp cả khối vào ngữ cảnh.
+        `reports/_mcp-pull-<PROJECT>.json` (đặt tên **theo từng project** để tránh đè khi nhiều project). **KHÔNG** nạp cả khối vào ngữ cảnh.
      3. Map tên field 1 lần: `getJiraIssue` 1 hạng mục `expand=names` → ghi `{id:name}` ra `reports/_mcp-names.json`.
      4. ⚠️ **GHI VAULT (bước trước nay BỊ THIẾU):** `python3 tools/jira-to-obsidian/import_jira.py --from-mcp <file>
         --names reports/_mcp-names.json` → tái dùng TOÀN BỘ logic ghi note (mọi field/comment + phân loại theo loại +
