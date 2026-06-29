@@ -10,6 +10,16 @@
 
 ---
 
+## v2.13.6 "Claude-1" — 2026-06-29
+
+**Báo cáo tài chính INLINE-STYLED (email-safe) — gửi thẳng làm body mail.**
+
+- `build_report.py` (invoice_blocks + render_invoice_report) + template `invoice-quarterly.html`: chuyển toàn bộ
+  từ `<style>` + class → **style NỘI TUYẾN** từng phần tử (hằng `_S_*`). `<style>`=0, `class=`=0 trong report.
+- → Gmail/Outlook KHÔNG còn strip CSS; `send_report.py --html-file reports/invoice-report-latest.html` gửi **giữ nguyên
+  định dạng** (KPI · bảng thuế GTGT · khoản mục · NCC · biểu đồ SVG · khối AI). Layout charts đổi sang stacked (email-safe).
+- Skill `daily-report`: ghi rõ body mail tài chính = `invoice-report-latest.html` (KHÔNG dùng `email-body-latest.html` của progress).
+
 ## v2.13.5 "Claude-1" — 2026-06-29
 
 **Tích hợp con AGENT phân tích vào lệnh báo cáo.**

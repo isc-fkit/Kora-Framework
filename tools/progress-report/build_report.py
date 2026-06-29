@@ -264,62 +264,63 @@ def invoice_blocks(invoices):
     dates = [r["date"] for r in rows if r["date"]]
     period = f"{dates[0]} → {dates[-1]}" if dates else "—"
     kpis = "".join(
-        f'<div class="kpi"><div class="kpi-v">{esc(val)}</div><div class="kpi-l">{esc(lbl)}</div></div>'
+        f'<div style="{_S_KPI}"><div style="{_S_KPIV}">{esc(val)}</div><div style="{_S_KPIL}">{esc(lbl)}</div></div>'
         for lbl, val in [("Số hoá đơn", str(n)), ("Tiền hàng (chưa VAT)", _vnd(sub)),
                          ("Thuế GTGT", _vnd(vat)), ("TỔNG THANH TOÁN", _vnd(tot))])
-    # Bảng TỔNG HỢP THUẾ GTGT theo thuế suất (chuẩn kế toán — đối chiếu khấu trừ đầu vào)
+    # Bảng TỔNG HỢP THUẾ GTGT theo thuế suất (chuẩn kế toán — đối chiếu khấu trừ đầu vào). Inline-styled (email-safe).
     tax_rows = "".join(
-        f"<tr><td>{int(rate*100)}%</td><td class='num'>{by_rate[rate]['n']}</td>"
-        f"<td class='num'>{_vnd(by_rate[rate]['sub'])}</td><td class='num'>{_vnd(by_rate[rate]['vat'])}</td>"
-        f"<td class='num b'>{_vnd(by_rate[rate]['tot'])}</td></tr>" for rate in sorted(by_rate))
-    tax_rows += (f"<tr><td class='b'>Tổng</td><td class='num b'>{n}</td><td class='num b'>{_vnd(sub)}</td>"
-                 f"<td class='num b'>{_vnd(vat)}</td><td class='num b'>{_vnd(tot)}</td></tr>")
-    tax_summary = ("<table><thead><tr><th>Thuế suất</th><th class='num'>Số HĐ</th><th class='num'>Tiền hàng</th>"
-                   f"<th class='num'>Thuế GTGT</th><th class='num'>Tổng</th></tr></thead><tbody>{tax_rows}</tbody></table>")
+        f'<tr><td style="{_S_TD}">{int(rate*100)}%</td><td style="{_S_TDN}">{by_rate[rate]["n"]}</td>'
+        f'<td style="{_S_TDN}">{_vnd(by_rate[rate]["sub"])}</td><td style="{_S_TDN}">{_vnd(by_rate[rate]["vat"])}</td>'
+        f'<td style="{_S_TDB}">{_vnd(by_rate[rate]["tot"])}</td></tr>' for rate in sorted(by_rate))
+    tax_rows += (f'<tr><td style="{_S_TDBL}">Tổng</td><td style="{_S_TDB}">{n}</td><td style="{_S_TDB}">{_vnd(sub)}</td>'
+                 f'<td style="{_S_TDB}">{_vnd(vat)}</td><td style="{_S_TDB}">{_vnd(tot)}</td></tr>')
+    tax_summary = (f'<table style="{_S_TBL}"><thead><tr><th style="{_S_TH}">Thuế suất</th><th style="{_S_THN}">Số HĐ</th>'
+                   f'<th style="{_S_THN}">Tiền hàng</th><th style="{_S_THN}">Thuế GTGT</th><th style="{_S_THN}">Tổng</th>'
+                   f'</tr></thead><tbody>{tax_rows}</tbody></table>')
     # Bảng theo KHOẢN MỤC
     crows = "".join(
-        f"<tr><td>{esc(c)}</td><td class='num'>{by_cat_n[c]}</td><td class='num b'>{_vnd(t)}</td>"
-        f"<td class='num'>{(t/tot*100 if tot else 0):.1f}%</td></tr>" for c, t in cat_pairs)
-    table_category = ("<table><thead><tr><th>Khoản mục</th><th class='num'>Số HĐ</th><th class='num'>Tổng chi</th>"
-                      f"<th class='num'>Tỷ trọng</th></tr></thead><tbody>{crows}</tbody></table>")
+        f'<tr><td style="{_S_TD}">{esc(c)}</td><td style="{_S_TDN}">{by_cat_n[c]}</td><td style="{_S_TDB}">{_vnd(t)}</td>'
+        f'<td style="{_S_TDN}">{(t/tot*100 if tot else 0):.1f}%</td></tr>' for c, t in cat_pairs)
+    table_category = (f'<table style="{_S_TBL}"><thead><tr><th style="{_S_TH}">Khoản mục</th><th style="{_S_THN}">Số HĐ</th>'
+                      f'<th style="{_S_THN}">Tổng chi</th><th style="{_S_THN}">Tỷ trọng</th></tr></thead><tbody>{crows}</tbody></table>')
     trows = "".join(
-        f"<tr><td>{esc(r['invoice_no'])}</td><td>{esc(r['date'])}</td><td>{esc(r['vendor'])}</td>"
-        f"<td>{esc(r['category'])}</td><td class='num'>{_vnd(r['subtotal'])}</td>"
-        f"<td class='num'>{int(r['rate']*100)}%</td><td class='num'>{_vnd(r['vat'])}</td>"
-        f"<td class='num b'>{_vnd(r['total'])}</td></tr>" for r in rows)
-    trows += (f"<tr><td colspan='4' class='b'>TỔNG CỘNG</td><td class='num b'>{_vnd(sub)}</td><td></td>"
-              f"<td class='num b'>{_vnd(vat)}</td><td class='num b'>{_vnd(tot)}</td></tr>")
+        f'<tr><td style="{_S_TD}">{esc(r["invoice_no"])}</td><td style="{_S_TD}">{esc(r["date"])}</td><td style="{_S_TD}">{esc(r["vendor"])}</td>'
+        f'<td style="{_S_TD}">{esc(r["category"])}</td><td style="{_S_TDN}">{_vnd(r["subtotal"])}</td>'
+        f'<td style="{_S_TDN}">{int(r["rate"]*100)}%</td><td style="{_S_TDN}">{_vnd(r["vat"])}</td>'
+        f'<td style="{_S_TDB}">{_vnd(r["total"])}</td></tr>' for r in rows)
+    trows += (f'<tr><td colspan="4" style="{_S_TDBL}">TỔNG CỘNG</td><td style="{_S_TDB}">{_vnd(sub)}</td><td style="{_S_TD}"></td>'
+              f'<td style="{_S_TDB}">{_vnd(vat)}</td><td style="{_S_TDB}">{_vnd(tot)}</td></tr>')
     vrows = "".join(
-        f"<tr><td>{esc(v)}</td><td class='num'>{by_vendor_n[v]}</td><td class='num b'>{_vnd(t)}</td>"
-        f"<td class='num'>{(t/tot*100 if tot else 0):.1f}%</td></tr>" for v, t in vendor_pairs)
+        f'<tr><td style="{_S_TD}">{esc(v)}</td><td style="{_S_TDN}">{by_vendor_n[v]}</td><td style="{_S_TDB}">{_vnd(t)}</td>'
+        f'<td style="{_S_TDN}">{(t/tot*100 if tot else 0):.1f}%</td></tr>' for v, t in vendor_pairs)
     return {"n": n, "subtotal": sub, "vat": vat, "total": tot, "period": period, "KPIS": kpis,
             "TABLE_INVOICES": trows, "TABLE_VENDORS": vrows, "TAX_SUMMARY": tax_summary,
             "TABLE_CATEGORY": table_category,
             "CHART_CATEGORY": _inv_bars(cat_pairs), "CHART_MONTH": _inv_bars(list(month_pairs))}
 
 
-_INVOICE_CSS = (" body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:0;background:#f4f6fb;color:#1c2540}"
-    " .wrap{max-width:980px;margin:0 auto;padding:24px}"
-    " .hd{background:linear-gradient(135deg,#1c2e6e,#2b50c2);color:#fff;border-radius:14px;padding:24px 28px}"
-    " .hd h1{margin:0 0 4px;font-size:24px}.hd .sub{opacity:.85;font-size:14px}"
-    " .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:18px 0}"
-    " .kpi{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.07);text-align:center}"
-    " .kpi-v{font-size:20px;font-weight:700;color:#1c2e6e}.kpi-l{font-size:12px;color:#6a7390;margin-top:4px}"
-    " .card{background:#fff;border-radius:12px;padding:18px 20px;margin:14px 0;box-shadow:0 1px 3px rgba(0,0,0,.07)}"
-    " .card h2{font-size:16px;margin:0 0 12px;color:#1c2e6e}"
-    " table{width:100%;border-collapse:collapse;font-size:13px}"
-    " th,td{padding:8px 10px;text-align:left;border-bottom:1px solid #eef0f6}"
-    " th{background:#eef1fb;color:#33406e}.num{text-align:right}.b{font-weight:700;color:#1c2e6e}"
-    " .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}"
-    " .foot{color:#9aa1b8;font-size:12px;text-align:center;margin:18px 0}"
-    " @media(max-width:760px){.kpis{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}}")
+# Inline styles (EMAIL-SAFE — Gmail/Outlook STRIP <style>, nên style NỘI TUYẾN từng phần tử để gửi thẳng làm body mail)
+_S_WRAP = "max-width:980px;margin:0 auto;padding:20px;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;color:#1c2540;background:#f4f6fb"
+_S_HERO = "background:#1c2e6e;color:#fff;border-radius:14px;padding:22px 26px;margin-bottom:14px"
+_S_CARD = "background:#fff;border:1px solid #eef0f6;border-radius:12px;padding:16px 18px;margin:0 0 14px"
+_S_H2 = "font-size:16px;margin:0 0 10px;color:#1c2e6e"
+_S_KPI = "display:inline-block;width:46%;max-width:230px;background:#fff;border:1px solid #eef0f6;border-radius:10px;padding:14px;margin:1%;text-align:center;vertical-align:top;box-sizing:border-box"
+_S_KPIV = "font-size:19px;font-weight:700;color:#1c2e6e"
+_S_KPIL = "font-size:12px;color:#6a7390;margin-top:4px"
+_S_TBL = "width:100%;border-collapse:collapse;font-size:13px"
+_S_TH = "padding:8px 10px;text-align:left;border-bottom:1px solid #eef0f6;background:#eef1fb;color:#33406e"
+_S_THN = "padding:8px 10px;text-align:right;border-bottom:1px solid #eef0f6;background:#eef1fb;color:#33406e"
+_S_TD = "padding:8px 10px;text-align:left;border-bottom:1px solid #eef0f6"
+_S_TDN = "padding:8px 10px;text-align:right;border-bottom:1px solid #eef0f6"
+_S_TDB = "padding:8px 10px;text-align:right;border-bottom:1px solid #eef0f6;font-weight:700;color:#1c2e6e"
+_S_TDBL = "padding:8px 10px;text-align:left;border-bottom:1px solid #eef0f6;font-weight:700;color:#1c2e6e"
 
 
 def render_invoice_report(invoices, title="Báo cáo chi phí — Hoá đơn", template_html=None, ai_html=""):
     """Render report hoá đơn. template_html=None → layout mặc định; else thay {{KEY}} trong template.
     ai_html = khối phân tích AI (render_ai_cards) — chèn sau KPIs / thay {{AI}} trong template."""
     b = invoice_blocks(invoices)
-    ai_block = (f"<div class='card'><h2>🤖 Phân tích AI — Chi phí</h2>{ai_html}</div>" if ai_html else "")
+    ai_block = (f'<div style="{_S_CARD}"><div style="{_S_H2}">🤖 Phân tích AI — Chi phí</div>{ai_html}</div>' if ai_html else "")
     if template_html:
         out = template_html
         repl = {"TITLE": esc(title), "PERIOD": esc(b["period"]), "N": str(b["n"]),
@@ -331,23 +332,28 @@ def render_invoice_report(invoices, title="Báo cáo chi phí — Hoá đơn", t
         for k, val in repl.items():
             out = out.replace("{{" + k + "}}", val)
         return out
+    _vhdr = (f'<table style="{_S_TBL}"><thead><tr><th style="{_S_TH}">Nhà cung cấp</th>'
+             f'<th style="{_S_THN}">Số HĐ</th><th style="{_S_THN}">Tổng chi</th><th style="{_S_THN}">Tỷ trọng</th>'
+             f'</tr></thead><tbody>{b["TABLE_VENDORS"]}</tbody></table>')
+    _ihdr = (f'<table style="{_S_TBL}"><thead><tr><th style="{_S_TH}">Số HĐ</th><th style="{_S_TH}">Ngày</th>'
+             f'<th style="{_S_TH}">Nhà cung cấp</th><th style="{_S_TH}">Khoản mục</th><th style="{_S_THN}">Tiền hàng</th>'
+             f'<th style="{_S_THN}">%VAT</th><th style="{_S_THN}">VAT</th><th style="{_S_THN}">Tổng</th>'
+             f'</tr></thead><tbody>{b["TABLE_INVOICES"]}</tbody></table>')
     return ("<!DOCTYPE html><html lang='vi'><head><meta charset='utf-8'>"
             "<meta name='viewport' content='width=device-width, initial-scale=1'>"
-            f"<title>{esc(title)}</title><style>{_INVOICE_CSS}</style></head><body><div class='wrap'>"
-            f"<div class='hd'><h1>{esc(title)}</h1><div class='sub'>Kỳ: {esc(b['period'])} · {b['n']} hoá đơn · "
-            "Nguồn: hoá đơn quét (OCR) · VND</div></div>"
-            f"<div class='kpis'>{b['KPIS']}</div>"
+            f"<title>{esc(title)}</title></head>"
+            f'<body style="margin:0;background:#f4f6fb"><div style="{_S_WRAP}">'
+            f'<div style="{_S_HERO}"><div style="font-size:22px;font-weight:700;margin-bottom:4px">{esc(title)}</div>'
+            f'<div style="font-size:13px;opacity:.9">Kỳ: {esc(b["period"])} · {b["n"]} hoá đơn · Nguồn: hoá đơn quét (OCR) · VND</div></div>'
+            f'<div style="margin:0 0 10px">{b["KPIS"]}</div>'
             f"{ai_block}"
-            f"<div class='card'><h2>Tổng hợp thuế GTGT theo thuế suất</h2>{b['TAX_SUMMARY']}</div>"
-            f"<div class='grid2'><div class='card'><h2>Cơ cấu chi theo khoản mục</h2>{b['CHART_CATEGORY']}</div>"
-            f"<div class='card'><h2>Chi theo tháng</h2>{b['CHART_MONTH']}</div></div>"
-            f"<div class='card'><h2>Chi theo khoản mục</h2>{b['TABLE_CATEGORY']}</div>"
-            "<div class='card'><h2>Tổng hợp theo nhà cung cấp</h2><table><thead><tr><th>Nhà cung cấp</th>"
-            f"<th class='num'>Số HĐ</th><th class='num'>Tổng chi</th><th class='num'>Tỷ trọng</th></tr></thead><tbody>{b['TABLE_VENDORS']}</tbody></table></div>"
-            f"<div class='card'><h2>Bảng kê chi tiết hoá đơn ({b['n']})</h2><table><thead><tr><th>Số HĐ</th><th>Ngày</th>"
-            "<th>Nhà cung cấp</th><th>Khoản mục</th><th class='num'>Tiền hàng</th><th class='num'>%VAT</th><th class='num'>VAT</th>"
-            f"<th class='num'>Tổng</th></tr></thead><tbody>{b['TABLE_INVOICES']}</tbody></table></div>"
-            "<div class='foot'>Kora — Báo cáo tài chính (hoá đơn GTGT) · build_report.py --report-type invoice</div>"
+            f'<div style="{_S_CARD}"><div style="{_S_H2}">Tổng hợp thuế GTGT theo thuế suất</div>{b["TAX_SUMMARY"]}</div>'
+            f'<div style="{_S_CARD}"><div style="{_S_H2}">Cơ cấu chi theo khoản mục</div>{b["CHART_CATEGORY"]}</div>'
+            f'<div style="{_S_CARD}"><div style="{_S_H2}">Chi theo tháng</div>{b["CHART_MONTH"]}</div>'
+            f'<div style="{_S_CARD}"><div style="{_S_H2}">Chi theo khoản mục</div>{b["TABLE_CATEGORY"]}</div>'
+            f'<div style="{_S_CARD}"><div style="{_S_H2}">Tổng hợp theo nhà cung cấp</div>{_vhdr}</div>'
+            f'<div style="{_S_CARD}"><div style="{_S_H2}">Bảng kê chi tiết hoá đơn ({b["n"]})</div>{_ihdr}</div>'
+            '<div style="color:#9aa1b8;font-size:12px;text-align:center;margin:18px 0">Kora — Báo cáo tài chính (hoá đơn GTGT) · build_report.py --report-type invoice</div>'
             "</div></body></html>")
 
 

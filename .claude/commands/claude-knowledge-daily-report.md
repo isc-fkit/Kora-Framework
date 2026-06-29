@@ -62,7 +62,9 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
    - Build Hoá đơn/Custom: `python3 "$T/progress-report/build_report.py" --report-type <invoice|custom> [--template <name>]
      --source-ids "invoice__<batch>"` → ra `reports/invoice-report-latest.html`.
    > 🔒 Backstop: `--report-type custom` TỪ CHỐI nếu thiếu `--template`; template lạ → lỗi liệt kê tên có sẵn.
-   > 📧 Gửi/đính kèm report Hoá đơn/Custom: `send_report.py --html-file reports/invoice-report-latest.html --attach reports/invoice-report-latest.html` (qua cổng `KORA_OPS_PW`).
+   > 📧 Gửi report Hoá đơn/Custom: report ĐÃ **inline-styled (email-safe)** → gửi THẲNG làm BODY (giữ nguyên định dạng ở Gmail/Outlook):
+   > `send_report.py --html-file reports/invoice-report-latest.html --attach reports/invoice-report-latest.html` (qua cổng `KORA_OPS_PW`).
+   > **KHÔNG** dùng `email-body-latest.html` ở đây (đó là body của report TIẾN ĐỘ, không phải tài chính).
 2. **(CHỈ khi LOẠI report = Tiến độ) — chọn NHÓM NGUỒN, multiSelect=true.** AskUserQuestion với **ĐÚNG 3 NHÓM CỐ ĐỊNH**
    (LUÔN hiện đủ cả 3, theo thứ tự): **[Jira] · [SharePoint] · [Local Excel]** (+ **[Tất cả]**).
    - ⛔ **KHÔNG dựng câu này từ `check_connection.py`** (đó là bước 2a). **KHÔNG** liệt kê nguồn Jira cụ thể (Jira Cloud/Server)
