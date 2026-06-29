@@ -131,7 +131,8 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
        (insight · rủi ro · ĐỐI CHIẾU với tiến độ sprint/OKR), viết theo góc PM. **Mỗi nhóm/đầu việc chia rõ cho dễ nhìn.**
      - Cũng lưu `reports/_okr-latest.txt` (text thô) làm **BỐI CẢNH** cho mục 🗺️ Roadmap của AI chính (Bước 1.5).
 6. **BẮT BUỘC dựng báo cáo QUA `build_report.py` — TUYỆT ĐỐI KHÔNG tự viết file HTML báo cáo bằng tay.**
-   `python3 "$T/progress-report/build_report.py" --source-ids "<SRC_IDS>" --projects "<KEYS>" --scope <SCOPE> --recent-days <NDAYS>`
+   `python3 "$T/progress-report/build_report.py" --source-ids "<SRC_IDS>" --projects "<KEYS>" --scope <SCOPE> --recent-days <NDAYS> [--members "<MEMBERS Bước 5>"] [--roles Dev,QC]`
+   - **`--members "<list>"`** (tên, csv) / **`--roles Dev,PM,QC`**: lọc phần **"theo thành viên"** chỉ hiện người/vai trò đã chọn ở Bước 5 (tổng project GIỮ NGUYÊN). Bỏ qua = hiện tất cả.
    (per `workflows/14-progress-report.md`) → ra dashboard CHUẨN (có **banner**, đủ section: trạng thái · theo người ·
    complexity · **🗺️ Roadmap/Sprint** · capacity · rủi ro) + `email-body-latest.html` + `email-preview-latest.html`.
    - **`--source-ids "<SRC_IDS>"` BẮT BUỘC khi user chọn nguồn cụ thể** → báo cáo **CHỈ gồm nguồn đã chọn** (vault có thể

@@ -1758,6 +1758,8 @@ def main():
                     "mặc định reports/_meeting-rows.json).")
     ap.add_argument("--ai", dest="ai_md", help="File markdown phân tích AI → chèn khối card vào report "
                     "invoice/custom (Claude sinh từ dữ liệu hoá đơn rồi truyền vào).")
+    ap.add_argument("--members", help="Lọc phần 'theo thành viên' theo TÊN (csv) — chỉ hiện các thành viên này.")
+    ap.add_argument("--roles", help="Lọc phần 'theo thành viên' theo VAI TRÒ (csv: Dev,PM,QC).")
     args = ap.parse_args()
     DATA = data_root()   # project (cwd) nếu có config/factory-config.yaml; else REPO_ROOT (dev / lịch nền)
 
@@ -1885,6 +1887,14 @@ def main():
     today = datetime.now().strftime("%Y-%m-%d")
     m = compute(issues, smap, today, complexity_high=args.complexity_high, qc_members=qc_members, pm_members=pm_members)
     m["scope_label"] = scope_label
+    # ── Lọc phần "theo thành viên" theo MEMBER / VAI TRÒ (thu hẹp danh sách người; tổng project GIỮ NGUYÊN) ──
+    _mem = {s.strip().lower() for s in (args.members or "").split(",") if s.strip()}
+    _roles = {s.strip().lower() for s in (args.roles or "").split(",") if s.strip()}
+    if _mem or _roles:
+        m["by_assignee"] = [a for a in m["by_assignee"]
+                            if (not _mem or str(a.get("assignee", "")).strip().lower() in _mem)
+                            and (not _roles or str(a.get("role", "")).strip().lower() in _roles)]
+        m["member_filter"] = {"members": sorted(_mem), "roles": sorted(_roles)}
     stale_after = 1
     if os.path.exists(cfg_path):
         sm = re.search(r"stale_after_days:\s*(\d+)", open(cfg_path, encoding="utf-8").read())

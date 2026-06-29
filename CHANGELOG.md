@@ -10,6 +10,14 @@
 
 ---
 
+## v2.13.4 "Claude-1" — 2026-06-29
+
+**Lọc báo cáo theo thành viên / vai trò.**
+
+- `build_report.py` thêm `--members "<csv tên>"` và `--roles Dev,PM,QC` → lọc phần **"theo thành viên"**
+  (bảng + phân tích per-member) chỉ hiện người/vai trò đã chọn. **Tổng project + capacity GIỮ NGUYÊN** (lọc ở display, sau compute).
+- Skill `daily-report`: Bước 5 chọn thành viên (per-project) → tự truyền `--members`/`--roles` vào Bước 6.
+
 ## v2.13.3 "Claude-1" — 2026-06-29
 
 **Báo cáo theo DỰ ÁN: thành viên & email per-project (luôn hỏi) + PM/QC phân tích theo vai trò.**
