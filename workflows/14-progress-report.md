@@ -166,15 +166,32 @@ Tạo trong `reports/`:
 - `email-preview-latest.html` (+ `email-preview-<ngày>.html`) — **bản XEM TRƯỚC mail** giống hệt email-body nhưng
   **banner nhúng base64** → hiện được trong Cowork/trình duyệt (URL remote hay bị chặn khi xem). **Chỉ để preview, KHÔNG gửi** (Gmail/Outlook chặn `data:`).
 
-## Bước 1.5 — PHÂN TÍCH AI (rủi ro · phân loại · đề xuất · dự đoán trượt timeline)
+## Bước 1.5 — PHÂN TÍCH AI (SPAWN 3 con agent chuyên biệt SONG SONG)
 
-> Đọc `reports/progress-data-<ngày>.json` (đã có time est/log/remaining, active sprint + `sprint_end`,
-> by-assignee, status, risks). Claude TỰ tính & viết phần này — đây là **"phân tích AI trong dashboard"**.
-> KHÔNG bịa số: chỉ suy luận từ JSON; thiếu dữ liệu thì nói rõ.
+> Đọc `reports/progress-data-<ngày>.json` (time est/log/remaining, active sprint + `sprint_end`, by-assignee,
+> complexity, status, risks). **BẮT BUỘC dùng Agent tool SPAWN 3 con agent quản lý SONG SONG** (mỗi con 1 góc
+> chuyên môn, đều đọc `reports/progress-data-latest.json`) — KHÔNG bịa số, chỉ suy từ JSON; thiếu dữ liệu thì nói rõ.
+> **Fallback DUY NHẤT:** môi trường KHÔNG có Agent tool (vd CLI tắt sub-agent) → Claude TỰ viết inline như cũ.
 
-Sinh khối **🤖 Phân tích AI — CỰC KỲ CHI TIẾT** dưới dạng **MARKDOWN**, rồi để TOOL render thành **CARD MÀU**
-(KHÔNG tự viết HTML/chip tay — tool lo màu sắc & bảng):
-1. **Ghi markdown** vào `reports/ai-analysis-latest.md`, MỖI MỤC mở đầu `## ` theo đúng thứ tự:
+**🤖 3 LỆNH SPAWN (gửi CÙNG 1 lượt để chạy SONG SONG — mỗi con ghi ra 1 file tạm):**
+- **Agent ĐIỀU HÀNH/STATUS** — `Agent(subagent dùng skill **operations:status-report**)`, prompt:
+  > *"Đóng vai chuyên viên ĐIỀU HÀNH dự án, dùng skill `operations:status-report`. Đọc `reports/progress-data-latest.json`.
+  > Viết MARKDOWN (trích SỐ cụ thể: mã hạng mục·giờ·%·ngày, CẤM chung chung): `## 📌 Tóm tắt điều hành` · `## 🟢 Điểm
+  > tích cực` · `## 🎯 Hành động ưu tiên` (theo NGÀY) + KPI tiến độ. Ghi ra `reports/_ai-status.md`."*
+- **Agent RỦI RO** — `Agent(subagent dùng skill **operations:risk-assessment**)`, prompt:
+  > *"Đóng vai chuyên viên RỦI RO, dùng skill `operations:risk-assessment`. Đọc `reports/progress-data-latest.json`.
+  > Viết: `## 🔴 Rủi ro cao (blocker)` · `## 🟡 Rủi ro vừa / Cần theo dõi` — MỖI rủi ro: SỐ + Mức độ + **Dự đoán & lý
+  > do BẰNG SỐ** (giờ remaining·%done·ngày trễ·est/spent) + Tác động + Phương án giảm thiểu + KHI NÀO (mốc ngày). Ghi ra `reports/_ai-risk.md`."*
+- **Agent NĂNG LỰC/SPRINT** — `Agent(subagent dùng skill **operations:capacity-plan**)`, prompt:
+  > *"Đóng vai chuyên viên NĂNG LỰC nguồn lực, dùng skill `operations:capacity-plan`. Đọc `reports/progress-data-latest.json`.
+  > Viết: `## 🧩 Độ phức tạp (TRỌNG TÂM)` (hạng mục điểm ≥ ngưỡng, ai ôm cụm khó) · `## 👥 Phân tích theo thành viên`
+  > (BẢNG `| Thành viên | Vai trò | Tổng | Done | %Done | Giờ log | %Capacity | Bug | Ghi chú |` — **Dev** đo giờ/capacity;
+  > **PM/QC** theo VAI TRÒ, %Capacity = '—', KHÔNG phạt) · `## 📅 Dự đoán sprint / timeline` (quỹ giờ, carry-over). Ghi ra `reports/_ai-capacity.md`."*
+
+**TỔNG HỢP:** gộp 3 file tạm (`_ai-risk.md` + `_ai-capacity.md` + `_ai-status.md`) thành `reports/ai-analysis-latest.md`
+**theo ĐÚNG THỨ TỰ MỤC dưới**. (NẾU user chọn "phân tích roadmap" → thêm **Agent CHIẾN LƯỢC/PM** skill
+`operations:status-report` viết `## 🗺️ Roadmap & điều phối sprint` từ `roadmap` JSON + `reports/_okr-latest.txt`.)
+KHÔNG tự viết HTML/chip tay — tool render CARD MÀU. Các mục (mỗi mục mở đầu `## `, ĐÚNG thứ tự):
    > 📁 **ĐẢM BẢO thư mục `reports/` tồn tại TRƯỚC khi ghi** (Write cần thư mục cha — thiếu sẽ báo *"Error writing
    > file"*). Bước 1 (`build_report.py`) đã tạo `reports/` ở CÙNG cwd; nếu chạy lẻ / Write lỗi → tạo trước:
    > macOS/Linux `mkdir -p reports` · Windows `New-Item -ItemType Directory -Force reports` rồi ghi lại. (build_report
@@ -191,12 +208,12 @@ Sinh khối **🤖 Phân tích AI — CỰC KỲ CHI TIẾT** dưới dạng **M
      thành `reports/_okr-blocks.json` **TRƯỚC khi build_report** → tool render **section riêng** (grid chia nhóm + khối AI
      phân tích RIÊNG cho OKR) ở **CẢ dashboard LẪN email**. Schema: `{"title","source","groups":[{"icon","label","items":[{"name","chips":[ "text" | {"text","tone":"ok|warn|risk|info"} ]}]}],"analysis_md":"## ...md phân tích riêng..."}`.
      Chia rõ từng nhóm/đầu việc cho dễ nhìn; `analysis_md` đối chiếu OKR ↔ tiến độ sprint, góc PM. (Khác mục 🗺️ Roadmap của task report.)
-2. **Render + chèn (BẮT BUỘC):** `python3 "$T/progress-report/build_report.py" --inject-ai reports/ai-analysis-latest.md`
+**RỒI — Render + chèn (BẮT BUỘC):** `python3 "$T/progress-report/build_report.py" --inject-ai reports/ai-analysis-latest.md`
    → tool tự thay khối `<!--KR-AI-->` bằng **CARD MÀU theo mục** + **bảng tô màu cột trạng thái** (Done=xanh lá ·
    In Review=xanh dương · In Progress=cam · Test=tím · Chưa làm=xám) trong **CẢ 3 file -latest cùng lúc**:
    `email-body` (gửi) · `email-preview` (xem trước) · `progress-report` (dashboard `#kr-ai`). ⇒ AI **LUÔN có ở cả email LẪN dashboard**.
    > 🔒 **Backstop:** `send_report.py` **TỪ CHỐI gửi** nếu khối AI còn placeholder (chưa `--inject-ai`) → buộc phải chèn AI thật trước khi gửi (bỏ qua: `--allow-empty-ai`).
-3. Bản inline Cowork (Bước 2) dùng **CÙNG nội dung markdown** đó (dashboard `#kr-ai` đã được `--inject-ai` điền sẵn ở bước 2).
+**Bản inline Cowork** (Bước 2) dùng **CÙNG nội dung markdown** đó (dashboard `#kr-ai` đã được `--inject-ai` điền sẵn ở bước 2).
 Mỗi rủi ro nêu đủ: **mức độ → khả năng/DỰ ĐOÁN + lý do bằng số liệu → tác động → PHƯƠNG ÁN ĐỀ XUẤT từng bước + ai làm + khi nào**. Nội dung mỗi mục:
 
 0. **Đối chiếu theo CHUẨN (Cloud / industry best-practice) — nền cho mọi cảnh báo:** so số liệu với mốc

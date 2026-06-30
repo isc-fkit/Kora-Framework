@@ -39,9 +39,11 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
      `sharepoint_search folderName=<folder> fileType=png/jpg/pdf` → AskUserQuestion chọn (các) ảnh → `read_resource`/tải. >4 mục → phân trang (rule #8).
      → Claude **ĐỌC ảnh (OCR vision)** → xuất rows `reports/_invoice-rows.json` (cột: vendor, date, category, currency, subtotal, vat, vat_rate, total)
      → `python3 "$T/invoice-report/import_invoice.py" --from-rows reports/_invoice-rows.json --source-id invoice__<batch>` → reindex `build_index.py --root .`.
-     **Rồi: (1)** NHÁNH TEMPLATE; **(2) AI phân tích — SPAWN con agent PHÂN TÍCH TÀI CHÍNH/KẾ TOÁN** (Agent tool: đóng vai
-     chuyên viên kế toán, DÙNG skill `data:analyze` + kiến thức kế toán; đọc `reports/_invoice-rows.json`) → con agent viết nhận định CHI TIẾT ra `reports/ai-invoice-latest.md`
-     (không spawn được Agent → Claude tự viết):
+     **Rồi: (1)** NHÁNH TEMPLATE; **(2) AI phân tích — BẮT BUỘC SPAWN con agent KẾ TOÁN/TÀI CHÍNH** —
+     `Agent(subagent dùng skill **data:analyze**)`, prompt: *"Đóng vai CHUYÊN VIÊN KẾ TOÁN/TÀI CHÍNH (kiến thức kế toán VN:
+     VAT·MST·khấu trừ thuế đầu vào·dòng tiền), dùng skill `data:analyze`. Đọc `reports/_invoice-rows.json`
+     (vendor·date·category·subtotal·vat·vat_rate·total). Viết MARKDOWN các mục DƯỚI — trích SỐ cụ thể (đồng·%·tháng·NCC),
+     CẤM chung chung — ghi ra `reports/ai-invoice-latest.md`."* (**fallback:** không có Agent tool → Claude tự viết):
      `## 📌 Tóm tắt điều hành` · `## 📊 Cơ cấu chi theo khoản mục` · `## 🧾 Thuế GTGT & khấu trừ đầu vào` (đối chiếu theo thuế suất) ·
      `## 🔴 Rủi ro` (tập trung nhà cung cấp, dòng tiền theo tháng, hoá đơn hợp lệ/đủ MST, thuế suất bất thường) · `## 🎯 Đề xuất`
      → build kèm `--ai reports/ai-invoice-latest.md`. **Report tài chính tự có:** KPI (tiền hàng chưa VAT · thuế GTGT · tổng thanh toán) ·
@@ -158,7 +160,7 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
    > 📧 **Banner mail**: gửi qua `send_report.py` (tự nhúng `cid:kora-banner` từ `assets/banner-daily-report.jpg`) → Outlook hiện banner. Đừng bỏ qua send_report.
 - Dashboard + email PHẢI có khối **🤖 AI analysis** (workflow 14 — Bước 1.5) — **PHÂN TÍCH SÂU, CHI TIẾT, đủ BẢNG số
   liệu** (chuẩn = bằng/hơn mẫu báo cáo đầy đủ). BẮT BUỘC, mỗi mục **trích DỮ LIỆU cụ thể (mã hạng mục · giờ · % · ngày), CẤM nói chung chung**:
-  - 🤖 **DÙNG CÁC CON AGENT QUẢN LÝ (Agent tool — spawn SONG SONG, mỗi con 1 góc; đều đọc `reports/progress-data-latest.json`):**
+  - 🤖 **BẮT BUỘC SPAWN 3 CON AGENT QUẢN LÝ (Agent tool — spawn SONG SONG, mỗi con 1 góc; đều đọc `reports/progress-data-latest.json`):**
     **Agent Điều hành/Status** (skill `operations:status-report`) → 📌 tóm tắt điều hành + 🎯 hành động ưu tiên + KPI ·
     **Agent Rủi ro** (skill `operations:risk-assessment`) → 🔴/🟡 rủi ro (số · mức độ · dự đoán bằng số · giảm thiểu) ·
     **Agent Năng lực** (skill `operations:capacity-plan`) → 👥 cân bằng tải Dev + 📅 dự đoán sprint (PM/QC theo VAI TRÒ, không đo giờ).

@@ -10,6 +10,22 @@
 
 ---
 
+## v2.14.5 "Claude-1" — 2026-06-30
+
+**Đồng bộ cơ chế SPAWN SUB-AGENT chuyên biệt cho báo cáo (skill ↔ workflow nhất quán).**
+
+Phát hiện: skill `claude-knowledge-daily-report` ĐÃ spawn agent chuyên biệt cho phân tích AI, nhưng `workflows/14-progress-report.md` Bước 1.5 lại ghi *"Claude TỰ tính & viết"* → **mâu thuẫn** → tùy Claude bám tài liệu nào mà có/không spawn agent.
+
+- **(A) WF14 Bước 1.5** — viết lại: **BẮT BUỘC spawn 3 con agent quản lý SONG SONG** kèm **câu lệnh `Agent()` cụ thể**:
+  - **Agent ĐIỀU HÀNH** — skill `operations:status-report` → `## 📌 Tóm tắt điều hành` · `## 🟢 Điểm tích cực` · `## 🎯 Hành động ưu tiên` + KPI → `reports/_ai-status.md`.
+  - **Agent RỦI RO** — skill `operations:risk-assessment` → `## 🔴`/`## 🟡` rủi ro (số · mức độ · dự đoán bằng số · giảm thiểu · mốc ngày) → `reports/_ai-risk.md`.
+  - **Agent NĂNG LỰC/SPRINT** — skill `operations:capacity-plan` → `## 🧩` phức tạp · `## 👥` bảng thành viên (Dev đo giờ; PM/QC theo vai trò) · `## 📅` sprint → `reports/_ai-capacity.md`.
+  - → **TỔNG HỢP** 3 file tạm thành `reports/ai-analysis-latest.md` theo đúng thứ tự mục. **Fallback:** không có Agent tool → Claude tự viết inline.
+- **(B) Báo cáo SỐ LIỆU / HOÁ ĐƠN** — làm rõ câu lệnh **BẮT BUỘC spawn agent KẾ TOÁN/TÀI CHÍNH** (skill `data:analyze` + kiến thức kế toán VN: VAT · MST · khấu trừ đầu vào · dòng tiền) → `reports/ai-invoice-latest.md`.
+- **(C)** Skill báo cáo tiến độ: đổi "DÙNG các con agent" → **"BẮT BUỘC SPAWN 3 con agent"** cho dứt khoát.
+
+Chỉ sửa tài liệu workflow/skill — KHÔNG đụng tool/DATA.
+
 ## v2.14.4 "Claude-1" — 2026-06-30
 
 **Vá nhỏ: lệnh KIỂM TRA PHIÊN BẢN (`/claude-knowledge-version`) chạy được trên mạng công ty + Cowork.**
