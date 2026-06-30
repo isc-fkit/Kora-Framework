@@ -44,6 +44,7 @@
 | Tạo Canva | "tạo thuyết trình", "tạo thiết kế canva", "tạo ấn phẩm/slide" | *tạo bài thuyết trình thị trường Q3* (AI hỏi rõ → chốt) |
 | Campaign tự động | "tạo campaign", "tự động hoá a-z", "chuỗi tự động như n8n" | *tự động hằng quý: gom hoá đơn → report → gửi sếp* |
 | Kiểm tra worklog 🔒 | "kiểm tra logwork", "soát task tạo có đúng không", "kiểm tra thời gian task tháng", "gợi ý lịch tạo task" | *kiểm tra task tháng 6 tạo đúng giờ chưa* → hỏi tháng → quét → biểu đồ timeline + lỗi |
+| Chiến lược GEO 🔒 | "phân tích GEO", "tăng GEO", "tối ưu AI search", "được AI trích dẫn", "roadmap GEO", "generative engine optimization" | *phân tích nội dung để được ChatGPT/Perplexity trích dẫn* → chấm 8 chiều GEO → việc cần làm + roadmap 1 năm/5 năm → lên chiến dịch |
 
 ⚠️ **Tránh nhầm:** "cập nhật **dữ liệu** jira" = quét ≠ "cập nhật **phiên bản/ứng dụng**" = update app.
 🔒 = cần mật khẩu vận hành · 🔒m = chỉ maintainer · 🔵 = tự chạy không cần lệnh.

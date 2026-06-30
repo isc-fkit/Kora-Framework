@@ -10,6 +10,20 @@
 
 ---
 
+## v2.15.0 "Claude-1" — 2026-06-30  ✨ TÍNH NĂNG MỚI
+
+**Chiến lược GEO (Generative Engine Optimization) — phân tích → việc cần làm để được AI trích dẫn → roadmap 1y/5y → chiến dịch.**
+
+Lệnh: «phân tích GEO» · «tăng GEO» · «được AI trích dẫn» · «roadmap GEO» → `/claude-knowledge-geo-strategy` (`workflows/20-geo-strategy.md`).
+
+Mục tiêu: tối ưu để thương hiệu/nội dung được **ChatGPT · Perplexity · Google AI Overviews · Gemini · Claude · Copilot** trích dẫn & gợi ý (GEO ≠ SEO truyền thống).
+
+- **Quy trình:** cổng `KORA_OPS_PW` → chọn NGUỒN (SharePoint **hỏi FOLDER→FILE** · Local · vault) → import nội dung (`source: content`) → **BẮT BUỘC spawn Agent GEO Analyst** chấm **8 chiều GEO** → `reports/_geo-rows.json` → `geo_strategy.py` sinh **scorecard + danh sách VIỆC CẦN LÀM ưu tiên + roadmap 1 năm/5 năm + dashboard** → bước kế **[Lên chiến dịch theo roadmap]**.
+- **8 chiều chấm điểm (trọng số 100):** extractability 20 · statistics 15 · citations 15 · authority 15 · schema 10 · offsite 10 · technical 10 · freshness 5 — tiêu chí tổng hợp **nghiên cứu GEO 2025–2026 có trích nguồn** (arXiv GEO study · Profound · Backlinko · Google AI guide · Semrush 1/2026) ở `tools/geo-strategy/README.md`.
+- **Action-list** ưu tiên theo `chiều yếu × tác động × effort` (quick-win → trung hạn → dài hạn); **roadmap** 1 năm theo quý (Q1 audit+quick-win → Q4 đo lường) + 5 năm theo năm (nền tảng → thống trị share-of-voice).
+- **Campaign:** thêm step `geo` vào `tools/kora-campaign/campaign.py` → chiến dịch chạy `geo_strategy.py` theo lịch (đo GEO → report → mail).
+- Engine `tools/geo-strategy/geo_strategy.py` chỉ thư viện chuẩn + `--self-test`. Đã test: self-test OK · build dashboard + roadmap + tiêu đề động · campaign geo step dry-run đúng.
+
 ## v2.14.8 "Claude-1" — 2026-06-30
 
 **Bỏ `[Kora]` khỏi tiêu đề mail + tiêu đề & branding ĐỘNG theo loại báo cáo (KHÔNG hardcode).**

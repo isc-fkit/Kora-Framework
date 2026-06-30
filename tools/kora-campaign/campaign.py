@@ -9,7 +9,7 @@ hẹn ngày tự chạy. Mỗi bước TÁI DÙNG tool Kora sẵn có (shell out
    campaign.py run <id> [--dry-run]                 # chạy tuần tự các bước
    campaign.py delete --id <id>
 
-Bước hỗ trợ HEADLESS: scan · reindex · report · mail · post · sync.
+Bước hỗ trợ HEADLESS: scan · reindex · report · geo · mail · post · sync.
 Bước cần MODEL (analyze · canva) → headless BỎ QUA (chạy qua skill /claude-knowledge-campaign khi tương tác).
 Bước OUTWARD (mail/post/sync) qua cổng KORA_OPS_PW (verify_ops_password.py). Chỉ thư viện chuẩn.
 
@@ -99,6 +99,15 @@ def build_cmd(step, T):
                "--roles-confirmed"]   # campaign nền không hỏi UI → waive cổng vai trò (dùng role config nếu có)
         for k, flag in (("source_ids", "--source-ids"), ("projects", "--projects"),
                         ("template", "--template"), ("meetings", "--meetings"), ("scope", "--scope")):
+            if step.get(k):
+                cmd += [flag, str(step[k])]
+        return cmd
+    if typ == "geo":
+        # Chiến dịch GEO theo roadmap: render lại scorecard/roadmap từ reports/_geo-rows.json
+        # (Agent GEO Analyst làm tươi _geo-rows.json ở lượt interactive; step nền chỉ render + để mail).
+        cmd = [py, t("geo-strategy", "geo_strategy.py"),
+               "--rows", step.get("rows", "reports/_geo-rows.json")]
+        for k, flag in (("brand", "--brand"), ("period", "--period"), ("out", "--out")):
             if step.get(k):
                 cmd += [flag, str(step[k])]
         return cmd
