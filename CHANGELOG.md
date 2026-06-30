@@ -10,6 +10,29 @@
 
 ---
 
+## v2.16.0 "Claude-1" — 2026-06-30  ✨ TÍNH NĂNG MỚI
+
+**Báo cáo CUỘC HỌP CHI TIẾT (10 mục) + siết MỖI loại báo cáo gọi sub-agent chuyên biệt.**
+
+- **Báo cáo cuộc họp nay đầy đủ 10 mục** (như mẫu chuẩn standing-meeting): tóm tắt điều hành + KPI +
+  callout "điểm cần quyết định" · quyết định & cam kết · **Action items dạng BẢNG** (việc · PIC · deadline ·
+  **chip trạng thái màu**) · tiến độ theo tổ (2 cột) · **Rủi ro** (tác động + giảm thiểu) · **đối chiếu OKR/Roadmap
+  BẢNG** (mục tiêu · liên hệ · mức bám) · đối chiếu lịch sử (biên bản cũ) · ưu tiên theo ngày · nguồn.
+  Toàn bộ **email-safe NỘI TUYẾN** → hiện đúng ở Gmail/Outlook.
+- **Engine:** `build_report.py` thêm `render_meeting_report(data)` + `load_meeting_report()` + cờ
+  `--meeting-report reports/_meeting-report.json`. Dữ liệu = **1 object JSON 10 mục** do Agent thư ký+phân tích họp sinh
+  (`title·subtitle·period·source_label·scope·report_date·executive_summary·kpis[{n,l}]·decision_callout·decisions[]·
+  action_items[{task,pic,deadline,status}]·progress_by_team[{team,items[]}]·risks[{id,title,impact,mitigation}]·
+  okr_alignment[{okr,link,level}]·history_comparison·priorities_by_day[{date,items}]·sources[]`). `**đậm**` được render.
+- **CODE-GATE:** `--report-type meeting-roadmap` thiếu cả `_meeting-report.json` lẫn `_meeting-rows.json` → **die**
+  đòi spawn Agent thư ký/phân tích họp trước (không build báo cáo rỗng). `_meeting-rows.json` = fallback GỌN.
+- **Skill `claude-knowledge-daily-report` — MỖI loại báo cáo BẮT BUỘC spawn sub-agent riêng:** tiến độ = 3 agent
+  operations (status-report · risk-assessment · capacity-plan) · tài chính = agent kế toán · **cuộc họp = agent thư ký +
+  phân tích chiến lược** (sinh `_meeting-report.json`) · OKR/roadmap = agent chiến lược/PM · custom = agent bám template.
+- **CORE-only** (build_report.py + skill) — **không migration**, DATA giữ nguyên.
+
+---
+
 ## v2.15.1 "Claude-1" — 2026-06-30  🐛 VÁ LỖI
 
 **Báo cáo cuộc họp (meeting-roadmap) nhúng INLINE đúng trong email — như báo cáo tài chính.**

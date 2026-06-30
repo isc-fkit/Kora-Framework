@@ -478,6 +478,183 @@ def render_meeting_roadmap(meetings, issues, title="Báo cáo Meeting & Roadmap"
             "</div></body></html>")
 
 
+# ── Báo cáo CUỘC HỌP CHI TIẾT (10 mục) — email-safe NỘI TUYẾN (Gmail/Outlook strip <style>) ──────────
+# Dữ liệu = reports/_meeting-report.json (1 object do Agent thư ký/phân tích họp sinh). Mục RỖNG → bỏ qua.
+_MP_WRAP = "max-width:960px;margin:0 auto;padding:20px;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;color:#1c2b36;background:#f4f7f9"
+_MP_BANNER = "background:#0b3d62;color:#fff;border-radius:14px;padding:26px 24px;margin:0 0 16px"  # màu ĐẶC (gradient vỡ Outlook)
+_MP_META = "display:inline-block;background:#1c577d;color:#dbe9f3;padding:4px 11px;border-radius:14px;font-size:12.5px;margin:5px 6px 0 0"
+_MP_SEC = "background:#fff;border:1px solid #e2e8ee;border-radius:12px;padding:18px 20px;margin:0 0 16px"
+_MP_H2 = "font-size:17px;margin:0 0 12px;color:#0b3d62;font-weight:700;border-bottom:2px solid #e2e8ee;padding-bottom:8px"
+_MP_H3 = "font-size:14.5px;margin:14px 0 6px;color:#0f8a8a;font-weight:700"
+_MP_KPI = "background:#f4f7f9;border:1px solid #e2e8ee;border-radius:10px;padding:13px 11px;text-align:center;vertical-align:top;box-sizing:border-box"
+_MP_KPIN = "font-size:21px;font-weight:700;color:#0b3d62"
+_MP_KPIL = "font-size:12px;color:#5b6b78;margin-top:3px"
+_MP_TBL = "width:100%;border-collapse:collapse;font-size:13px;margin-top:6px"
+_MP_TH = "padding:8px 10px;text-align:left;background:#0b3d62;color:#fff;font-size:12.5px;font-weight:600"
+_MP_TD = "padding:8px 10px;text-align:left;border-bottom:1px solid #e2e8ee;vertical-align:top"
+_MP_CALLOUT = "border-left:4px solid #0f8a8a;background:#f0f9f9;padding:12px 15px;border-radius:0 8px 8px 0;margin:12px 0;font-size:13.5px;color:#1c2b36"
+_MP_RISK = "border-left:4px solid #c0392b;background:#fdecea;padding:11px 15px;border-radius:0 8px 8px 0;margin:10px 0;font-size:13.5px;color:#1c2b36"
+_MP_LI = "margin:4px 0;font-size:13.5px;color:#1c2b36;line-height:1.5"
+_MP_FOOT = "text-align:center;color:#5b6b78;font-size:12px;margin:22px 0 0"
+_MP_CHIP = {"ok": ("#e6f6ee", "#1a8f5a"), "warn": ("#fdf2e0", "#b8730a"),
+            "risk": ("#fdecea", "#c0392b"), "info": ("#e8f1fb", "#2563a8")}
+
+
+def _mp_inline(s):
+    """Escape + **bold** (1 dòng, email-safe)."""
+    return re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", esc(str(s or "")))
+
+
+def _mp_rich(s):
+    """Text (markdown nhẹ) → các <p> email-safe: escape, **bold**, dòng trống = đoạn mới."""
+    out = []
+    for para in re.split(r"\n\s*\n", str(s or "").strip()):
+        if not para.strip():
+            continue
+        t = _mp_inline(para.strip()).replace("\n", "<br>")
+        out.append(f'<p style="margin:8px 0;font-size:14px;line-height:1.55;color:#1c2b36">{t}</p>')
+    return "".join(out)
+
+
+def _mp_list(items):
+    items = items or []
+    if not items:
+        return ""
+    lis = "".join(f'<li style="{_MP_LI}">{_mp_inline(x)}</li>' for x in items)
+    return f'<ul style="margin:8px 0;padding-left:20px">{lis}</ul>'
+
+
+def _mp_chip(status):
+    """Trạng thái → chip màu (đang xử lý=amber · pending/pipeline=blue · xong/tốt=green · trễ/rủi ro=red)."""
+    s = (status or "").strip().lower()
+    if not s:
+        return ""
+    if any(w in s for w in ("xong", "hoàn tất", "hoàn thành", "done", "tốt", "đạt")):
+        cls = "ok"
+    elif any(w in s for w in ("rủi ro", "trễ", "chậm", "blocker", "quá hạn", "stuck")):
+        cls = "risk"
+    elif any(w in s for w in ("pending", "chờ", "pipeline", "đầu", "kế hoạch", "chưa", "giai đoạn")):
+        cls = "info"
+    else:
+        cls = "warn"   # đang xử lý / đang triển khai (mặc định)
+    bg, col = _MP_CHIP[cls]
+    return (f'<span style="display:inline-block;padding:2px 9px;border-radius:14px;font-size:11.5px;'
+            f'font-weight:600;white-space:nowrap;background:{bg};color:{col}">{esc(status)}</span>')
+
+
+def render_meeting_report(d):
+    """Render BÁO CÁO CUỘC HỌP CHI TIẾT (10 mục) email-safe NỘI TUYẾN từ dict _meeting-report.json.
+    keys: title·subtitle·period·source_label·scope·report_date·executive_summary·kpis[{n,l}]·
+    decision_callout·decisions[]·action_items[{task,pic,deadline,status}]·progress_by_team[{team,items[]}]·
+    risks[{id,title,impact,mitigation}]·okr_alignment[{okr,link,level}]·history_comparison·
+    priorities_by_day[{date,items}]·sources[]. Mục rỗng → bỏ qua."""
+    title = d.get("title") or "Báo cáo cuộc họp"
+    secs = []
+    # Banner + meta
+    meta = []
+    for ico, key, pre in [("📅", "period", ""), ("🗂", "source_label", "Nguồn: "),
+                          ("👥", "scope", "Phạm vi: "), ("🕒", "report_date", "Lập báo cáo: ")]:
+        v = str(d.get(key) or "").strip()
+        if v:
+            meta.append(f'<span style="{_MP_META}">{ico} {esc(pre)}{esc(v)}</span>')
+    banner = (f'<div style="{_MP_BANNER}"><div style="font-size:22px;font-weight:700;margin:0 0 6px">{esc(title)}</div>'
+              + (f'<div style="font-size:14px;opacity:.92">{esc(d.get("subtitle"))}</div>' if d.get("subtitle") else "")
+              + (f'<div style="margin-top:12px">{"".join(meta)}</div>' if meta else "") + "</div>")
+    # 1) Tóm tắt điều hành
+    if d.get("executive_summary") or d.get("kpis") or d.get("decision_callout"):
+        inner = f'<div style="{_MP_H2}">📌 Tóm tắt điều hành</div>'
+        if d.get("executive_summary"):
+            inner += _mp_rich(d["executive_summary"])
+        kpis = d.get("kpis") or []
+        if kpis:
+            w = max(1, 100 // len(kpis))
+            cells = "".join(f'<td width="{w}%" valign="top" style="{_MP_KPI}">'
+                            f'<div style="{_MP_KPIN}">{esc(k.get("n", ""))}</div>'
+                            f'<div style="{_MP_KPIL}">{esc(k.get("l", ""))}</div></td>' for k in kpis)
+            inner += (f'<table role="presentation" width="100%" cellpadding="0" cellspacing="6" '
+                      f'style="width:100%;table-layout:fixed;border-collapse:separate;margin-top:8px"><tr>{cells}</tr></table>')
+        if d.get("decision_callout"):
+            inner += (f'<div style="{_MP_CALLOUT}"><strong>Điểm cần ra quyết định / chốt sớm:</strong> '
+                      f'{_mp_inline(d["decision_callout"])}</div>')
+        secs.append(f'<div style="{_MP_SEC}">{inner}</div>')
+    # 2) Quyết định & cam kết
+    if d.get("decisions"):
+        secs.append(f'<div style="{_MP_SEC}"><div style="{_MP_H2}">✅ Quyết định &amp; cam kết chính</div>'
+                    f'{_mp_list(d["decisions"])}</div>')
+    # 3) Action items (bảng)
+    if d.get("action_items"):
+        rows = "".join(
+            f'<tr><td style="{_MP_TD}">{_mp_inline(a.get("task", ""))}</td>'
+            f'<td style="{_MP_TD}">{esc(a.get("pic", ""))}</td>'
+            f'<td style="{_MP_TD};white-space:nowrap">{esc(a.get("deadline", ""))}</td>'
+            f'<td style="{_MP_TD}">{_mp_chip(a.get("status", ""))}</td></tr>' for a in d["action_items"])
+        secs.append(f'<div style="{_MP_SEC}"><div style="{_MP_H2}">🎯 Action items — việc · phụ trách · deadline</div>'
+                    f'<table style="{_MP_TBL}"><thead><tr><th style="{_MP_TH}">Đầu việc</th>'
+                    f'<th style="{_MP_TH}">Tổ / PIC</th><th style="{_MP_TH}">Deadline</th>'
+                    f'<th style="{_MP_TH}">Trạng thái</th></tr></thead><tbody>{rows}</tbody></table></div>')
+    # 4) Tiến độ theo tổ (2 cột)
+    teams = d.get("progress_by_team") or []
+    if teams:
+        mid = (len(teams) + 1) // 2
+        col = lambda ts: "".join(f'<div style="{_MP_H3}">{esc(t.get("team", ""))}</div>{_mp_list(t.get("items"))}' for t in ts)
+        secs.append(f'<div style="{_MP_SEC}"><div style="{_MP_H2}">🧩 Tiến độ theo tổ</div>'
+                    f'<table role="presentation" width="100%" style="width:100%;table-layout:fixed;border-collapse:collapse"><tr>'
+                    f'<td width="50%" valign="top" style="padding-right:9px">{col(teams[:mid])}</td>'
+                    f'<td width="50%" valign="top" style="padding-left:9px">{col(teams[mid:])}</td></tr></table></div>')
+    # 5) Rủi ro
+    if d.get("risks"):
+        rr = ""
+        for r in d["risks"]:
+            head = " — ".join(p for p in [str(r.get("id") or "").strip(), str(r.get("title") or "").strip()] if p)
+            parts = f'<span style="font-weight:700;color:#c0392b">{esc(head)}</span>'
+            if r.get("impact"):
+                parts += f' <em>Tác động:</em> {_mp_inline(r["impact"])}'
+            if r.get("mitigation"):
+                parts += f' <em>Giảm thiểu:</em> {_mp_inline(r["mitigation"])}'
+            rr += f'<div style="{_MP_RISK}">{parts}</div>'
+        secs.append(f'<div style="{_MP_SEC}"><div style="{_MP_H2}">🔴 Rủi ro &amp; vấn đề cần xử lý</div>{rr}</div>')
+    # 6) OKR & Roadmap
+    if d.get("okr_alignment"):
+        rows = "".join(
+            f'<tr><td style="{_MP_TD}">{_mp_inline(o.get("okr", ""))}</td>'
+            f'<td style="{_MP_TD}">{_mp_inline(o.get("link", ""))}</td>'
+            f'<td style="{_MP_TD}">{_mp_chip(o.get("level", ""))}</td></tr>' for o in d["okr_alignment"])
+        secs.append(f'<div style="{_MP_SEC}"><div style="{_MP_H2}">🗺️ Đối chiếu OKR &amp; Roadmap</div>'
+                    f'<table style="{_MP_TBL}"><thead><tr><th style="{_MP_TH}">Mục tiêu OKR/KPI</th>'
+                    f'<th style="{_MP_TH}">Liên hệ với cuộc họp</th><th style="{_MP_TH}">Mức bám</th>'
+                    f'</tr></thead><tbody>{rows}</tbody></table></div>')
+    # 7) Đối chiếu lịch sử
+    if d.get("history_comparison"):
+        secs.append(f'<div style="{_MP_SEC}"><div style="{_MP_H2}">🕰️ Đối chiếu lịch sử</div>'
+                    f'{_mp_rich(d["history_comparison"])}</div>')
+    # 8) Ưu tiên tuần tới (theo ngày)
+    if d.get("priorities_by_day"):
+        lis = "".join(f'<li style="{_MP_LI}"><strong>{esc(p.get("date", ""))}:</strong> '
+                      f'{_mp_inline(p.get("items", ""))}</li>' for p in d["priorities_by_day"])
+        secs.append(f'<div style="{_MP_SEC}"><div style="{_MP_H2}">📅 Ưu tiên tuần tới (theo ngày)</div>'
+                    f'<ul style="margin:8px 0;padding-left:20px">{lis}</ul></div>')
+    foot = "Báo cáo cuộc họp — tổng hợp tự động từ biên bản · Kora"
+    if d.get("sources"):
+        foot += "<br>Nguồn: " + esc(" · ".join(str(x) for x in d["sources"]))
+    return ("<!DOCTYPE html><html lang='vi'><head><meta charset='utf-8'>"
+            "<meta name='viewport' content='width=device-width, initial-scale=1'>"
+            f"<title>{esc(title)}</title></head>"
+            f'<body style="margin:0;background:#f4f7f9"><div style="{_MP_WRAP}">'
+            f'{banner}{"".join(secs)}<div style="{_MP_FOOT}">{foot}</div>'
+            "</div></body></html>")
+
+
+def load_meeting_report(path):
+    """Đọc reports/_meeting-report.json (1 object cho báo cáo cuộc họp CHI TIẾT). None nếu thiếu/rỗng/hỏng."""
+    if not path or not os.path.exists(path):
+        return None
+    try:
+        d = json.load(open(path, encoding="utf-8"))
+        return d if isinstance(d, dict) and d else None
+    except Exception:
+        return None
+
+
 def vault_freshness(vault, stale_after_days=1):
     """Đọc mọi mốc last-import-*.txt trong vault → mốc mới nhất + cờ CŨ (so hôm nay)."""
     marks = glob.glob(os.path.join(vault, "**", "last-import-*.txt"), recursive=True)
@@ -1784,6 +1961,9 @@ def main():
                     "(bắt buộc cho --report-type custom; tuỳ chọn cho invoice).")
     ap.add_argument("--meetings", help="File JSON biên bản họp đã AI-tóm-tắt (cho --report-type meeting-roadmap; "
                     "mặc định reports/_meeting-rows.json).")
+    ap.add_argument("--meeting-report", dest="meeting_report",
+                    help="File JSON báo cáo họp CHI TIẾT — 1 object 10 mục do Agent thư ký/phân tích họp sinh "
+                         "(mặc định reports/_meeting-report.json). Có file này → render báo cáo CHI TIẾT (ưu tiên hơn --meetings).")
     ap.add_argument("--ai", dest="ai_md", help="File markdown phân tích AI → chèn khối card vào report "
                     "invoice/custom (Claude sinh từ dữ liệu hoá đơn rồi truyền vào).")
     ap.add_argument("--members", help="Lọc phần 'theo thành viên' theo TÊN (csv) — chỉ hiện các thành viên này.")
@@ -1834,21 +2014,36 @@ def main():
         out_dir = args.out or os.path.join(DATA, "reports")
         os.makedirs(out_dir, exist_ok=True)
         if rtype == "meeting-roadmap":
+            # ƯU TIÊN báo cáo CHI TIẾT (10 mục): reports/_meeting-report.json — 1 object do Agent thư ký/phân tích họp sinh.
+            mp_path = getattr(args, "meeting_report", None) or os.path.join(DATA, "reports", "_meeting-report.json")
+            mp = load_meeting_report(mp_path)
             meetings = load_meeting_rows(args.meetings or os.path.join(DATA, "reports", "_meeting-rows.json"))
-            if not meetings:
-                die("Không có biên bản họp. Tạo reports/_meeting-rows.json (AI tóm tắt từ file họp) hoặc truyền "
-                    "--meetings <file>, rồi (tùy chọn) import_meeting.py để lưu vault.")
-            mr_issues = load_issues(vault)
-            mr_ai = ""
-            if args.ai_md and os.path.exists(args.ai_md):
-                mr_ai = render_ai_cards(open(args.ai_md, encoding="utf-8").read())
-            html_out = render_meeting_roadmap(meetings, mr_issues, "Báo cáo Meeting & Roadmap", mr_ai)
+            if mp:
+                html_out = render_meeting_report(mp)
+                src_note = "CHI TIẾT (_meeting-report.json · 10 mục)"
+            elif meetings:
+                # Fallback bản gọn (tương thích ngược, vẫn email-safe v2.15.1).
+                mr_issues = load_issues(vault)
+                mr_ai = ""
+                if args.ai_md and os.path.exists(args.ai_md):
+                    mr_ai = render_ai_cards(open(args.ai_md, encoding="utf-8").read())
+                html_out = render_meeting_roadmap(meetings, mr_issues, "Báo cáo Meeting & Roadmap", mr_ai)
+                src_note = f"GỌN ({len(meetings)} cuộc họp · _meeting-rows.json)"
+            else:
+                # CODE-GATE: thiếu cả 2 → ép spawn Agent thư ký/phân tích họp (không build báo cáo rỗng).
+                die("❌ Báo cáo CUỘC HỌP chưa có dữ liệu. BẮT BUỘC spawn **Agent thư ký + phân tích họp** sinh "
+                    "reports/_meeting-report.json (10 mục: title·subtitle·period·source_label·scope·report_date·"
+                    "executive_summary·kpis[{n,l}]·decision_callout·decisions[]·action_items[{task,pic,deadline,status}]·"
+                    "progress_by_team[{team,items[]}]·risks[{id,title,impact,mitigation}]·okr_alignment[{okr,link,level}]·"
+                    "history_comparison·priorities_by_day[{date,items}]·sources[]).\n"
+                    "   → /claude-knowledge-daily-report nhánh [Cuộc họp]: đọc biên bản (SharePoint/Outlook/file) → "
+                    "spawn agent → ghi _meeting-report.json → build lại. (Fallback gọn: reports/_meeting-rows.json.)")
             stamp = datetime.now().strftime("%Y%m%d-%H%M")
             latest = os.path.join(out_dir, "meeting-roadmap-latest.html")
             open(latest, "w", encoding="utf-8").write(html_out)
             open(os.path.join(out_dir, f"meeting-roadmap-{stamp}.html"), "w", encoding="utf-8").write(html_out)
             print(f"✓ Report (meeting-roadmap): {latest}")
-            print(f"  {len(meetings)} cuộc họp | {len(mr_issues)} task Jira trong vault")
+            print(f"  Nguồn dữ liệu: {src_note}")
             open(os.path.join(out_dir, "_subject-latest.txt"), "w", encoding="utf-8").write(
                 make_subject("meeting-roadmap", args.projects or "", datetime.now().strftime("%Y-%m-%d")))
             return

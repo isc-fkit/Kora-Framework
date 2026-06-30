@@ -34,6 +34,13 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
 1b. **LUÔN HỎI — CHỌN LOẠI BÁO CÁO ngay sau cổng mật khẩu, TRƯỚC chọn nguồn** (AskUserQuestion BẮT BUỘC, header "Loại BC",
    single-select; **5 loại → PHÂN TRANG** rule #8: thẻ 1 = 3 mục + **[Khác — xem thêm]** → thẻ 2 phần còn lại). Mỗi loại = template + phân tích AI ĐÚNG chuyên ngành:
    **[Tiến độ (daily-report)] · [Cuộc họp (meeting)] · [Tiến độ + Meeting + Roadmap/OKR] · [Báo cáo tài chính (hoá đơn)] · [Custom template]**.
+   > 🤖 **BẮT BUỘC — MỖI LOẠI BÁO CÁO SPAWN 1 SUB-AGENT CHUYÊN BIỆT** (Agent tool; không spawn được → Claude TỰ đóng đúng vai, KHÔNG bỏ phân tích, KHÔNG sinh báo cáo "chay"):
+   >   • **Tiến độ** → 3 agent SONG SONG: ĐIỀU HÀNH (`operations:status-report`) · RỦI RO (`operations:risk-assessment`) · NĂNG LỰC (`operations:capacity-plan`) → gộp `reports/ai-analysis-latest.md`.
+   >   • **Tài chính/hoá đơn** → agent KẾ TOÁN (`data:analyze` + VAT/MST/khấu trừ/dòng tiền VN) → `reports/ai-invoice-latest.md`.
+   >   • **Cuộc họp** → agent THƯ KÝ + PHÂN TÍCH HỌP → `reports/_meeting-report.json` (10 mục — xem nhánh [Cuộc họp]).
+   >   • **Tiến độ + Meeting + Roadmap/OKR** → agent CHIẾN LƯỢC/PM (đọc `_okr-latest.txt` + `progress-data-latest.json`) → trường `analysis_md` / khối OKR.
+   >   • **Custom template** → agent BÁM TEMPLATE (`data:analyze`, đúng mục tiêu template) → `reports/ai-custom-latest.md`.
+   >   Code-gate cưỡng chế: **meeting** đòi `_meeting-report.json` (build_report die nếu thiếu); **tiến độ** chặn gửi nếu khối AI còn placeholder (send_report). Mỗi loại = template + phân tích ĐÚNG chuyên ngành.
    - **[Tiến độ (daily-report)]** → tiếp Bước 2 (chọn 3 nhóm nguồn) như cũ; build mặc định `--report-type progress`.
    - **[Tiến độ + Meeting + Roadmap/OKR]** → báo cáo TIẾN ĐỘ (Bước 2) **+ mục Roadmap/OKR (5c)** + đọc file họp → gộp;
      build progress với roadmap=Có + `reports/_okr-blocks.json` (và/hoặc meeting-roadmap). Dành cho review điều phối PM tổng thể.
@@ -59,11 +66,18 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
      email họp) → Claude ĐỌC + TÓM TẮT (AI) thành `reports/_meeting-rows.json`
      (list: `title/date/attendees/summary/decisions[]/action_items[]/risks[]`) → `python3 "$T/meeting-report/import_meeting.py"
      --from-rows reports/_meeting-rows.json --source-id meeting__<batch>` (lưu vault `type: meeting`) + reindex.
-     **AI phân tích — SPAWN con agent THƯ KÝ/PHÂN TÍCH HỌP** (Agent tool: đóng vai thư ký cuộc họp + phân tích chiến lược,
-     đọc `reports/_meeting-rows.json`) → con agent viết ra `reports/ai-meeting-latest.md` (không spawn được Agent → Claude tự viết):
-     `## 📌 Tóm tắt điều hành` · `## ✅ Quyết định & cam kết` · `## 🎯 Action items` (việc · NGƯỜI phụ trách · DEADLINE) ·
-     `## 🔴 Rủi ro chiến lược` · `## 🔗 Liên hệ tiến độ/roadmap` (đối chiếu task Jira trong vault). Build:
-     `python3 "$T/progress-report/build_report.py" --report-type meeting-roadmap --ai reports/ai-meeting-latest.md` → gộp **họp (AI summary) + roadmap từ task Jira** trong vault → ra `reports/meeting-roadmap-latest.html`.
+     **BẮT BUỘC SPAWN con Agent THƯ KÝ + PHÂN TÍCH HỌP** (Agent tool — vai thư ký cuộc họp + phân tích chiến lược: đọc
+     `reports/_meeting-rows.json` + đối chiếu **task Jira/OKR** trong vault + **so biên bản CŨ** nếu có) → con agent GHI
+     **`reports/_meeting-report.json`** — 1 OBJECT JSON **ĐẦY ĐỦ 10 MỤC** (đừng bỏ mục nào có dữ liệu):
+     `title` · `subtitle` · `period` · `source_label` · `scope` · `report_date` · `executive_summary` (prose, dùng `**đậm**` được) ·
+     `kpis[{n,l}]` · `decision_callout` · `decisions[]` · `action_items[{task,pic,deadline,status}]` ·
+     `progress_by_team[{team,items[]}]` · `risks[{id,title,impact,mitigation}]` · `okr_alignment[{okr,link,level}]` ·
+     `history_comparison` (prose) · `priorities_by_day[{date,items}]` · `sources[]`.
+     (Không spawn được Agent → Claude **tự đóng vai agent này**, viết ĐỦ 10 mục — KHÔNG bỏ mục.) Build báo cáo CHI TIẾT:
+     `python3 "$T/progress-report/build_report.py" --report-type meeting-roadmap --meeting-report reports/_meeting-report.json`
+     → ra `reports/meeting-roadmap-latest.html` (10 mục: tóm tắt điều hành+KPI+callout · quyết định · action items BẢNG (PIC/deadline/chip) ·
+     tiến độ theo tổ · rủi ro (tác động/giảm thiểu) · OKR/roadmap BẢNG · đối chiếu lịch sử · ưu tiên theo ngày · nguồn — **email-safe inline**).
+     > 🔒 **Backstop (code-gate):** thiếu `_meeting-report.json` **VÀ** `_meeting-rows.json` → `build_report` **TỪ CHỐI (die)** đòi spawn agent trước → KHÔNG build báo cáo rỗng. (`_meeting-rows.json` là fallback GỌN nếu chưa có agent chi tiết.)
    > 📧 Gửi report Cuộc họp: report Meeting ĐÃ **inline-styled (email-safe, GIỐNG báo cáo tài chính)** → gửi THẲNG làm BODY (giữ nguyên card/KPI ở Gmail/Outlook):
    >   `send_report.py --html-file reports/meeting-roadmap-latest.html --attach reports/meeting-roadmap-latest.html --transport auto` (qua cổng `KORA_OPS_PW`).
    >   **ƯU TIÊN `run_command` (local terminal)**: `--transport auto` thử **SMTP trước → fail mạng (proxy FPT chặn) thì TỰ fallback Gmail API/OAuth2 HTTPS 443 qua proxy**. Tiêu đề tự đọc `reports/_subject-latest.txt` (`Báo cáo cuộc họp — …`). **KHÔNG** dùng `email-body-latest.html` (đó là body report TIẾN ĐỘ).

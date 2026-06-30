@@ -290,7 +290,7 @@
     <div class="brand" data-go="home" title="Trang chủ">
       <span class="brandmark" aria-hidden="true">K</span>
       <span class="org">FPT TELECOM</span>
-      <div class="fw">Claude Knowledge AI<span>v2.15.1 · Claude-1</span></div>
+      <div class="fw">Claude Knowledge AI<span>v2.16.0 · Claude-1</span></div>
     </div>
     <nav class="nav">
       <div class="grp">Tổng quan</div>
@@ -316,7 +316,7 @@
     <!-- ===================== HOME ===================== -->
     <div class="page" id="home">
       <header class="hero">
-        <span class="badge">FPT Telecom · Claude Knowledge AI · v2.15.1 · &ldquo;Claude-1&rdquo;</span>
+        <span class="badge">FPT Telecom · Claude Knowledge AI · v2.16.0 · &ldquo;Claude-1&rdquo;</span>
         <h1>Claude Knowledge AI — Sơ đồ nguyên lý hoạt động</h1>
         <p class="sub">Trợ lý tri thức tự lớn lên cùng dự án: hợp nhất tri thức phân tán, nối tri thức local của nhân viên với <b>Knowledge Base</b> chung (trên Cloud), và tự động hóa đồng bộ — báo cáo — cảnh báo.</p>
         <div class="pipe">
@@ -1665,11 +1665,21 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
       <div class="phead"><div class="pl">I · Release Note</div><h1><span class="em">🆕</span>Lịch sử phiên bản</h1></div>
       <p class="lead">Lịch sử bản <b>APP</b> (CORE: skills, workflows, tools…). Cập nhật: chạy lại lệnh cài (bash CLI, tab <a data-go="install" style="cursor:pointer">C</a>) — <b>tri thức của bạn được giữ nguyên</b> (DATA không bị đụng).</p>
 
-      <div class="callout ok"><span>🆕</span><div><b>Bản mới nhất (latest): <code>v2.15.1</code> — "Claude-1"</b> · phát hành 2026-06-30. Danh sách đầy đủ ở <a href="https://github.com/isc-fkit/Kora-Framework/blob/release/CHANGELOG.md">CHANGELOG.md</a>.</div></div>
+      <div class="callout ok"><span>🆕</span><div><b>Bản mới nhất (latest): <code>v2.16.0</code> — "Claude-1"</b> · phát hành 2026-06-30. Danh sách đầy đủ ở <a href="https://github.com/isc-fkit/Kora-Framework/blob/release/CHANGELOG.md">CHANGELOG.md</a>.</div></div>
 
       <div class="card" style="border-color:var(--accent)">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.15.1 — "Claude-1" <span style="display:inline-block;margin-left:6px;padding:2px 9px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;font-size:10.5px;font-weight:800;vertical-align:2px">MỚI NHẤT ✨</span></b><span style="color:var(--faint);font-size:12.5px">2026-06-30</span>
+          <b style="font-size:16px">v2.16.0 — "Claude-1" <span style="display:inline-block;margin-left:6px;padding:2px 9px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;font-size:10.5px;font-weight:800;vertical-align:2px">MỚI NHẤT ✨</span></b><span style="color:var(--faint);font-size:12.5px">2026-06-30</span>
+        </div>
+        <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
+          <li><b>📋 Báo cáo cuộc họp CHI TIẾT (10 mục)</b> — meeting-roadmap nay sinh đầy đủ: tóm tắt điều hành + KPI + điểm cần quyết định · quyết định & cam kết · <b>Action items dạng BẢNG</b> (việc/PIC/deadline/<b>chip trạng thái</b>) · tiến độ theo tổ · <b>Rủi ro</b> (tác động+giảm thiểu) · <b>đối chiếu OKR/Roadmap</b> · đối chiếu lịch sử · ưu tiên theo ngày · nguồn — toàn bộ <b>email-safe inline</b>. Agent thư ký sinh <code>_meeting-report.json</code>; code-gate đòi spawn agent trước khi build.</li>
+          <li><b>🤖 MỖI loại báo cáo gọi sub-agent chuyên biệt</b> — tiến độ = 3 agent operations (status/risk/capacity) · tài chính = agent kế toán · cuộc họp = agent thư ký+chiến lược · OKR = agent chiến lược/PM · custom = agent bám template. Không sinh báo cáo "chay".</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
+          <b style="font-size:16px">v2.15.1 — "Claude-1" <span style="display:inline-block;margin-left:6px;padding:2px 8px;border-radius:999px;background:var(--faint);color:#fff;font-size:10px;font-weight:700;vertical-align:2px">vá mail họp</span></b><span style="color:var(--faint);font-size:12.5px">2026-06-30</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>🐛 Vá lỗi: Báo cáo cuộc họp nhúng INLINE trong email</b> — report «cuộc họp» (meeting-roadmap) giờ hiển thị đúng <b>card/KPI/roadmap</b> ở Gmail/Outlook <b>GIỐNG báo cáo tài chính</b>. Trước đây hàm render dùng khối <code>&lt;style&gt;</code> + CSS class — client mail LUÔN xoá <code>&lt;style&gt;</code> nên report vỡ layout thành text thô. Đã viết lại bằng <b>style nội tuyến email-safe</b> (KPI <code>table-layout:fixed</code>, hero màu đặc, bỏ grid/gradient/@media).</li>

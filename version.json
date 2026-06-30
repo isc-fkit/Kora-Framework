@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.15.1",
+  "version": "2.16.0",
   "codename": "Claude-1",
   "released": "2026-06-30",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.15.1 — VÁ LỖI báo cáo cuộc họp (meeting-roadmap): email GIỜ nhúng INLINE đúng card/KPI/roadmap ở Gmail/Outlook GIỐNG báo cáo tài chính. Nguyên nhân cũ: render_meeting_roadmap dựng HTML bằng khối <style> + CSS class — client mail (Gmail/Outlook) LUÔN xoá <style> khi nhúng làm thân mail nên report vỡ layout thành text thô. Đã viết lại render_meeting_roadmap 100% style NỘI TUYẾN email-safe (KPI table-layout:fixed bền Outlook, hero màu đặc, bỏ display:grid/linear-gradient/@media); gửi thẳng meeting-roadmap-latest.html làm BODY giữ nguyên định dạng. Skill claude-knowledge-daily-report thêm bước gửi mail report Cuộc họp (send_report.py --transport auto, cổng KORA_OPS_PW). Auto gửi mail giữ nguyên chuỗi: local terminal → SMTP trước → fail (proxy chặn) thì TỰ fallback Gmail API/OAuth2 HTTPS 443 qua proxy. CORE-only, không migration, DATA giữ nguyên. Nền v2.15.0 (Chiến lược GEO)."
+  "intro": "Kora-Framework v2.16.0 — BÁO CÁO CUỘC HỌP CHI TIẾT (10 mục) + siết MỖI loại báo cáo gọi sub-agent chuyên biệt. Báo cáo cuộc họp (meeting-roadmap) nay sinh ĐẦY ĐỦ: (1) tóm tắt điều hành + KPI + điểm cần quyết định · (2) quyết định & cam kết · (3) ACTION ITEMS dạng BẢNG (việc/PIC/deadline/chip trạng thái màu) · (4) tiến độ theo tổ · (5) RỦI RO (tác động + giảm thiểu) · (6) đối chiếu OKR/roadmap BẢNG · (7) đối chiếu lịch sử (biên bản cũ) · (8) ưu tiên theo ngày · (9) nguồn — toàn bộ EMAIL-SAFE INLINE (hiện đúng card/bảng ở Gmail/Outlook). Cách hoạt động: Agent thư ký + phân tích họp sinh reports/_meeting-report.json (1 object 10 mục); build_report --report-type meeting-roadmap --meeting-report <file> render báo cáo chi tiết. CODE-GATE: thiếu dữ liệu họp → build_report TỪ CHỐI (ép spawn agent, không sinh báo cáo rỗng). Skill claude-knowledge-daily-report: MỖI loại báo cáo BẮT BUỘC spawn sub-agent riêng (tiến độ=3 agent operations status/risk/capacity · tài chính=agent kế toán VAT/dòng tiền · cuộc họp=agent thư ký+chiến lược · OKR/roadmap=agent chiến lược PM · custom=agent bám template). CORE-only, không migration, DATA giữ nguyên. Nền v2.15.1 (vá báo cáo cuộc họp nhúng inline mail email-safe)."
 }
