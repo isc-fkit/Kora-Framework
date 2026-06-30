@@ -10,6 +10,16 @@
 
 ---
 
+## v2.14.3 "Claude-1" — 2026-06-30  ⚠️ BẢN VÁ AN TOÀN (nên cập nhật)
+
+**Hoàn thiện "máy CŨ update 1 LẦN tự fix hết root-cause" + sửa 14 lỗi do review đối kháng phát hiện (1 critical, 2 high).**
+
+- **TỰ PHÁT HIỆN project (không cần chỉnh tay từng máy):** `update.command` + `install.command` tự tìm MỌI project Kora qua `discover_kora_projects` (registry + cwd + `~/Desktop` + `~/Documents`; nhận diện CHẶT: phải có `config/factory-config.yaml` VÀ (`​.kb/` hoặc `Skill/` hoặc vault `*_Brain/`) → tránh đè nhầm) → tự đăng ký + `refresh_project_bundle`. Máy Cowork cũ update là có TRỌN tính năng. `install.command` thêm **fallback proxy** (mạng FPT chặn GitHub vẫn tải được).
+- **FIX CRITICAL `merge_config.py`** — parser cũ (top + 1 cấp) làm **HỎNG config có nested >1 cấp** (`reports.email.*`, `scheduler.error_email.*`, `cloud_kb.sync.*`, `confluence.push.*`, `knowledge_base.vault_structure.*` …): chèn key con sai indent → YAML invalid + mất config mail. **Viết lại theo INDENT-STACK** (nhiều cấp; chèn đúng block cha, đúng indent sibling user; BỎ QUA khi cha trong user là scalar — vd `domain: healthcare`; nhận biết file dùng TAB). Đã verify bằng **YAML parser thật** trên config tối giản / gần-đủ / thật.
+- **FIX HIGH data-loss** — `--delete` đổi sang **ALLOWLIST**: chỉ prune trong thư mục CORE THUẦN (`workflows`, `templates`, `scripts`, `.claude/commands`, `config/domain-presets`, `assets`, `tools` (bảo vệ `.env*`), `docs/07-research`). Vault (KỂ CẢ tên không `_Brain`), `docs/01-08`, `config/factory-config.yaml`, `.env.local` **KHÔNG BAO GIỜ** nằm trong scope xoá — kể cả khi không đọc được `config/vault_path`. (Đã verify: vault tên lạ "MyVault" sống sót.)
+- **Khác:** bỏ `rm -rf docs/07-research` trong project (tránh xoá file user); fix SIGPIPE `self_dequarantine` (pipefail); `find -prune` thư mục nặng để không treo update.
+- **KHÔNG migration**, DATA (vault/docs/.kb) GIỮ NGUYÊN. ⚠️ **Cowork:** sau update **UPLOAD lại folder `Skill/`** để Cowork nhận lệnh mới (Claude Code/Desktop tự nhận từ `~/.claude/commands`).
+
 ## v2.14.2 "Claude-1" — 2026-06-30
 
 **FIX ROOT-CAUSE cơ chế CẬP NHẬT — update giờ đồng bộ HOÀN TOÀN, hết "lúc có lúc mất tính năng".**

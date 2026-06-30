@@ -163,11 +163,8 @@ refresh_project_bundle() {
     [ -f "$core/.kb/rules.md" ] && cp "$core/.kb/rules.md" "$proj/.kb/rules.md" 2>/dev/null || true
     [ -f "$core/.kb/system-lessons.md" ] && cp "$core/.kb/system-lessons.md" "$proj/.kb/system-lessons.md" 2>/dev/null || true
   fi
-  # docs/07-research (CORE — ship sẵn, không phải tri thức user)
-  if [ -d "$proj/docs" ] && [ -d "$core/docs/07-research" ]; then
-    rm -rf "$proj/docs/07-research" 2>/dev/null || true
-    cp -R "$core/docs/07-research" "$proj/docs/07-research" 2>/dev/null || true
-  fi
+  # (KHÔNG đụng docs/07-research trong project — tránh rm -rf nhầm file user nếu họ để dữ liệu ở đó;
+  #  07-research chỉ refresh ở managed CORE, project đọc fallback từ đó khi cần.)
   # MERGE config keys mới (giữ nguyên giá trị user) — tránh "tính năng mới thiếu config → lỗi"
   if [ -f "$proj/config/factory-config.yaml" ] && [ -f "$core/config/factory-config.example.yaml" ] \
      && [ -f "$core/tools/config-merge/merge_config.py" ] && command -v python3 >/dev/null 2>&1; then
@@ -175,6 +172,48 @@ refresh_project_bundle() {
       --user "$proj/config/factory-config.yaml" \
       --example "$core/config/factory-config.example.yaml" --write --quiet 2>/dev/null || true
   fi
+}
+
+# discover_kora_projects [managed_core]: in ra MỌI DATA-PROJECT Kora khả dĩ để update tự fix (KHÔNG cần
+# đăng ký tay từng máy). Nguồn: registry + cwd + ~/Desktop + ~/Documents. Nhận diện CHẶT để tránh đè nhầm:
+# phải có config/factory-config.yaml VÀ (.kb/ HOẶC Skill/ HOẶC vault *_Brain/). Loại .maintainer + managed CORE.
+discover_kora_projects() {
+  local skip_core="${1:-}"
+  local rf; rf="$(registry_file)"
+  {
+    [ -f "$rf" ] && cat "$rf" 2>/dev/null
+    local r
+    for r in "$PWD" "$HOME/Desktop" "$HOME/Documents"; do
+      [ -d "$r" ] || continue
+      # prune thư mục nặng/không liên quan để find KHÔNG treo trên cây lớn.
+      find "$r" -maxdepth 4 \
+        \( -name node_modules -o -name '.git' -o -name 'Library' -o -name '.Trash' -o -name '*_Brain' \) -prune -o \
+        -type f -path '*/config/factory-config.yaml' -print 2>/dev/null \
+        | while IFS= read -r cf; do dirname "$(dirname "$cf")"; done
+    done
+  } 2>/dev/null | while IFS= read -r d; do
+      [ -n "$d" ] || continue
+      d="$(cd "$d" 2>/dev/null && pwd || echo "")"; [ -n "$d" ] || continue
+      [ -f "$d/.maintainer" ] && continue
+      [ -n "$skip_core" ] && [ "$d" = "$skip_core" ] && continue
+      [ -f "$d/config/factory-config.yaml" ] || continue
+      if [ -d "$d/.kb" ] || [ -d "$d/Skill" ] || ls -d "$d"/*_Brain >/dev/null 2>&1; then
+        printf '%s\n' "$d"
+      fi
+    done | sort -u
+}
+
+# reconcile_projects <core> <global_cmd>: TỰ phát hiện + đăng ký + refresh bundle CORE cho MỌI project Kora.
+# In ra SỐ project đã đồng bộ. Mấu chốt "update 1 LẦN fix hết root-cause" cho máy cũ chưa đăng ký.
+reconcile_projects() {
+  local core="${1:-}" gcmd="${2:-}" n=0 p
+  while IFS= read -r p; do
+    [ -n "$p" ] && [ -d "$p" ] || continue
+    register_project "$p"
+    refresh_project_bundle "$p" "$core" "$gcmd"
+    n=$((n + 1))
+  done < <(discover_kora_projects "$core")
+  printf '%s' "$n"
 }
 
 # self_dequarantine: gỡ nhãn ẩn 'com.apple.quarantine' mà macOS dán cho file tải từ web.
@@ -187,8 +226,10 @@ self_dequarantine() {
   command -v xattr >/dev/null 2>&1 || return 0
   local target="$REPO_ROOT/scripts"
   [ -d "$target" ] || return 0
-  # Chỉ gỡ (và chỉ in) khi thực sự còn nhãn — tránh in thừa ở mỗi lần chạy.
-  if xattr -lr "$target" 2>/dev/null | grep -q "com.apple.quarantine"; then
+  # Đếm bằng grep -c (đọc HẾT input → KHÔNG gây SIGPIPE cho xattr dưới 'set -o pipefail'); || true cho count 0.
+  local marks
+  marks="$(xattr -lr "$target" 2>/dev/null | grep -c "com.apple.quarantine" 2>/dev/null || true)"
+  if [ "${marks:-0}" != "0" ]; then
     xattr -dr com.apple.quarantine "$target" >/dev/null 2>&1 || true
     echo "🔓 Đã gỡ nhãn cảnh báo của macOS cho các script — lần sau double-click chạy thẳng, không bị hỏi lại."
     echo ""

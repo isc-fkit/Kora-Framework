@@ -41,17 +41,20 @@ else
   TMP="$(mktemp -d "${TMPDIR:-/tmp}/kora-install.XXXXXX")"
   trap 'rm -rf "$TMP"' EXIT
   echo "⬇️  Đang tải bản mới nhất..."
-  # ⚠️ TRÁNH CACHE CŨ: archive theo NHÁNH (refs/heads/<ref>.tar.gz) bị CDN của GitHub cache rất dai →
-  # cài nhầm bản cũ dù đã phát hành bản mới. Cách chuẩn: hỏi API SHA commit MỚI NHẤT của nhánh, rồi tải
-  # archive theo SHA (immutable, không bao giờ cache cũ). Fallback về archive nhánh nếu API bị giới hạn.
-  SHA="$(curl -fsSL -H 'Accept: application/vnd.github.sha' "https://api.github.com/repos/$REPO/commits/$REF" 2>/dev/null || true)"
+  # Mạng công ty (FPT…) có thể CHẶN tải trực tiếp GitHub → thử TRỰC TIẾP rồi TỰ fallback proxy (có timeout, không treo).
+  CT=15
+  _iproxies(){ printf '%s\n' "" "${KORA_UPDATE_PROXY:-}" "${https_proxy:-}" "${HTTPS_PROXY:-}" "http://proxy.hcm.fpt.vn:80"; }
+  icfetch(){ local mt="$1"; shift; local p seen="|" px; while IFS= read -r p; do case "$seen" in *"|$p|"*) continue;; esac; seen="$seen$p|"; px=(); [ -n "$p" ] && { px=(-x "$p"); echo "   ↪︎ thử qua proxy: $p" >&2; }; if curl -fsSL --connect-timeout "$CT" --max-time "$mt" ${px[@]+"${px[@]}"} "$@" 2>/dev/null; then return 0; fi; done < <(_iproxies); return 1; }
+  # ⚠️ TRÁNH CACHE CŨ: tải archive theo SHA commit (immutable, không bao giờ cache cũ); fallback archive nhánh.
+  SHA="$(icfetch 30 -H 'Accept: application/vnd.github.sha' "https://api.github.com/repos/$REPO/commits/$REF" || true)"
   if printf '%s' "$SHA" | grep -qiE '^[0-9a-f]{40}$'; then
     DL_URL="https://github.com/$REPO/archive/$SHA.tar.gz"; echo "   (bản mới nhất: ${SHA:0:7})"
   else
     DL_URL="https://github.com/$REPO/archive/refs/heads/$REF.tar.gz"
   fi
-  curl -fsSL "$DL_URL" -o "$TMP/src.tgz" \
-    || die "Tải thất bại. Kiểm tra mạng rồi thử lại."
+  icfetch 180 -o "$TMP/src.tgz" "$DL_URL" \
+    || die "Tải thất bại (mạng/proxy). Mạng công ty CHẶN tải trực tiếp? Đặt proxy rồi chạy lại:
+    export https_proxy=http://proxy.hcm.fpt.vn:80"
   tar -xzf "$TMP/src.tgz" -C "$TMP" || die "Giải nén thất bại."
   SRC="$(find "$TMP" -mindepth 1 -maxdepth 1 -type d | head -n1)"
   [ -n "$SRC" ] && [ -d "$SRC" ] || die "Không thấy thư mục nguồn sau giải nén."
@@ -109,6 +112,18 @@ if [ -n "${KORA_PROJECT:-}" ] && [ -d "$KORA_PROJECT" ]; then
   [ -f "$KP/CLAUDE.md" ] && [ -f "$DEST_CORE/CLAUDE.md" ] && cp "$DEST_CORE/CLAUDE.md" "$KP/CLAUDE.md" 2>/dev/null || true
   if [ -f "$KP/config/factory-config.yaml" ] && [ -f "$DEST_CORE/tools/config-merge/merge_config.py" ] && have python3; then
     python3 "$DEST_CORE/tools/config-merge/merge_config.py" --user "$KP/config/factory-config.yaml" --example "$DEST_CORE/config/factory-config.example.yaml" --write --quiet 2>/dev/null || true
+  fi
+fi
+
+# --- TỰ PHÁT HIỆN + đồng bộ bundle CORE cho MỌI project Kora (registry + cwd + ~/Desktop + ~/Documents) ---
+# MẤU CHỐT để máy CŨ update 1 LẦN là fix hết root-cause (KHÔNG cần đăng ký tay / đặt KORA_PROJECT từng máy):
+# installer tự tìm project (qua config/factory-config.yaml) → đăng ký + refresh Skill/ · CLAUDE.md · merge config.
+if [ -f "$SRC/scripts/lib-paths.sh" ]; then
+  # shellcheck source=/dev/null
+  source "$SRC/scripts/lib-paths.sh" 2>/dev/null || true
+  if declare -f reconcile_projects >/dev/null 2>&1; then
+    RN="$(reconcile_projects "$DEST_CORE" "$DEST_CMD" 2>/dev/null || echo 0)"
+    [ "${RN:-0}" -gt 0 ] && echo "🔄 Đã tự đồng bộ bundle CORE (Skill/ · CLAUDE.md · config) cho $RN project Kora."
   fi
 fi
 

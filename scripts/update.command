@@ -153,15 +153,23 @@ else
   RSYNC_EXCLUDES+=( --exclude "**/.env.local" --exclude "**/.env" --exclude "**/*.local" \
                     --exclude "/Skill" --exclude "/projects" --exclude "/_system" )
 
-  # rsync ĐÈ + --delete + --checksum → CORE thành BẢN SAO SẠCH ĐÚNG NỘI DUNG của release:
-  #   • --delete: prune file CŨ/đổi-tên (hết "lỗi cấu trúc cơ bản" do lẫn file cũ).
-  #   • --checksum: so theo NỘI DUNG (không phụ mtime) → kể cả user lỡ sửa CORE / lệch giờ vẫn về đúng bản mới.
-  # An toàn: mọi DATA + token (.env.local) + runtime đã ở excludes (rsync KHÔNG xóa/đụng file excluded).
-  # rsync có thể trả 23/24 (cảnh báo "không xóa được thư mục chứa DATA" — VÔ HẠI) → chỉ die khi lỗi THẬT (≥25).
-  rsync -a --delete --checksum "${RSYNC_EXCLUDES[@]}" "$SRC_DIR"/ "$REPO_ROOT"/ || {
+  # ── ĐỒNG BỘ CORE AN TOÀN (ALLOWLIST 2 bước) — DATA không bao giờ trong scope --delete ──────────────
+  # 1) Copy CORE ADDITIVE (KHÔNG --delete) — cập nhật/thêm file, GIỮ mọi DATA (excluded). KHÔNG xoá gì.
+  rsync -a --checksum "${RSYNC_EXCLUDES[@]}" "$SRC_DIR"/ "$REPO_ROOT"/ || {
     rc=$?; [ "$rc" -ge 25 ] && die "Ghi đè phần chương trình thất bại (rsync rc=$rc)."
-    echo "   (rsync rc=$rc — cảnh báo vô hại do bảo vệ DATA, đã bỏ qua)"
   }
+  # 2) PRUNE file CŨ/đổi-tên CHỈ trong các thư mục CORE THUẦN (allowlist). vault, docs/01-08, config/
+  #    factory-config.yaml, .env.local… KHÔNG BAO GIỜ nằm trong scope --delete → loại TẬN GỐC rủi ro xoá nhầm
+  #    tri thức KỂ CẢ khi không đọc được config/vault_path. tools/ vẫn bảo vệ token .env*.
+  MAINT_EX=( --exclude "claude-knowledge-release.md" --exclude "12-release.md" --exclude "13-evolve-system.md" )
+  for d in workflows templates scripts assets "config/domain-presets" ".claude/commands" "docs/07-research"; do
+    [ -d "$SRC_DIR/$d" ] || continue
+    mkdir -p "$REPO_ROOT/$d" 2>/dev/null || true
+    rsync -a --delete --checksum "${MAINT_EX[@]}" "$SRC_DIR/$d"/ "$REPO_ROOT/$d"/ 2>/dev/null || true
+  done
+  [ -d "$SRC_DIR/tools" ] && rsync -a --delete --checksum \
+    --exclude "**/.env.local" --exclude "**/.env" --exclude "**/*.local" \
+    "$SRC_DIR/tools"/ "$REPO_ROOT/tools"/ 2>/dev/null || true
 
   echo ""
   echo "✅ Cập nhật chương trình thành công (tri thức của bạn được giữ nguyên)."
@@ -190,18 +198,14 @@ if [ -d "$SRC_CMD" ] && [ "$(cd "$SRC_CMD" && pwd)" != "$(cd "$GLOBAL_CMD" 2>/de
   rm -rf "$HOME/Downloads/Knowledge-Base/Skill" "$HOME/Downloads/Knowledge-Base/skill" 2>/dev/null || true
 fi
 
-# --- Refresh BUNDLE CORE trong từng PROJECT đã đăng ký (đồng bộ HOÀN TOÀN, không partial) ----------
-# Project Cowork mở bản CŨ có Skill/ + CLAUDE.md + config RIÊNG → nếu không refresh thì thiếu tính năng
-# mới (worklog-check…) dù CORE đã update. Loop registry → đồng bộ bundle CORE (DATA của user GIỮ NGUYÊN).
-REG="$(registry_file)"
-if [ -f "$REG" ]; then
-  REFRESHED=0
-  while IFS= read -r proj; do
-    [ -n "$proj" ] && [ -d "$proj" ] || continue
-    refresh_project_bundle "$proj" "$REPO_ROOT" "$GLOBAL_CMD"
-    REFRESHED=$((REFRESHED + 1))
-  done < "$REG"
-  [ "$REFRESHED" -gt 0 ] && echo "🔄 Đã đồng bộ bundle CORE (Skill/ · CLAUDE.md · config) cho $REFRESHED project đã đăng ký."
+# --- TỰ PHÁT HIỆN + đồng bộ BUNDLE CORE cho MỌI project Kora (registry + cwd + ~/Desktop + ~/Documents) ----
+# Mấu chốt "update 1 LẦN fix hết": project Cowork/standalone CŨ (chưa từng đăng ký) vẫn được tự tìm + đăng ký
+# + refresh (Skill/ · CLAUDE.md · merge config). DATA user GIỮ NGUYÊN.
+REFRESHED="$(reconcile_projects "$REPO_ROOT" "$GLOBAL_CMD")"
+if [ "${REFRESHED:-0}" -gt 0 ]; then
+  echo "🔄 Đã đồng bộ bundle CORE (Skill/ · CLAUDE.md · config) cho $REFRESHED project Kora (registry + tự phát hiện)."
+  echo "   • Claude Code / Desktop (CLI): skill mới TỰ nhận từ ~/.claude/commands — KHÔNG cần làm gì thêm."
+  echo "   • Cowork (web): mở lại project → UPLOAD lại folder Skill/ (đã có lệnh mới) vào mục Skills để Cowork nhận."
 fi
 
 # --- Báo version mới + nhắc reindex ------------------------------------------
