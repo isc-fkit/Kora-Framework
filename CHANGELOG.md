@@ -10,6 +10,20 @@
 
 ---
 
+## v2.14.4 "Claude-1" — 2026-06-30
+
+**Vá nhỏ: lệnh KIỂM TRA PHIÊN BẢN (`/claude-knowledge-version`) chạy được trên mạng công ty + Cowork.**
+
+Trước đây lệnh "đang cài bản nào" hay báo cụt *"không kiểm tra được GitHub — mạng chặn"* dù Claude Desktop vẫn qua proxy bình thường. Nguyên nhân (đã chẩn đoán trên máy thật):
+- Lệnh `curl` chạy trong **sandbox Cowork** (chặn mạng hoàn toàn) — khác app GUI.
+- `curl` CLI **KHÔNG tự dùng *system proxy*** (thứ Claude Desktop/GUI dùng) — nó cần biến env `https_proxy`, mà `proxy_on` chỉ là **HÀM** trong `~/.zshrc` (chưa gọi thì env TRỐNG).
+
+Vá skill `claude-knowledge-version`:
+- (a) **Ưu tiên chạy qua `run_command`** (MCP local-terminal) → vượt sandbox + `source ~/.zshrc`.
+- (b) **Fetch GitHub CÓ FALLBACK PROXY** (direct → `$https_proxy` → `proxy.hcm.fpt.vn:80`, có dedup + timeout, không treo) y như `update.command`.
+- (c) Lấy **TAG `releases/latest` LÀM version** (bỏ 1 lần gọi `version.json` thừa, tránh CDN cache).
+- (d) Không tới được thì **giải thích ĐÚNG bản chất** + hiện bản local + chỉ dùng `update.command` (đã có fallback proxy) thay vì báo lỗi cụt.
+
 ## v2.14.3 "Claude-1" — 2026-06-30  ⚠️ BẢN VÁ AN TOÀN (nên cập nhật)
 
 **Hoàn thiện "máy CŨ update 1 LẦN tự fix hết root-cause" + sửa 14 lỗi do review đối kháng phát hiện (1 critical, 2 high).**
