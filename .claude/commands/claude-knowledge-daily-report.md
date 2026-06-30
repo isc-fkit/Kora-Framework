@@ -63,7 +63,10 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
      đọc `reports/_meeting-rows.json`) → con agent viết ra `reports/ai-meeting-latest.md` (không spawn được Agent → Claude tự viết):
      `## 📌 Tóm tắt điều hành` · `## ✅ Quyết định & cam kết` · `## 🎯 Action items` (việc · NGƯỜI phụ trách · DEADLINE) ·
      `## 🔴 Rủi ro chiến lược` · `## 🔗 Liên hệ tiến độ/roadmap` (đối chiếu task Jira trong vault). Build:
-     `python3 "$T/progress-report/build_report.py" --report-type meeting-roadmap --ai reports/ai-meeting-latest.md` → gộp **họp (AI summary) + roadmap từ task Jira** trong vault.
+     `python3 "$T/progress-report/build_report.py" --report-type meeting-roadmap --ai reports/ai-meeting-latest.md` → gộp **họp (AI summary) + roadmap từ task Jira** trong vault → ra `reports/meeting-roadmap-latest.html`.
+   > 📧 Gửi report Cuộc họp: report Meeting ĐÃ **inline-styled (email-safe, GIỐNG báo cáo tài chính)** → gửi THẲNG làm BODY (giữ nguyên card/KPI ở Gmail/Outlook):
+   >   `send_report.py --html-file reports/meeting-roadmap-latest.html --attach reports/meeting-roadmap-latest.html --transport auto` (qua cổng `KORA_OPS_PW`).
+   >   **ƯU TIÊN `run_command` (local terminal)**: `--transport auto` thử **SMTP trước → fail mạng (proxy FPT chặn) thì TỰ fallback Gmail API/OAuth2 HTTPS 443 qua proxy**. Tiêu đề tự đọc `reports/_subject-latest.txt` (`Báo cáo cuộc họp — …`). **KHÔNG** dùng `email-body-latest.html` (đó là body report TIẾN ĐỘ).
    - **[Custom template]** → BẮT BUỘC chọn/tạo template (nhánh dưới) → build `--report-type custom --template <name>`.
    **NHÁNH TEMPLATE (cho Hoá đơn/Custom) — AskUserQuestion header "Template":** liệt kê template có sẵn đọc từ
    `templates/reports/_index.json` (mỗi `name`+`title` = 1 option) + **[Mặc định]** (chỉ Hoá đơn) + **[Tạo mới]** (rule #8: >4 → phân trang).

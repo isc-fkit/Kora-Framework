@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.15.0",
+  "version": "2.15.1",
   "codename": "Claude-1",
   "released": "2026-06-30",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.15.0 — TÍNH NĂNG MỚI: CHIẾN LƯỢC GEO (Generative Engine Optimization). Phân tích nội dung marketing/SEO → đưa ra VIỆC CẦN LÀM để thương hiệu/nội dung được AI (ChatGPT·Perplexity·Google AI Overviews·Gemini·Claude·Copilot) TRÍCH DẪN → dựng ROADMAP 1 năm/5 năm → (tùy chọn) LÊN CHIẾN DỊCH tự động theo roadmap. Lệnh: «phân tích GEO» / «tăng GEO» / «được AI trích dẫn» → /claude-knowledge-geo-strategy (workflow 20). Cách hoạt động: (1) cổng KORA_OPS_PW → (2) chọn NGUỒN (SharePoint hỏi FOLDER→FILE · Local · vault) → import nội dung (source: content) → (3) BẮT BUỘC spawn Agent GEO Analyst chấm 8 CHIỀU GEO (extractability·statistics·citations·authority·schema·offsite·technical·freshness, trọng số 100 — tiêu chí tổng hợp nghiên cứu 2025-2026 có trích nguồn ở tools/geo-strategy/README.md) → reports/_geo-rows.json → (4) geo_strategy.py sinh SCORECARD + DANH SÁCH VIỆC CẦN LÀM ưu tiên (effort×impact, bám chiều yếu) + ROADMAP 1y(theo quý)/5y(theo năm) + dashboard (show_widget) → (5) bước kế: [Lên chiến dịch theo roadmap] (claude-knowledge-campaign, thêm step 'geo') / gửi mail / xuất. Engine stdlib-only + --self-test. Nền v2.14.8 — tiêu đề mail động + bỏ [Kora]."
+  "intro": "Kora-Framework v2.15.1 — VÁ LỖI báo cáo cuộc họp (meeting-roadmap): email GIỜ nhúng INLINE đúng card/KPI/roadmap ở Gmail/Outlook GIỐNG báo cáo tài chính. Nguyên nhân cũ: render_meeting_roadmap dựng HTML bằng khối <style> + CSS class — client mail (Gmail/Outlook) LUÔN xoá <style> khi nhúng làm thân mail nên report vỡ layout thành text thô. Đã viết lại render_meeting_roadmap 100% style NỘI TUYẾN email-safe (KPI table-layout:fixed bền Outlook, hero màu đặc, bỏ display:grid/linear-gradient/@media); gửi thẳng meeting-roadmap-latest.html làm BODY giữ nguyên định dạng. Skill claude-knowledge-daily-report thêm bước gửi mail report Cuộc họp (send_report.py --transport auto, cổng KORA_OPS_PW). Auto gửi mail giữ nguyên chuỗi: local terminal → SMTP trước → fail (proxy chặn) thì TỰ fallback Gmail API/OAuth2 HTTPS 443 qua proxy. CORE-only, không migration, DATA giữ nguyên. Nền v2.15.0 (Chiến lược GEO)."
 }

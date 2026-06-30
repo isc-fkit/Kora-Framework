@@ -406,24 +406,17 @@ def load_meeting_rows(path):
 def _mr_list(items):
     items = items or []
     if not items:
-        return "<div class='muted'>(không có)</div>"
-    return "<ul>" + "".join(f"<li>{esc(x)}</li>" for x in items) + "</ul>"
+        return '<div style="color:#8a86a8;font-size:13px">(không có)</div>'
+    lis = "".join(f'<li style="font-size:13px;margin:3px 0;line-height:1.5;color:#241c40">{esc(x)}</li>' for x in items)
+    return f'<ul style="margin:6px 0 0;padding-left:20px">{lis}</ul>'
 
 
-_MR_CSS = (" body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:0;background:#f5f4fb;color:#241c40}"
-    " .wrap{max-width:980px;margin:0 auto;padding:24px}"
-    " .hd{background:linear-gradient(135deg,#3a2e6e,#6b4ec2);color:#fff;border-radius:14px;padding:24px 28px}"
-    " .hd h1{margin:0 0 4px;font-size:24px}.hd .sub{opacity:.85;font-size:14px}"
-    " .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:18px 0}"
-    " .kpi{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.06);text-align:center}"
-    " .kpi-v{font-size:22px;font-weight:700;color:#4a3aa7}.kpi-l{font-size:12px;color:#6a6790;margin-top:4px}"
-    " .card{background:#fff;border-radius:12px;padding:18px 20px;margin:14px 0;box-shadow:0 1px 3px rgba(0,0,0,.06)}"
-    " .card h2{font-size:16px;margin:0 0 6px;color:#4a3aa7}"
-    " .muted{color:#8a86a8;font-size:13px}.sec{margin-top:10px}.sec b{color:#33306e}"
-    " ul{margin:6px 0 0;padding-left:20px}li{font-size:13px;margin:3px 0}"
-    " .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}p{font-size:14px;line-height:1.55}"
-    " .foot{color:#9a96b8;font-size:12px;text-align:center;margin:18px 0}"
-    " @media(max-width:760px){.grid2{grid-template-columns:1fr}}")
+# Inline styles MEETING (EMAIL-SAFE — Gmail/Outlook STRIP <style>; nhận diện TÍM nội tuyến → gửi thẳng làm body mail như invoice)
+_MR_HERO = "background:#3a2e6e;color:#fff;border-radius:14px;padding:22px 26px;margin:0 0 14px"  # màu ĐẶC (gradient vỡ ở Outlook)
+_MR_H2 = "font-size:16px;font-weight:700;margin:0 0 8px;color:#4a3aa7"
+_MR_KPIV = "font-size:19px;font-weight:700;color:#4a3aa7"
+_MR_SECB = "color:#33306e;font-weight:700;font-size:13px"
+_MR_MUTED = "color:#8a86a8;font-size:13px"
 
 
 def render_meeting_roadmap(meetings, issues, title="Báo cáo Meeting & Roadmap", ai_html=""):
@@ -445,35 +438,43 @@ def render_meeting_roadmap(meetings, issues, title="Báo cáo Meeting & Roadmap"
     kpis = [("Cuộc họp", len(meetings)), ("Quyết định", n_dec), ("Action item", n_act), ("Rủi ro", n_risk)]
     if issues:
         kpis.append(("Task (Jira)", len(issues)))
-    kpi_html = "".join(f'<div class="kpi"><div class="kpi-v">{v}</div>'
-                       f'<div class="kpi-l">{esc(l)}</div></div>' for l, v in kpis)
+    # KPI dạng TABLE table-layout:fixed (1 dòng, bền Outlook) — như invoice. width chia đều theo số KPI.
+    _w = max(1, 100 // len(kpis))
+    _kpi_cells = "".join(
+        f'<td width="{_w}%" valign="top" style="{_S_KPI}"><div style="{_MR_KPIV}">{v}</div>'
+        f'<div style="{_S_KPIL}">{esc(l)}</div></td>' for l, v in kpis)
+    kpi_html = (f'<table role="presentation" width="100%" cellpadding="0" cellspacing="6" '
+                f'style="width:100%;table-layout:fixed;border-collapse:separate"><tr>{_kpi_cells}</tr></table>')
     cards = ""
     for m in meetings:
-        cards += (f"<div class='card'><h2>{esc(m.get('title') or 'Họp')}</h2>"
-                  f"<div class='muted'>{esc(m.get('date') or '')} · {esc(m.get('attendees') or '')}</div>"
-                  f"<p>{esc(m.get('summary') or '')}</p>"
-                  f"<div class='sec'><b>Quyết định</b>{_mr_list(m.get('decisions'))}</div>"
-                  f"<div class='sec'><b>Hành động</b>{_mr_list(m.get('action_items'))}</div>"
-                  f"<div class='sec'><b>Rủi ro</b>{_mr_list(m.get('risks'))}</div></div>")
+        cards += (f'<div style="{_S_CARD}"><div style="{_MR_H2}">{esc(m.get("title") or "Họp")}</div>'
+                  f'<div style="{_MR_MUTED}">{esc(m.get("date") or "")} · {esc(m.get("attendees") or "")}</div>'
+                  f'<p style="font-size:14px;line-height:1.55;color:#241c40;margin:8px 0">{esc(m.get("summary") or "")}</p>'
+                  f'<div style="margin-top:10px"><span style="{_MR_SECB}">Quyết định</span>{_mr_list(m.get("decisions"))}</div>'
+                  f'<div style="margin-top:10px"><span style="{_MR_SECB}">Hành động</span>{_mr_list(m.get("action_items"))}</div>'
+                  f'<div style="margin-top:10px"><span style="{_MR_SECB}">Rủi ro</span>{_mr_list(m.get("risks"))}</div></div>')
     if issues:
-        roadmap = (f"<div class='card'><h2>🗺️ Roadmap (từ {len(issues)} task Jira)</h2>"
-                   f"<div class='grid2'><div><b>Đang làm ({len(cur)})</b>{_mr_list(cur[:15])}</div>"
-                   f"<div><b>Kế tiếp ({len(nxt)})</b>{_mr_list(nxt[:15])}</div></div>"
-                   f"<div class='muted' style='margin-top:8px'>Đã xong: {done} task.</div></div>")
+        roadmap = (f'<div style="{_S_CARD}"><div style="{_MR_H2}">🗺️ Roadmap (từ {len(issues)} task Jira)</div>'
+                   f'<table role="presentation" width="100%" style="width:100%;table-layout:fixed;border-collapse:collapse"><tr>'
+                   f'<td width="50%" valign="top" style="padding-right:9px"><span style="{_MR_SECB}">Đang làm ({len(cur)})</span>{_mr_list(cur[:15])}</td>'
+                   f'<td width="50%" valign="top" style="padding-left:9px"><span style="{_MR_SECB}">Kế tiếp ({len(nxt)})</span>{_mr_list(nxt[:15])}</td>'
+                   f'</tr></table>'
+                   f'<div style="{_MR_MUTED};margin-top:8px">Đã xong: {done} task.</div></div>')
     else:
-        roadmap = "<div class='card'><div class='muted'>Chưa có task Jira trong vault để dựng roadmap (quét Jira để bổ sung).</div></div>"
+        roadmap = f'<div style="{_S_CARD}"><div style="{_MR_MUTED}">Chưa có task Jira trong vault để dựng roadmap (quét Jira để bổ sung).</div></div>'
     dates = sorted(str(m.get("date") or "") for m in meetings if m.get("date"))
     period = f"{dates[0]} → {dates[-1]}" if dates else "—"
-    ai_block = (f"<div class='card'><h2>🤖 Phân tích AI — Họp &amp; Roadmap</h2>{ai_html}</div>"
+    ai_block = (f'<div style="{_S_CARD}"><div style="{_MR_H2}">🤖 Phân tích AI — Họp &amp; Roadmap</div>{ai_html}</div>'
                 if ai_html else "")
     return ("<!DOCTYPE html><html lang='vi'><head><meta charset='utf-8'>"
             "<meta name='viewport' content='width=device-width, initial-scale=1'>"
-            f"<title>{esc(title)}</title><style>{_MR_CSS}</style></head><body><div class='wrap'>"
-            f"<div class='hd'><h1>{esc(title)}</h1><div class='sub'>Kỳ: {esc(period)} · "
-            f"{len(meetings)} cuộc họp · {len(issues or [])} task Jira</div></div>"
-            f"<div class='kpis'>{kpi_html}</div>{ai_block}{roadmap}"
-            f"<h2 style='color:#4a3aa7;margin:18px 0 4px'>Biên bản họp ({len(meetings)})</h2>{cards}"
-            "<div class='foot'>Kora — Meeting & Roadmap · build_report.py --report-type meeting-roadmap</div>"
+            f"<title>{esc(title)}</title></head>"
+            f'<body style="margin:0;background:#f5f4fb"><div style="{_S_WRAP}">'
+            f'<div style="{_MR_HERO}"><div style="font-size:22px;font-weight:700;margin-bottom:4px">{esc(title)}</div>'
+            f'<div style="font-size:13px;opacity:.9">Kỳ: {esc(period)} · {len(meetings)} cuộc họp · {len(issues or [])} task Jira</div></div>'
+            f'<div style="margin:0 0 10px">{kpi_html}</div>{ai_block}{roadmap}'
+            f'<div style="font-size:16px;font-weight:700;color:#4a3aa7;margin:18px 0 8px">Biên bản họp ({len(meetings)})</div>{cards}'
+            f'<div style="{_MR_MUTED};text-align:center;margin:18px 0">Kora — Meeting &amp; Roadmap</div>'
             "</div></body></html>")
 
 

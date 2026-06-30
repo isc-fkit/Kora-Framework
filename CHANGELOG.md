@@ -10,6 +10,27 @@
 
 ---
 
+## v2.15.1 "Claude-1" — 2026-06-30  🐛 VÁ LỖI
+
+**Báo cáo cuộc họp (meeting-roadmap) nhúng INLINE đúng trong email — như báo cáo tài chính.**
+
+- **LỖI:** `render_meeting_roadmap` (`tools/progress-report/build_report.py`) dựng HTML bằng khối
+  `<style>` + CSS class (`.wrap/.hd/.kpi/.card/.grid2`). Gmail/Outlook **LUÔN xoá `<head>`/`<style>`**
+  khi nhúng làm thân mail → report Cuộc họp **vỡ layout, hiện text thô** (khác báo cáo tài chính vốn
+  style nội tuyến nên hiển thị đúng).
+- **SỬA:** viết lại `render_meeting_roadmap` 100% **style NỘI TUYẾN email-safe** — KPI dạng
+  `table-layout:fixed` (bền Outlook), card/section/roadmap nội tuyến, hero **màu ĐẶC**, bỏ
+  `display:grid` / `linear-gradient` / `@media`. Gửi thẳng `reports/meeting-roadmap-latest.html`
+  làm **BODY** giữ nguyên định dạng card/KPI ở Gmail/Outlook.
+- **Skill `claude-knowledge-daily-report`:** thêm bước gửi mail report Cuộc họp
+  (`send_report.py --html-file reports/meeting-roadmap-latest.html --transport auto`, qua cổng
+  `KORA_OPS_PW`, ưu tiên `run_command`).
+- **Gửi mail (không đổi — xác nhận hoạt động):** `--transport auto` = **SMTP trước → fail mạng
+  (proxy chặn) thì TỰ fallback Gmail API/OAuth2 HTTPS 443 qua proxy**.
+- **CORE-only** (build_report.py + skill) — **không migration**, DATA của bạn giữ nguyên.
+
+---
+
 ## v2.15.0 "Claude-1" — 2026-06-30  ✨ TÍNH NĂNG MỚI
 
 **Chiến lược GEO (Generative Engine Optimization) — phân tích → việc cần làm để được AI trích dẫn → roadmap 1y/5y → chiến dịch.**
