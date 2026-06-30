@@ -10,6 +10,21 @@
 
 ---
 
+## v2.14.8 "Claude-1" — 2026-06-30
+
+**Bỏ `[Kora]` khỏi tiêu đề mail + tiêu đề & branding ĐỘNG theo loại báo cáo (KHÔNG hardcode).**
+
+Đảo lại v2.14.7 theo yêu cầu: email gửi sếp/team không nên dính "Kora"/"Claude AI", và tiêu đề phải phản ánh ĐÚNG loại báo cáo.
+
+- **(A) Tiêu đề ĐỘNG theo loại** — `build_report.py` (`make_subject` + `REPORT_TITLES`) ghi `reports/_subject-latest.txt`:
+  - tiến độ → `Báo cáo tiến độ — <dự án> — <ngày>` · tài chính → `Báo cáo tài chính — <ngày>` · họp → `Báo cáo cuộc họp — …` · custom → tên template.
+  - `send_report.py` **tự đọc** file này khi không truyền `--subject`.
+- **(B) Bỏ `[Kora]`** — `send_report.py` default prefix **RỖNG** (chỉ thêm nếu user chủ động đặt env `KORA_SUBJECT_PREFIX`). `config.reports.email.subject` để **trống** = tự sinh động (example + máy thật đã đổi).
+- **(C) Bỏ branding "Claude AI"** ở header/footer email → thay bằng **`reports.company`** (mặc định "FPT Telecom", đổi theo công ty).
+- `orchestrator.py` (lịch nền) + WF14 + skill cập nhật: `config.subject` rỗng → KHÔNG truyền `--subject` (dùng động).
+
+Test: `make_subject` 4 loại đúng; build progress → `_subject-latest.txt` = "Báo cáo tiến độ — …", email "Claude AI"=**0** · "FPT Telecom"=**2** · "[Kora]"=**0**.
+
 ## v2.14.7 "Claude-1" — 2026-06-30
 
 **Đảm bảo tiêu đề mail LUÔN có `[Kora]` + siết lại chuỗi hỏi khi báo cáo.**

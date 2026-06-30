@@ -18,8 +18,9 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
 > 🧭 **TIẾP THEO trong giao thức (cũng KHÔNG nhảy bước):** **(4)** nếu nguồn = **SharePoint** → **BẮT BUỘC AskUserQuestion
 > chọn FOLDER** (`sharepoint_folder_search`) **TRƯỚC khi quét** — Bước 2 nhánh [SharePoint], CẤM tự lấy "file mới nhất";
 > **(5)** phân tích AI → **BẮT BUỘC SPAWN sub-agent chuyên biệt** (Bước 1.5: 3 con `operations:*` cho tiến độ · agent kế
-> toán `data:analyze` cho tài chính · thư ký cho họp), KHÔNG tự viết khi có Agent tool; **(6)** gửi mail → tiêu đề **LUÔN
-> có `[Kora]`** (send_report tự ép prefix, đổi qua env `KORA_SUBJECT_PREFIX`) + role qua cổng vai trò (`--roles-confirmed`).
+> toán `data:analyze` cho tài chính · thư ký cho họp), KHÔNG tự viết khi có Agent tool; **(6)** gửi mail → tiêu đề **ĐỘNG
+> theo LOẠI báo cáo** (vd "Báo cáo tiến độ — FMC — {date}" · "Báo cáo tài chính — …"), **KHÔNG `[Kora]`/"Claude AI"**
+> (build_report ghi `reports/_subject-latest.txt`, send_report tự đọc khi bỏ `--subject`; header/footer mail dùng `reports.company`) + role qua cổng `--roles-confirmed`.
 
 > 🚫 **Guard gói USER:** nếu có file `.claude-knowledge-user` ở gốc project (hoặc `package.type: user` trong config)
 > → đây là máy NGƯỜI DÙNG, KHÔNG có báo cáo/gửi mail (chỉ HOST mới có). Báo nhẹ: *"Báo cáo & gửi mail

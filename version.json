@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.14.7",
+  "version": "2.14.8",
   "codename": "Claude-1",
   "released": "2026-06-30",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.14.7 — đảm bảo tiêu đề mail LUÔN có [Kora] + siết lại chuỗi hỏi khi báo cáo. (A) [Kora] Ở SUBJECT: trước đây prefix [Kora] phụ thuộc Claude/config có gõ hay không → có lúc mất. Nay send_report.py TỰ ÉP prefix [Kora] vào tiêu đề nếu thiếu (không nhân đôi, đổi qua env KORA_SUBJECT_PREFIX, rỗng=tắt) → mọi đường gửi (tương tác + lịch nền) đều có [Kora]. Config example cũng thêm [Kora]. (B) SIẾT BANNER skill báo cáo — chuỗi BẮT BUỘC, không nhảy bước, hiển thị đầy đủ ở 1 chỗ: (1) cổng mật khẩu → (2) hỏi LOẠI báo cáo (Tiến độ/Cuộc họp/Tiến độ+Meeting+Roadmap/Tài chính/Custom) → (3) hỏi NGUỒN (Jira/SharePoint/Local Excel) → (4) nếu SharePoint: BẮT BUỘC hỏi FOLDER trước khi quét → (5) phân tích: BẮT BUỘC spawn sub-agent chuyên biệt (3 con operations cho tiến độ · kế toán data:analyze cho tài chính · thư ký cho họp) → (6) gửi mail có [Kora] + cổng vai trò. Các bước này đã có sẵn nay nhắc lại dứt khoát + có code-gate backstop (--source-ids, --roles-confirmed). Test logic [Kora] 6 case OK. Nền v2.14.6 — code-gate ép hỏi vai trò PM/QC."
+  "intro": "Kora-Framework v2.14.8 — BỎ [Kora] khỏi tiêu đề mail + tiêu đề & branding ĐỘNG theo loại báo cáo (KHÔNG hardcode). Đảo lại v2.14.7 theo yêu cầu: email gửi sếp/team không nên dính 'Kora'/'Claude AI'. (A) Tiêu đề ĐỘNG: build_report.py ghi reports/_subject-latest.txt theo LOẠI — 'Báo cáo tiến độ — <dự án> — <ngày>' · 'Báo cáo tài chính — <ngày>' · 'Báo cáo cuộc họp — …' · custom = tên template; send_report.py tự đọc file này khi không truyền --subject. (B) BỎ [Kora]: send_report.py default prefix RỖNG (chỉ thêm nếu user chủ động đặt env KORA_SUBJECT_PREFIX); config example + máy thật để subject rỗng = tự sinh động. (C) BỎ branding 'Claude AI' ở header/footer email → thay bằng tên đơn vị reports.company (mặc định 'FPT Telecom', đổi theo công ty). orchestrator nền + WF14 + skill cập nhật: config.subject rỗng → KHÔNG truyền --subject (dùng động). Test: make_subject 4 loại đúng; build progress → _subject-latest.txt='Báo cáo tiến độ — …', email 'Claude AI'=0 / 'FPT Telecom'=2 / '[Kora]'=0. Nền v2.14.6 — code-gate hỏi vai trò; v2.14.7 — siết banner chuỗi hỏi."
 }

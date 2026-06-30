@@ -420,11 +420,14 @@ def main():
                     log(f"  (mail provider={provider} cần gửi tương tác qua connector — "
                         f"lịch nền chỉ gửi SMTP → bỏ qua)")
                 elif mail_on and recips and MAILER.exists():
-                    subj = (cfg.get("reports.email.subject") or "Báo cáo tiến độ {date}").replace("{date}", today())
+                    # Tiêu đề: config.subject TRỐNG → KHÔNG truyền --subject (send_report tự đọc reports/_subject-latest.txt
+                    # = tiêu đề ĐỘNG theo loại, KHÔNG [Kora]). Có giá trị → dùng (thay {date}).
+                    _cfg_subj = (cfg.get("reports.email.subject") or "").replace("{date}", today()).strip()
+                    _subj_args = (["--subject", _cfg_subj] if _cfg_subj else [])
                     # report vừa build ở 4) (vài giây trước) → guard --stale-after-min của send_report (mặc định 30')
                     # KHÔNG chặn; nếu build lỗi/bỏ qua thì file -latest cũ → guard CHẶN, không gửi bản cũ. File đính
                     # kèm tự đổi tên có ngày-giờ (progress-report-<stamp>.html) → mỗi mail một bản khác.
-                    rc2, o2, e2 = run_tool(MAILER, ["--to", ",".join(recips), "--subject", subj,
+                    rc2, o2, e2 = run_tool(MAILER, ["--to", ",".join(recips)] + _subj_args + [
                                                     "--html-file", "reports/email-body-latest.html",
                                                     "--no-attach-html", "--banner", str(BANNER_PNG),
                                                     "--attach", "reports/progress-report-latest.html",

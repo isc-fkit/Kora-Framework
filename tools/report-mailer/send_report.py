@@ -294,12 +294,17 @@ def main():
                             "   (workflow 14 Bước 1.5). KHÔNG gửi mail thiếu phân tích AI. Bỏ qua: --allow-empty-ai.")
             if not args.no_attach_html:
                 attachments.append(str(p))
+        # Tiêu đề ĐỘNG theo loại: chưa truyền --subject → đọc reports/_subject-latest.txt (build_report ghi theo loại báo cáo).
+        if not subject and args.html_file:
+            _sf = Path(args.html_file).parent / "_subject-latest.txt"
+            if _sf.exists():
+                subject = _sf.read_text(encoding="utf-8").strip()
         subject = subject or "Báo cáo tiến độ"
         text = text or "Báo cáo tiến độ — xem nội dung email (HTML) hoặc file đính kèm."
 
-    # ── ĐẢM BẢO tiêu đề LUÔN có prefix thương hiệu (mặc định [Kora]) — không phụ thuộc người gọi có gõ hay không;
-    #    KHÔNG nhân đôi nếu đã có. Đổi prefix qua env KORA_SUBJECT_PREFIX (rỗng = tắt). ──
-    _pfx = os.getenv("KORA_SUBJECT_PREFIX", "[Kora]").strip()
+    # ── Prefix thương hiệu: MẶC ĐỊNH TẮT (rỗng) → tiêu đề SẠCH, KHÔNG [Kora]/branding.
+    #    Chỉ thêm prefix nếu user CHỦ ĐỘNG đặt env KORA_SUBJECT_PREFIX (không nhân đôi). ──
+    _pfx = os.getenv("KORA_SUBJECT_PREFIX", "").strip()
     if _pfx and subject and not subject.lstrip().lower().startswith(_pfx.lower()):
         subject = f"{_pfx} {subject.lstrip()}"
 

@@ -320,6 +320,21 @@ _S_TDB = "padding:8px 10px;text-align:right;border-bottom:1px solid #eef0f6;font
 _S_TDBL = "padding:8px 10px;text-align:left;border-bottom:1px solid #eef0f6;font-weight:700;color:#1c2e6e"
 
 
+REPORT_TITLES = {
+    "progress": "Báo cáo tiến độ",
+    "invoice": "Báo cáo tài chính",
+    "meeting-roadmap": "Báo cáo cuộc họp",
+    "custom": "Báo cáo",
+}
+
+
+def make_subject(rtype, projects="", date="", template_title=""):
+    """Tiêu đề mail ĐỘNG theo loại báo cáo: '<Tên loại> — <dự án> — <ngày>'. KHÔNG prefix thương hiệu ([Kora]…)."""
+    base = (template_title or REPORT_TITLES["custom"]) if rtype == "custom" else REPORT_TITLES.get(rtype, "Báo cáo")
+    parts = [base] + [p for p in (str(projects or "").strip(), str(date or "").strip()) if p]
+    return " — ".join(parts)
+
+
 def render_invoice_report(invoices, title="Báo cáo chi phí — Hoá đơn", template_html=None, ai_html=""):
     """Render report hoá đơn. template_html=None → layout mặc định; else thay {{KEY}} trong template.
     ai_html = khối phân tích AI (render_ai_cards) — chèn sau KPIs / thay {{AI}} trong template."""
@@ -1267,7 +1282,7 @@ def _type_label(t):
     return _TYPE_LABELS.get((t or "issue").lower(), (t or "Issue").title())
 
 
-def render_email_body(m, vault, banner_url="", okr=None):
+def render_email_body(m, vault, banner_url="", okr=None, company="FPT Telecom"):
     """HTML tĩnh, email-safe, responsive. Chừa khối AI giữa <!--KR-AI-START--> ... <!--KR-AI-END-->
     để Claude THAY bằng phân tích CHI TIẾT (rủi ro · dự đoán · đề xuất) trước khi gửi."""
     t, g = m["time"], m["by_status_group"]
@@ -1510,7 +1525,7 @@ def render_email_body(m, vault, banner_url="", okr=None):
     <span style="display:inline-block;background:{EPAL['cream']};border:1px solid {EPAL['creambd']};color:#b45309;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:6px 13px;border-radius:999px">⏱️ Cập nhật tiến độ · {scope}</span></td></tr>
   <tr><td class="kpad" style="padding:10px 22px 0">
     <div style="font-size:15px;color:{EPAL['ink']};font-weight:700;font-style:italic">Kính gửi Anh/Chị,</div>
-    <div style="font-size:13.5px;color:#33405a;line-height:1.7;margin-top:6px">Trợ lý <b>Claude AI</b> – FPT Telecom xin cập nhật <b>tiến độ dự án</b> ({scope}) tới <b>{esc(gen)}</b> (UTC) như sau:</div></td></tr>
+    <div style="font-size:13.5px;color:#33405a;line-height:1.7;margin-top:6px"><b>{esc(company)}</b> xin gửi <b>Báo cáo tiến độ dự án</b> ({scope}), số liệu cập nhật tới <b>{esc(gen)}</b> (UTC) như sau:</div></td></tr>
   <tr><td class="kpad" style="padding:12px 22px 2px">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#fff3e0" style="background-color:#fff3e0;border:1.5px solid #ffb74d;border-left:5px solid #f57c00;border-radius:10px">
       <tr><td style="padding:12px 15px">
@@ -1553,7 +1568,7 @@ def render_email_body(m, vault, banner_url="", okr=None):
     <div style="font-size:13px;color:#33405a;line-height:1.7">Để xem chi tiết từng hạng mục công việc / sprint / thành viên (có bộ lọc), vui lòng mở <b>Dashboard đính kèm</b>. Mọi thông tin cần hỗ trợ, vui lòng liên hệ đầu mối bên dưới.</div>
     <div style="font-size:13.5px;color:{EPAL['ink']};font-weight:700;margin-top:10px">Trân trọng!</div></td></tr>
   <tr><td class="kfoot" bgcolor="#0b2a5e" style="background:linear-gradient(135deg,#0b2a5e,#15428f);background-color:#0b2a5e;padding:16px 22px;text-align:center">
-    <div style="color:#ffffff;font-size:13px;font-weight:700">Claude AI · Trợ lý tiến độ dự án — FPT Telecom</div>
+    <div style="color:#ffffff;font-size:13px;font-weight:700">{esc(company)} · Báo cáo tiến độ dự án</div>
     <div style="color:#a9c2ee;font-size:11.5px;margin-top:4px">Báo cáo tạo tự động mỗi ngày · Dữ liệu cập nhật {esc(gen)} (UTC)</div></td></tr>
 </table></td></tr></table>"""
 
@@ -1787,8 +1802,14 @@ def main():
     cfg_path = os.path.join(DATA, "config", "factory-config.yaml")
     qc_members = []   # reports.qc_members: ép vai trò QC (không đo giờ-công). Else auto theo reporter-của-Bug + 0 logtime.
     pm_members = []   # reports.pm_members: ép vai trò PM (không đo giờ-công). Else auto theo reporter-của-Epic/Request/US + 0 logtime.
+    company = "FPT Telecom"   # reports.company: tên đơn vị ở header/footer email (thay branding cũ "Claude AI").
     if os.path.exists(cfg_path):
         cfg = open(cfg_path, encoding="utf-8").read()
+        cmp_m = re.search(r"^\s*company:\s*(.+)$", cfg, re.M)   # tên đơn vị cho mail (dưới reports:)
+        if cmp_m:
+            _c = cmp_m.group(1).strip().strip('"').strip("'")
+            if _c:
+                company = _c
         if not vault:
             mm = re.search(r"^\s*vault_path:\s*(.+)$", cfg, re.M)
             if mm:
@@ -1827,6 +1848,8 @@ def main():
             open(os.path.join(out_dir, f"meeting-roadmap-{stamp}.html"), "w", encoding="utf-8").write(html_out)
             print(f"✓ Report (meeting-roadmap): {latest}")
             print(f"  {len(meetings)} cuộc họp | {len(mr_issues)} task Jira trong vault")
+            open(os.path.join(out_dir, "_subject-latest.txt"), "w", encoding="utf-8").write(
+                make_subject("meeting-roadmap", args.projects or "", datetime.now().strftime("%Y-%m-%d")))
             return
         invs = load_invoices(vault)
         sid = (args.source_ids or "").strip()
@@ -1851,6 +1874,8 @@ def main():
         latest = os.path.join(out_dir, "invoice-report-latest.html")
         open(latest, "w", encoding="utf-8").write(html_out)
         open(os.path.join(out_dir, f"invoice-report-{stamp}.html"), "w", encoding="utf-8").write(html_out)
+        open(os.path.join(out_dir, "_subject-latest.txt"), "w", encoding="utf-8").write(
+            make_subject(rtype, "", datetime.now().strftime("%Y-%m-%d"), template_title=title))
         tot = sum(float(v.get("total") or 0) for v in invs)
         print(f"✓ Report ({rtype}{'/'+args.template if args.template else ''}): {latest}")
         print(f"  {len(invs)} hoá đơn | TỔNG {_vnd(tot)}")
@@ -1950,7 +1975,7 @@ def main():
     day = now.strftime("%Y-%m-%d")
     stamp = now.strftime("%Y-%m-%d_%H%M")            # NGÀY-GIỜ tạo → gắn vào tên file (mỗi lần chạy 1 bản riêng)
     fragment_html = standalone(fragment)
-    ebody = render_email_body(m, vault, banner_url, okr)   # email body (mobile) — Claude điền AI giữa <!--KR-AI-->
+    ebody = render_email_body(m, vault, banner_url, okr, company)   # email body (mobile) — Claude điền AI giữa <!--KR-AI-->
     data_json = json.dumps(m, ensure_ascii=False, indent=2)
     # 1) LỊCH SỬ THEO NGÀY — reports/<YYYY-MM-DD>/<file>-<ngày-giờ>.html (không ghi đè; nhiều lần/ngày = nhiều bản)
     day_dir = os.path.join(out, day)
@@ -1967,6 +1992,9 @@ def main():
     open(ebody_latest, "w", encoding="utf-8").write(ebody)
     open(json_p, "w", encoding="utf-8").write(data_json)
     open(os.path.join(out, "progress-data-latest.json"), "w", encoding="utf-8").write(data_json)  # bản -latest cho agent AI đọc
+    # Tiêu đề mail ĐỘNG (loại tiến độ) → send_report đọc khi không truyền --subject. KHÔNG prefix [Kora].
+    open(os.path.join(out, "_subject-latest.txt"), "w", encoding="utf-8").write(
+        make_subject("progress", args.projects or "", day))
 
     # 3) PREVIEW EMAIL — bản XEM TRƯỚC mail (Cowork/trình duyệt): banner nhúng BASE64 để hiện được tại chỗ
     #    (email-body-latest.html dùng URL remote cho send_report swap→CID; trình duyệt có thể chặn URL đó).
@@ -1979,7 +2007,7 @@ def main():
             banner_data_uri = f"data:image/jpeg;base64,{b64}"
     except Exception:
         pass
-    epreview = render_email_body(m, vault, banner_data_uri, okr)
+    epreview = render_email_body(m, vault, banner_data_uri, okr, company)
     epreview_latest = os.path.join(out, "email-preview-latest.html")
     open(epreview_latest, "w", encoding="utf-8").write(epreview)
     open(os.path.join(day_dir, f"email-preview-{stamp}.html"), "w", encoding="utf-8").write(epreview)

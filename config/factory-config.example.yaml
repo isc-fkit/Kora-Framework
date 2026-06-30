@@ -126,6 +126,7 @@ reports:                  # Báo cáo tiến độ (workflow 14) — sinh local 
   stale_after_days: 1     # tri thức "cũ" nếu mốc cập nhật cuối cách hôm nay >= N ngày → banner + nhắc làm mới
   refresh_source: auto    # auto | mcp | token | none — cách làm mới trước khi report (Cloud=mcp, self-host=token)
   qc_members: []          # tên QC/tester, vd ["Nguyen Van A","Tran Thi B"] — ÉP vai trò QC: KHÔNG đo bằng giờ-công (họ report bug, không logtime / join cuối sprint) → đo bằng SỐ BUG TẠO. Rỗng → tự nhận diện (0 logtime + là reporter của Bug).
+  company: "FPT Telecom"  # tên đơn vị hiện ở header/footer email báo cáo (thay branding cũ "Claude AI"). Đổi theo công ty bạn.
   email:                  # Gửi báo cáo qua email (workflow 14 Bước 2.7 / lịch 08). Bí mật ở tools/report-mailer/.env.local
     enabled: false        # true để bật gửi mail sau khi sinh report
     method: smtp          # ƯU TIÊN: smtp (TỰ ĐỘNG GỬI qua send_report.py — Gmail dùng App Password, smtp.gmail.com:587). gmail_draft (tạo nháp, bấm tay) = FALLBACK.
@@ -134,7 +135,7 @@ reports:                  # Báo cáo tiến độ (workflow 14) — sinh local 
     to: []                # danh sách email nhận, vd ["a@x.com","b@y.com"]
     recipients: []        # danh bạ người nhận lưu sẵn để chọn nhanh trong /claude-knowledge-send-mail & /claude-knowledge-schedule
     cc: []
-    subject: "[Kora] Báo cáo tiến độ {date}"   # {date} thay bằng ngày khi gửi. Prefix [Kora] LUÔN được send_report tự ép (env KORA_SUBJECT_PREFIX) kể cả khi bỏ ở đây.
+    subject: ""           # ĐỂ TRỐNG = tiêu đề TỰ SINH ĐỘNG theo loại báo cáo (vd "Báo cáo tiến độ — FMC — 2026-06-30" · "Báo cáo tài chính — …"), KHÔNG [Kora]. Đặt giá trị để override (hỗ trợ {date}).
     banner_url: "https://raw.githubusercontent.com/isc-fkit/Kora-Framework/main/assets/banner-daily-report.jpg"   # banner header email (ảnh PUBLIC: raw GitHub / Pages). Rỗng → build_report tự dùng URL main này.
     attach_html: true     # đính kèm file progress-report-latest.html (ngoài việc nhúng nội dung)
   # status_map (tùy chọn): map trạng thái Jira → nhóm done/in_progress/todo. Để trống = đoán theo từ khóa.
