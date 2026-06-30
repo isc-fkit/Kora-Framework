@@ -297,6 +297,12 @@ def main():
         subject = subject or "Báo cáo tiến độ"
         text = text or "Báo cáo tiến độ — xem nội dung email (HTML) hoặc file đính kèm."
 
+    # ── ĐẢM BẢO tiêu đề LUÔN có prefix thương hiệu (mặc định [Kora]) — không phụ thuộc người gọi có gõ hay không;
+    #    KHÔNG nhân đôi nếu đã có. Đổi prefix qua env KORA_SUBJECT_PREFIX (rỗng = tắt). ──
+    _pfx = os.getenv("KORA_SUBJECT_PREFIX", "[Kora]").strip()
+    if _pfx and subject and not subject.lstrip().lower().startswith(_pfx.lower()):
+        subject = f"{_pfx} {subject.lstrip()}"
+
     # Banner header NHÚNG INLINE (cid:kora-banner) → hiện NGAY cả khi client chặn ảnh remote (Outlook "trust sender").
     # Resolve path bền (như KORA_MAILER_ENV): --banner → KORA_BANNER → cạnh CORE (assets) → cwd/assets.
     banner_cid_path = None

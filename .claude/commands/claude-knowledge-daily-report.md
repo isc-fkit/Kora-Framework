@@ -15,6 +15,11 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
 > ❌ Nếu bạn nghĩ "đã đủ dữ liệu, tạo báo cáo HTML ngay" mà **CHƯA hề gọi AskUserQuestion chọn nguồn** trong phiên này →
 > **ĐÓ LÀ LỖI NGHIÊM TRỌNG**, dừng lại và quay về (2). 🔒 Backstop: `build_report.py` **TỪ CHỐI build** nếu vault có
 > >1 nguồn mà thiếu `--source-ids` → bạn KHÔNG thể ra report khi chưa hỏi nguồn.
+> 🧭 **TIẾP THEO trong giao thức (cũng KHÔNG nhảy bước):** **(4)** nếu nguồn = **SharePoint** → **BẮT BUỘC AskUserQuestion
+> chọn FOLDER** (`sharepoint_folder_search`) **TRƯỚC khi quét** — Bước 2 nhánh [SharePoint], CẤM tự lấy "file mới nhất";
+> **(5)** phân tích AI → **BẮT BUỘC SPAWN sub-agent chuyên biệt** (Bước 1.5: 3 con `operations:*` cho tiến độ · agent kế
+> toán `data:analyze` cho tài chính · thư ký cho họp), KHÔNG tự viết khi có Agent tool; **(6)** gửi mail → tiêu đề **LUÔN
+> có `[Kora]`** (send_report tự ép prefix, đổi qua env `KORA_SUBJECT_PREFIX`) + role qua cổng vai trò (`--roles-confirmed`).
 
 > 🚫 **Guard gói USER:** nếu có file `.claude-knowledge-user` ở gốc project (hoặc `package.type: user` trong config)
 > → đây là máy NGƯỜI DÙNG, KHÔNG có báo cáo/gửi mail (chỉ HOST mới có). Báo nhẹ: *"Báo cáo & gửi mail

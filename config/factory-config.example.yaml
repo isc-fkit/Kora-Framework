@@ -134,7 +134,7 @@ reports:                  # Báo cáo tiến độ (workflow 14) — sinh local 
     to: []                # danh sách email nhận, vd ["a@x.com","b@y.com"]
     recipients: []        # danh bạ người nhận lưu sẵn để chọn nhanh trong /claude-knowledge-send-mail & /claude-knowledge-schedule
     cc: []
-    subject: "Báo cáo tiến độ {date}"   # {date} thay bằng ngày khi gửi
+    subject: "[Kora] Báo cáo tiến độ {date}"   # {date} thay bằng ngày khi gửi. Prefix [Kora] LUÔN được send_report tự ép (env KORA_SUBJECT_PREFIX) kể cả khi bỏ ở đây.
     banner_url: "https://raw.githubusercontent.com/isc-fkit/Kora-Framework/main/assets/banner-daily-report.jpg"   # banner header email (ảnh PUBLIC: raw GitHub / Pages). Rỗng → build_report tự dùng URL main này.
     attach_html: true     # đính kèm file progress-report-latest.html (ngoài việc nhúng nội dung)
   # status_map (tùy chọn): map trạng thái Jira → nhóm done/in_progress/todo. Để trống = đoán theo từ khóa.

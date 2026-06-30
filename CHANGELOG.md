@@ -10,6 +10,15 @@
 
 ---
 
+## v2.14.7 "Claude-1" — 2026-06-30
+
+**Đảm bảo tiêu đề mail LUÔN có `[Kora]` + siết lại chuỗi hỏi khi báo cáo.**
+
+- **(A) `[Kora]` ở subject — vá GỐC bằng code:** trước đây prefix `[Kora]` phụ thuộc Claude/config có gõ hay không → có lúc mất. Nay **`send_report.py` TỰ ÉP** prefix `[Kora]` vào tiêu đề nếu thiếu (KHÔNG nhân đôi nếu đã có; đổi qua env `KORA_SUBJECT_PREFIX`, rỗng = tắt) → **mọi đường gửi** (tương tác + lịch nền + campaign) đều có `[Kora]`. `config/factory-config.example.yaml` cũng thêm `[Kora]` vào `reports.email.subject`. Test 6 case (chưa có/đã có/lowercase/lề trắng/override/tắt) — OK.
+- **(B) Siết banner skill báo cáo** — chuỗi BẮT BUỘC, không nhảy bước, hiển thị đầy đủ ở 1 chỗ: **(1)** cổng mật khẩu → **(2)** hỏi **LOẠI** (Tiến độ · Cuộc họp · Tiến độ+Meeting+Roadmap · Tài chính · Custom) → **(3)** hỏi **NGUỒN** (Jira · SharePoint · Local Excel) → **(4)** SharePoint → **BẮT BUỘC hỏi FOLDER** trước khi quét → **(5)** phân tích → **BẮT BUỘC spawn sub-agent** chuyên biệt (3 con `operations:*` cho tiến độ · kế toán `data:analyze` cho tài chính · thư ký cho họp) → **(6)** gửi mail có `[Kora]` + cổng vai trò.
+
+Các bước (2)–(5) đã có sẵn — nay nhắc lại dứt khoát ở banner + có code-gate backstop (`--source-ids`, `--roles-confirmed`).
+
 ## v2.14.6 "Claude-1" — 2026-06-30
 
 **FIX: báo cáo tiến độ KHÔNG hỏi VAI TRÒ (role) thành viên → chấm PM/QC như Dev (cảnh báo "thiếu giờ" SAI).**
