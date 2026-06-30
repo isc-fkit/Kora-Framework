@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.14.5",
+  "version": "2.14.6",
   "codename": "Claude-1",
   "released": "2026-06-30",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.14.5 — đồng bộ cơ chế SPAWN SUB-AGENT cho báo cáo. Trước đây skill daily-report đã spawn agent chuyên biệt, nhưng workflow 14 Bước 1.5 lại ghi 'Claude tự viết' → KHÔNG nhất quán (tùy Claude đọc tài liệu nào mà có/không spawn). Vá: (A) WF14 Bước 1.5 nay BẮT BUỘC spawn 3 con agent quản lý SONG SONG kèm CÂU LỆNH cụ thể — Agent ĐIỀU HÀNH (skill operations:status-report → 📌 tóm tắt + 🎯 hành động + KPI), Agent RỦI RO (operations:risk-assessment → 🔴/🟡 rủi ro có số), Agent NĂNG LỰC (operations:capacity-plan → 👥 thành viên + 🧩 phức tạp + 📅 sprint) → mỗi con ghi file tạm → tổng hợp thành ai-analysis-latest.md theo đúng thứ tự; fallback: không có Agent tool → Claude tự viết. (B) Báo cáo SỐ LIỆU/HOÁ ĐƠN: làm rõ câu lệnh BẮT BUỘC spawn agent KẾ TOÁN/TÀI CHÍNH (skill data:analyze + kiến thức VAT·MST·khấu trừ·dòng tiền VN) → ai-invoice-latest.md. (C) Skill báo cáo tiến độ đổi 'DÙNG agent' → 'BẮT BUỘC SPAWN 3 con agent'. Chỉ sửa tài liệu workflow/skill, KHÔNG đụng tool/DATA. Nền v2.14.4 — vá kiểm tra phiên bản chạy trên mạng FPT/Cowork."
+  "intro": "Kora-Framework v2.14.6 — FIX: báo cáo tiến độ KHÔNG hỏi vai trò (role) thành viên → chấm PM/QC như Dev (cảnh báo 'thiếu giờ' SAI). Nguyên nhân: skill Bước 5b tự mâu thuẫn ('HỎI role' nhưng cũng 'KHÔNG hỏi lại' + 'để trống → tự nhận diện') → Claude có lối thoát bỏ qua câu hỏi. Vá GỐC bằng CODE-GATE (không chỉ prose): (A) build_report.py thêm cổng chặn — report tiến độ có >1 người mà config CHƯA có pm_members/qc_members VÀ thiếu --roles-confirmed → TỪ CHỐI build kèm hướng dẫn hỏi role; thêm cờ --roles-confirmed để waive khi tất cả là Dev (đã hỏi). (B) Skill 5b + WF14 Bước 0.6 viết lại: BẮT BUỘC hỏi/xác nhận role — config có role → hiện ra + [Dùng đúng vậy]/[Điều chỉnh]; config trống → bắt buộc hỏi 'Ai PM/PO? Ai QC?'; bỏ lối 'tự nhận diện im lặng'. (C) Lịch nền (orchestrator) + campaign tự truyền --roles-confirmed (không có UI hỏi). Đã test gate: thiếu role → DIE đúng; có --roles-confirmed → build OK. Nền v2.14.5 — đồng bộ spawn 3 sub-agent báo cáo + agent kế toán."
 }

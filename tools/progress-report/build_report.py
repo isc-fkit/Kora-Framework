@@ -1772,6 +1772,9 @@ def main():
                     "invoice/custom (Claude sinh từ dữ liệu hoá đơn rồi truyền vào).")
     ap.add_argument("--members", help="Lọc phần 'theo thành viên' theo TÊN (csv) — chỉ hiện các thành viên này.")
     ap.add_argument("--roles", help="Lọc phần 'theo thành viên' theo VAI TRÒ (csv: Dev,PM,QC).")
+    ap.add_argument("--roles-confirmed", action="store_true",
+                    help="Xác nhận ĐÃ HỎI user vai trò (skill Bước 5b / WF14 0.6) hoặc chạy lịch nền — "
+                         "waive CỔNG CHẶN VAI TRÒ. Dùng khi tất cả là Dev (không PM/QC) hoặc đã gán role.")
     args = ap.parse_args()
     DATA = data_root()   # project (cwd) nếu có config/factory-config.yaml; else REPO_ROOT (dev / lịch nền)
 
@@ -1894,6 +1897,20 @@ def main():
                 f"nhiều nguồn) rồi quét lại — KHÔNG phải mất dữ liệu.")
     if not issues:
         die(f"Vault chưa có note Jira nào (source: jira) tại {vault}. Hãy 'quét jira' trước.")
+
+    # ── CỔNG CHẶN VAI TRÒ: report tiến độ CHƯA khai báo role + CHƯA xác nhận → TỪ CHỐI build ──
+    # Biến "skip im lặng câu hỏi role → chấm PM/QC như Dev (cảnh báo 'thiếu giờ' SAI)" thành DỪNG + buộc HỎI user.
+    # Waive: config có pm_members/qc_members | --roles-confirmed (lịch nền / skill đã hỏi & all-Dev) | ≤1 assignee.
+    if not (pm_members or qc_members) and not getattr(args, "roles_confirmed", False):
+        _asg = sorted({(i.get("assignee") or "").strip() for i in issues if (i.get("assignee") or "").strip()})
+        if len(_asg) > 1:
+            die("❌ CHƯA KHAI BÁO VAI TRÒ thành viên — report tiến độ có "
+                f"{len(_asg)} người: " + ", ".join(_asg[:8]) + (" …" if len(_asg) > 8 else "") + ".\n"
+                "   PHẢI HỎI user gán vai trò TRƯỚC khi build (PM/QC KHÔNG đo bằng giờ-công → bỏ qua sẽ bị chấm 'thiếu giờ' SAI):\n"
+                "     • Hỏi 'Ai là PM/PO?' + 'Ai là QC?' (/claude-knowledge-daily-report Bước 5b · WF14 Bước 0.6).\n"
+                "     • Gán xong → GHI reports.pm_members / reports.qc_members (inline list) vào config/factory-config.yaml → build lại.\n"
+                "     • NẾU tất cả là Dev (không PM/QC) → truyền --roles-confirmed để xác nhận ĐÃ HỎI user.\n"
+                "   ⛔ KHÔNG build report khi CHƯA hỏi vai trò.")
 
     issues, scope_label = apply_scope(issues, args.scope, args.recent_days)
     if args.scope != "all":

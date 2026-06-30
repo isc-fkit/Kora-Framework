@@ -116,8 +116,10 @@ nguồn — đặt ở đầu lệnh: `JIRA_BASE_URL=<entry.base_url>` (+ `JIRA_
 
 ## Bước 0.6 — Xác định VAI TRÒ thành viên (để hiểu CONTEXT phân tích từng người)
 
-> 🎯 Trước khi build, **HỎI user nhập TÊN + VAI TRÒ** thành viên để báo cáo hiểu ĐÚNG context mỗi người — tránh
-> đánh giá sai (vd báo PM "thiếu giờ"). Vai trò quyết định cách đo:
+> 🎯 **BẮT BUỘC HỎI user nhập TÊN + VAI TRÒ TRƯỚC khi build** — để báo cáo hiểu ĐÚNG context mỗi người, tránh
+> đánh giá sai (vd báo PM "thiếu giờ"). 🔒 **CODE-GATE:** `build_report.py` **TỪ CHỐI build** report tiến độ (>1 người)
+> khi config CHƯA có `pm_members`/`qc_members` **VÀ** thiếu `--roles-confirmed` → KHÔNG thể lỡ bỏ qua bước này.
+> Vai trò quyết định cách đo:
 > - **Dev** — đo bằng **giờ-công** (đã log so giờ chuẩn; cảnh báo OT/thiếu).
 > - **PM/PO** — **CHỈ ĐIỀU PHỐI, KHÔNG log task**: tạo Epic/Request/US → **KHÔNG đo bằng giờ-công, KHÔNG cảnh
 >   báo "chưa log giờ", loại khỏi capacity team**. Đánh giá bằng số hạng mục điều phối.
@@ -128,9 +130,11 @@ nguồn — đặt ở đầu lệnh: `JIRA_BASE_URL=<entry.base_url>` (+ `JIRA_
    - **"Ai là PM/PO (chỉ điều phối, KHÔNG log task)?"** → ghi `reports.pm_members`.
    - **"Ai là QC/tester (tạo Bug, không log giờ)?"** → ghi `reports.qc_members`.
    - Còn lại mặc định **Dev**.
-   - Đã có `reports.pm_members` / `reports.qc_members` trong config → hiện sẵn, chỉ hỏi "đúng chưa / thêm bớt".
-   - User không chắc / để TRỐNG → build_report **TỰ NHẬN DIỆN** (PM: 0 logtime + tạo Epic/Request/US + không ôm
-     Task/Sub-task/Bug; QC: 0 logtime + tạo Bug + không ôm việc khác Bug).
+   - Đã có `reports.pm_members` / `reports.qc_members` trong config → **vẫn HIỆN ra + AskUserQuestion [Dùng đúng vậy] /
+     [Điều chỉnh]** (xác nhận nhanh — KHÔNG tự dùng im lặng, KHÔNG hỏi lại từ đầu). [Điều chỉnh] → hỏi lại như trên.
+   - User xác nhận **tất cả là Dev** (không PM/QC) → truyền **`--roles-confirmed`** cho `build_report.py`; khi đó tool
+     vẫn **TỰ NHẬN DIỆN** PM/QC theo dấu hiệu (PM: 0 logtime + tạo Epic/Request/US; QC: 0 logtime + tạo Bug). ⛔ KHÔNG
+     có role config **VÀ** KHÔNG `--roles-confirmed` → tool **TỪ CHỐI** (code-gate ở trên) để buộc hỏi.
 3. Ghi vào `config/factory-config.yaml` mục `reports:` dạng inline list:
    `pm_members: ["Tên A","Tên B"]` / `qc_members: ["Tên C"]` (build_report đọc đúng định dạng này).
    Đây là **DATA** → lần sau dùng lại + sửa được bất cứ lúc nào (không cần hỏi lại nếu đã đúng).

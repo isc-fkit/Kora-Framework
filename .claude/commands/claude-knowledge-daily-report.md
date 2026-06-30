@@ -123,14 +123,18 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
    - **[Dùng list cũ]** → đọc `reports.project_members.<KEY>` (list thành viên đã lưu ĐÚNG project đó) → lọc/ngữ cảnh report theo đó.
    - **[Điều chỉnh lại]** → AskUserQuestion **multi-select** (assignee lấy từ data quét + ô **"Other"** gõ tên) → chọn thành viên đưa vào báo cáo
      → **LƯU LẠI `reports.project_members.<KEY>`** cho lần sau (mỗi project 1 list riêng). >4 → phân trang; có **[Chọn tất cả]**.
-   - **KHÔNG hỏi lại VAI TRÒ** (PM/QC đã ở config, Bước 5b chỉ ÁP role khi build). Rồi hỏi **khoảng thời gian** (nếu cần).
-5b. **VAI TRÒ thành viên (HỎI TÊN + ROLE để hiểu CONTEXT phân tích từng người — workflow 14 Bước 0.6):** AskUserQuestion
-   (multi-select + ô **"Other"** gõ tên chưa có) gán **PM/PO** (CHỈ ĐIỀU PHỐI, tạo Epic/Request/US, **KHÔNG log task**
-   → `reports.pm_members`) và **QC** (tạo Bug → `reports.qc_members`); còn lại **Dev**. Ghi inline list vào
-   `config/factory-config.yaml` mục `reports:` (`pm_members: ["A","B"]` / `qc_members: ["C"]`). **ĐÃ CÓ trong config →
-   KHÔNG HỎI LẠI role** (chỉ ÁP lúc build; vd PM: Khánh/PO · QC: Linh, Châu). Để TRỐNG → build_report **tự nhận diện**. ⚠️ **PM KHÔNG đo bằng giờ-công, KHÔNG cảnh báo
-   "chưa log giờ", loại khỏi capacity team** — chỉ đánh giá theo việc điều phối.
-   > 👤 **HỎI RÕ "Ai là PM dự án?"** (1 người) — để AI phân tích theo góc PM + roadmap điều phối, query đúng người. Ghi vào `reports.pm_members` (đứng đầu).
+   - **VAI TRÒ hỏi ở Bước 5b (BẮT BUỘC)** — Bước 5 này chỉ chọn THÀNH VIÊN. Rồi hỏi **khoảng thời gian** (nếu cần).
+5b. **VAI TRÒ thành viên — BẮT BUỘC HỎI/XÁC NHẬN TRƯỚC KHI BUILD (workflow 14 Bước 0.6).** Vai trò quyết định cách chấm
+   (Dev đo giờ-công; **PM/PO & QC KHÔNG đo giờ** → bỏ qua sẽ bị chấm "thiếu giờ" SAI). **KHÔNG được bỏ qua / KHÔNG auto im lặng:**
+   - **Config `reports.pm_members`/`qc_members` ĐÃ CÓ** → **vẫn HIỆN ra + AskUserQuestion [Dùng đúng vậy] / [Điều chỉnh]**
+     (xác nhận nhanh, KHÔNG hỏi lại từ đầu). [Điều chỉnh] → hỏi như nhánh dưới.
+   - **Config TRỐNG** → **BẮT BUỘC AskUserQuestion** (multi-select + ô **"Other"** gõ tên): **"Ai là PM/PO?"** (chỉ điều
+     phối, tạo Epic/Request/US, KHÔNG log task → `reports.pm_members`) · **"Ai là QC?"** (tạo Bug → `reports.qc_members`); còn lại **Dev**.
+   - Gán xong → **GHI inline list** vào `config/factory-config.yaml` mục `reports:` (`pm_members: ["A","B"]` / `qc_members: ["C"]`) → build lại (lần sau chỉ xác nhận).
+   - **NẾU user xác nhận tất cả là Dev** (không PM/QC) → truyền **`--roles-confirmed`** cho `build_report.py` (build_report vẫn tự nhận diện PM/QC theo dấu hiệu).
+   - 🔒 **CODE-GATE:** `build_report.py` **TỪ CHỐI build** report tiến độ (>1 người) khi CHƯA khai role trong config **VÀ** thiếu `--roles-confirmed` → KHÔNG thể lỡ bỏ qua câu hỏi này.
+   ⚠️ **PM/QC KHÔNG đo bằng giờ-công, KHÔNG cảnh báo "chưa log giờ", loại khỏi capacity team** — chỉ đánh giá theo điều phối/chất lượng.
+   > 👤 **HỎI RÕ "Ai là PM dự án?"** (1 người) — để AI phân tích theo góc PM + roadmap điều phối, query đúng người. Ghi `reports.pm_members` (đứng đầu).
 5c. **HỎI: "Có phân tích ROADMAP không?"** — AskUserQuestion [Có / Không].
    - **Có** → báo cáo thêm mục **🗺️ Roadmap & điều phối sprint** (build_report đã sinh section roadmap: backlog/current/next + SP).
    - Nếu nhóm SharePoint/Local có chọn **file MEETING/Standing Meeting/OKR/chiến lược** (kể cả **.pptx/.docx** như
@@ -147,8 +151,9 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
        `analysis_md` (không spawn được Agent → Claude tự viết). **Mỗi nhóm/đầu việc chia rõ cho dễ nhìn.**
      - Cũng lưu `reports/_okr-latest.txt` (text thô) làm **BỐI CẢNH** cho mục 🗺️ Roadmap của AI chính (Bước 1.5).
 6. **BẮT BUỘC dựng báo cáo QUA `build_report.py` — TUYỆT ĐỐI KHÔNG tự viết file HTML báo cáo bằng tay.**
-   `python3 "$T/progress-report/build_report.py" --source-ids "<SRC_IDS>" --projects "<KEYS>" --scope <SCOPE> --recent-days <NDAYS> [--members "<MEMBERS Bước 5>"] [--roles Dev,QC]`
+   `python3 "$T/progress-report/build_report.py" --source-ids "<SRC_IDS>" --projects "<KEYS>" --scope <SCOPE> --recent-days <NDAYS> [--members "<MEMBERS Bước 5>"] [--roles Dev,QC] [--roles-confirmed]`
    - **`--members "<list>"`** (tên, csv) / **`--roles Dev,PM,QC`**: lọc phần **"theo thành viên"** chỉ hiện người/vai trò đã chọn ở Bước 5 (tổng project GIỮ NGUYÊN). Bỏ qua = hiện tất cả.
+   - **`--roles-confirmed`**: BẮT BUỘC kèm khi Bước 5b user xác nhận **tất cả là Dev** (config chưa có pm/qc) — nếu không, build_report TỪ CHỐI (code-gate vai trò). Đã gán role vào config thì KHÔNG cần cờ này.
    (per `workflows/14-progress-report.md`) → ra dashboard CHUẨN (có **banner**, đủ section: trạng thái · theo người ·
    complexity · **🗺️ Roadmap/Sprint** · capacity · rủi ro) + `email-body-latest.html` + `email-preview-latest.html`.
    - **`--source-ids "<SRC_IDS>"` BẮT BUỘC khi user chọn nguồn cụ thể** → báo cáo **CHỈ gồm nguồn đã chọn** (vault có thể

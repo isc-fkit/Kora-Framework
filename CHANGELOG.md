@@ -10,6 +10,18 @@
 
 ---
 
+## v2.14.6 "Claude-1" — 2026-06-30
+
+**FIX: báo cáo tiến độ KHÔNG hỏi VAI TRÒ (role) thành viên → chấm PM/QC như Dev (cảnh báo "thiếu giờ" SAI).**
+
+Nguyên nhân: skill Bước 5b **tự mâu thuẫn** — vừa "HỎI TÊN + ROLE" vừa "**ĐÃ CÓ config → KHÔNG HỎI LẠI**" + "**Để TRỐNG → build_report tự nhận diện**" → Claude có lối thoát **bỏ qua câu hỏi role** → mọi người bị auto-detect (thường thành Dev) → PM/QC bị chấm "thiếu giờ" sai. Đúng kiểu lỗi "prose bị skip" → vá GỐC bằng **CODE-GATE**:
+
+- **(A) `build_report.py` — CỔNG CHẶN VAI TRÒ:** report tiến độ có **>1 người** mà config CHƯA có `pm_members`/`qc_members` **VÀ** thiếu `--roles-confirmed` → **TỪ CHỐI build** (`die`) kèm hướng dẫn hỏi role. Thêm cờ **`--roles-confirmed`** để waive khi user xác nhận tất cả là Dev (đã hỏi). Waive khác: config có role · ≤1 assignee.
+- **(B) Skill 5b + WF14 Bước 0.6** — viết lại dứt khoát: **BẮT BUỘC hỏi/xác nhận role**. Config có role → **HIỆN ra + AskUserQuestion [Dùng đúng vậy]/[Điều chỉnh]**; config trống → **bắt buộc hỏi** "Ai PM/PO? Ai QC?". Bỏ lối "tự nhận diện im lặng".
+- **(C) Lịch nền (`orchestrator.py`) + `campaign.py`** tự truyền `--roles-confirmed` (chạy nền không có UI hỏi → dùng role config nếu có, else auto).
+
+Đã test gate: thiếu role → DIE đúng ("❌ CHƯA KHAI BÁO VAI TRÒ — 2 người: An, Binh"); có `--roles-confirmed` → build OK.
+
 ## v2.14.5 "Claude-1" — 2026-06-30
 
 **Đồng bộ cơ chế SPAWN SUB-AGENT chuyên biệt cho báo cáo (skill ↔ workflow nhất quán).**
