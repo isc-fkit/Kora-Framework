@@ -10,6 +10,27 @@
 
 ---
 
+## v2.16.11 "Claude-1" — 2026-07-02  🗂️ CHỌN NHIỀU FILE dữ liệu (so sánh Standing Meeting hiện tại ↔ quá khứ)
+
+**Fix lỗi card chọn file dữ liệu bị single-select — vd chọn biên bản Standing Meeting chỉ lấy được 1 kỳ, không so sánh được với kỳ trước.**
+
+- **RULE CHUNG mới (skill `daily-report` Bước 2a + WF14):** MỌI card chọn FILE dữ liệu đều **`multiSelect: true`**
+  — file SharePoint · Google Sheet · Local Excel · biên bản họp · ảnh hoá đơn. KHÔNG để single-select rồi bắt
+  chọn lại từng file.
+- **Nhánh [Cuộc họp] — chọn NHIỀU biên bản để SO SÁNH HIỆN TẠI ↔ QUÁ KHỨ:**
+  - Card chọn file gợi ý ngay: *"chọn thêm biên bản kỳ trước để báo cáo có mục Đối chiếu lịch sử"* (vd chọn CẢ
+    `Standing Meeting - W3` và `W4`, hoặc tháng trước + tháng này).
+  - Claude đọc **TẤT CẢ file đã chọn**; file **MỚI NHẤT** (theo số tuần/ngày trong tên, fallback ngày sửa) =
+    **KỲ HIỆN TẠI**, các file còn lại = **LỊCH SỬ**; `_meeting-rows.json` mỗi biên bản 1 phần tử.
+  - **Agent thư ký đọc đủ MỌI KỲ** → so kỳ hiện tại với (các) kỳ trước: action item nào xong/tồn đọng qua các kỳ,
+    quyết định nào đổi, rủi ro nào lặp lại → điền CHI TIẾT `history_comparison` (mục Đối chiếu lịch sử của báo cáo
+    10 mục) + nhắc trong `executive_summary`. Chỉ chọn 1 kỳ → ghi rõ "chưa có biên bản kỳ trước để so".
+- **Google Sheet:** card chọn file cũng `multiSelect` — chọn nhiều sheet 1 lần, import từng sheet
+  (mỗi sheet 1 `--source-id gsheet_<tên>`, gom vào `SRC_IDS`).
+- **CORE-only** (skill `claude-knowledge-daily-report` + `workflows/14-progress-report.md`) — không migration, DATA giữ nguyên.
+
+---
+
 ## v2.16.10 "Claude-1" — 2026-07-02  🛟 FIX TRIỆT ĐỂ keyword→skill: không dead-end cho MỌI skill + bí danh "framework"
 
 **Chuỗi lỗi thật trên bản cài: user gõ "Cập nhật phiên bản mới nhất framework" → `Skill claude-knowledge-update` báo `Failed` (skill trong app Cowork thiếu/cũ — skill upload KHÔNG tự cập nhật theo đĩa) → model hỏi ngược "framework nào? đang ở đâu?" thay vì chạy update. Bản này fix cả LỚP LỖI, áp cho MỌI keyword & MỌI skill.**

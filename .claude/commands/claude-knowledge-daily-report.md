@@ -72,12 +72,20 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
      → build kèm `--ai reports/ai-invoice-latest.md`. **Report tài chính tự có:** KPI (tiền hàng chưa VAT · thuế GTGT · tổng thanh toán) ·
      **bảng TỔNG HỢP THUẾ GTGT theo thuế suất** · bảng theo khoản mục · tổng hợp theo NCC · biểu đồ cơ cấu & theo tháng · bảng kê chi tiết — chuẩn kế toán.
    - **[Cuộc họp (meeting)]** → nguồn = BIÊN BẢN HỌP. Nếu chưa có: user kéo file họp (.pptx/.docx/ảnh/text), HOẶC chọn từ
-     SharePoint (`sharepoint_search` → `read_resource`), HOẶC **Outlook** (`outlook_calendar_search` lịch họp / `outlook_email_search`
-     email họp) → Claude ĐỌC + TÓM TẮT (AI) thành `reports/_meeting-rows.json`
-     (list: `title/date/attendees/summary/decisions[]/action_items[]/risks[]`) → `python3 "$T/meeting-report/import_meeting.py"
+     SharePoint (2 bước folder→file như Bước 2a), HOẶC **Outlook** (`outlook_calendar_search` lịch họp / `outlook_email_search`
+     email họp).
+     > 🗂️ **CHỌN ĐƯỢC NHIỀU BIÊN BẢN — card chọn file BẮT BUỘC `multiSelect: true`** (vd chọn CẢ `Standing Meeting - W3`
+     > **và** `W4`, hoặc tháng trước + tháng này) — **để SO SÁNH HIỆN TẠI ↔ QUÁ KHỨ**. Gợi ý ngay trong card: *"chọn thêm
+     > biên bản kỳ trước để báo cáo có mục Đối chiếu lịch sử"*. Claude `read_resource`/đọc **TẤT CẢ file đã chọn**;
+     > **file MỚI NHẤT** (theo số tuần/ngày trong tên, fallback ngày sửa) = **KỲ HIỆN TẠI**, các file còn lại = **LỊCH SỬ**.
+     → Claude ĐỌC + TÓM TẮT (AI) thành `reports/_meeting-rows.json` — **mỗi biên bản 1 phần tử** (list:
+     `title/date/attendees/summary/decisions[]/action_items[]/risks[]`) → `python3 "$T/meeting-report/import_meeting.py"
      --from-rows reports/_meeting-rows.json --source-id meeting__<batch>` (lưu vault `type: meeting`) + reindex.
      **BẮT BUỘC SPAWN con Agent THƯ KÝ + PHÂN TÍCH HỌP** (Agent tool, model `sonnet` — vai thư ký cuộc họp + phân tích chiến lược: đọc
-     `reports/_meeting-rows.json` + đối chiếu **task Jira/OKR** trong vault + **so biên bản CŨ** nếu có) → con agent GHI
+     `reports/_meeting-rows.json` **ĐỦ MỌI KỲ đã chọn** + đối chiếu **task Jira/OKR** trong vault + **SO KỲ HIỆN TẠI với
+     (các) KỲ TRƯỚC đã chọn**: action item nào xong/tồn đọng qua các kỳ, quyết định nào đổi, rủi ro nào lặp lại — điền
+     CHI TIẾT vào `history_comparison` + nhắc trong `executive_summary`; chỉ chọn 1 kỳ → `history_comparison` ghi
+     "chưa có biên bản kỳ trước để so") → con agent GHI
      **`reports/_meeting-report.json`** — 1 OBJECT JSON **ĐẦY ĐỦ 10 MỤC** (đừng bỏ mục nào có dữ liệu):
      `title` · `subtitle` · `period` · `source_label` · `scope` · `report_date` · `executive_summary` (prose, dùng `**đậm**` được) ·
      `kpis[{n,l}]` · `decision_callout` · `decisions[]` · `action_items[{task,pic,deadline,status}]` ·
@@ -121,6 +129,9 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
      import_* / BATCH_GET / build_report TRƯỚC khi user chọn. **KHÔNG** để single-select. **KHÔNG** tự chọn rồi chạy.
    - Đây là câu ĐẦU TIÊN sau cổng mật khẩu. (Chỉ bỏ hỏi khi có ĐÚNG 1 nguồn khả dụng.)
 2a. **Với MỖI NGUỒN đã chọn ở Bước 2 → DRILL chi tiết** (project / folder+file / tab):
+   > 🗂️ **RULE CHUNG — MỌI card chọn FILE dữ liệu đều `multiSelect: true`** (file SharePoint · Google Sheet · Local Excel ·
+   > biên bản họp · ảnh hoá đơn): user chọn được NHIỀU file 1 lần (vd nhiều kỳ Standing Meeting để so sánh, nhiều sheet
+   > gộp report). KHÔNG để single-select rồi bắt chọn lại từng file.
    - **[Jira·API|MCP] `<instance>`** → chọn **PROJECT** trong đúng instance đó: API → `import_jira.py --list-projects` (env instance) ·
      MCP → `getVisibleJiraProjects` → AskUserQuestion multi-select project (+ **[Chọn tất cả]**).
    - **[SharePoint] — BẮT BUỘC HỎI 2 BƯỚC, TUYỆT ĐỐI KHÔNG tự quét "file mới nhất":**
@@ -139,8 +150,10 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
        chọn nguồn ở Bước 2): `GOOGLESHEETS_SEARCH_SPREADSHEETS` (query rỗng/`*` → sheet GẦN ĐÂY); tool đòi query hoặc kết quả
        trống → fallback **Google Drive**: `GOOGLEDRIVE_FIND_FILE`/list với `mimeType='application/vnd.google-apps.spreadsheet'`
        sắp `modifiedTime` giảm dần (lấy ~10 file mới nhất).
-     ③ **AskUserQuestion chọn FILE**: mỗi sheet 1 option (tên + ngày sửa; >4 → phân trang rule #8) + ô **"Other" = dán URL/ID
-       HOẶC gõ keyword** (keyword → `GOOGLESHEETS_SEARCH_SPREADSHEETS query=<keyword>` → liệt kê khớp → chọn).
+     ③ **AskUserQuestion chọn FILE — `multiSelect: true` (chọn được NHIỀU sheet)**: mỗi sheet 1 option (tên + ngày sửa;
+       >4 → phân trang rule #8) + ô **"Other" = dán URL/ID HOẶC gõ keyword** (keyword →
+       `GOOGLESHEETS_SEARCH_SPREADSHEETS query=<keyword>` → liệt kê khớp → chọn). Chọn nhiều → import từng sheet
+       (mỗi sheet 1 `--source-id gsheet_<tên>`), gom hết vào `SRC_IDS`.
      ④ Nhiều tab → `GOOGLESHEETS_GET_SHEET_NAMES` → hỏi chọn **tab**. Token nguồn = `gsheet_<tên>`.
      ⚠️ Composio = **TƯƠNG TÁC** (MCP) — **KHÔNG dùng cho lịch nền** (nền headless dùng Jira/SharePoint-Graph/Local). Import ở nhánh `source_type: gsheet`.
    > **>4 mục → phân trang** (rule #8). Xong nhóm này mới sang nhóm kế.

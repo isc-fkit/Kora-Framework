@@ -48,11 +48,15 @@ Windows `py`). **Exit ≠ 0 → DỪNG**: không làm mới, không sinh report.
 > - ⚖️ **Chỉ GỘP khi chọn ≥2 nguồn**; chọn 1 nguồn → báo cáo CHỈ nguồn đó.
 >
 > **Rồi DRILL từng NGUỒN đã chọn:**
+> 🗂️ **RULE CHUNG — MỌI card chọn FILE dữ liệu đều `multiSelect: true`** (file SharePoint · Google Sheet · Local Excel ·
+> biên bản họp · ảnh hoá đơn): chọn được NHIỀU file 1 lần — vd chọn CẢ `Standing Meeting - W3` **và** `W4` để báo cáo
+> **SO SÁNH HIỆN TẠI ↔ QUÁ KHỨ** (file mới nhất = kỳ hiện tại, file cũ = lịch sử → mục Đối chiếu lịch sử/`history_comparison`).
+> KHÔNG để single-select rồi bắt chọn lại từng file.
 > - **[Jira·API|MCP] `<instance>`** → chọn **PROJECT** (API `import_jira.py --list-projects` / MCP `getVisibleJiraProjects`) → multi-select.
 > - **[SharePoint] — BẮT BUỘC HỎI 2 BƯỚC, KHÔNG tự quét "file mới nhất":** ① `sharepoint_folder_search` → user chọn (các) **FOLDER**; ② `sharepoint_search folderName=<folder>` → user chọn (các) **FILE** (folder có thể có file REPORT task-data và/hoặc file MEETING/Standing-Meeting/OKR `.pptx/.docx` → để user chọn loại nào/cả 2).
 >   🔎 **Ô "Other" = TÌM THEO KEYWORD/TÊN FILE:** user gõ keyword (vd `standing meeting`) → `sharepoint_search query="<keyword>"` (tìm theo tên toàn site, có thể kèm `folderName`) → liệt kê khớp → chọn.
 > - **[Local Excel]** → `excel__local`/đường dẫn → chọn file.
-> - **[Google Sheet (Composio)] — TỰ QUÉT LIỆT KÊ FILE trước, KHÔNG bắt dán link (dán vẫn được):** ① kiểm `googlesheets`/`googledrive` ACTIVE (`COMPOSIO_SEARCH_TOOLS`; chưa → `COMPOSIO_MANAGE_CONNECTIONS`); ② tự liệt kê sheet (chỉ METADATA tên file): `GOOGLESHEETS_SEARCH_SPREADSHEETS` query rỗng/`*` → sheet gần đây; đòi query/trống → fallback Drive `GOOGLEDRIVE_FIND_FILE` `mimeType='application/vnd.google-apps.spreadsheet'` sắp modifiedTime desc (~10 file); ③ AskUserQuestion chọn FILE (mỗi sheet 1 option + ngày sửa; >4 phân trang) + ô "Other" = dán URL/ID hoặc gõ keyword (→ SEARCH query=<keyword>); ④ nhiều tab → `GOOGLESHEETS_GET_SHEET_NAMES` → chọn tab. ⚠️ Composio = TƯƠNG TÁC (không dùng lịch nền).
+> - **[Google Sheet (Composio)] — TỰ QUÉT LIỆT KÊ FILE trước, KHÔNG bắt dán link (dán vẫn được):** ① kiểm `googlesheets`/`googledrive` ACTIVE (`COMPOSIO_SEARCH_TOOLS`; chưa → `COMPOSIO_MANAGE_CONNECTIONS`); ② tự liệt kê sheet (chỉ METADATA tên file): `GOOGLESHEETS_SEARCH_SPREADSHEETS` query rỗng/`*` → sheet gần đây; đòi query/trống → fallback Drive `GOOGLEDRIVE_FIND_FILE` `mimeType='application/vnd.google-apps.spreadsheet'` sắp modifiedTime desc (~10 file); ③ AskUserQuestion chọn FILE **`multiSelect: true` — chọn được NHIỀU sheet** (mỗi sheet 1 option + ngày sửa; >4 phân trang; chọn nhiều → import từng sheet, mỗi sheet 1 `--source-id gsheet_<tên>` gom vào `SRC_IDS`) + ô "Other" = dán URL/ID hoặc gõ keyword (→ SEARCH query=<keyword>); ④ nhiều tab → `GOOGLESHEETS_GET_SHEET_NAMES` → chọn tab. ⚠️ Composio = TƯƠNG TÁC (không dùng lịch nền).
 > **Mốc "dữ liệu mới"** = các mục có `updated >= last_import` (mốc RIÊNG mỗi nguồn ở `_system/last-import-<nguồn>.txt`); chưa có
 > → kéo full. **Báo RÕ:** *"Đang lấy dữ liệu của `<nguồn>` từ mốc `<last_import>`."* (Nguồn Jira chưa quét lần nào → báo cần quét trước.)
 

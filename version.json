@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.16.10",
+  "version": "2.16.11",
   "codename": "Claude-1",
   "released": "2026-07-02",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.16.10 — FIX TRIỆT ĐỂ LỚP LỖI keyword→skill cho MỌI skill: skill khớp nhưng KHÔNG gọi được (chưa upload trong app HOẶC Skill tool báo Failed) → NGAY lượt đó tự chạy đường dự phòng phổ quát — ① workflow tương đương (map đủ 17 WF trong gate §🎯), ② skill không có workflow → MỞ FILE SKILL TRÊN ĐĨA (<project>/Skill/ → ~/.claude/commands/ → CORE/Skill/) và làm theo nội dung; KHÔNG xin lỗi suông, KHÔNG hỏi ngược, KHÔNG bắt gõ lại; xong nhắc re-upload Skill/ vào app. Kèm FIX MAP KEYWORD 'cập nhật framework': user gõ 'Cập nhật phiên bản mới nhất framework' bị hỏi ngược 'framework nào? ở đâu?' thay vì chạy update (lỗi thật trên bản cài). Nay 'framework'/'Kora'/'hệ thống'/'app'/'chương trình' được khai là BÍ DANH của chính ứng dụng này ở cả 4 nơi (KEYWORDS.md · CLAUDE.md hàng trigger · description skill /claude-knowledge-update · WF10) + thêm trigger 'cập nhật phiên bản mới nhất', 'cập nhật framework', 'update framework', 'nâng cấp Kora/hệ thống' + rule TUYỆT ĐỐI KHÔNG hỏi lại 'framework nào' — cứ chạy thẳng WF10 (WF10 tự confirm trước khi tải/ghi đè). CORE-only, không migration, DATA giữ nguyên."
+  "intro": "Kora-Framework v2.16.11 — CHỌN ĐƯỢC NHIỀU FILE dữ liệu khi làm báo cáo (fix lỗi single-select). RULE CHUNG mới: MỌI card chọn FILE dữ liệu (SharePoint · Google Sheet · Local Excel · biên bản họp · ảnh hoá đơn) đều multiSelect: true. Nổi bật nhánh CUỘC HỌP: chọn được NHIỀU biên bản (vd Standing Meeting W3 + W4, tháng trước + tháng này) để SO SÁNH HIỆN TẠI ↔ QUÁ KHỨ — file mới nhất = kỳ hiện tại, file cũ = lịch sử; agent thư ký đọc đủ mọi kỳ, so action item xong/tồn đọng qua các kỳ, quyết định đổi, rủi ro lặp → điền chi tiết mục history_comparison (Đối chiếu lịch sử) + nhắc trong executive_summary; chỉ chọn 1 kỳ → ghi rõ 'chưa có biên bản kỳ trước để so'. Google Sheet cũng chọn nhiều sheet 1 lần (mỗi sheet 1 source-id, gom SRC_IDS). CORE-only (skill daily-report + WF14), không migration, DATA giữ nguyên."
 }
