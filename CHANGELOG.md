@@ -10,6 +10,22 @@
 
 ---
 
+## v2.16.4 "Claude-1" — 2026-07-01  ✨ TÍNH NĂNG MỚI
+
+**Thêm nguồn dữ liệu "Google Sheet qua Composio" cho báo cáo — luồng: hỏi LOẠI báo cáo → hỏi NGUỒN dữ liệu.**
+
+- **Skill `/claude-knowledge-daily-report`:** Bước 1b hỏi **loại báo cáo** → Bước 2 hỏi **nguồn dữ liệu**. Nhóm nguồn thứ 3
+  đổi từ `[Local Excel]` thành **`[Bảng tính (Excel / Google Sheet)]`**; Bước 2a sub-hỏi **[Local .xlsx] / [Google Sheet (Composio)]**.
+- **Nhánh Google Sheet (Composio):** `COMPOSIO_SEARCH_TOOLS` kiểm `googlesheets` ACTIVE →
+  `GOOGLESHEETS_SEARCH_SPREADSHEETS` (tìm theo tên) / `GOOGLESHEETS_GET_SHEET_NAMES` (chọn tab) →
+  `GOOGLESHEETS_BATCH_GET` (đọc theo khối 10000 dòng, `UNFORMATTED_VALUE`) → chuẩn hoá ragged rows (header + pad) →
+  `reports/_sheet-<id>.csv` → `import_excel.py --from-rows … --source-id gsheet_<id>` (**tái dùng path CSV có sẵn**, giống nhánh SharePoint CSV).
+- **GIỚI HẠN:** Composio = **TƯƠNG TÁC** (MCP) — **KHÔNG dùng cho lịch nền** (nền headless dùng Jira/SharePoint-Graph/Local .xlsx).
+- **Đồng bộ** skill `claude-knowledge-daily-report` + `workflows/14-progress-report.md` (skill↔workflow khớp). **CORE-only**,
+  không migration, DATA giữ nguyên.
+
+---
+
 ## v2.16.3 "Claude-1" — 2026-07-01  ✨ TÍNH NĂNG MỚI
 
 **Thêm kênh gửi mail "Composio (MCP Gmail)" vào luồng gửi báo cáo.**

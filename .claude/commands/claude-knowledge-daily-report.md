@@ -7,7 +7,7 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
 > 🛑🛑 **GIAO THỨC BẮT BUỘC — KHÔNG NHẢY BƯỚC, KHÔNG TỰ ĐỘNG QUÉT/BUILD.** Khi mở skill này, hành động HỢP LỆ DUY NHẤT,
 > ĐÚNG THỨ TỰ: **(1)** cổng mật khẩu `verify_ops_password.py`; **(2)** **AskUserQuestion chọn LOẠI REPORT**
 > (**5 loại** — Bước 1b: Tiến độ · Cuộc họp · Tiến độ+Meeting+Roadmap/OKR · Báo cáo tài chính · Custom); **(3)** nếu LOẠI = **Tiến độ** →
-> **AskUserQuestion chọn NGUỒN** (3 nhóm cố định **[Jira · SharePoint · Local Excel]**, multiSelect); nếu = **Hoá đơn/Custom**
+> **AskUserQuestion chọn NGUỒN** (3 nhóm cố định **[Jira · SharePoint · Bảng tính (Excel/Google Sheet)]**, multiSelect); nếu = **Hoá đơn/Custom**
 > → nguồn là note `source: invoice` (nạp ảnh hoá đơn nếu chưa có, Bước 1b), KHÔNG hỏi 3 nhóm. **🛑 SAU mỗi câu → DỪNG, CHỜ user.**
 > ⛔ **TUYỆT ĐỐI KHÔNG gọi BẤT KỲ tool nào khác trước khi user trả lời câu chọn nguồn** — CẤM ĐÍCH DANH:
 > `check_connection.py`, `sharepoint_search`, `sharepoint_folder_search`, `getVisibleJiraProjects`,
@@ -98,7 +98,8 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
    > `send_report.py --html-file reports/invoice-report-latest.html --attach reports/invoice-report-latest.html` (qua cổng `KORA_OPS_PW`).
    > **KHÔNG** dùng `email-body-latest.html` ở đây (đó là body của report TIẾN ĐỘ, không phải tài chính).
 2. **(CHỈ khi LOẠI report = Tiến độ) — chọn NHÓM NGUỒN, multiSelect=true.** AskUserQuestion với **ĐÚNG 3 NHÓM CỐ ĐỊNH**
-   (LUÔN hiện đủ cả 3, theo thứ tự): **[Jira] · [SharePoint] · [Local Excel]** (+ **[Tất cả]**).
+   (LUÔN hiện đủ cả 3, theo thứ tự): **[Jira] · [SharePoint] · [Bảng tính (Excel / Google Sheet)]** (+ **[Tất cả]**).
+   > 📊 **Nhóm [Bảng tính]** gồm **Local .xlsx** VÀ **Google Sheet qua Composio** — hỏi cụ thể ở Bước 2a (đừng nhồi >4 option vào card này).
    - ⛔ **KHÔNG dựng câu này từ `check_connection.py`** (đó là bước 2a). **KHÔNG** liệt kê nguồn Jira cụ thể (Jira Cloud/Server)
      ở câu này. **KHÔNG** bỏ SharePoint. **KHÔNG** để single-select.
    - 📎 **SharePoint LUÔN là 1 lựa chọn** nếu **M365 MCP khả dụng** (có tool `sharepoint_search`/`sharepoint_folder_search`)
@@ -114,7 +115,11 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
      **② HỎI FILE trong folder đó**: `sharepoint_search folderName=<folder>` liệt kê file → AskUserQuestion cho user chọn **(các) file**.
        - 🔎 **Ô "Other" ở đây cũng = keyword/tên file** → `sharepoint_search query="<keyword>" folderName=<folder>` (hoặc bỏ folderName để tìm toàn site) → liệt kê khớp → chọn.
      1 folder có thể có **file REPORT (task data → import thành note)** và/hoặc **file MEETING/Standing-Meeting/OKR (.pptx/.docx — đọc làm BỐI CẢNH roadmap, KHÔNG import task)** — **để user chọn loại nào / cả 2**. KHÔNG tự đoán, KHÔNG tự lấy bản mới nhất.
-   - **[Local Excel]** → entry `excel__local` (hoặc hỏi đường dẫn .xlsx qua ô "Other") → chọn file.
+   - **[Bảng tính (Excel / Google Sheet)]** → AskUserQuestion **[Local .xlsx] / [Google Sheet (Composio)]**:
+     - **[Local .xlsx]** → entry `excel__local` (hoặc hỏi đường dẫn .xlsx qua ô "Other") → chọn file.
+     - **[Google Sheet (Composio)]** → hỏi **spreadsheet** (AskUserQuestion: dán **URL/ID** vào ô "Other", hoặc gõ **TÊN** →
+       `GOOGLESHEETS_SEARCH_SPREADSHEETS` liệt kê chọn); nhiều tab → `GOOGLESHEETS_GET_SHEET_NAMES` → hỏi chọn **tab**. Token nguồn
+       = `gsheet_<tên>`. ⚠️ Composio = **TƯƠNG TÁC** (MCP) — **KHÔNG dùng cho lịch nền** (nền headless dùng Jira/SharePoint-Graph/Local). Import ở Bước 2a ▸ Google Sheet.
    > **>4 mục → phân trang** (rule #8). Xong nhóm này mới sang nhóm kế.
    > 🏷️ **GHI NHỚ TOKEN NGUỒN của mỗi lựa chọn** (để báo cáo CHỈ gồm nguồn đã chọn — user xác nhận "Chỉ nguồn đã chọn"):
    > **[Jira]** → token `jira`; **mỗi file SharePoint/Local** → import với `--source-id` RÕ RÀNG, nhất quán (vd
@@ -138,7 +143,14 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
    - **`source_type: sheet`/`excel` (method `mcp`) — SharePoint 365, 2 cách:**
      **① MCP + CSV (không cần Graph token):** file để dạng **.csv** → `sharepoint_search fileType="csv"` → `read_resource` (trả **text CSV nguyên vẹn**) → Claude ghi `reports/_sheet-<id>.csv` → `python3 "$T/excel-to-obsidian/import_excel.py" --from-rows reports/_sheet-<id>.csv --map … --source-id <id>`. (read_resource đọc CSV CHUẨN; chỉ .xlsx mới lệch cột.)
      **② Graph cho .xlsx:** `sharepoint_search fileType="xlsx"` → URI `file:///{driveId}/{itemId}` → `import_excel.py --graph-item "<driveId>/<itemId>"` (Graph token creds `SHAREPOINT_*` app **Sites.Read.All** → `/content` → parse ô chuẩn). App-only Sites.Read.All chạy được cả nền.
-     ⚠️ KHÔNG dùng read_resource lấy ô của .xlsx (text lệch cột). **Google Sheet**: Publish-CSV → `--from-url`.
+     ⚠️ KHÔNG dùng read_resource lấy ô của .xlsx (text lệch cột). **Google Sheet (cách cũ, không cần Composio)**: Publish-CSV → `--from-url`.
+   - **`source_type: gsheet` (method `composio`) — Google Sheet qua Composio (TƯƠNG TÁC, KHÔNG cần Publish-CSV):**
+     `COMPOSIO_SEARCH_TOOLS` (use_case "read google sheet") kiểm toolkit `googlesheets` ACTIVE (chưa → `COMPOSIO_MANAGE_CONNECTIONS`
+     add googlesheets) → `GOOGLESHEETS_BATCH_GET` `{spreadsheet_id:"<ID/URL>", ranges:["<Tab>!A1:Z10000"], valueRenderOption:"UNFORMATTED_VALUE"}`
+     → **chuẩn hoá ragged rows** (hàng đầu = header; pad mỗi hàng theo độ dài header — pitfall Composio: hàng trống/thiếu cột) →
+     Claude ghi `reports/_sheet-<id>.csv` → `python3 "$T/excel-to-obsidian/import_excel.py" --from-rows reports/_sheet-<id>.csv
+     --map '<json nếu cột lạ>' --source-id gsheet_<id> [--project <KEY>]` → note `source: excel` (idempotent). Sheet lớn → đọc **theo
+     khối 10000 dòng** (grid-limit + rate 60 reads/phút). Token nguồn = `gsheet_<id>` (gom vào `SRC_IDS`).
    Quét xong HẾT các nguồn → reindex **1 lần** `build_index.py --root .`. **Report trên UNION (Jira + Excel) vừa kéo** (task đã Done/đổi trạng thái sẽ đúng).
    > ⚠️ Nhiều domain **trùng mã project/issue** → vault đè nhau (giới hạn đã biết). Khác mã thì gộp thoải mái.
 5. **THÀNH VIÊN của (các) project — LUÔN HỎI** (nhiều dự án, mỗi người gắn 1 dự án → KHÔNG tự dùng / KHÔNG tự đoán):

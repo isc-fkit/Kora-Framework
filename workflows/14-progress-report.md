@@ -45,7 +45,8 @@ Windows `py`). **Exit ≠ 0 → DỪNG**: không làm mới, không sinh report.
 > - **[Jira]** → multi-select nguồn `jira_*`/`atlassian` (kèm MCP/API + domain) → project.
 > - **[SharePoint] — BẮT BUỘC HỎI 2 BƯỚC, KHÔNG tự quét "file mới nhất":** ① `sharepoint_folder_search` → user chọn (các) **FOLDER**; ② `sharepoint_search folderName=<folder>` → user chọn (các) **FILE** (folder có thể có file REPORT task-data và/hoặc file MEETING/Standing-Meeting/OKR `.pptx/.docx` → để user chọn loại nào/cả 2).
 >   🔎 **Ô "Other" = TÌM THEO KEYWORD/TÊN FILE:** user gõ keyword (vd `standing meeting`) → `sharepoint_search query="<keyword>"` (tìm theo tên toàn site, có thể kèm `folderName`) → liệt kê khớp → chọn. Dùng khi biết tên file (nhanh hơn duyệt folder).
-> - **[Local Excel]** → chọn file (`excel__local` hoặc đường dẫn).
+> - **[Bảng tính (Excel / Google Sheet)]** → sub-hỏi **[Local .xlsx]** (`excel__local`/đường dẫn) hoặc **[Google Sheet (Composio)]**
+>   (dán URL/ID hoặc gõ tên → `GOOGLESHEETS_SEARCH_SPREADSHEETS`; nhiều tab → `GOOGLESHEETS_GET_SHEET_NAMES`). ⚠️ Composio = TƯƠNG TÁC (không dùng lịch nền).
 > **Mốc "dữ liệu mới"** = các mục có `updated >= last_import` (mốc RIÊNG mỗi nguồn ở `_system/last-import-<nguồn>.txt`); chưa có
 > → kéo full. **Báo RÕ:** *"Đang lấy dữ liệu của `<nguồn>` từ mốc `<last_import>`."* (Nguồn Jira chưa quét lần nào → báo cần quét trước.)
 
@@ -110,6 +111,11 @@ nguồn — đặt ở đầu lệnh: `JIRA_BASE_URL=<entry.base_url>` (+ `JIRA_
   app Azure AD **Sites.Read.All**) → `GET /drives/.../content` → parse ô CHUẨN (honor `HTTPS_PROXY`).
   > ⚠️ **KHÔNG** dùng `read_resource` để lấy ô của **.xlsx** (text lệch cột, không downloadUrl). Với .xlsx qua MCP → dùng **Graph (②)**;
   > muốn MCP thuần không token → để file dạng **CSV (①)**.
+- **`method: composio` — GOOGLE SHEET QUA COMPOSIO (TƯƠNG TÁC, không cần Publish-CSV/Graph):** `COMPOSIO_SEARCH_TOOLS`
+  (use_case "read google sheet") kiểm `googlesheets` ACTIVE → `GOOGLESHEETS_BATCH_GET` `{spreadsheet_id:"<ID/URL>",
+  ranges:["<Tab>!A1:Z10000"], valueRenderOption:"UNFORMATTED_VALUE"}` → chuẩn hoá ragged rows (header + pad theo header) →
+  ghi `reports/_sheet-<id>.csv` → `import_excel.py --from-rows reports/_sheet-<id>.csv --map <…> --source-id gsheet_<id>`.
+  Sheet lớn → đọc **theo khối 10000 dòng** (grid-limit + rate 60 reads/phút). ⚠️ MCP → **chỉ tương tác**, KHÔNG dùng cho lịch nền.
   - **Google Sheet**: "Publish to web → CSV" → `import_excel.py --from-url "<csv_url>"`.
 - Sau nạp: reindex `build_index.py --root .`. build_report **tự gộp** note `source: excel` chung với Jira (cùng schema:
   status/assignee/story_points/complexity/time_*; vai trò PM/QC vẫn áp). Cột bắt buộc tối thiểu: **summary** + **status**.
