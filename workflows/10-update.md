@@ -1,7 +1,11 @@
 # Workflow 10 — Cập nhật phiên bản APP (GIỮ NGUYÊN tri thức)
 
-> Trigger: "cập nhật phiên bản", "cập nhật ứng dụng / app", "lên bản mới nhất",
+> Trigger: "cập nhật phiên bản", "cập nhật phiên bản mới nhất", "cập nhật ứng dụng / app",
+> **"cập nhật framework"**, "update framework", "nâng cấp Kora / hệ thống", "lên bản mới nhất",
 > "có bản mới không", "kiểm tra phiên bản".
+> 🏷️ **"framework" / "Kora" / "hệ thống" / "app" / "chương trình" = bí danh của CHÍNH ứng dụng này** —
+> **TUYỆT ĐỐI KHÔNG hỏi lại "framework nào? đang ở đâu?"** (lỗi thật: user gõ *"cập nhật phiên bản mới nhất
+> framework"* bị hỏi ngược thay vì chạy — SAI). Cứ chạy workflow này.
 > ⚠️ Đây là **cập nhật phiên bản CHƯƠNG TRÌNH (app)**. Khi user gõ các trigger trên →
 > **chạy thẳng workflow này**, KHÔNG hỏi lại "bạn muốn cập nhật cái gì". WF tự confirm trước
 > bước GHI/tải (Bước 2) nên an toàn.

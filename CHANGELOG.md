@@ -10,6 +10,34 @@
 
 ---
 
+## v2.16.10 "Claude-1" — 2026-07-02  🛟 FIX TRIỆT ĐỂ keyword→skill: không dead-end cho MỌI skill + bí danh "framework"
+
+**Chuỗi lỗi thật trên bản cài: user gõ "Cập nhật phiên bản mới nhất framework" → `Skill claude-knowledge-update` báo `Failed` (skill trong app Cowork thiếu/cũ — skill upload KHÔNG tự cập nhật theo đĩa) → model hỏi ngược "framework nào? đang ở đâu?" thay vì chạy update. Bản này fix cả LỚP LỖI, áp cho MỌI keyword & MỌI skill.**
+
+- **🛟 ĐƯỜNG DỰ PHÒNG PHỔ QUÁT (gate §🎯 CLAUDE.md + KEYWORDS.md) — skill khớp nhưng KHÔNG gọi được** (chưa upload
+  HOẶC `Skill` trả `Failed`/not found) → NGAY trong lượt đó tự thực hiện việc tương đương, KHÔNG xin lỗi suông,
+  KHÔNG hỏi ngược, KHÔNG bắt user gõ lại:
+  1. Skill có **workflow tương đương** → chạy workflow (map đủ 17 WF ghi thẳng trong gate: init=00 · scan=01/01b ·
+     import=02 · export docs=06 · schedule=08 · evolve=09 · update=10 · export/import KB=11 · daily-report=14 ·
+     archive=15 · sync=16 · canva=17 · campaign=18 · worklog=19 · GEO=20…; project không có `workflows/` → đọc
+     `~/.claude/kora-framework/workflows/`).
+  2. Skill KHÔNG có workflow riêng (connect · send-mail · ops-password · alert-mail · version · uninstall…) →
+     **MỞ FILE SKILL TRÊN ĐĨA và LÀM THEO NỘI DUNG như thể skill đã nạp**: `<project>/Skill/claude-knowledge-<x>.md`
+     → `~/.claude/commands/` → `~/.claude/kora-framework/Skill/`. File skill ship kèm MỌI bản cài + được
+     installer/update refresh cả 3 nơi → đường này KHÔNG BAO GIỜ thiếu.
+  Vẫn giữ: confirm 1 câu cho skill gated/outward + cổng `KORA_OPS_PW`. Xử lý xong nhắc user re-upload `Skill/`
+  vào mục Skills để lần sau app kích hoạt trực tiếp.
+- **🏷️ Bí danh CHƯƠNG TRÌNH:** "framework" · "Kora" · "hệ thống" · "app/ứng dụng" · "chương trình" = CHÍNH ứng dụng
+  này — khai ở KEYWORDS.md + CLAUDE.md + description skill update + WF10; trigger mới «cập nhật phiên bản mới nhất» ·
+  «cập nhật framework» · «update framework» · «nâng cấp Kora/hệ thống»; **CẤM hỏi lại "framework nào? ở đâu?"**.
+- **Mở rộng bí danh keyword các lệnh hay dùng** (KEYWORDS.md): quét («kéo task về», «quét nguồn/dữ liệu», «import
+  jira») · báo cáo («sinh/làm/xuất báo cáo», «report») · gửi mail («mail báo cáo», «gửi báo cáo qua email») ·
+  version («version bao nhiêu», «đang dùng bản nào»).
+- An toàn giữ nguyên: WF10 vẫn tự confirm trước khi tải/ghi đè; chỉ "cập nhật" TRƠ mới hỏi phân biệt app vs tri thức.
+- **CORE-only** (KEYWORDS.md + CLAUDE.md + WF10 + skill update) — không migration, DATA giữ nguyên.
+
+---
+
 ## v2.16.9 "Claude-1" — 2026-07-02  📄 Google Sheet TỰ QUÉT LIỆT KÊ FILE (không bắt dán link)
 
 **Chọn nguồn [Google Sheet (Composio)] trong báo cáo → tự kiểm kết nối + tự liệt kê sheet cho user BẤM CHỌN; dán link vẫn được (ô "Other").**

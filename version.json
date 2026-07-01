@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.16.9",
+  "version": "2.16.10",
   "codename": "Claude-1",
   "released": "2026-07-02",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.16.9 — Nguồn Google Sheet (Composio) trong báo cáo nay TỰ QUÉT LIỆT KÊ FILE thay vì bắt dán link: chọn nguồn xong tự kiểm Composio (googlesheets/googledrive active, chưa có → hướng dẫn connect) → tự liệt kê sheet gần đây (GOOGLESHEETS_SEARCH_SPREADSHEETS query rỗng; fallback Google Drive FIND_FILE mimeType spreadsheet sắp modifiedTime) → AskUserQuestion chọn FILE (mỗi sheet 1 option + ngày sửa, >4 phân trang) + ô Other vẫn nhận dán URL/ID hoặc gõ keyword tìm → nhiều tab hỏi tab. Chỉ đọc METADATA tên file sau khi user đã chọn nguồn — không quét dữ liệu trước khi hỏi. CORE-only (skill daily-report + WF14), không migration, DATA giữ nguyên."
+  "intro": "Kora-Framework v2.16.10 — FIX TRIỆT ĐỂ LỚP LỖI keyword→skill cho MỌI skill: skill khớp nhưng KHÔNG gọi được (chưa upload trong app HOẶC Skill tool báo Failed) → NGAY lượt đó tự chạy đường dự phòng phổ quát — ① workflow tương đương (map đủ 17 WF trong gate §🎯), ② skill không có workflow → MỞ FILE SKILL TRÊN ĐĨA (<project>/Skill/ → ~/.claude/commands/ → CORE/Skill/) và làm theo nội dung; KHÔNG xin lỗi suông, KHÔNG hỏi ngược, KHÔNG bắt gõ lại; xong nhắc re-upload Skill/ vào app. Kèm FIX MAP KEYWORD 'cập nhật framework': user gõ 'Cập nhật phiên bản mới nhất framework' bị hỏi ngược 'framework nào? ở đâu?' thay vì chạy update (lỗi thật trên bản cài). Nay 'framework'/'Kora'/'hệ thống'/'app'/'chương trình' được khai là BÍ DANH của chính ứng dụng này ở cả 4 nơi (KEYWORDS.md · CLAUDE.md hàng trigger · description skill /claude-knowledge-update · WF10) + thêm trigger 'cập nhật phiên bản mới nhất', 'cập nhật framework', 'update framework', 'nâng cấp Kora/hệ thống' + rule TUYỆT ĐỐI KHÔNG hỏi lại 'framework nào' — cứ chạy thẳng WF10 (WF10 tự confirm trước khi tải/ghi đè). CORE-only, không migration, DATA giữ nguyên."
 }

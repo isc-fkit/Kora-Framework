@@ -1,5 +1,5 @@
 ---
-description: Update the Kora app/skills to the latest release by RUNNING the bash update script on the CLI, keeping your knowledge intact. Do not ask "update what". Triggers (vi): «cập nhật phiên bản», «cập nhật ứng dụng», «lên bản mới nhất», «có bản mới không», «nâng cấp Kora» → tự gọi skill này khi user nhắn các ý đó (tiếng Việt) trong Cowork.
+description: Update the Kora app/skills/framework to the latest release by RUNNING the bash update script on the CLI, keeping your knowledge intact. Do not ask "update what" or "which framework". Triggers (vi): «cập nhật phiên bản», «cập nhật phiên bản mới nhất», «cập nhật ứng dụng», «cập nhật framework», «update framework», «lên bản mới nhất», «có bản mới không», «nâng cấp Kora / hệ thống» → tự gọi skill này khi user nhắn các ý đó (tiếng Việt) trong Cowork. "framework"/"Kora"/"hệ thống"/"app" đều là bí danh của CHÍNH ứng dụng này — KHÔNG hỏi lại "framework nào? ở đâu?".
 ---
 
 The user invoked `/claude-knowledge-update` — cập nhật chương trình lên bản mới nhất (giữ nguyên tri thức).
