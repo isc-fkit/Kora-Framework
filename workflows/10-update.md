@@ -18,7 +18,14 @@
 
 ## Bước 1 — So phiên bản
 
+> ⚡ **Cowork sandbox chặn mạng** → MỌI lệnh mạng của Bước 1–3 (curl so version, chạy installer/update script)
+> **chạy qua `run_command`** (local-terminal) khi có; không có → Bash sandbox chỉ dùng cho phần ĐỌC file local,
+> phần mạng BÀN GIAO Terminal (Bước 3).
+
 1. Đọc `version.json` ở gốc repo → `LOCAL` = version + codename hiện tại.
+   **KHÔNG có `version.json` trong project** (bản cài SKILL/registered — project chỉ có CLAUDE.md + `Skill/` + DATA)
+   → `LOCAL` = **`~/.claude/kora-framework/version.json`** (đọc qua `run_command: cat ~/.claude/kora-framework/version.json`
+   — sandbox có thể không đọc được `$HOME`). **TUYỆT ĐỐI KHÔNG** kết luận "không rõ bản/chưa cài" vì project thiếu file này.
 2. Lấy bản mới nhất trên GitHub — **LẤY TAG QUA REDIRECT `releases/latest`** (no-auth, KHÔNG dính
    rate-limit `api.github.com` — hay bị **403** trên IP công ty, KHÔNG dính CDN cache của raw.githubusercontent):
    ```
@@ -64,6 +71,10 @@
 - **Bản cài SKILL** (KHÔNG có `scripts/update.command` trong project; CORE ở `~/.claude/kora-framework`) → cập nhật =
   **chạy lại installer**: `bash <(curl -fsSL https://raw.githubusercontent.com/isc-fkit/Kora-Framework/release/install.command)`
   (Windows: tải `install.bat` về `%TEMP%` rồi chạy). Kéo CORE+skill mới, **GIỮ NGUYÊN tri thức** (vault/config/.env/docs).
+- ℹ️ Cả installer lẫn `update.command` đều **tự fallback PROXY** khi mạng công ty chặn tải trực tiếp
+  (`KORA_UPDATE_PROXY` → `https_proxy`/`HTTPS_PROXY` → proxy FPT) và **tự reconcile MỌI project Kora**
+  (refresh `Skill/` + `CLAUDE.md` + merge config — in "Đã refresh N project"). Curl trực tiếp fail → CỨ chạy
+  script, script tự lo proxy; ĐỪNG tự chế lệnh tải khác.
 - **Bản DEV / có `scripts/update.command`** → `bash scripts/update.command` (git pull --ff-only nếu có `.git`; else tải
   `release.zip` ghi đè **chỉ CORE**, loại trừ MỌI DATA: vault `*_Brain/`, `.kb/*`, `docs/`, `inbox/`, `config/factory-config.yaml`,
   `config/domain-rules.md`, `.env.*`; KHÔNG `--delete`).
@@ -75,8 +86,14 @@
 
 ## Bước 4 — Sau cập nhật
 
-1. Đọc lại `version.json` → báo "đã lên vY (Kora-…)".
+1. **VERIFY — đọc lại `version.json` ĐÚNG NHÁNH** (bản cài SKILL = `~/.claude/kora-framework/version.json`, qua
+   `run_command`) → báo "đã lên vY (Kora-…)" + số project reconcile từ output script. **Version KHÔNG đổi → coi là
+   FAIL** — đọc output tìm nguyên nhân (mạng/proxy), KHÔNG báo "đã cập nhật".
 2. **Đọc lại `CLAUDE.md` + `workflows/`** (vừa có thể đổi) trước khi làm việc tiếp.
 3. Chạy `python3 tools/kb-indexer/build_index.py --root .` (Windows: `py`) (phòng khi indexer đổi).
 4. Bản mới có bước "migration" (đổi cấu trúc config/vault) → làm theo `CHANGELOG.md`;
    TUYỆT ĐỐI không tự ý đổi cấu trúc DATA của user khi CHANGELOG không nói.
+5. **Nhắc re-upload skill vào Cowork (bước hay quên → "update rồi mà hành vi vẫn cũ"):** update chỉ refresh skill
+   trên ĐĨA (`~/.claude/commands/` + `<project>/Skill/`); **skill đã UPLOAD vào mục Skills của app KHÔNG tự cập
+   nhật**. Đọc CHANGELOG bản mới → liệt kê các skill ĐỔI → nhắc user upload lại đúng các file đó từ
+   `<project>/Skill/`. (`CLAUDE.md` project ĐÃ tự thay → luồng mới trong CLAUDE.md chạy ngay cả khi chưa re-upload.)

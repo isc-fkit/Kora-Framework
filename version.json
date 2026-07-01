@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.16.6",
+  "version": "2.16.7",
   "codename": "Claude-1",
-  "released": "2026-07-01",
+  "released": "2026-07-02",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.16.6 — CODE-GATE ÉP MỌI LOẠI BÁO CÁO PHẢI DÙNG SUB-AGENT CHUYÊN BIỆT phân tích (không còn 'chay'). Trước đây invoice/custom truyền --ai TÙY CHỌN → có thể build không phân tích. Nay build_report.py thêm CỔNG CHẶN PHÂN TÍCH: invoice/custom TỪ CHỐI build nếu thiếu --ai <file> phân tích thật (hàm _ai_ok: file tồn tại + ≥40 ký tự + không placeholder KR-AI); meeting đã gate qua _meeting-report.json (agent thư ký sinh); tiến độ gate ở send_report (chặn gửi khi khối AI còn placeholder). → 4/4 loại đều buộc spawn sub-agent chuyên biệt (tiến độ=3 agent operations · tài chính=agent kế toán · họp=agent thư ký · custom=agent bám template) rồi build với --ai. Waiver --ai-confirmed CHỈ cho lịch NỀN headless (orchestrator + campaign tự truyền, không spawn agent được). Siết prose skill daily-report tham chiếu code-gate. CORE-only (build_report.py + orchestrator.py + campaign.py + skill), không migration, DATA giữ nguyên. Nền v2.16.5 (force luồng báo cáo 6 bước)."
+  "intro": "Kora-Framework v2.16.7 — FIX TRIỆT ĐỂ 'cập nhật phiên bản' cho bản cài SKILL/registered (cài từ installer/git, project không có scripts/ + version.json): skill /claude-knowledge-update + WF10 nay (1) ƯU TIÊN run_command cho MỌI lệnh (Cowork sandbox chặn mạng → curl fail KHÔNG phải dead-end, không bàn giao khi có run_command); (2) version hiện tại đọc ~/.claude/kora-framework/version.json — KHÔNG kết luận 'không rõ bản' vì project thiếu file; (3) installer/update tự fallback proxy (KORA_UPDATE_PROXY→https_proxy→proxy FPT) + reconcile mọi project; (4) SAU update BẮT BUỘC VERIFY version đổi thật (không đổi = FAIL) + NHẮC RE-UPLOAD các skill ĐỔI vào mục Skills của Cowork (skill upload trong app KHÔNG tự cập nhật — nguyên nhân 'update rồi mà hành vi vẫn cũ'). Đồng thời force luồng BÁO CÁO ngay trong CLAUDE.md + WF14 (chạy cả khi skill chưa upload): ① LUÔN hỏi LOẠI báo cáo trước tiên (5 loại) ② hỏi NGUỒN động đầy đủ mọi kết nối MCP+API ③ sub-agent chuyên biệt (code-gate) ④⑤ hỏi người nhận (nhiều email) + tiêu đề → tự gửi ⑥ sau gửi hỏi đặt lịch. CORE-only (CLAUDE.md + WF10/WF14 + skill update), không migration, DATA giữ nguyên."
 }

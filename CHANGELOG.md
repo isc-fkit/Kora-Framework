@@ -10,6 +10,35 @@
 
 ---
 
+## v2.16.7 "Claude-1" — 2026-07-02  🔧 FIX UPDATE bản cài SKILL + force luồng báo cáo ở CLAUDE.md
+
+**Fix triệt để "cập nhật phiên bản" cho bản cài SKILL/registered (cài từ installer/git — project chỉ có CLAUDE.md + `Skill/` + DATA, KHÔNG có `scripts/`/`version.json`).**
+
+- **Vấn đề (máy FMC-Knowledge-Base):** trong Cowork, lệnh "cập nhật phiên bản" không chạy trọn — skill update
+  không nhắc `run_command` (sandbox chặn mạng → curl installer fail → bàn giao/dead-end), đọc version từ
+  `version.json` project (không tồn tại → "không rõ bản"), và **không nhắc re-upload skill vào Cowork** sau
+  update → "update rồi mà hành vi vẫn cũ" (skill upload trong app KHÔNG tự cập nhật).
+- **Fix — skill `/claude-knowledge-update` + `workflows/10-update.md`:**
+  - **Bước 0 xác định nhánh + version đúng chỗ:** bản cài SKILL → `LOCAL` = `~/.claude/kora-framework/version.json`
+    (qua `run_command`); CẤM kết luận "không rõ bản/chưa cài" vì project thiếu file.
+  - **MỌI lệnh (so version/curl/installer/update script) ƯU TIÊN `run_command`** — curl trong sandbox fail = tín hiệu
+    đi `run_command`/bàn giao, KHÔNG phải "hết cách".
+  - Nêu rõ installer/`update.command` **tự fallback PROXY** (`KORA_UPDATE_PROXY` → `https_proxy` → proxy FPT) +
+    **tự reconcile MỌI project** (Skill/ + CLAUDE.md + merge config) → đừng tự chế lệnh tải khác.
+  - **VERIFY sau update:** đọc lại version ĐÚNG NHÁNH — version không đổi = FAIL, không báo "đã cập nhật".
+  - **Bước mới — NHẮC RE-UPLOAD skill vào Cowork:** liệt kê skill ĐỔI theo CHANGELOG → user upload lại từ
+    `<project>/Skill/` vào mục Skills (CLAUDE.md project đã tự thay nên luồng mới trong CLAUDE.md chạy ngay).
+- **Force luồng BÁO CÁO ngay trong CLAUDE.md + WF14** (chạy cả khi skill daily-report chưa/không upload):
+  hàng trigger "báo cáo tiến độ" nay ép đủ 6 bước: **① LUÔN hỏi LOẠI báo cáo trước tiên** (5 loại — Bước 1b skill)
+  → **② hỏi NGUỒN động đầy đủ mọi kết nối MCP + API** (`check_connection.py --list --json` + dò MCP; mỗi instance
+  Jira 1 mục · SharePoint · Google Sheet (Composio) · Local Excel) → **③ sub-agent chuyên biệt** (code-gate) →
+  **④⑤ hỏi NGƯỜI NHẬN (nhiều email) + TIÊU ĐỀ → tự gửi** → **⑥ sau gửi hỏi ĐẶT LỊCH**. WF14 Bước 0.5 thêm cổng
+  "hỏi LOẠI trước nếu phiên chưa hỏi" (lịch nền mặc định Tiến độ, không hỏi).
+- **CORE-only** (CLAUDE.md + `workflows/10-update.md` + `workflows/14-progress-report.md` + skill update) —
+  không migration, DATA giữ nguyên.
+
+---
+
 ## v2.16.6 "Claude-1" — 2026-07-01  ✨ CODE-GATE (force)
 
 **Ép MỌI loại báo cáo phải dùng SUB-AGENT chuyên biệt phân tích — bằng code-gate ở tool, không chỉ prose.**

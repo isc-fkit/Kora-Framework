@@ -35,7 +35,12 @@ Windows `py`). **Exit ≠ 0 → DỪNG**: không làm mới, không sinh report.
 > **BẮT BUỘC** đã qua cổng mật khẩu **VÀ** đã `AskUserQuestion` chọn nguồn. KHÔNG "tự đủ dữ liệu rồi build". 🔒 `build_report`
 > TỪ CHỐI nếu vault >1 nguồn mà thiếu `--source-ids`.
 
-> 🎯 **CÂU HỎI ĐẦU TIÊN — HỎI NGUỒN, LIỆT KÊ ĐỘNG ĐẦY ĐỦ mọi nguồn ĐANG kết nối, multiSelect=true.**
+> 🏷️ **HỎI LOẠI BÁO CÁO TRƯỚC (nếu phiên này CHƯA hỏi):** vào từ câu lệnh "báo cáo/sinh báo cáo" chung →
+> AskUserQuestion **5 loại** như `/claude-knowledge-daily-report` Bước 1b (Tiến độ · Cuộc họp · Tiến độ+Meeting+
+> Roadmap/OKR · Tài chính/hoá đơn · Custom; >4 → phân trang). WF14 này = nhánh **LOẠI = Tiến độ**; loại khác →
+> đi đúng nhánh của skill/loại đó. (Lịch nền/WF08 gọi tự động = mặc định Tiến độ, KHÔNG hỏi.)
+>
+> 🎯 **CÂU HỎI KẾ — HỎI NGUỒN, LIỆT KÊ ĐỘNG ĐẦY ĐỦ mọi nguồn ĐANG kết nối, multiSelect=true.**
 > Dựng danh sách (chỉ ĐỌC): `check_connection.py --list --json` → **mỗi instance Jira 1 mục** (`[Jira·API] host` / `[Jira·MCP] host`);
 > **SharePoint** nếu M365 MCP khả dụng (`sharepoint_search`); **Google Sheet (Composio)** nếu `COMPOSIO_SEARCH_TOOLS` báo `googlesheets` active;
 > **Local Excel** (`excel__local`/đường dẫn). AskUserQuestion liệt kê ĐÚNG nguồn tìm được + **[Tất cả]**; **>4 → phân trang**.
