@@ -60,6 +60,18 @@ def die(msg):
     sys.exit(1)
 
 
+def _ai_ok(path):
+    """File phân tích của SUB-AGENT chuyên biệt tồn tại + có nội dung THẬT (không rỗng/placeholder).
+    Dùng cho CỔNG CHẶN PHÂN TÍCH: mọi loại báo cáo phải có phân tích sub-agent trước khi build."""
+    try:
+        if not path or not os.path.exists(path):
+            return False
+        txt = open(path, encoding="utf-8").read().strip()
+        return len(txt) >= 40 and "<!--KR-AI-->" not in txt
+    except Exception:
+        return False
+
+
 def esc(s):
     return html.escape(str(s if s is not None else ""), quote=True)
 
@@ -1971,6 +1983,9 @@ def main():
     ap.add_argument("--roles-confirmed", action="store_true",
                     help="Xác nhận ĐÃ HỎI user vai trò (skill Bước 5b / WF14 0.6) hoặc chạy lịch nền — "
                          "waive CỔNG CHẶN VAI TRÒ. Dùng khi tất cả là Dev (không PM/QC) hoặc đã gán role.")
+    ap.add_argument("--ai-confirmed", dest="ai_confirmed", action="store_true",
+                    help="Waive CỔNG CHẶN PHÂN TÍCH — CHỈ cho lịch NỀN headless (orchestrator/campaign không spawn agent được). "
+                         "Interactive: TUYỆT ĐỐI KHÔNG dùng flag này; hãy spawn sub-agent chuyên biệt rồi truyền --ai <file>.")
     args = ap.parse_args()
     DATA = data_root()   # project (cwd) nếu có config/factory-config.yaml; else REPO_ROOT (dev / lịch nền)
 
@@ -2062,6 +2077,17 @@ def main():
             tmpl_html, _base, ttl = load_report_template(args.template, DATA)
             if ttl:
                 title = ttl
+        # ── CỔNG CHẶN PHÂN TÍCH: MỌI báo cáo phải có phân tích của SUB-AGENT chuyên biệt (không build "chay") ──
+        if not (_ai_ok(args.ai_md) or getattr(args, "ai_confirmed", False)):
+            if rtype == "invoice":
+                die("❌ Báo cáo TÀI CHÍNH/HOÁ ĐƠN BẮT BUỘC có phân tích của SUB-AGENT chuyên biệt.\n"
+                    "   → Spawn Agent KẾ TOÁN (data:analyze + VAT/MST/khấu trừ thuế đầu vào/dòng tiền VN) đọc "
+                    "reports/_invoice-rows.json → ghi reports/ai-invoice-latest.md → build lại với "
+                    "--ai reports/ai-invoice-latest.md. (Lịch NỀN headless: --ai-confirmed.)")
+            else:
+                die("❌ Báo cáo CUSTOM BẮT BUỘC có phân tích của SUB-AGENT chuyên biệt.\n"
+                    "   → Spawn Agent BÁM TEMPLATE (data:analyze đúng mục tiêu template) → ghi reports/ai-custom-latest.md "
+                    "→ build lại với --ai reports/ai-custom-latest.md. (Lịch NỀN headless: --ai-confirmed.)")
         ai_html = ""
         if args.ai_md and os.path.exists(args.ai_md):
             ai_html = render_ai_cards(open(args.ai_md, encoding="utf-8").read())

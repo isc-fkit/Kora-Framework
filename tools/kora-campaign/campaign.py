@@ -96,7 +96,7 @@ def build_cmd(step, T):
         return [py, t("kb-indexer", "build_index.py"), "--root", "."]
     if typ == "report":
         cmd = [py, t("progress-report", "build_report.py"), "--report-type", step.get("report_type", "progress"),
-               "--roles-confirmed"]   # campaign nền không hỏi UI → waive cổng vai trò (dùng role config nếu có)
+               "--roles-confirmed", "--ai-confirmed"]   # campaign nền không hỏi UI → waive cổng vai trò + cổng phân tích
         for k, flag in (("source_ids", "--source-ids"), ("projects", "--projects"),
                         ("template", "--template"), ("meetings", "--meetings"), ("scope", "--scope")):
             if step.get(k):

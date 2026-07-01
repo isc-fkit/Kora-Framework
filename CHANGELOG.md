@@ -10,6 +10,22 @@
 
 ---
 
+## v2.16.6 "Claude-1" — 2026-07-01  ✨ CODE-GATE (force)
+
+**Ép MỌI loại báo cáo phải dùng SUB-AGENT chuyên biệt phân tích — bằng code-gate ở tool, không chỉ prose.**
+
+- **Vấn đề:** `invoice`/`custom` nhận `--ai` **tùy chọn** → có thể build báo cáo KHÔNG phân tích ("chay").
+- **Fix — `build_report.py` thêm CỔNG CHẶN PHÂN TÍCH:**
+  - Hàm `_ai_ok(path)` = file phân tích tồn tại + **≥40 ký tự** + không còn placeholder `<!--KR-AI-->`.
+  - **invoice/custom** → `die()` nếu thiếu `--ai <file>` hợp lệ (buộc spawn agent kế toán / agent bám template trước).
+  - **meeting-roadmap** → đã gate qua `_meeting-report.json` (agent thư ký sinh). **tiến độ** → `send_report` chặn gửi khi khối AI còn placeholder.
+  - → **4/4 loại** đều buộc có phân tích sub-agent chuyên biệt.
+- **Waiver `--ai-confirmed`** = CHỈ cho lịch NỀN headless (không spawn agent được): `orchestrator.py` + `campaign.py` tự truyền.
+- Siết prose skill `daily-report` (block "MỖI LOẠI SPAWN 1 SUB-AGENT") tham chiếu code-gate.
+- **CORE-only** (`build_report.py` + `orchestrator.py` + `campaign.py` + skill) — không migration, DATA giữ nguyên.
+
+---
+
 ## v2.16.5 "Claude-1" — 2026-07-01  ✨ CẢI TIẾN LUỒNG (force)
 
 **Force luồng báo cáo → tự động gửi mail thành 1 mạch 6 bước cho MỌI loại báo cáo.**

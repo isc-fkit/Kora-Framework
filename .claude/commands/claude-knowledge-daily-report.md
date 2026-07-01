@@ -36,7 +36,11 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
 1b. **LUÔN HỎI — CHỌN LOẠI BÁO CÁO ngay sau cổng mật khẩu, TRƯỚC chọn nguồn** (AskUserQuestion BẮT BUỘC, header "Loại BC",
    single-select; **5 loại → PHÂN TRANG** rule #8: thẻ 1 = 3 mục + **[Khác — xem thêm]** → thẻ 2 phần còn lại). Mỗi loại = template + phân tích AI ĐÚNG chuyên ngành:
    **[Tiến độ (daily-report)] · [Cuộc họp (meeting)] · [Tiến độ + Meeting + Roadmap/OKR] · [Báo cáo tài chính (hoá đơn)] · [Custom template]**.
-   > 🤖 **BẮT BUỘC — MỖI LOẠI BÁO CÁO SPAWN 1 SUB-AGENT CHUYÊN BIỆT** (Agent tool; không spawn được → Claude TỰ đóng đúng vai, KHÔNG bỏ phân tích, KHÔNG sinh báo cáo "chay"):
+   > 🤖 **BẮT BUỘC — MỖI LOẠI BÁO CÁO SPAWN 1 SUB-AGENT CHUYÊN BIỆT phân tích KỸ, RÕ, đúng chuyên ngành** (Agent tool;
+   >   không spawn được → Claude TỰ đóng đúng vai viết phân tích thật vào ĐÚNG file, KHÔNG bỏ phân tích, KHÔNG sinh báo cáo "chay").
+   >   🔒 **CODE-GATE (không chỉ prose):** `build_report.py` **TỪ CHỐI build** khi thiếu phân tích: **invoice/custom** → die nếu
+   >   thiếu `--ai <file>` (cổng `_ai_ok`); **meeting** → die nếu thiếu `_meeting-report.json`; **tiến độ** → `send_report` chặn gửi
+   >   nếu khối AI còn placeholder. → LUÔN spawn agent → ghi file phân tích → build **với `--ai <file>`**. (`--ai-confirmed` CHỈ cho lịch nền.)
    >   • **Tiến độ** → 3 agent SONG SONG: ĐIỀU HÀNH (`operations:status-report`) · RỦI RO (`operations:risk-assessment`) · NĂNG LỰC (`operations:capacity-plan`) → gộp `reports/ai-analysis-latest.md`.
    >   • **Tài chính/hoá đơn** → agent KẾ TOÁN (`data:analyze` + VAT/MST/khấu trừ/dòng tiền VN) → `reports/ai-invoice-latest.md`.
    >   • **Cuộc họp** → agent THƯ KÝ + PHÂN TÍCH HỌP → `reports/_meeting-report.json` (10 mục — xem nhánh [Cuộc họp]).

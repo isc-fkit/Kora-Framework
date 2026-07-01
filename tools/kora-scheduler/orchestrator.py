@@ -398,8 +398,9 @@ def main():
                         run_errors.append({"step": "report-scan", "source": nm, "reason": (e_s or o_s)[:200]})
                 run_tool(REPO_ROOT / "tools" / "kb-indexer" / "build_index.py", ["--root", "."])
             # Lịch nền = mọi nguồn đã cấu hình (không có UI hỏi) → --source-ids all (qua cổng chặn nguồn) +
-            # --roles-confirmed (qua cổng chặn VAI TRÒ — nền không hỏi được; dùng role config nếu có, else auto).
-            rep_args = ["--source-ids", "all", "--roles-confirmed"]
+            # --roles-confirmed (qua cổng chặn VAI TRÒ) + --ai-confirmed (qua CỔNG CHẶN PHÂN TÍCH — nền headless
+            # KHÔNG spawn sub-agent được; phân tích AI chèn riêng qua --inject-ai ở bước sau nếu có).
+            rep_args = ["--source-ids", "all", "--roles-confirmed", "--ai-confirmed"]
             rep_args += (["--projects", ",".join(rep_projs)] if rep_projs else [])
             if scope != "all":
                 rep_args += ["--scope", scope, "--recent-days", str(rdays)]
