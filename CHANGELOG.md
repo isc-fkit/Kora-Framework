@@ -10,6 +10,30 @@
 
 ---
 
+## v2.16.1 "Claude-1" — 2026-07-01  🐛 VÁ LỖI
+
+**Vá 3 lỗi trong `tools/connections/check_connection.py` khiến nguồn API (Jira Server nội bộ) bị báo lỗi GIẢ dù token hợp lệ.**
+
+Chuỗi 3 lỗi domino: sửa lỗi #1 lộ ra #2 (timeout), sửa #2 lộ ra #3 (401) — phải vá cả 3 mới ra kết quả `connected` thật.
+
+- **LỖI #1 — `probe_api()`: `verify.probe` không phải HTTP path vẫn bị dùng thẳng.** Nếu `connections[].verify.probe`
+  lỡ ghi giá trị không phải đường dẫn (vd lệnh CLI `"import_jira.py --test"` thay vì `"GET /rest/api/2/myself"`),
+  code nối thẳng vào `base_url` → `https://host…import_jira.py --test` → URL vô nghĩa → proxy trả **503 giả**.
+  **Vá:** tách `default_probe` theo `source_type`; sau khi bỏ tiền tố `GET `, nếu `probe` KHÔNG bắt đầu bằng `/`
+  → fallback về `default_probe`.
+- **LỖI #2 — `http_get()` KHÔNG đi qua proxy công ty → TIMEOUT.** `urllib.request.urlopen` mặc định không dùng
+  proxy tường minh; mạng chỉ cho CONNECT 443 qua proxy → request đi trực tiếp bị chặn → `network: timed out`.
+  **Vá:** thêm `_proxy_opener()` đọc `HTTPS_PROXY > https_proxy > KORA_HTTPS_PROXY` (cùng pattern
+  `tools/report-mailer/gmail_api.py`); không có biến nào → no-proxy tường minh.
+- **LỖI #3 — `resolve_token()` lấy nhầm token.** Vòng lặp lấy "phần tử đầu tiên không phải EMAIL" trong
+  `env_keys` làm token; với `env_keys: [JIRA_BASE_URL, JIRA_EMAIL, JIRA_PAT, JIRA_AUTH_MODE]` nó lấy nhầm
+  `JIRA_BASE_URL` → gửi `Authorization: Bearer https://…` → **HTTP 401**. **Vá:** chỉ nhận key khớp mẫu
+  credential thật `PAT|TOKEN|SECRET|API_?KEY|_KEY$|PASS` (bỏ qua `BASE_URL`/`AUTH_MODE`).
+- **CORE-only** (chỉ `tools/connections/check_connection.py`) — **không migration**, DATA giữ nguyên.
+  Ảnh hưởng mọi user có nguồn API sau proxy công ty và/hoặc `env_keys` liệt kê cả biến không phải credential.
+
+---
+
 ## v2.16.0 "Claude-1" — 2026-06-30  ✨ TÍNH NĂNG MỚI
 
 **Báo cáo CUỘC HỌP CHI TIẾT (10 mục) + siết MỖI loại báo cáo gọi sub-agent chuyên biệt.**

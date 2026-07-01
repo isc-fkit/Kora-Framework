@@ -124,9 +124,19 @@ def parse_connections(path: Path):
     return entries
 
 
+def _proxy_opener():
+    """Mạng công ty có thể chỉ cho CONNECT 443 qua proxy (KORA_HTTPS_PROXY = proxy riêng cho Kora,
+    không đụng HTTPS_PROXY hệ thống). Ưu tiên: HTTPS_PROXY > https_proxy > KORA_HTTPS_PROXY.
+    Không có biến nào → no-proxy tường minh (không để proxy hệ thống sai làm hỏng đường đi trực tiếp)."""
+    proxy_url = os.getenv("HTTPS_PROXY") or os.getenv("https_proxy") or os.getenv("KORA_HTTPS_PROXY")
+    proxy_handler = (urllib.request.ProxyHandler({"https": proxy_url, "http": proxy_url})
+                     if proxy_url else urllib.request.ProxyHandler({}))
+    return urllib.request.build_opener(proxy_handler)
+
+
 def http_get(url: str, headers: dict):
     req = urllib.request.Request(url, headers=headers, method="GET")
-    with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
+    with _proxy_opener().open(req, timeout=TIMEOUT) as r:
         return r.status, r.read()
 
 
@@ -141,11 +151,17 @@ def resolve_token(entry: dict):
     def pick(name):
         return os.getenv(name) or src.get(name)
 
+    # env_keys có thể liệt kê CẢ các biến không phải credential (BASE_URL, AUTH_MODE...) để tài
+    # liệu hoá đủ biến mà tool scan (import_jira.py...) cần — KHÔNG được coi "phần tử đầu tiên
+    # không phải EMAIL" là token, vì phần tử đó có thể là JIRA_BASE_URL. Chỉ nhận key có tên
+    # khớp mẫu credential thật (PAT/TOKEN/SECRET/APIKEY/KEY/PASS).
+    token_pat = re.compile(r"PAT|TOKEN|SECRET|API_?KEY|_KEY$|PASS", re.IGNORECASE)
     token = email = None
     for k in keys:
-        if "EMAIL" in k.upper():
+        ku = k.upper()
+        if "EMAIL" in ku:
             email = pick(k)
-        elif token is None:
+        elif token is None and token_pat.search(ku):
             token = pick(k)
     # fallback tên phổ biến
     token = token or pick("JIRA_PAT") or pick("KORA_GITHUB_TOKEN") or pick("KORA_GITLAB_TOKEN")
@@ -167,12 +183,17 @@ def probe_api(entry: dict):
         except Exception as e:  # noqa: BLE001
             return "error", str(e)[:200]
         return ("connected", "") if p.returncode == 0 else ("error", (p.stderr or p.stdout).strip()[-200:])
-    probe = entry.get("probe") or {
+    default_probe = {
         "jira_server": "/rest/api/2/myself", "jira_cloud": "/rest/api/2/myself",
         "github": "/user", "gitlab": "/user", "confluence": "/rest/api/user/current",
     }.get(st, "/")
+    probe = entry.get("probe") or default_probe
     # 'verify: { probe: "GET /rest/..." }' → tách phần path
     probe = probe.replace("GET ", "").strip()
+    if not probe.startswith("/"):
+        # verify.probe trong config không phải HTTP path hợp lệ (vd lỡ ghi lệnh CLI
+        # như "import_jira.py --test") → nối vào base_url sẽ ra URL vô nghĩa, dùng path mặc định.
+        probe = default_probe
     token, email = resolve_token(entry)
     if not token:
         return "error", "Thiếu token (chưa set env var / .env). Chạy /claude-knowledge-connect."
