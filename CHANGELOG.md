@@ -10,6 +10,26 @@
 
 ---
 
+## v2.16.9 "Claude-1" — 2026-07-02  📄 Google Sheet TỰ QUÉT LIỆT KÊ FILE (không bắt dán link)
+
+**Chọn nguồn [Google Sheet (Composio)] trong báo cáo → tự kiểm kết nối + tự liệt kê sheet cho user BẤM CHỌN; dán link vẫn được (ô "Other").**
+
+- **Trước:** chọn Google Sheet → bị hỏi "dán URL/ID hoặc gõ tên" — user phải tự đi tìm link.
+- **Nay (skill `daily-report` Bước 2a + WF14 drill):**
+  1. **Tự kiểm Composio**: `COMPOSIO_SEARCH_TOOLS` xem `googlesheets`/`googledrive` ACTIVE; chưa →
+     `COMPOSIO_MANAGE_CONNECTIONS` hướng dẫn connect rồi quay lại.
+  2. **Tự liệt kê sheet TRƯỚC khi hỏi** (chỉ đọc METADATA tên file — không phải quét dữ liệu, chạy SAU khi user
+     đã chọn nguồn): `GOOGLESHEETS_SEARCH_SPREADSHEETS` query rỗng/`*` → sheet gần đây; tool đòi query/kết quả
+     trống → fallback **Google Drive** `GOOGLEDRIVE_FIND_FILE` `mimeType='application/vnd.google-apps.spreadsheet'`
+     sắp `modifiedTime` giảm dần (~10 file mới nhất).
+  3. **AskUserQuestion chọn FILE**: mỗi sheet 1 option (tên + ngày sửa; >4 → phân trang) + ô **"Other" = dán
+     URL/ID HOẶC gõ keyword** (→ `SEARCH_SPREADSHEETS query=<keyword>` liệt kê khớp).
+  4. Nhiều tab → `GOOGLESHEETS_GET_SHEET_NAMES` → hỏi chọn tab (như cũ).
+- Composio vẫn là kênh TƯƠNG TÁC — không dùng cho lịch nền (nền dùng Jira/SharePoint-Graph/Local).
+- **CORE-only** (skill `claude-knowledge-daily-report` + `workflows/14-progress-report.md`) — không migration, DATA giữ nguyên.
+
+---
+
 ## v2.16.8 "Claude-1" — 2026-07-02  🎛️ WIRE MODEL vào sub-agent báo cáo (thông minh × tốc độ)
 
 **Mọi mốc SPAWN sub-agent nay chỉ định MODEL tối ưu — nhanh chỗ cần nhanh, sâu chỗ cần sâu.**

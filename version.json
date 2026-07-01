@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.16.8",
+  "version": "2.16.9",
   "codename": "Claude-1",
   "released": "2026-07-02",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.16.8 — WIRE MODEL vào từng sub-agent báo cáo (tối ưu thông minh × tốc độ). Mọi mốc SPAWN agent trong skill daily-report / WF14 / GEO nay ghi rõ tham số model: `sonnet` cho agent ops (3 con tiến độ, spawn song song → tổng thời gian = 1 con) · kế toán (quý/bảng kê lớn → opus) · thư ký họp · bám-template — dữ liệu đã cấu trúc, cần nhanh; `opus` cho agent CHIẾN LƯỢC/PM (OKR-roadmap) và GEO Analyst — suy luận sâu nhất. Môi trường không hỗ trợ tham số model → tự kế thừa model phiên, KHÔNG fail. Các bước script (import/build/send) là Python thuần 0 token — tốc độ không phụ thuộc model; lịch nền headless vẫn --ai-confirmed không dùng model. CORE-only (CLAUDE.md + WF14/WF20 + 2 skill), không migration, DATA giữ nguyên."
+  "intro": "Kora-Framework v2.16.9 — Nguồn Google Sheet (Composio) trong báo cáo nay TỰ QUÉT LIỆT KÊ FILE thay vì bắt dán link: chọn nguồn xong tự kiểm Composio (googlesheets/googledrive active, chưa có → hướng dẫn connect) → tự liệt kê sheet gần đây (GOOGLESHEETS_SEARCH_SPREADSHEETS query rỗng; fallback Google Drive FIND_FILE mimeType spreadsheet sắp modifiedTime) → AskUserQuestion chọn FILE (mỗi sheet 1 option + ngày sửa, >4 phân trang) + ô Other vẫn nhận dán URL/ID hoặc gõ keyword tìm → nhiều tab hỏi tab. Chỉ đọc METADATA tên file sau khi user đã chọn nguồn — không quét dữ liệu trước khi hỏi. CORE-only (skill daily-report + WF14), không migration, DATA giữ nguyên."
 }

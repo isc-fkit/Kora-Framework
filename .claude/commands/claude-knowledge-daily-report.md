@@ -132,9 +132,17 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
        - 🔎 **Ô "Other" ở đây cũng = keyword/tên file** → `sharepoint_search query="<keyword>" folderName=<folder>` (hoặc bỏ folderName để tìm toàn site) → liệt kê khớp → chọn.
      1 folder có thể có **file REPORT (task data → import thành note)** và/hoặc **file MEETING/Standing-Meeting/OKR (.pptx/.docx — đọc làm BỐI CẢNH roadmap, KHÔNG import task)** — **để user chọn loại nào / cả 2**. KHÔNG tự đoán, KHÔNG tự lấy bản mới nhất.
    - **[Local Excel]** → entry `excel__local` (hoặc hỏi đường dẫn .xlsx qua ô "Other") → chọn file.
-   - **[Google Sheet (Composio)]** → hỏi **spreadsheet** (AskUserQuestion: dán **URL/ID** vào ô "Other", hoặc gõ **TÊN** →
-     `GOOGLESHEETS_SEARCH_SPREADSHEETS` liệt kê chọn); nhiều tab → `GOOGLESHEETS_GET_SHEET_NAMES` → hỏi chọn **tab**. Token nguồn
-     = `gsheet_<tên>`. ⚠️ Composio = **TƯƠNG TÁC** (MCP) — **KHÔNG dùng cho lịch nền** (nền headless dùng Jira/SharePoint-Graph/Local). Import ở nhánh `source_type: gsheet`.
+   - **[Google Sheet (Composio)] — TỰ QUÉT LIỆT KÊ FILE, KHÔNG bắt dán link (dán vẫn được):**
+     ① **Kiểm Composio**: `COMPOSIO_SEARCH_TOOLS` — toolkit `googlesheets` (và `googledrive` nếu có) ACTIVE? Chưa →
+       `COMPOSIO_MANAGE_CONNECTIONS` hướng dẫn connect rồi quay lại (không có Composio → chỉ còn đường dán URL Publish-CSV).
+     ② **TỰ LIỆT KÊ sheet TRƯỚC khi hỏi** (chỉ đọc METADATA tên file — KHÔNG phải quét dữ liệu, được phép sau khi user đã
+       chọn nguồn ở Bước 2): `GOOGLESHEETS_SEARCH_SPREADSHEETS` (query rỗng/`*` → sheet GẦN ĐÂY); tool đòi query hoặc kết quả
+       trống → fallback **Google Drive**: `GOOGLEDRIVE_FIND_FILE`/list với `mimeType='application/vnd.google-apps.spreadsheet'`
+       sắp `modifiedTime` giảm dần (lấy ~10 file mới nhất).
+     ③ **AskUserQuestion chọn FILE**: mỗi sheet 1 option (tên + ngày sửa; >4 → phân trang rule #8) + ô **"Other" = dán URL/ID
+       HOẶC gõ keyword** (keyword → `GOOGLESHEETS_SEARCH_SPREADSHEETS query=<keyword>` → liệt kê khớp → chọn).
+     ④ Nhiều tab → `GOOGLESHEETS_GET_SHEET_NAMES` → hỏi chọn **tab**. Token nguồn = `gsheet_<tên>`.
+     ⚠️ Composio = **TƯƠNG TÁC** (MCP) — **KHÔNG dùng cho lịch nền** (nền headless dùng Jira/SharePoint-Graph/Local). Import ở nhánh `source_type: gsheet`.
    > **>4 mục → phân trang** (rule #8). Xong nhóm này mới sang nhóm kế.
    > 🏷️ **GHI NHỚ TOKEN NGUỒN của mỗi lựa chọn** (để báo cáo CHỈ gồm nguồn đã chọn — user xác nhận "Chỉ nguồn đã chọn"):
    > **[Jira]** → token `jira`; **mỗi file SharePoint/Local** → import với `--source-id` RÕ RÀNG, nhất quán (vd
