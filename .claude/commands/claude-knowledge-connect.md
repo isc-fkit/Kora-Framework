@@ -133,18 +133,30 @@ ESC hoặc [← Huỷ] = dừng, **KHÔNG ghi gì** vào `connections:`.
      trình duyệt) → yêu cầu **PAT/long-lived token** thay vì OAuth (xem cảnh báo headless ở `/claude-knowledge-schedule`).
   ▸ **Gmail SMTP (App Password — TỰ ĐỘNG GỬI):** KHÔNG OAuth, KHÔNG MCP — gửi trực tiếp qua SMTP để báo cáo/lịch
      nền **tự bắn mail** (không cần tạo nháp tay).
-     1. **HỎI tài khoản gửi CHUYÊN DỤNG** (vd `ftel.medicare@gmail.com`) — **TUYỆT ĐỐI KHÔNG tự điền email cá
-        nhân / email đăng nhập của user**; nếu chưa rõ, dùng AskUserQuestion (gợi ý + ô "Other"). Tài khoản này bật
-        **xác minh 2 bước** → tạo **App Password** (16 ký tự) tại *myaccount.google.com → Security → App passwords*.
-        (App Password KHÔNG ra chat / KHÔNG vào card.)
-     2. **Đặt creds — 2 cách (send_report đọc ENV TRƯỚC rồi tới file):**
-        - **(A) KHUYẾN NGHỊ — `~/.zshrc`** (gom token 1 chỗ như Jira PAT; run_command source được nên Cowork+MCP gửi thẳng):
-          `export SMTP_HOST=smtp.gmail.com SMTP_PORT=587 SMTP_USER=<tài khoản gửi> SMTP_PASS=<App Password> MAIL_FROM_NAME="Claude Knowledge AI Daily Report"`.
-        - **(B) hoặc file** `"$PWD/tools/report-mailer/.env.local"` (NGOẠI LỆ `.env` hợp lệ; `mkdir -p tools/report-mailer`,
-          copy từ `.env.local.example`; gitignore): cùng các key trên + `SMTP_SECURITY=starttls`, `MAIL_FROM=<tài khoản gửi>`.
-        Người nhận thấy *Claude Knowledge AI Daily Report &lt;tài khoản gửi&gt;*. KHÔNG nhồi email cá nhân. **Lưu ý:** điền xong
-        chạy lại verify là được — **KHÔNG cần `source`** (run_command/script tự đọc). App Password KHÔNG ra chat/card.
-     3. `source_type = gmail_smtp`, method = `smtp`, `creds.kind = dotenv` (trỏ `tools/report-mailer/.env.local`).
+     1. **CARD NHẬP (AskUserQuestion) — Claude hỏi thẳng 2 trường KHÔNG bí mật, gợi ý sẵn + ô "Other" cho user gõ:**
+        - **Email người gửi** (`SMTP_USER`) — tài khoản gửi CHUYÊN DỤNG (vd `ftel.medicare@gmail.com`). **TUYỆT ĐỐI
+          KHÔNG tự điền email cá nhân / email đăng nhập của user** — bắt user chọn gợi ý hoặc gõ ở ô "Other".
+        - **Tiêu đề mail mặc định** (`MAIL_FROM_NAME`, vd "Claude Knowledge AI Daily Report") — gợi ý + ô "Other".
+        > ⛔ **App Password (mật khẩu) KHÔNG hỏi qua card/chat.** Nhập password vào ô chat = lộ secret trong hội thoại
+        >   (vi phạm rule #8 + rule an toàn). Card CHỈ nhận `SMTP_USER` + tiêu đề; password đi qua FILE ở mục 3.
+     2. **Tài khoản gửi phải bật xác minh 2 bước** → tạo **App Password** (16 ký tự) tại
+        *myaccount.google.com → Security → App passwords*.
+     3. **Claude TỰ TẠO + ĐIỀN SẴN file** `"$PWD/tools/report-mailer/.env.local"` (`mkdir -p tools/report-mailer`; gitignore).
+        Điền `SMTP_USER` + `MAIL_FROM` + `MAIL_FROM_NAME` **từ card**, để **PLACEHOLDER** đúng dòng `SMTP_PASS` cho user tự dán:
+        ```
+        SMTP_HOST=smtp.gmail.com
+        SMTP_PORT=587
+        SMTP_SECURITY=starttls
+        SMTP_USER=<email từ card>
+        MAIL_FROM=<email từ card>
+        MAIL_FROM_NAME=<tiêu đề từ card>
+        SMTP_PASS=<DÁN APP PASSWORD 16 KÝ TỰ VÀO ĐÂY — KHÔNG dán vào chat>
+        ```
+        → **present file cho user** kèm đường dẫn folder tuyệt đối + cách mở nhanh (macOS Finder `Cmd+Shift+G`; file ẩn
+        `Cmd+Shift+.` · Windows Explorer thanh địa chỉ). User **dán App Password THẲNG VÀO FILE** (KHÔNG qua chat).
+        Người nhận thấy *&lt;tiêu đề&gt; &lt;email gửi&gt;*. Điền xong chạy verify — **KHÔNG cần `source`** (script tự đọc).
+        *(User muốn gom ở `~/.zshrc` thay vì file → vẫn được: `export SMTP_HOST/PORT/USER/PASS/MAIL_FROM_NAME` tay, password KHÔNG qua chat.)*
+     4. `source_type = gmail_smtp`, method = `smtp`, `creds.kind = dotenv` (trỏ `tools/report-mailer/.env.local`).
 
   ▸ **Gmail API (OAuth2 — FALLBACK gửi khi SMTP bị chặn):** khi mạng chặn MỌI cổng SMTP (587/465/25/2525) nhưng proxy
      cho CONNECT 443, gửi mail qua **Gmail API/HTTPS** thay SMTP. `send_report.py --transport auto` **TỰ fallback** SMTP→Gmail API

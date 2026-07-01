@@ -10,6 +10,21 @@
 
 ---
 
+## v2.16.2 "Claude-1" — 2026-07-01  ✨ CẢI TIẾN UX
+
+**Luồng connect Gmail SMTP: hỏi email người gửi + tiêu đề qua CARD (nhập thẳng vào ô), password vẫn qua FILE.**
+
+- **Skill `/claude-knowledge-connect` — nhánh Gmail SMTP** nay:
+  - **Card AskUserQuestion** hỏi thẳng 2 trường **KHÔNG bí mật**: **email người gửi** (`SMTP_USER`) + **tiêu đề mail
+    mặc định** (`MAIL_FROM_NAME`) — gợi ý sẵn + ô "Other" để user gõ. Trải nghiệm "điền form" mượt.
+  - **App Password (mật khẩu) KHÔNG hỏi qua card/chat** — nhập password vào ô chat = lộ secret trong hội thoại
+    (vi phạm rule #8 + rule an toàn). Claude **tự tạo + điền sẵn** `tools/report-mailer/.env.local` (`SMTP_USER` /
+    `MAIL_FROM` / `MAIL_FROM_NAME` từ card), để **PLACEHOLDER** đúng dòng `SMTP_PASS` → present file cho user
+    **dán App Password THẲNG VÀO FILE** (kèm đường dẫn + cách mở nhanh). Verify `send_report.py --check`.
+- **CORE-only** (chỉ skill `claude-knowledge-connect`) — **không migration**, DATA giữ nguyên.
+
+---
+
 ## v2.16.1 "Claude-1" — 2026-07-01  🐛 VÁ LỖI
 
 **Vá 3 lỗi trong `tools/connections/check_connection.py` khiến nguồn API (Jira Server nội bộ) bị báo lỗi GIẢ dù token hợp lệ.**
