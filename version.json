@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.16.7",
+  "version": "2.16.8",
   "codename": "Claude-1",
   "released": "2026-07-02",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.16.7 — FIX TRIỆT ĐỂ 'cập nhật phiên bản' cho bản cài SKILL/registered (cài từ installer/git, project không có scripts/ + version.json): skill /claude-knowledge-update + WF10 nay (1) ƯU TIÊN run_command cho MỌI lệnh (Cowork sandbox chặn mạng → curl fail KHÔNG phải dead-end, không bàn giao khi có run_command); (2) version hiện tại đọc ~/.claude/kora-framework/version.json — KHÔNG kết luận 'không rõ bản' vì project thiếu file; (3) installer/update tự fallback proxy (KORA_UPDATE_PROXY→https_proxy→proxy FPT) + reconcile mọi project; (4) SAU update BẮT BUỘC VERIFY version đổi thật (không đổi = FAIL) + NHẮC RE-UPLOAD các skill ĐỔI vào mục Skills của Cowork (skill upload trong app KHÔNG tự cập nhật — nguyên nhân 'update rồi mà hành vi vẫn cũ'). Đồng thời force luồng BÁO CÁO ngay trong CLAUDE.md + WF14 (chạy cả khi skill chưa upload): ① LUÔN hỏi LOẠI báo cáo trước tiên (5 loại) ② hỏi NGUỒN động đầy đủ mọi kết nối MCP+API ③ sub-agent chuyên biệt (code-gate) ④⑤ hỏi người nhận (nhiều email) + tiêu đề → tự gửi ⑥ sau gửi hỏi đặt lịch. CORE-only (CLAUDE.md + WF10/WF14 + skill update), không migration, DATA giữ nguyên."
+  "intro": "Kora-Framework v2.16.8 — WIRE MODEL vào từng sub-agent báo cáo (tối ưu thông minh × tốc độ). Mọi mốc SPAWN agent trong skill daily-report / WF14 / GEO nay ghi rõ tham số model: `sonnet` cho agent ops (3 con tiến độ, spawn song song → tổng thời gian = 1 con) · kế toán (quý/bảng kê lớn → opus) · thư ký họp · bám-template — dữ liệu đã cấu trúc, cần nhanh; `opus` cho agent CHIẾN LƯỢC/PM (OKR-roadmap) và GEO Analyst — suy luận sâu nhất. Môi trường không hỗ trợ tham số model → tự kế thừa model phiên, KHÔNG fail. Các bước script (import/build/send) là Python thuần 0 token — tốc độ không phụ thuộc model; lịch nền headless vẫn --ai-confirmed không dùng model. CORE-only (CLAUDE.md + WF14/WF20 + 2 skill), không migration, DATA giữ nguyên."
 }

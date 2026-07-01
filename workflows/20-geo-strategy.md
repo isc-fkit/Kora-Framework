@@ -23,7 +23,7 @@ Mỗi nội dung → 1 note `type: content`, `source: content`, `source_id: cont
 Dùng `import_files`/workflow 02 cho file, hoặc ghi thẳng note. Reindex `build_index.py --root .` sau import.
 
 ## Bước 3 — 🤖 SPAWN Agent GEO Analyst (BẮT BUỘC, fallback: không có Agent tool → Claude tự chấm)
-`Agent(subagent — chuyên gia GEO/AI-SEO)`, prompt:
+`Agent(subagent — chuyên gia GEO/AI-SEO, model `opus` — chấm 8 chiều cần suy luận sâu; không hỗ trợ tham số `model` → kế thừa model phiên)`, prompt:
 > *"Đóng vai **chuyên gia Generative Engine Optimization (GEO)**. Đọc TỪNG nội dung đã chọn (note `source: content`
 > hoặc file). Với MỖI nội dung, CHẤM 0–100 cho **8 chiều** (theo `tools/geo-strategy/README.md`) — chỉ chấm theo
 > những gì THỰC SỰ có trong nội dung, KHÔNG bịa:

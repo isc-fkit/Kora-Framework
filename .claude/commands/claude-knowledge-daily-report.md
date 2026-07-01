@@ -38,14 +38,18 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
    **[Tiến độ (daily-report)] · [Cuộc họp (meeting)] · [Tiến độ + Meeting + Roadmap/OKR] · [Báo cáo tài chính (hoá đơn)] · [Custom template]**.
    > 🤖 **BẮT BUỘC — MỖI LOẠI BÁO CÁO SPAWN 1 SUB-AGENT CHUYÊN BIỆT phân tích KỸ, RÕ, đúng chuyên ngành** (Agent tool;
    >   không spawn được → Claude TỰ đóng đúng vai viết phân tích thật vào ĐÚNG file, KHÔNG bỏ phân tích, KHÔNG sinh báo cáo "chay").
+   >   🎛️ **MODEL sub-agent (tối ưu thông minh × tốc độ) — truyền tham số `model` khi spawn:** **`sonnet`** cho agent
+   >   ops (3 con tiến độ, song song) · kế toán · thư ký họp · bám-template (dữ liệu đã cấu trúc → cần NHANH, Sonnet đủ sâu);
+   >   **`opus`** cho agent CHIẾN LƯỢC/PM (OKR-roadmap, Bước 5c) — suy luận sâu nhất. Môi trường KHÔNG hỗ trợ tham số
+   >   `model` → bỏ qua, kế thừa model phiên (KHÔNG fail, KHÔNG dừng vì thiếu model).
    >   🔒 **CODE-GATE (không chỉ prose):** `build_report.py` **TỪ CHỐI build** khi thiếu phân tích: **invoice/custom** → die nếu
    >   thiếu `--ai <file>` (cổng `_ai_ok`); **meeting** → die nếu thiếu `_meeting-report.json`; **tiến độ** → `send_report` chặn gửi
    >   nếu khối AI còn placeholder. → LUÔN spawn agent → ghi file phân tích → build **với `--ai <file>`**. (`--ai-confirmed` CHỈ cho lịch nền.)
-   >   • **Tiến độ** → 3 agent SONG SONG: ĐIỀU HÀNH (`operations:status-report`) · RỦI RO (`operations:risk-assessment`) · NĂNG LỰC (`operations:capacity-plan`) → gộp `reports/ai-analysis-latest.md`.
-   >   • **Tài chính/hoá đơn** → agent KẾ TOÁN (`data:analyze` + VAT/MST/khấu trừ/dòng tiền VN) → `reports/ai-invoice-latest.md`.
-   >   • **Cuộc họp** → agent THƯ KÝ + PHÂN TÍCH HỌP → `reports/_meeting-report.json` (10 mục — xem nhánh [Cuộc họp]).
-   >   • **Tiến độ + Meeting + Roadmap/OKR** → agent CHIẾN LƯỢC/PM (đọc `_okr-latest.txt` + `progress-data-latest.json`) → trường `analysis_md` / khối OKR.
-   >   • **Custom template** → agent BÁM TEMPLATE (`data:analyze`, đúng mục tiêu template) → `reports/ai-custom-latest.md`.
+   >   • **Tiến độ** → 3 agent SONG SONG (model `sonnet`): ĐIỀU HÀNH (`operations:status-report`) · RỦI RO (`operations:risk-assessment`) · NĂNG LỰC (`operations:capacity-plan`) → gộp `reports/ai-analysis-latest.md`.
+   >   • **Tài chính/hoá đơn** → agent KẾ TOÁN (model `sonnet`; báo cáo quý/bảng kê lớn → `opus`) (`data:analyze` + VAT/MST/khấu trừ/dòng tiền VN) → `reports/ai-invoice-latest.md`.
+   >   • **Cuộc họp** → agent THƯ KÝ + PHÂN TÍCH HỌP (model `sonnet`) → `reports/_meeting-report.json` (10 mục — xem nhánh [Cuộc họp]).
+   >   • **Tiến độ + Meeting + Roadmap/OKR** → agent CHIẾN LƯỢC/PM (model `opus`) (đọc `_okr-latest.txt` + `progress-data-latest.json`) → trường `analysis_md` / khối OKR.
+   >   • **Custom template** → agent BÁM TEMPLATE (model `sonnet`) (`data:analyze`, đúng mục tiêu template) → `reports/ai-custom-latest.md`.
    >   Code-gate cưỡng chế: **meeting** đòi `_meeting-report.json` (build_report die nếu thiếu); **tiến độ** chặn gửi nếu khối AI còn placeholder (send_report). Mỗi loại = template + phân tích ĐÚNG chuyên ngành.
    - **[Tiến độ (daily-report)]** → tiếp Bước 2 (chọn 3 nhóm nguồn) như cũ; build mặc định `--report-type progress`.
    - **[Tiến độ + Meeting + Roadmap/OKR]** → báo cáo TIẾN ĐỘ (Bước 2) **+ mục Roadmap/OKR (5c)** + đọc file họp → gộp;
@@ -59,7 +63,7 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
      → Claude **ĐỌC ảnh (OCR vision)** → xuất rows `reports/_invoice-rows.json` (cột: vendor, date, category, currency, subtotal, vat, vat_rate, total)
      → `python3 "$T/invoice-report/import_invoice.py" --from-rows reports/_invoice-rows.json --source-id invoice__<batch>` → reindex `build_index.py --root .`.
      **Rồi: (1)** NHÁNH TEMPLATE; **(2) AI phân tích — BẮT BUỘC SPAWN con agent KẾ TOÁN/TÀI CHÍNH** —
-     `Agent(subagent dùng skill **data:analyze**)`, prompt: *"Đóng vai CHUYÊN VIÊN KẾ TOÁN/TÀI CHÍNH (kiến thức kế toán VN:
+     `Agent(subagent dùng skill **data:analyze**, model `sonnet` — quý/bảng kê lớn → `opus`)`, prompt: *"Đóng vai CHUYÊN VIÊN KẾ TOÁN/TÀI CHÍNH (kiến thức kế toán VN:
      VAT·MST·khấu trừ thuế đầu vào·dòng tiền), dùng skill `data:analyze`. Đọc `reports/_invoice-rows.json`
      (vendor·date·category·subtotal·vat·vat_rate·total). Viết MARKDOWN các mục DƯỚI — trích SỐ cụ thể (đồng·%·tháng·NCC),
      CẤM chung chung — ghi ra `reports/ai-invoice-latest.md`."* (**fallback:** không có Agent tool → Claude tự viết):
@@ -72,7 +76,7 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
      email họp) → Claude ĐỌC + TÓM TẮT (AI) thành `reports/_meeting-rows.json`
      (list: `title/date/attendees/summary/decisions[]/action_items[]/risks[]`) → `python3 "$T/meeting-report/import_meeting.py"
      --from-rows reports/_meeting-rows.json --source-id meeting__<batch>` (lưu vault `type: meeting`) + reindex.
-     **BẮT BUỘC SPAWN con Agent THƯ KÝ + PHÂN TÍCH HỌP** (Agent tool — vai thư ký cuộc họp + phân tích chiến lược: đọc
+     **BẮT BUỘC SPAWN con Agent THƯ KÝ + PHÂN TÍCH HỌP** (Agent tool, model `sonnet` — vai thư ký cuộc họp + phân tích chiến lược: đọc
      `reports/_meeting-rows.json` + đối chiếu **task Jira/OKR** trong vault + **so biên bản CŨ** nếu có) → con agent GHI
      **`reports/_meeting-report.json`** — 1 OBJECT JSON **ĐẦY ĐỦ 10 MỤC** (đừng bỏ mục nào có dữ liệu):
      `title` · `subtitle` · `period` · `source_label` · `scope` · `report_date` · `executive_summary` (prose, dùng `**đậm**` được) ·
@@ -94,7 +98,7 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
      `{{TITLE}} {{PERIOD}} {{N}} {{KPIS}} {{CHART_CATEGORY}} {{CHART_MONTH}} {{TABLE_VENDORS}} {{TABLE_INVOICES}} {{TOTAL}} {{SUBTOTAL}} {{VAT}}`
      → **PREVIEW cho user (visualize) → CHỜ user CHỐT** (sửa tới khi ưng) → lưu `templates/reports/<name>.html`
      + thêm entry `_index.json` (`name`/`base: invoice`/`file`/`title`). **CHƯA chốt → KHÔNG build.**
-   - **(Custom) AI phân tích — SPAWN con agent PHÂN TÍCH bám TEMPLATE** (Agent tool + skill `data:analyze`: đọc dữ liệu nguồn
+   - **(Custom) AI phân tích — SPAWN con agent PHÂN TÍCH bám TEMPLATE** (Agent tool, model `sonnet` + skill `data:analyze`: đọc dữ liệu nguồn
      `reports/_invoice-rows.json` / note `source: invoice`, bám đúng loại dữ liệu & mục tiêu của template đã chọn) → viết
      `reports/ai-custom-latest.md` (`## 📌 Tóm tắt` · `## 📊 Phát hiện chính` · `## 🔴 Rủi ro` · `## 🎯 Đề xuất`; không spawn được Agent → Claude tự viết).
    - Build Hoá đơn/Custom: `python3 "$T/progress-report/build_report.py" --report-type <invoice|custom> [--template <name>]
@@ -191,7 +195,7 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
        (grid chia nhóm + khối AI phân tích riêng) ở **CẢ dashboard LẪN email**. Schema:
        `{"title": "...", "source": "SharePoint", "groups": [{"icon":"🔬","label":"RD / Solution","items":[{"name":"Insulin Tool","chips":["Log insulin 18-25/06",{"text":"Câu hỏi BS/BN","tone":"warn"}]}]}], "analysis_md": "## 🔴 Rủi ro\\n...\\n## 📌 Tóm tắt\\n..."}`.
        `tone` ∈ `ok|warn|risk|info` (màu chip) — bỏ trống = trung tính. `analysis_md` = phân tích AI RIÊNG cho OKR/chiến lược.
-       **SPAWN con agent CHIẾN LƯỢC/PM** (Agent tool: đóng vai PM/chiến lược; đọc `reports/_okr-latest.txt` BỐI CẢNH +
+       **SPAWN con agent CHIẾN LƯỢC/PM** (Agent tool, model `opus` — suy luận sâu nhất: đóng vai PM/chiến lược; đọc `reports/_okr-latest.txt` BỐI CẢNH +
        `reports/progress-data-latest.json` tiến độ) → viết phân tích (insight · 🔴 rủi ro lộ trình · ĐỐI CHIẾU OKR ↔ tiến độ
        sprint · bốc task vào sprint kế · phụ thuộc), theo góc **PM đã hỏi** → Claude đưa nội dung agent vào trường
        `analysis_md` (không spawn được Agent → Claude tự viết). **Mỗi nhóm/đầu việc chia rõ cho dễ nhìn.**
@@ -211,7 +215,7 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
    > 📧 **Banner mail**: gửi qua `send_report.py` (tự nhúng `cid:kora-banner` từ `assets/banner-daily-report.jpg`) → Outlook hiện banner. Đừng bỏ qua send_report.
 - Dashboard + email PHẢI có khối **🤖 AI analysis** (workflow 14 — Bước 1.5) — **PHÂN TÍCH SÂU, CHI TIẾT, đủ BẢNG số
   liệu** (chuẩn = bằng/hơn mẫu báo cáo đầy đủ). BẮT BUỘC, mỗi mục **trích DỮ LIỆU cụ thể (mã hạng mục · giờ · % · ngày), CẤM nói chung chung**:
-  - 🤖 **BẮT BUỘC SPAWN 3 CON AGENT QUẢN LÝ (Agent tool — spawn SONG SONG, mỗi con 1 góc; đều đọc `reports/progress-data-latest.json`):**
+  - 🤖 **BẮT BUỘC SPAWN 3 CON AGENT QUẢN LÝ (Agent tool — spawn SONG SONG cùng 1 lượt, mỗi con model `sonnet` (song song → tổng thời gian = 1 con, Sonnet đủ sâu cho dữ liệu đã cấu trúc), mỗi con 1 góc; đều đọc `reports/progress-data-latest.json`):**
     **Agent Điều hành/Status** (skill `operations:status-report`) → 📌 tóm tắt điều hành + 🎯 hành động ưu tiên + KPI ·
     **Agent Rủi ro** (skill `operations:risk-assessment`) → 🔴/🟡 rủi ro (số · mức độ · dự đoán bằng số · giảm thiểu) ·
     **Agent Năng lực** (skill `operations:capacity-plan`) → 👥 cân bằng tải Dev + 📅 dự đoán sprint (PM/QC theo VAI TRÒ, không đo giờ).

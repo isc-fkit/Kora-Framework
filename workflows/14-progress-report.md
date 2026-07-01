@@ -189,23 +189,27 @@ Tạo trong `reports/`:
 > chuyên môn, đều đọc `reports/progress-data-latest.json`) — KHÔNG bịa số, chỉ suy từ JSON; thiếu dữ liệu thì nói rõ.
 > **Fallback DUY NHẤT:** môi trường KHÔNG có Agent tool (vd CLI tắt sub-agent) → Claude TỰ viết inline như cũ.
 
+> 🎛️ **MODEL sub-agent (tối ưu thông minh × tốc độ):** 3 con dưới truyền **`model: sonnet`** (spawn song song →
+> tổng thời gian = 1 con; dữ liệu đã cấu trúc nên Sonnet đủ sâu). Agent CHIẾN LƯỢC/PM (roadmap/OKR) → **`model: opus`**
+> (suy luận sâu nhất). Môi trường không hỗ trợ tham số `model` → bỏ qua, kế thừa model phiên (KHÔNG fail).
+
 **🤖 3 LỆNH SPAWN (gửi CÙNG 1 lượt để chạy SONG SONG — mỗi con ghi ra 1 file tạm):**
-- **Agent ĐIỀU HÀNH/STATUS** — `Agent(subagent dùng skill **operations:status-report**)`, prompt:
+- **Agent ĐIỀU HÀNH/STATUS** — `Agent(subagent dùng skill **operations:status-report**, model `sonnet`)`, prompt:
   > *"Đóng vai chuyên viên ĐIỀU HÀNH dự án, dùng skill `operations:status-report`. Đọc `reports/progress-data-latest.json`.
   > Viết MARKDOWN (trích SỐ cụ thể: mã hạng mục·giờ·%·ngày, CẤM chung chung): `## 📌 Tóm tắt điều hành` · `## 🟢 Điểm
   > tích cực` · `## 🎯 Hành động ưu tiên` (theo NGÀY) + KPI tiến độ. Ghi ra `reports/_ai-status.md`."*
-- **Agent RỦI RO** — `Agent(subagent dùng skill **operations:risk-assessment**)`, prompt:
+- **Agent RỦI RO** — `Agent(subagent dùng skill **operations:risk-assessment**, model `sonnet`)`, prompt:
   > *"Đóng vai chuyên viên RỦI RO, dùng skill `operations:risk-assessment`. Đọc `reports/progress-data-latest.json`.
   > Viết: `## 🔴 Rủi ro cao (blocker)` · `## 🟡 Rủi ro vừa / Cần theo dõi` — MỖI rủi ro: SỐ + Mức độ + **Dự đoán & lý
   > do BẰNG SỐ** (giờ remaining·%done·ngày trễ·est/spent) + Tác động + Phương án giảm thiểu + KHI NÀO (mốc ngày). Ghi ra `reports/_ai-risk.md`."*
-- **Agent NĂNG LỰC/SPRINT** — `Agent(subagent dùng skill **operations:capacity-plan**)`, prompt:
+- **Agent NĂNG LỰC/SPRINT** — `Agent(subagent dùng skill **operations:capacity-plan**, model `sonnet`)`, prompt:
   > *"Đóng vai chuyên viên NĂNG LỰC nguồn lực, dùng skill `operations:capacity-plan`. Đọc `reports/progress-data-latest.json`.
   > Viết: `## 🧩 Độ phức tạp (TRỌNG TÂM)` (hạng mục điểm ≥ ngưỡng, ai ôm cụm khó) · `## 👥 Phân tích theo thành viên`
   > (BẢNG `| Thành viên | Vai trò | Tổng | Done | %Done | Giờ log | %Capacity | Bug | Ghi chú |` — **Dev** đo giờ/capacity;
   > **PM/QC** theo VAI TRÒ, %Capacity = '—', KHÔNG phạt) · `## 📅 Dự đoán sprint / timeline` (quỹ giờ, carry-over). Ghi ra `reports/_ai-capacity.md`."*
 
 **TỔNG HỢP:** gộp 3 file tạm (`_ai-risk.md` + `_ai-capacity.md` + `_ai-status.md`) thành `reports/ai-analysis-latest.md`
-**theo ĐÚNG THỨ TỰ MỤC dưới**. (NẾU user chọn "phân tích roadmap" → thêm **Agent CHIẾN LƯỢC/PM** skill
+**theo ĐÚNG THỨ TỰ MỤC dưới**. (NẾU user chọn "phân tích roadmap" → thêm **Agent CHIẾN LƯỢC/PM** (model `opus`) skill
 `operations:status-report` viết `## 🗺️ Roadmap & điều phối sprint` từ `roadmap` JSON + `reports/_okr-latest.txt`.)
 KHÔNG tự viết HTML/chip tay — tool render CARD MÀU. Các mục (mỗi mục mở đầu `## `, ĐÚNG thứ tự):
    > 📁 **ĐẢM BẢO thư mục `reports/` tồn tại TRƯỚC khi ghi** (Write cần thư mục cha — thiếu sẽ báo *"Error writing

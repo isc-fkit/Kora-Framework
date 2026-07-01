@@ -10,6 +10,26 @@
 
 ---
 
+## v2.16.8 "Claude-1" — 2026-07-02  🎛️ WIRE MODEL vào sub-agent báo cáo (thông minh × tốc độ)
+
+**Mọi mốc SPAWN sub-agent nay chỉ định MODEL tối ưu — nhanh chỗ cần nhanh, sâu chỗ cần sâu.**
+
+- **`model: sonnet`** — agent dữ-liệu-đã-cấu-trúc, ưu tiên TỐC ĐỘ: 3 agent Tiến độ (Điều hành · Rủi ro ·
+  Năng lực — spawn SONG SONG cùng 1 lượt → tổng thời gian = 1 con) · agent KẾ TOÁN hoá đơn (quý/bảng kê
+  lớn → nâng `opus`) · agent THƯ KÝ họp (JSON 10 mục) · agent BÁM TEMPLATE (custom).
+- **`model: opus`** — agent cần SUY LUẬN SÂU: CHIẾN LƯỢC/PM (OKR-roadmap, đối chiếu OKR ↔ sprint, Bước 5c)
+  · GEO Analyst (chấm 8 chiều, WF20).
+- **Fallback an toàn:** môi trường không hỗ trợ tham số `model` → bỏ qua, kế thừa model phiên — KHÔNG fail,
+  KHÔNG dừng báo cáo vì thiếu model.
+- Ghi chú kèm: các bước script (`import_*`/`build_report`/`send_report`) là Python thuần 0 token — tốc độ
+  KHÔNG phụ thuộc model; lịch nền headless vẫn `--ai-confirmed` (không dùng model).
+- File sửa: CLAUDE.md (hàng trigger báo cáo) · `workflows/14-progress-report.md` (Bước 1.5) ·
+  `workflows/20-geo-strategy.md` (Bước 3) · skill `claude-knowledge-daily-report` (6 mốc spawn) ·
+  skill `claude-knowledge-geo-strategy`.
+- **CORE-only** — không migration, DATA giữ nguyên.
+
+---
+
 ## v2.16.7 "Claude-1" — 2026-07-02  🔧 FIX UPDATE bản cài SKILL + force luồng báo cáo ở CLAUDE.md
 
 **Fix triệt để "cập nhật phiên bản" cho bản cài SKILL/registered (cài từ installer/git — project chỉ có CLAUDE.md + `Skill/` + DATA, KHÔNG có `scripts/`/`version.json`).**
