@@ -24,8 +24,13 @@ The user invoked `/claude-knowledge-send-mail` — gửi email báo cáo tiến 
    - **[Gửi ngay]:**
      a. **CỔNG MẬT KHẨU vận hành `KORA_OPS_PW`** → `python3 tools/archive-gate/verify_ops_password.py`
         (đọc env **HOẶC** `~/.config/claude-knowledge/ops-pw.env` — đặt 1 lần bằng `/claude-knowledge-ops-password`; **KHÔNG hỏi qua card, KHÔNG in**). Exit ≠ 0 → **DỪNG**.
-     b. **Kênh gửi — ƯU TIÊN TỰ ĐỘNG GỬI:** AskUserQuestion **[Gửi tự động (SMTP / Gmail App Password) — khuyến nghị]**
-        / **[Tạo nháp gửi tay (MCP)]**. Gmail **dùng App Password qua SMTP** = auto-send (KHÔNG phải draft). Mặc định auto.
+     b. **Kênh gửi — ƯU TIÊN TỰ ĐỘNG GỬI (headless):** AskUserQuestion (3 lựa chọn):
+        - **[Gửi tự động (SMTP → Gmail API) — KHUYẾN NGHỊ]** = `send_report.py --transport auto`: **banner CID + đính kèm
+          dashboard**, chạy được **cả LỊCH NỀN**. Gmail App Password qua SMTP → auto-send (KHÔNG phải draft).
+        - **[Gửi qua Composio (MCP Gmail) — chỉ TƯƠNG TÁC]** → nhánh ▸ Composio (d2). ⚠️ **KHÔNG có banner ảnh inline (CID)**
+          + **KHÔNG dùng được cho lịch nền** (MCP cần app mở; orchestrator/cron headless không gọi được).
+        - **[Tạo nháp gửi tay (MCP Gmail draft)]** = fallback phụ.
+        **Mặc định auto** (SMTP→Gmail API). (Thẻ: `header` ≤12 ký tự vd "Kênh gửi", mỗi option có `description`, `multiSelect:false`.)
      c. **FULL-SCAN MỚI NHẤT — VỚI MỖI nguồn đã chọn, route theo `method` (vòng lặp, GHI ĐÈ, tích lũy CÙNG vault):**
         - **api** (jira_server/jira_cloud): đặt env đúng instance `JIRA_BASE_URL=<entry.base_url>` (+ `JIRA_AUTH_MODE=server`
           nếu jira_server; token shell env hoặc `JIRA_ENV_FILE=<creds.dotenv_path>`) → `import_jira.py --jql "project in (<KEYS>)"`
@@ -75,6 +80,22 @@ The user invoked `/claude-knowledge-send-mail` — gửi email báo cáo tiến 
             **Terminal** chạy: `bash "reports/claude-knowledge-send-mail.command"` (hoặc dán lệnh hiện ra) → gửi luôn báo cáo vừa tạo —
             terminal CHỈ gửi, không build lại."* (Đây là cách "tiếp tục việc dang dở ở Cowork, gửi mail luôn".)
           - **`SMTP_AUTH_FAILED`** → KHÔNG bàn giao vô ích; nhắc **sửa App Password** (16 ký tự) trong `tools/report-mailer/.env.local` rồi gửi lại.
+     d2. **▸ GỬI QUA COMPOSIO (MCP Gmail) — chỉ khi user chọn ở 4.b; TƯƠNG TÁC, KHÔNG dùng cho lịch nền:**
+        - **Prereq:** Composio MCP kết nối + toolkit **gmail** ACTIVE. Kiểm bằng `COMPOSIO_SEARCH_TOOLS`
+          (use_case "send an email via gmail") → xem `toolkit_connection_statuses[].has_active_connection`. Chưa active →
+          `COMPOSIO_MANAGE_CONNECTIONS` action=add name=gmail → show redirect_url → `COMPOSIO_WAIT_FOR_CONNECTIONS`.
+        - **Thân mail = ĐỌC `reports/email-body-latest.html`** (bản CÓ nội dung report + AI card; **KHÔNG** dùng
+          `progress-report-latest.html` dashboard). ⚠️ **Banner `cid:kora-banner` KHÔNG hiển thị qua Composio** (Composio Gmail
+          chỉ nhận body HTML + đính kèm S3-key, không có ảnh inline CID) → chấp nhận **mất banner ảnh** (chữ/card vẫn đúng).
+        - **Tiêu đề** = đọc `reports/_subject-latest.txt` (build_report ghi theo loại); thiếu → theo loại report.
+        - ✋ **confirm** → gửi **RIÊNG từng người** (như `--split`, mỗi mail 1 To, không thấy nhau): với MỖI người,
+          `COMPOSIO_MULTI_EXECUTE_TOOL` gọi **GMAIL_SEND_EMAIL** `{recipient_email:"<1 người>", subject:"<tiêu đề>",
+          body:"<HTML email-body>", is_html:true}` (cc/bcc là **ARRAY** nếu có — pitfall Composio). Muốn user **duyệt trước**:
+          `GMAIL_CREATE_EMAIL_DRAFT` (is_html=true) → `GMAIL_SEND_DRAFT` bằng draft_id trả về (KHÔNG bịa id).
+        - **Đính kèm dashboard:** Composio nhận đính kèm qua **s3key** (không phải path local) → phải upload trước;
+          không upload → gửi **body-only** (bỏ đính kèm) và **báo user rõ** là mail Composio không kèm dashboard.
+        - Xong → ghi entry `gmail_composio__mcp` (status connected) qua `check_connection.py --record-result … --confirm` nếu muốn vào sổ.
+        - **Nếu user chọn [Đặt lịch] mà kênh là Composio → KHÔNG được** (nền headless không có MCP) → hạ về SMTP/Gmail API.
         - **[Tạo nháp] = fallback PHỤ** (chỉ khi user chủ động chọn): tạo NHÁP Gmail/Outlook qua MCP → user bấm gửi.
    - **[Đặt lịch]:**
      a0. **Nếu nguồn Jira đã chọn là MCP-only** (method=mcp, vd `atlassian`/`jira_cloud` MCP) → **KHÔNG dead-end:**

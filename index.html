@@ -290,7 +290,7 @@
     <div class="brand" data-go="home" title="Trang chủ">
       <span class="brandmark" aria-hidden="true">K</span>
       <span class="org">FPT TELECOM</span>
-      <div class="fw">Claude Knowledge AI<span>v2.16.2 · Claude-1</span></div>
+      <div class="fw">Claude Knowledge AI<span>v2.16.3 · Claude-1</span></div>
     </div>
     <nav class="nav">
       <div class="grp">Tổng quan</div>
@@ -316,7 +316,7 @@
     <!-- ===================== HOME ===================== -->
     <div class="page" id="home">
       <header class="hero">
-        <span class="badge">FPT Telecom · Claude Knowledge AI · v2.16.2 · &ldquo;Claude-1&rdquo;</span>
+        <span class="badge">FPT Telecom · Claude Knowledge AI · v2.16.3 · &ldquo;Claude-1&rdquo;</span>
         <h1>Claude Knowledge AI — Sơ đồ nguyên lý hoạt động</h1>
         <p class="sub">Trợ lý tri thức tự lớn lên cùng dự án: hợp nhất tri thức phân tán, nối tri thức local của nhân viên với <b>Knowledge Base</b> chung (trên Cloud), và tự động hóa đồng bộ — báo cáo — cảnh báo.</p>
         <div class="pipe">
@@ -1665,11 +1665,20 @@ Business rule: tổng qty ≤ 100/đơn (BR-07).</td>
       <div class="phead"><div class="pl">I · Release Note</div><h1><span class="em">🆕</span>Lịch sử phiên bản</h1></div>
       <p class="lead">Lịch sử bản <b>APP</b> (CORE: skills, workflows, tools…). Cập nhật: chạy lại lệnh cài (bash CLI, tab <a data-go="install" style="cursor:pointer">C</a>) — <b>tri thức của bạn được giữ nguyên</b> (DATA không bị đụng).</p>
 
-      <div class="callout ok"><span>🆕</span><div><b>Bản mới nhất (latest): <code>v2.16.2</code> — "Claude-1"</b> · phát hành 2026-07-01. Danh sách đầy đủ ở <a href="https://github.com/isc-fkit/Kora-Framework/blob/release/CHANGELOG.md">CHANGELOG.md</a>.</div></div>
+      <div class="callout ok"><span>🆕</span><div><b>Bản mới nhất (latest): <code>v2.16.3</code> — "Claude-1"</b> · phát hành 2026-07-01. Danh sách đầy đủ ở <a href="https://github.com/isc-fkit/Kora-Framework/blob/release/CHANGELOG.md">CHANGELOG.md</a>.</div></div>
 
       <div class="card" style="border-color:var(--accent)">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
-          <b style="font-size:16px">v2.16.2 — "Claude-1" <span style="display:inline-block;margin-left:6px;padding:2px 9px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;font-size:10.5px;font-weight:800;vertical-align:2px">MỚI NHẤT ✨</span></b><span style="color:var(--faint);font-size:12.5px">2026-07-01</span>
+          <b style="font-size:16px">v2.16.3 — "Claude-1" <span style="display:inline-block;margin-left:6px;padding:2px 9px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;font-size:10.5px;font-weight:800;vertical-align:2px">MỚI NHẤT ✨</span></b><span style="color:var(--faint);font-size:12.5px">2026-07-01</span>
+        </div>
+        <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
+          <li><b>✨ Thêm kênh gửi mail Composio (MCP Gmail)</b> — khi báo cáo hỏi "gửi qua đâu" nay có lựa chọn <b>[Composio (MCP Gmail)]</b> bên cạnh SMTP→Gmail API. Kênh <b>tương tác</b> (không dùng cho lịch nền; không có banner ảnh inline CID). CORE-only, DATA giữ nguyên.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
+          <b style="font-size:16px">v2.16.2 — "Claude-1"</b><span style="color:var(--faint);font-size:12.5px">2026-07-01</span>
         </div>
         <ul style="margin:8px 0 0;color:var(--muted);font-size:13.6px">
           <li><b>✨ Connect Gmail SMTP mượt hơn</b> — Claude hỏi thẳng qua <b>card</b> 2 trường không bí mật: <b>email người gửi</b> + <b>tiêu đề mail</b> (gợi ý + ô "Other"). <b>App Password vẫn qua FILE</b> (`.env.local`) — không bao giờ nhập password vào chat/card. Claude tự tạo + điền sẵn file, để placeholder đúng dòng <code>SMTP_PASS</code> cho user dán. CORE-only, DATA giữ nguyên.</li>

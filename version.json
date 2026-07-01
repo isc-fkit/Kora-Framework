@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.16.2",
+  "version": "2.16.3",
   "codename": "Claude-1",
   "released": "2026-07-01",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.16.2 — LUỒNG CONNECT Gmail SMTP: Claude HỎI THẲNG qua card (AskUserQuestion) 2 trường KHÔNG bí mật — email người gửi (SMTP_USER) + tiêu đề mail mặc định (MAIL_FROM_NAME) — gợi ý sẵn + ô 'Other' cho user gõ thẳng. App Password (mật khẩu) TUYỆT ĐỐI KHÔNG qua card/chat (lộ secret): Claude TỰ TẠO + điền sẵn file tools/report-mailer/.env.local (SMTP_USER/MAIL_FROM/MAIL_FROM_NAME từ card), để PLACEHOLDER đúng dòng SMTP_PASS cho user dán App Password THẲNG VÀO FILE → present file kèm đường dẫn + cách mở nhanh. Verify send_report.py --check. Trải nghiệm 'điền form' cho email+tiêu đề, password vẫn an toàn trong env (rule #8). CORE-only (skill claude-knowledge-connect), không migration, DATA giữ nguyên. Nền v2.16.1 (vá 3 lỗi check_connection.py)."
+  "intro": "Kora-Framework v2.16.3 — THÊM KÊNH GỬI MAIL 'Composio (MCP Gmail)'. Khi báo cáo/gửi mail hỏi 'gửi qua đâu' (skill claude-knowledge-send-mail Bước 4.b), nay có 3 lựa chọn: [Gửi tự động SMTP→Gmail API — khuyến nghị] · [Composio (MCP Gmail) — chỉ TƯƠNG TÁC] · [Tạo nháp gửi tay]. Nhánh Composio: kiểm toolkit gmail ACTIVE (COMPOSIO_SEARCH_TOOLS) → đọc reports/email-body-latest.html + tiêu đề _subject-latest.txt → GMAIL_SEND_EMAIL (is_html=true) hoặc CREATE_DRAFT+SEND_DRAFT, gửi RIÊNG từng người (cc/bcc là ARRAY). GIỚI HẠN nêu rõ trong skill: (1) chỉ TƯƠNG TÁC — KHÔNG dùng cho lịch nền (orchestrator/cron headless không có MCP → hạ về SMTP/Gmail API); (2) KHÔNG có banner ảnh inline CID (Composio Gmail chỉ nhận body HTML + đính kèm s3key). CORE-only (skill send-mail), không migration, DATA giữ nguyên. Nền v2.16.2 (connect Gmail SMTP hỏi email+tiêu đề qua card)."
 }

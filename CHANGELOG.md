@@ -10,6 +10,24 @@
 
 ---
 
+## v2.16.3 "Claude-1" — 2026-07-01  ✨ TÍNH NĂNG MỚI
+
+**Thêm kênh gửi mail "Composio (MCP Gmail)" vào luồng gửi báo cáo.**
+
+- **Skill `/claude-knowledge-send-mail` Bước 4.b** — khi hỏi "gửi qua đâu" nay có **3 lựa chọn**:
+  - **[Gửi tự động (SMTP → Gmail API)]** — khuyến nghị: banner CID + đính kèm dashboard, chạy được **cả lịch nền**.
+  - **[Composio (MCP Gmail)]** — kênh **TƯƠNG TÁC**: kiểm toolkit `gmail` ACTIVE (`COMPOSIO_SEARCH_TOOLS`) → đọc
+    `reports/email-body-latest.html` + tiêu đề `_subject-latest.txt` → `GMAIL_SEND_EMAIL` (`is_html=true`) hoặc
+    `GMAIL_CREATE_EMAIL_DRAFT`+`GMAIL_SEND_DRAFT`; gửi **riêng từng người** (cc/bcc là ARRAY — pitfall Composio).
+  - **[Tạo nháp gửi tay]** — fallback phụ.
+- **GIỚI HẠN nêu rõ trong skill:** Composio **(1)** chỉ TƯƠNG TÁC — **KHÔNG dùng cho lịch nền** (orchestrator/cron
+  headless không gọi được MCP → tự hạ về SMTP/Gmail API); **(2)** **KHÔNG có banner ảnh inline (CID)** — Composio Gmail
+  chỉ nhận body HTML + đính kèm qua s3key (không phải path local).
+- **CORE-only** (chỉ skill `claude-knowledge-send-mail`) — **không migration**, DATA giữ nguyên. Registry
+  `gmail_composio__mcp` = DATA per-user (không ship trong release).
+
+---
+
 ## v2.16.2 "Claude-1" — 2026-07-01  ✨ CẢI TIẾN UX
 
 **Luồng connect Gmail SMTP: hỏi email người gửi + tiêu đề qua CARD (nhập thẳng vào ô), password vẫn qua FILE.**
