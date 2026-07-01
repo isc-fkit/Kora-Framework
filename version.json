@@ -1,9 +1,9 @@
 {
   "name": "Kora-Framework",
-  "version": "2.16.4",
+  "version": "2.16.5",
   "codename": "Claude-1",
   "released": "2026-07-01",
   "repo": "https://github.com/isc-fkit/Kora-Framework",
   "force": false,
-  "intro": "Kora-Framework v2.16.4 — THÊM NGUỒN DỮ LIỆU 'Google Sheet qua Composio' cho báo cáo. Luồng báo cáo (claude-knowledge-daily-report): ① hỏi LOẠI báo cáo (Bước 1b) → ② hỏi NGUỒN dữ liệu (Bước 2). Nhóm nguồn thứ 3 đổi thành [Bảng tính (Excel / Google Sheet)] — Bước 2a sub-hỏi [Local .xlsx] / [Google Sheet (Composio)]. Nhánh Google Sheet: COMPOSIO_SEARCH_TOOLS kiểm googlesheets ACTIVE → GOOGLESHEETS_SEARCH_SPREADSHEETS (tìm theo tên) / GET_SHEET_NAMES (chọn tab) → GOOGLESHEETS_BATCH_GET đọc theo khối 10000 dòng → chuẩn hoá ragged rows → reports/_sheet-<id>.csv → import_excel.py --from-rows --source-id gsheet_<id> (tái dùng path CSV có sẵn). GIỚI HẠN: Composio = TƯƠNG TÁC (MCP) — KHÔNG dùng cho lịch nền (nền headless dùng Jira/SharePoint-Graph/Local). Đồng bộ skill daily-report + workflows/14. CORE-only, không migration, DATA giữ nguyên. Nền v2.16.3 (kênh gửi mail Composio)."
+  "intro": "Kora-Framework v2.16.5 — FORCE LUỒNG BÁO CÁO → TỰ ĐỘNG GỬI MAIL 1 mạch: (1) hỏi LOẠI báo cáo → (2) hỏi NGUỒN — nay LIỆT KÊ ĐỘNG ĐẦY ĐỦ mọi nguồn ĐANG kết nối (mỗi instance Jira · SharePoint · Google Sheet Composio · Local Excel — dựng từ check_connection --list + dò MCP; >4 phân trang; multiSelect phẳng thay vì gom nhóm) → (3) SUB-AGENT chuyên biệt phân tích + tạo báo cáo (tiến độ=3 agent ops · tài chính=kế toán · họp=thư ký · custom=template) → (4) hỏi NGƯỜI NHẬN + TIÊU ĐỀ → (5) GỬI (SMTP→Gmail API / Composio) → (6) MỚI: NGAY SAU KHI GỬI XONG BẮT BUỘC hỏi [Đặt lịch tự động hằng ngày]/[Thôi] → schedule.py register (đóng vòng tự động hóa). Sửa skill daily-report + send-mail + workflows/14 khớp nhau. CORE-only, không migration, DATA giữ nguyên. Nền v2.16.4 (nguồn Google Sheet Composio)."
 }

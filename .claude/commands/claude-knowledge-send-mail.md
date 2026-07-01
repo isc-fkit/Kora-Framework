@@ -97,6 +97,10 @@ The user invoked `/claude-knowledge-send-mail` — gửi email báo cáo tiến 
         - Xong → ghi entry `gmail_composio__mcp` (status connected) qua `check_connection.py --record-result … --confirm` nếu muốn vào sổ.
         - **Nếu user chọn [Đặt lịch] mà kênh là Composio → KHÔNG được** (nền headless không có MCP) → hạ về SMTP/Gmail API.
         - **[Tạo nháp] = fallback PHỤ** (chỉ khi user chủ động chọn): tạo NHÁP Gmail/Outlook qua MCP → user bấm gửi.
+     e. **🔁 NGAY SAU KHI GỬI XONG (BẮT BUỘC — KHÔNG bỏ qua) → HỎI ĐẶT LỊCH TỰ ĐỘNG:** AskUserQuestion header "Đặt lịch"
+        **[Đặt lịch tự động hằng ngày] / [Thôi]**. **[Đặt lịch]** → đi tiếp mục **[Đặt lịch]** bên dưới (hỏi giờ/tần suất →
+        `schedule.py register … --email "<đúng list vừa gửi>"` → VERIFY `schedule.py list`). **[Thôi]** → kết thúc. Đây là bước
+        ĐÓNG VÒNG tự động hóa — luôn hỏi sau khi gửi thành công. (Nguồn MCP-only/Composio không chạy nền → lịch dùng nguồn API/SMTP.)
    - **[Đặt lịch]:**
      a0. **Nếu nguồn Jira đã chọn là MCP-only** (method=mcp, vd `atlassian`/`jira_cloud` MCP) → **KHÔNG dead-end:**
         AskUserQuestion **[A]** kết nối Jira qua **API** (`/claude-knowledge-connect`) rồi lịch HĐH nền 24/7 (auto-mail SMTP — khuyến

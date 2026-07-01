@@ -35,18 +35,19 @@ Windows `py`). **Exit ≠ 0 → DỪNG**: không làm mới, không sinh report.
 > **BẮT BUỘC** đã qua cổng mật khẩu **VÀ** đã `AskUserQuestion` chọn nguồn. KHÔNG "tự đủ dữ liệu rồi build". 🔒 `build_report`
 > TỪ CHỐI nếu vault >1 nguồn mà thiếu `--source-ids`.
 
-> 🎯 **CÂU HỎI ĐẦU TIÊN — chọn NHÓM NGUỒN, multiSelect=true, ĐÚNG 3 NHÓM CỐ ĐỊNH (LUÔN đủ cả 3):**
-> **[Jira] · [SharePoint] · [Local Excel]** (+ **[Tất cả]**).
-> - ⛔ **KHÔNG dựng câu này từ `check_connection`** (đó là bước drill). **KHÔNG** liệt kê nguồn Jira cụ thể ở đây. **KHÔNG** bỏ SharePoint. **KHÔNG** single-select.
-> - 📎 **SharePoint LUÔN hiện** nếu M365 MCP khả dụng (`sharepoint_search`/`sharepoint_folder_search`) — qua connector M365, KHÔNG nằm trong `connections:`, đừng vì thế mà bỏ.
-> - ⚖️ **Chỉ GỘP khi chọn ≥2 nhóm**; chọn 1 nhóm → báo cáo CHỈ nhóm đó (không tự kéo Jira khi user chỉ chọn SharePoint).
+> 🎯 **CÂU HỎI ĐẦU TIÊN — HỎI NGUỒN, LIỆT KÊ ĐỘNG ĐẦY ĐỦ mọi nguồn ĐANG kết nối, multiSelect=true.**
+> Dựng danh sách (chỉ ĐỌC): `check_connection.py --list --json` → **mỗi instance Jira 1 mục** (`[Jira·API] host` / `[Jira·MCP] host`);
+> **SharePoint** nếu M365 MCP khả dụng (`sharepoint_search`); **Google Sheet (Composio)** nếu `COMPOSIO_SEARCH_TOOLS` báo `googlesheets` active;
+> **Local Excel** (`excel__local`/đường dẫn). AskUserQuestion liệt kê ĐÚNG nguồn tìm được + **[Tất cả]**; **>4 → phân trang**.
+> - ⛔ Chỉ ĐỌC registry/COMPOSIO_SEARCH để DỰNG card — KHÔNG scan/import/build TRƯỚC khi user chọn. KHÔNG single-select.
+> - ⚖️ **Chỉ GỘP khi chọn ≥2 nguồn**; chọn 1 nguồn → báo cáo CHỈ nguồn đó.
 >
-> **Rồi DRILL từng nhóm đã chọn** (giờ mới đọc `check_connection.py --list`):
-> - **[Jira]** → multi-select nguồn `jira_*`/`atlassian` (kèm MCP/API + domain) → project.
+> **Rồi DRILL từng NGUỒN đã chọn:**
+> - **[Jira·API|MCP] `<instance>`** → chọn **PROJECT** (API `import_jira.py --list-projects` / MCP `getVisibleJiraProjects`) → multi-select.
 > - **[SharePoint] — BẮT BUỘC HỎI 2 BƯỚC, KHÔNG tự quét "file mới nhất":** ① `sharepoint_folder_search` → user chọn (các) **FOLDER**; ② `sharepoint_search folderName=<folder>` → user chọn (các) **FILE** (folder có thể có file REPORT task-data và/hoặc file MEETING/Standing-Meeting/OKR `.pptx/.docx` → để user chọn loại nào/cả 2).
->   🔎 **Ô "Other" = TÌM THEO KEYWORD/TÊN FILE:** user gõ keyword (vd `standing meeting`) → `sharepoint_search query="<keyword>"` (tìm theo tên toàn site, có thể kèm `folderName`) → liệt kê khớp → chọn. Dùng khi biết tên file (nhanh hơn duyệt folder).
-> - **[Bảng tính (Excel / Google Sheet)]** → sub-hỏi **[Local .xlsx]** (`excel__local`/đường dẫn) hoặc **[Google Sheet (Composio)]**
->   (dán URL/ID hoặc gõ tên → `GOOGLESHEETS_SEARCH_SPREADSHEETS`; nhiều tab → `GOOGLESHEETS_GET_SHEET_NAMES`). ⚠️ Composio = TƯƠNG TÁC (không dùng lịch nền).
+>   🔎 **Ô "Other" = TÌM THEO KEYWORD/TÊN FILE:** user gõ keyword (vd `standing meeting`) → `sharepoint_search query="<keyword>"` (tìm theo tên toàn site, có thể kèm `folderName`) → liệt kê khớp → chọn.
+> - **[Local Excel]** → `excel__local`/đường dẫn → chọn file.
+> - **[Google Sheet (Composio)]** → dán URL/ID hoặc gõ tên → `GOOGLESHEETS_SEARCH_SPREADSHEETS`; nhiều tab → `GOOGLESHEETS_GET_SHEET_NAMES`. ⚠️ Composio = TƯƠNG TÁC (không dùng lịch nền).
 > **Mốc "dữ liệu mới"** = các mục có `updated >= last_import` (mốc RIÊNG mỗi nguồn ở `_system/last-import-<nguồn>.txt`); chưa có
 > → kéo full. **Báo RÕ:** *"Đang lấy dữ liệu của `<nguồn>` từ mốc `<last_import>`."* (Nguồn Jira chưa quét lần nào → báo cần quét trước.)
 

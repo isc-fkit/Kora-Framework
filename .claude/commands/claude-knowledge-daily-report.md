@@ -7,11 +7,13 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
 > 🛑🛑 **GIAO THỨC BẮT BUỘC — KHÔNG NHẢY BƯỚC, KHÔNG TỰ ĐỘNG QUÉT/BUILD.** Khi mở skill này, hành động HỢP LỆ DUY NHẤT,
 > ĐÚNG THỨ TỰ: **(1)** cổng mật khẩu `verify_ops_password.py`; **(2)** **AskUserQuestion chọn LOẠI REPORT**
 > (**5 loại** — Bước 1b: Tiến độ · Cuộc họp · Tiến độ+Meeting+Roadmap/OKR · Báo cáo tài chính · Custom); **(3)** nếu LOẠI = **Tiến độ** →
-> **AskUserQuestion chọn NGUỒN** (3 nhóm cố định **[Jira · SharePoint · Bảng tính (Excel/Google Sheet)]**, multiSelect); nếu = **Hoá đơn/Custom**
-> → nguồn là note `source: invoice` (nạp ảnh hoá đơn nếu chưa có, Bước 1b), KHÔNG hỏi 3 nhóm. **🛑 SAU mỗi câu → DỪNG, CHỜ user.**
-> ⛔ **TUYỆT ĐỐI KHÔNG gọi BẤT KỲ tool nào khác trước khi user trả lời câu chọn nguồn** — CẤM ĐÍCH DANH:
-> `check_connection.py`, `sharepoint_search`, `sharepoint_folder_search`, `getVisibleJiraProjects`,
-> `searchJiraIssuesUsingJql`, `import_jira.py`, `import_excel.py`, `build_report.py`, `read_resource`.
+> **AskUserQuestion chọn NGUỒN — LIỆT KÊ ĐỘNG ĐẦY ĐỦ mọi nguồn ĐANG kết nối** (Jira mỗi instance · SharePoint · Google Sheet
+> (Composio) · Local Excel — dựng từ `check_connection.py --list` + dò MCP; **>4 → phân trang**; multiSelect); nếu = **Hoá đơn/Custom**
+> → nguồn là note `source: invoice` (nạp ảnh hoá đơn nếu chưa có, Bước 1b), KHÔNG hỏi nguồn. **🛑 SAU mỗi câu → DỪNG, CHỜ user.**
+> ⛔ **TUYỆT ĐỐI KHÔNG SCAN/IMPORT/BUILD trước khi user trả lời câu chọn nguồn** — CẤM ĐÍCH DANH:
+> `sharepoint_search`, `sharepoint_folder_search`, `getVisibleJiraProjects`, `searchJiraIssuesUsingJql`, `import_jira.py`,
+> `import_excel.py`, `GOOGLESHEETS_BATCH_GET`, `build_report.py`, `read_resource`. **CHỈ ĐƯỢC** `check_connection.py --list --json`
+> + `COMPOSIO_SEARCH_TOOLS` (dò `googlesheets` active) để **DỰNG CARD nguồn** — KHÔNG dùng để quét dữ liệu.
 > ❌ Nếu bạn nghĩ "đã đủ dữ liệu, tạo báo cáo HTML ngay" mà **CHƯA hề gọi AskUserQuestion chọn nguồn** trong phiên này →
 > **ĐÓ LÀ LỖI NGHIÊM TRỌNG**, dừng lại và quay về (2). 🔒 Backstop: `build_report.py` **TỪ CHỐI build** nếu vault có
 > >1 nguồn mà thiếu `--source-ids` → bạn KHÔNG thể ra report khi chưa hỏi nguồn.
@@ -97,16 +99,22 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
    > 📧 Gửi report Hoá đơn/Custom: report ĐÃ **inline-styled (email-safe)** → gửi THẲNG làm BODY (giữ nguyên định dạng ở Gmail/Outlook):
    > `send_report.py --html-file reports/invoice-report-latest.html --attach reports/invoice-report-latest.html` (qua cổng `KORA_OPS_PW`).
    > **KHÔNG** dùng `email-body-latest.html` ở đây (đó là body của report TIẾN ĐỘ, không phải tài chính).
-2. **(CHỈ khi LOẠI report = Tiến độ) — chọn NHÓM NGUỒN, multiSelect=true.** AskUserQuestion với **ĐÚNG 3 NHÓM CỐ ĐỊNH**
-   (LUÔN hiện đủ cả 3, theo thứ tự): **[Jira] · [SharePoint] · [Bảng tính (Excel / Google Sheet)]** (+ **[Tất cả]**).
-   > 📊 **Nhóm [Bảng tính]** gồm **Local .xlsx** VÀ **Google Sheet qua Composio** — hỏi cụ thể ở Bước 2a (đừng nhồi >4 option vào card này).
-   - ⛔ **KHÔNG dựng câu này từ `check_connection.py`** (đó là bước 2a). **KHÔNG** liệt kê nguồn Jira cụ thể (Jira Cloud/Server)
-     ở câu này. **KHÔNG** bỏ SharePoint. **KHÔNG** để single-select.
-   - 📎 **SharePoint LUÔN là 1 lựa chọn** nếu **M365 MCP khả dụng** (có tool `sharepoint_search`/`sharepoint_folder_search`)
-     — nó qua **connector M365**, KHÔNG nằm trong `connections:`/`check_connection`, nên đừng vì "không thấy trong connections" mà bỏ.
-   - Đây là câu hỏi ĐẦU TIÊN sau cổng mật khẩu — KHÔNG mặc định/tự chọn Jira rồi chạy. (Chỉ bỏ hỏi khi có ĐÚNG 1 nhóm khả dụng.)
-2a. **Với MỖI nhóm đã chọn → MỚI hỏi nguồn cụ thể của nhóm đó** (giờ mới đọc `check_connection.py --list --json`):
-   - **[Jira]** → liệt kê entry `jira_*`/`atlassian` (nhãn `[Jira·MCP] foxproject` / `[Jira·API] jira.fptmedicare.vn`) → multi-select **nguồn Jira nào**.
+2. **(CHỈ khi LOẠI report = Tiến độ) — HỎI NGUỒN, LIỆT KÊ ĐỘNG ĐẦY ĐỦ mọi nguồn ĐANG kết nối, multiSelect=true.**
+   **① DỰNG DANH SÁCH nguồn (chỉ ĐỌC, KHÔNG scan/import):**
+   - `check_connection.py --list --json` → MỖI entry Jira (`jira_*`/`atlassian`) = 1 mục, nhãn rõ instance:
+     `[Jira·API] jira.fptmedicare.vn` / `[Jira·MCP] foxproject`. (2 Jira = 2 mục riêng, KHÔNG gộp.)
+   - **SharePoint** → mục `[SharePoint]` nếu **M365 MCP khả dụng** (có tool `sharepoint_search`/`sharepoint_folder_search`) —
+     connector M365 KHÔNG nằm trong `connections:`, đừng vì "không thấy trong sổ" mà bỏ.
+   - **Google Sheet (Composio)** → mục `[Google Sheet (Composio)]` nếu `COMPOSIO_SEARCH_TOOLS` báo toolkit `googlesheets` ACTIVE.
+   - **Local Excel** → mục `[Local Excel]` (entry `excel__local` hoặc luôn cho phép nhập đường dẫn .xlsx).
+   **② AskUserQuestion multiSelect** liệt kê **ĐÚNG các nguồn tìm được** (mỗi nguồn 1 option, kèm nhãn method) + **[Tất cả]**.
+   - **>4 nguồn → PHÂN TRANG** (3 mục + `[Khác — xem thêm]` → lượt kế), **KHÔNG nhồi >4 option/thẻ** (rule #8).
+   - ⛔ Chỉ ĐỌC registry/COMPOSIO_SEARCH để DỰNG card — **KHÔNG** getVisibleJiraProjects / sharepoint_search folder /
+     import_* / BATCH_GET / build_report TRƯỚC khi user chọn. **KHÔNG** để single-select. **KHÔNG** tự chọn rồi chạy.
+   - Đây là câu ĐẦU TIÊN sau cổng mật khẩu. (Chỉ bỏ hỏi khi có ĐÚNG 1 nguồn khả dụng.)
+2a. **Với MỖI NGUỒN đã chọn ở Bước 2 → DRILL chi tiết** (project / folder+file / tab):
+   - **[Jira·API|MCP] `<instance>`** → chọn **PROJECT** trong đúng instance đó: API → `import_jira.py --list-projects` (env instance) ·
+     MCP → `getVisibleJiraProjects` → AskUserQuestion multi-select project (+ **[Chọn tất cả]**).
    - **[SharePoint] — BẮT BUỘC HỎI 2 BƯỚC, TUYỆT ĐỐI KHÔNG tự quét "file mới nhất":**
      **① HỎI FOLDER**: `sharepoint_folder_search` → AskUserQuestion liệt kê các folder → user chọn **(các) FOLDER** (multi-select; >4 → phân trang).
        - 🔎 **Ô "Other" = TÌM THEO KEYWORD/TÊN.** Nếu user gõ chữ vào ô "Other" (vd `standing meeting`, `report Q2`) →
@@ -115,11 +123,10 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
      **② HỎI FILE trong folder đó**: `sharepoint_search folderName=<folder>` liệt kê file → AskUserQuestion cho user chọn **(các) file**.
        - 🔎 **Ô "Other" ở đây cũng = keyword/tên file** → `sharepoint_search query="<keyword>" folderName=<folder>` (hoặc bỏ folderName để tìm toàn site) → liệt kê khớp → chọn.
      1 folder có thể có **file REPORT (task data → import thành note)** và/hoặc **file MEETING/Standing-Meeting/OKR (.pptx/.docx — đọc làm BỐI CẢNH roadmap, KHÔNG import task)** — **để user chọn loại nào / cả 2**. KHÔNG tự đoán, KHÔNG tự lấy bản mới nhất.
-   - **[Bảng tính (Excel / Google Sheet)]** → AskUserQuestion **[Local .xlsx] / [Google Sheet (Composio)]**:
-     - **[Local .xlsx]** → entry `excel__local` (hoặc hỏi đường dẫn .xlsx qua ô "Other") → chọn file.
-     - **[Google Sheet (Composio)]** → hỏi **spreadsheet** (AskUserQuestion: dán **URL/ID** vào ô "Other", hoặc gõ **TÊN** →
-       `GOOGLESHEETS_SEARCH_SPREADSHEETS` liệt kê chọn); nhiều tab → `GOOGLESHEETS_GET_SHEET_NAMES` → hỏi chọn **tab**. Token nguồn
-       = `gsheet_<tên>`. ⚠️ Composio = **TƯƠNG TÁC** (MCP) — **KHÔNG dùng cho lịch nền** (nền headless dùng Jira/SharePoint-Graph/Local). Import ở Bước 2a ▸ Google Sheet.
+   - **[Local Excel]** → entry `excel__local` (hoặc hỏi đường dẫn .xlsx qua ô "Other") → chọn file.
+   - **[Google Sheet (Composio)]** → hỏi **spreadsheet** (AskUserQuestion: dán **URL/ID** vào ô "Other", hoặc gõ **TÊN** →
+     `GOOGLESHEETS_SEARCH_SPREADSHEETS` liệt kê chọn); nhiều tab → `GOOGLESHEETS_GET_SHEET_NAMES` → hỏi chọn **tab**. Token nguồn
+     = `gsheet_<tên>`. ⚠️ Composio = **TƯƠNG TÁC** (MCP) — **KHÔNG dùng cho lịch nền** (nền headless dùng Jira/SharePoint-Graph/Local). Import ở nhánh `source_type: gsheet`.
    > **>4 mục → phân trang** (rule #8). Xong nhóm này mới sang nhóm kế.
    > 🏷️ **GHI NHỚ TOKEN NGUỒN của mỗi lựa chọn** (để báo cáo CHỈ gồm nguồn đã chọn — user xác nhận "Chỉ nguồn đã chọn"):
    > **[Jira]** → token `jira`; **mỗi file SharePoint/Local** → import với `--source-id` RÕ RÀNG, nhất quán (vd
@@ -220,13 +227,18 @@ The user invoked `/claude-knowledge-daily-report` — build a progress report.
 > **TUYỆT ĐỐI KHÔNG lấy `progress-report-latest.html` (dashboard/"processing") làm thân mail** — đó CHỈ là **file ĐÍNH KÈM**.
 > Lấy nhầm dashboard làm thân mail = **mất banner + sai UI** (đúng lỗi đang gặp). Luôn: `--html-file reports/email-body-latest.html
 > --attach reports/progress-report-latest.html`. Và **KHÔNG tự dán/chế nội dung mail** — chỉ gửi đúng file email-body qua `send_report.py`.
-- **Sau khi sinh report → đề xuất bước kế (AskUserQuestion, schema rule #8 — header ≤12 ký tự vd "Bước kế"):
-  [Gửi mail ngay] / [Đặt lịch hằng ngày] / [Dừng].**
+- **Sau khi sinh report → đề xuất GỬI MAIL (AskUserQuestion, header ≤12 ký tự vd "Gửi mail"): [Gửi mail ngay] / [Dừng].**
   - **[Gửi mail ngay]** → luồng GỬI của `/claude-knowledge-send-mail` ([Gửi ngay]): cổng `KORA_OPS_PW` →
-    **NGƯỜI NHẬN — LUÔN HỎI** (per-project, như thành viên): AskUserQuestion **[Dùng list email đã lưu cho project này] / [Điều chỉnh lại]**.
+    **NGƯỜI NHẬN + TIÊU ĐỀ — LUÔN HỎI** (per-project): AskUserQuestion **[Dùng list email đã lưu cho project này] / [Điều chỉnh lại]**.
     **[Dùng cũ]** → `reports.project_email.<KEY>` (fallback `reports.email.to`). **[Điều chỉnh]** → nhập **NHIỀU email cách nhau dấu phẩy**
-    (AskUserQuestion gợi ý + ô "Other" — gửi được nhiều người cùng lúc) → **LƯU `reports.project_email.<KEY>`** cho lần sau.
-    → `send_report.py --to "a@x,b@y,…"` (mỗi To = 1 người, không thấy nhau) → **tự dùng Gmail SMTP nếu đã setup** → gửi.
+    (AskUserQuestion gợi ý + ô "Other") → **LƯU `reports.project_email.<KEY>`**. **Tiêu đề:** gợi ý động `reports/_subject-latest.txt` + ô "Other".
+    → `send_report.py --to "a@x,b@y,…"` (mỗi To = 1 người, không thấy nhau) → **Gmail SMTP→API auto** (hoặc Composio nếu user chọn ở Bước 4.b) → gửi.
     **Cowork chặn SMTP → ưu tiên MCP `run_command` GỬI THẲNG; không có → BÀN GIAO bash** (KHÔNG dead-end).
-  - **[Đặt lịch hằng ngày]** → tạo **Cowork scheduled task qua `/schedule`** (theo `workflows/08-schedule-sync.md`
-    Mục B) chạy mỗi ngày: **kéo dữ liệu → sinh report → tự gửi email** tới `reports.email.to` (gửi mail qua cổng `send_report.py --check`).
+  - **🔁 NGAY SAU KHI GỬI XONG (BẮT BUỘC — KHÔNG bỏ qua) → HỎI ĐẶT LỊCH TỰ ĐỘNG:** AskUserQuestion header "Đặt lịch"
+    **[Đặt lịch tự động hằng ngày] / [Thôi]**.
+    - **[Đặt lịch tự động hằng ngày]** → (hỏi nhanh **giờ** gợi ý `08:00` + ô "Other", **tần suất** [Mỗi ngày]/[T2–T6]) →
+      `python3 "$T/kora-scheduler/schedule.py" register --id <slug> --times "<HH:MM>" --days <every|mon-fri> --scan <jira-id>
+      --report-projects "<KEYS>" --report-scope <SCOPE> --report-recent-days <NDAYS> --mail-provider smtp --email "<đúng list vừa gửi>"`
+      → VERIFY `schedule.py list` (xác nhận id xuất hiện) → báo "đã lưu lịch nền, tự kéo dữ liệu → report → gửi mail mỗi ngày".
+      *(Nguồn MCP-only/Composio KHÔNG chạy nền được → lịch nền dùng nguồn API/SMTP; báo user nếu nguồn đã chọn là MCP.)*
+    - **[Thôi]** → kết thúc. (Đây là bước ĐÓNG VÒNG tự động hóa — luôn hỏi sau khi gửi.)

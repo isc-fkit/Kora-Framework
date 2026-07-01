@@ -10,6 +10,22 @@
 
 ---
 
+## v2.16.5 "Claude-1" — 2026-07-01  ✨ CẢI TIẾN LUỒNG (force)
+
+**Force luồng báo cáo → tự động gửi mail thành 1 mạch 6 bước cho MỌI loại báo cáo.**
+
+- **Bước 2 — HỎI NGUỒN nay LIỆT KÊ ĐỘNG ĐẦY ĐỦ mọi nguồn ĐANG kết nối** (thay vì 3 nhóm cố định): đọc
+  `check_connection.py --list` + dò MCP → mỗi **instance Jira** 1 mục (`[Jira·API] host` / `[Jira·MCP] host`) ·
+  `[SharePoint]` (nếu M365 MCP) · `[Google Sheet (Composio)]` (nếu `googlesheets` active) · `[Local Excel]`.
+  AskUserQuestion multiSelect phẳng + `[Tất cả]`; **>4 → phân trang**. Bước 2a drill theo từng nguồn (project/folder+file/tab).
+  Banner cho phép `check_connection --list` + `COMPOSIO_SEARCH_TOOLS` để **dựng card**, vẫn cấm scan/import/build trước khi chọn.
+- **Bước 6 — MỚI: NGAY SAU KHI GỬI XONG, BẮT BUỘC hỏi đặt lịch:** AskUserQuestion **[Đặt lịch tự động hằng ngày] / [Thôi]**
+  → `schedule.py register … --email "<đúng list vừa gửi>"` → VERIFY `schedule.py list`. Đóng vòng tự động hóa (gửi trước → mới hỏi lịch).
+- Các bước đã force sẵn: **(1)** hỏi LOẠI · **(3)** SUB-AGENT chuyên biệt/loại · **(4)** hỏi người nhận + tiêu đề (code-gate `--to`) · **(5)** gửi.
+- **Đồng bộ** skill `daily-report` + `send-mail` + `workflows/14` (khớp nhau). **CORE-only**, không migration, DATA giữ nguyên.
+
+---
+
 ## v2.16.4 "Claude-1" — 2026-07-01  ✨ TÍNH NĂNG MỚI
 
 **Thêm nguồn dữ liệu "Google Sheet qua Composio" cho báo cáo — luồng: hỏi LOẠI báo cáo → hỏi NGUỒN dữ liệu.**
